@@ -12,6 +12,9 @@
     
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Custom CSS -->
     <style>
@@ -158,13 +161,13 @@
                                         管理
                                     </a>
                                     <ul class="dropdown-menu" aria-labelledby="adminDropdown">
-                                        <li><a class="dropdown-item" href="{{ route('users.index') }}">
+                                        <li><a class="dropdown-item" href="{{ route('admin.users.index') }}">
                                             <i class="bi bi-people"></i> ユーザー管理
                                         </a></li>
-                                        <li><a class="dropdown-item" href="{{ route('system.settings') }}">
+                                        <li><a class="dropdown-item" href="{{ route('admin.system.settings') }}">
                                             <i class="bi bi-sliders"></i> システム設定
                                         </a></li>
-                                        <li><a class="dropdown-item" href="{{ route('logs.index') }}">
+                                        <li><a class="dropdown-item" href="{{ route('admin.logs.index') }}">
                                             <i class="bi bi-journal-text"></i> ログ管理
                                         </a></li>
                                         <li><hr class="dropdown-divider"></li>

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\HealthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -79,10 +80,8 @@ Route::middleware(['auth'])->group(function () {
     })->name('my-page');
     
     // Admin routes
-    Route::middleware(['admin'])->group(function () {
-        Route::get('/users', function () {
-            return view('home'); // Temporary redirect to home
-        })->name('users.index');
+    Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
+        Route::resource('users', App\Http\Controllers\UserController::class);
         
         Route::get('/system/settings', function () {
             return view('home'); // Temporary redirect to home
@@ -92,9 +91,9 @@ Route::middleware(['auth'])->group(function () {
             return view('home'); // Temporary redirect to home
         })->name('logs.index');
         
-        Route::get('/admin/dashboard', function () {
+        Route::get('/dashboard', function () {
             return view('home'); // Temporary redirect to home
-        })->name('admin.dashboard');
+        })->name('dashboard');
     });
 });
 
@@ -102,3 +101,7 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// Health check routes (no authentication required)
+Route::get('/health', [HealthController::class, 'index'])->name('health.basic');
+Route::get('/health/detailed', [HealthController::class, 'detailed'])->name('health.detailed');
