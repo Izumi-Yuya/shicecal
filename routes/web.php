@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\FacilityController;
+use App\Http\Controllers\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,11 +18,14 @@ use App\Http\Controllers\FacilityController;
 
 // Public routes
 Route::get('/', function () {
-    return redirect()->route('home');
+    if (auth()->check()) {
+        return redirect()->route('home');
+    }
+    return redirect()->route('login');
 });
 
-// Home route
-Route::get('/home', [HomeController::class, 'index'])->name('home');
+// Home route (requires authentication)
+Route::get('/home', [HomeController::class, 'index'])->name('home')->middleware('auth');
 
 // Placeholder routes for navigation (will be implemented in later tasks)
 Route::middleware(['auth'])->group(function () {
@@ -94,11 +98,7 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
-// Auth routes (will be implemented in task 2.x)
-Route::get('/login', function () {
-    return view('home'); // Temporary redirect to home
-})->name('login');
-
-Route::post('/logout', function () {
-    return redirect()->route('home'); // Temporary redirect to home
-})->name('logout');
+// Auth routes
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

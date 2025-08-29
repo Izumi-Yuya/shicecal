@@ -16,8 +16,7 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-        // Temporarily disable auth middleware for testing
-        // $this->middleware('auth');
+        $this->middleware('auth');
     }
 
     /**
