@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\FacilityController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,13 +26,7 @@ Route::get('/home', [HomeController::class, 'index'])->name('home');
 // Placeholder routes for navigation (will be implemented in later tasks)
 Route::middleware(['auth'])->group(function () {
     // Facilities
-    Route::get('/facilities', function () {
-        return view('home'); // Temporary redirect to home
-    })->name('facilities.index');
-    
-    Route::get('/facilities/create', function () {
-        return view('home'); // Temporary redirect to home
-    })->name('facilities.create');
+    Route::resource('facilities', FacilityController::class);
     
     // Maintenance History
     Route::get('/maintenance', function () {
