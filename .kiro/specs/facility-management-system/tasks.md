@@ -5,14 +5,14 @@
   - 基本的なMVCアーキテクチャの構築とルーティング設定
   - _Requirements: 1.1, 2.1_
 
-- [-] 1.1 Laravel プロジェクトの初期化
+- [x] 1.1 Laravel プロジェクトの初期化
   - Composer を使用してLaravel 9.x プロジェクトを作成
   - 基本的な設定ファイル（.env, config）の構成
   - Git リポジトリの初期化と初回コミット
   - ブランチ戦略の設定（main, develop, feature branches）
   - _Requirements: 1.1_
 
-- [ ] 1.2 データベース設計とマイグレーション作成
+- [x] 1.2 データベース設計とマイグレーション作成
   - users, facilities, files, comments, maintenance_histories, export_favorites, system_settings, activity_logs テーブルのマイグレーション作成
   - 外部キー制約とインデックスの設定
   - マイグレーション実行とテスト
