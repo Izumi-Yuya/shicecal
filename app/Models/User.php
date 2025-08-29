@@ -154,11 +154,15 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if user has specific role
+     * Check if user has specific role(s)
      */
-    public function hasRole($role)
+    public function hasRole($roles)
     {
-        return $this->role === $role;
+        if (is_array($roles)) {
+            return in_array($this->role, $roles);
+        }
+        
+        return $this->role === $roles;
     }
 
     /**
