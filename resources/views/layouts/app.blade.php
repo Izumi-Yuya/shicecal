@@ -54,20 +54,103 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto">
                         @auth
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('facilities.index') }}">
-                                    <i class="bi bi-list-ul"></i>
-                                    施設一覧
+                            <!-- 施設管理 -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="facilityDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-building"></i>
+                                    施設管理
                                 </a>
+                                <ul class="dropdown-menu" aria-labelledby="facilityDropdown">
+                                    <li><a class="dropdown-item" href="{{ route('facilities.index') }}">
+                                        <i class="bi bi-list-ul"></i> 施設一覧
+                                    </a></li>
+                                    @if(auth()->user()->hasRole(['admin', 'editor']))
+                                        <li><a class="dropdown-item" href="{{ route('facilities.create') }}">
+                                            <i class="bi bi-plus-circle"></i> 施設登録
+                                        </a></li>
+                                    @endif
+                                    <li><a class="dropdown-item" href="{{ route('maintenance.index') }}">
+                                        <i class="bi bi-tools"></i> 修繕履歴
+                                    </a></li>
+                                </ul>
                             </li>
-                            @if(auth()->user()->hasRole(['admin', 'editor']))
+
+                            <!-- 出力機能 -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="exportDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-download"></i>
+                                    出力
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                                    <li><a class="dropdown-item" href="{{ route('export.csv') }}">
+                                        <i class="bi bi-filetype-csv"></i> CSV出力
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{{ route('export.pdf') }}">
+                                        <i class="bi bi-filetype-pdf"></i> PDF出力
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{{ route('export.favorites') }}">
+                                        <i class="bi bi-star"></i> お気に入り管理
+                                    </a></li>
+                                </ul>
+                            </li>
+
+                            <!-- コメント・通知 -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="commentDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-chat-dots"></i>
+                                    コメント
+                                    @php
+                                        $unreadCount = auth()->user()->assignedComments()->where('status', 'pending')->count();
+                                    @endphp
+                                    @if($unreadCount > 0)
+                                        <span class="badge bg-danger rounded-pill ms-1">{{ $unreadCount }}</span>
+                                    @endif
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="commentDropdown">
+                                    <li><a class="dropdown-item" href="{{ route('comments.index') }}">
+                                        <i class="bi bi-chat-left-text"></i> コメント一覧
+                                    </a></li>
+                                    @if(auth()->user()->hasRole(['editor', 'primary_responder']))
+                                        <li><a class="dropdown-item" href="{{ route('comments.assigned') }}">
+                                            <i class="bi bi-person-check"></i> 担当コメント
+                                            @if($unreadCount > 0)
+                                                <span class="badge bg-danger rounded-pill ms-1">{{ $unreadCount }}</span>
+                                            @endif
+                                        </a></li>
+                                    @endif
+                                    <li><a class="dropdown-item" href="{{ route('my-page') }}">
+                                        <i class="bi bi-person-circle"></i> マイページ
+                                    </a></li>
+                                </ul>
+                            </li>
+
+                            <!-- 承認機能 -->
+                            @if(auth()->user()->hasRole(['admin', 'approver']))
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('facilities.create') }}">
-                                        <i class="bi bi-plus-circle"></i>
-                                        施設登録
+                                    <a class="nav-link" href="{{ route('approvals.index') }}">
+                                        <i class="bi bi-check-circle"></i>
+                                        承認待ち
+                                        @php
+                                            $pendingCount = \App\Models\Facility::where('status', 'pending_approval')->count();
+                                        @endphp
+                                        @if($pendingCount > 0)
+                                            <span class="badge bg-warning rounded-pill ms-1">{{ $pendingCount }}</span>
+                                        @endif
                                     </a>
                                 </li>
                             @endif
+
+                            <!-- 年次確認 -->
+                            @if(auth()->user()->hasRole(['admin', 'editor']))
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('annual-check.index') }}">
+                                        <i class="bi bi-calendar-check"></i>
+                                        年次確認
+                                    </a>
+                                </li>
+                            @endif
+
+                            <!-- 管理機能 -->
                             @if(auth()->user()->hasRole('admin'))
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -75,9 +158,19 @@
                                         管理
                                     </a>
                                     <ul class="dropdown-menu" aria-labelledby="adminDropdown">
-                                        <li><a class="dropdown-item" href="{{ route('users.index') }}">ユーザー管理</a></li>
-                                        <li><a class="dropdown-item" href="{{ route('system.settings') }}">システム設定</a></li>
-                                        <li><a class="dropdown-item" href="{{ route('logs.index') }}">ログ管理</a></li>
+                                        <li><a class="dropdown-item" href="{{ route('users.index') }}">
+                                            <i class="bi bi-people"></i> ユーザー管理
+                                        </a></li>
+                                        <li><a class="dropdown-item" href="{{ route('system.settings') }}">
+                                            <i class="bi bi-sliders"></i> システム設定
+                                        </a></li>
+                                        <li><a class="dropdown-item" href="{{ route('logs.index') }}">
+                                            <i class="bi bi-journal-text"></i> ログ管理
+                                        </a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}">
+                                            <i class="bi bi-speedometer2"></i> 管理ダッシュボード
+                                        </a></li>
                                     </ul>
                                 </li>
                             @endif

@@ -33,40 +33,70 @@ Route::middleware(['auth'])->group(function () {
         return view('home'); // Temporary redirect to home
     })->name('facilities.create');
     
-    // Users (admin only)
-    Route::get('/users', function () {
+    // Maintenance History
+    Route::get('/maintenance', function () {
         return view('home'); // Temporary redirect to home
-    })->name('users.index');
+    })->name('maintenance.index');
     
-    // System settings (admin only)
-    Route::get('/system/settings', function () {
+    // Export functions
+    Route::get('/export/csv', function () {
         return view('home'); // Temporary redirect to home
-    })->name('system.settings');
+    })->name('export.csv');
     
-    // Logs (admin only)
-    Route::get('/logs', function () {
+    Route::get('/export/pdf', function () {
         return view('home'); // Temporary redirect to home
-    })->name('logs.index');
+    })->name('export.pdf');
     
-    // Profile
-    Route::get('/profile', function () {
+    Route::get('/export/favorites', function () {
         return view('home'); // Temporary redirect to home
-    })->name('profile.show');
+    })->name('export.favorites');
     
-    // My page
-    Route::get('/my-page', function () {
+    // Comments
+    Route::get('/comments', function () {
         return view('home'); // Temporary redirect to home
-    })->name('my-page');
+    })->name('comments.index');
     
-    // CSV export
-    Route::get('/csv/export', function () {
+    Route::get('/comments/assigned', function () {
         return view('home'); // Temporary redirect to home
-    })->name('csv.export');
+    })->name('comments.assigned');
     
     // Approvals
     Route::get('/approvals', function () {
         return view('home'); // Temporary redirect to home
     })->name('approvals.index');
+    
+    // Annual Check
+    Route::get('/annual-check', function () {
+        return view('home'); // Temporary redirect to home
+    })->name('annual-check.index');
+    
+    // Profile and My Page
+    Route::get('/profile', function () {
+        return view('home'); // Temporary redirect to home
+    })->name('profile.show');
+    
+    Route::get('/my-page', function () {
+        return view('home'); // Temporary redirect to home
+    })->name('my-page');
+    
+    // Admin routes
+    Route::middleware(['admin'])->group(function () {
+        Route::get('/users', function () {
+            return view('home'); // Temporary redirect to home
+        })->name('users.index');
+        
+        Route::get('/system/settings', function () {
+            return view('home'); // Temporary redirect to home
+        })->name('system.settings');
+        
+        Route::get('/logs', function () {
+            return view('home'); // Temporary redirect to home
+        })->name('logs.index');
+        
+        Route::get('/admin/dashboard', function () {
+            return view('home'); // Temporary redirect to home
+        })->name('admin.dashboard');
+    });
 });
 
 // Auth routes (will be implemented in task 2.x)
