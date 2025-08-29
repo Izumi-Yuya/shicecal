@@ -25,6 +25,7 @@ class User extends Authenticatable
         'department',
         'access_scope',
         'is_active',
+        'last_login_at',
     ];
 
     /**
@@ -46,6 +47,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'access_scope' => 'array',
         'is_active' => 'boolean',
+        'last_login_at' => 'datetime',
     ];
 
     /**

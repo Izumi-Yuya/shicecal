@@ -230,4 +230,31 @@ class UserManagementTest extends TestCase
         $user = User::where('email', $userData['email'])->first();
         $this->assertEquals($accessScope, $user->access_scope);
     }
+
+    public function test_last_login_tracking()
+    {
+        $user = User::factory()->create([
+            'email' => 'test@example.com',
+            'password' => Hash::make('password123'),
+            'role' => User::ROLE_VIEWER,
+            'is_active' => true,
+            'last_login_at' => null,
+        ]);
+
+        // Verify user has no last login initially
+        $this->assertNull($user->last_login_at);
+
+        // Simulate login
+        $response = $this->post(route('login'), [
+            'email' => 'test@example.com',
+            'password' => 'password123',
+        ]);
+
+        $response->assertRedirect(route('home'));
+
+        // Verify last login was updated
+        $user->refresh();
+        $this->assertNotNull($user->last_login_at);
+        $this->assertTrue($user->last_login_at->isToday());
+    }
 }

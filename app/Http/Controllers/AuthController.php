@@ -44,6 +44,9 @@ class AuthController extends Controller
         // Log the user in
         Auth::login($user);
         
+        // Update last login time
+        $user->update(['last_login_at' => now()]);
+        
         // Regenerate session to prevent session fixation
         $request->session()->regenerate();
         
