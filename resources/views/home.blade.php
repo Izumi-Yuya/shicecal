@@ -143,7 +143,7 @@
                             </a>
                         @endif
                         
-                        <a href="{{ route('csv.export') }}" class="btn btn-outline-info">
+                        <a href="{{ route('export.csv') }}" class="btn btn-outline-info">
                             <i class="bi bi-download"></i>
                             CSV出力
                         </a>
