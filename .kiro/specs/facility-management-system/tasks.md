@@ -19,7 +19,7 @@
   - 変更内容をGitにコミット（feature/database-migrations）
   - _Requirements: 1.2, 2.1, 8.1_
 
-- [-] 1.3 Eloquent モデルの作成
+- [x] 1.3 Eloquent モデルの作成
   - User, Facility, File, Comment, MaintenanceHistory, ExportFavorite, SystemSetting, ActivityLog モデルの作成
   - リレーションシップの定義（hasMany, belongsTo）
   - モデルのスコープとアクセサの実装
