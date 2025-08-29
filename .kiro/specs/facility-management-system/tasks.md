@@ -17,6 +17,7 @@
   - 外部キー制約とインデックスの設定
   - マイグレーション実行とテスト
   - 変更内容をGitにコミット（feature/database-migrations）
+  - リモートリポジトリへプッシュ
   - _Requirements: 1.2, 2.1, 8.1_
 
 - [x] 1.3 Eloquent モデルの作成
@@ -24,6 +25,7 @@
   - リレーションシップの定義（hasMany, belongsTo）
   - モデルのスコープとアクセサの実装
   - モデル作成完了後にGitコミット（feature/eloquent-models）
+  - リモートリポジトリへプッシュ
   - _Requirements: 1.2, 2.1_
 
 - [ ] 1.4 基本レイアウトの作成とテスト
@@ -31,6 +33,7 @@
   - 共通レイアウトファイル（app.blade.php）の作成
   - レイアウトの表示テスト実行
   - UI基盤完了後にGitコミット（feature/basic-layout）
+  - リモートリポジトリへプッシュ
   - _Requirements: 全要件のUI部分_
 
 - [ ] 1.5 ナビゲーションメニューの実装とテスト
@@ -74,6 +77,7 @@
   - 認証用マイグレーションの実行
   - Sanctum 動作テストの作成と実行
   - Sanctum導入完了後にGitコミット（feature/sanctum-setup）
+  - リモートリポジトリへプッシュ
   - _Requirements: 12.1_
 
 - [ ] 2.2 ログイン機能の実装とテスト
