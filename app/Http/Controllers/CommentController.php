@@ -5,12 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\Comment;
 use App\Models\Facility;
 use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
+    protected NotificationService $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     /**
      * Store a newly created comment in storage.
      */
@@ -43,6 +51,9 @@ class CommentController extends Controller
             'posted_by' => Auth::id(),
             'assigned_to' => $primaryResponder?->id,
         ]);
+
+        // Send notification
+        $this->notificationService->notifyCommentPosted($comment);
 
         return redirect()->back()->with('success', 'コメントを投稿しました。');
     }
@@ -85,6 +96,7 @@ class CommentController extends Controller
             return redirect()->back()->with('error', '無効なステータスです。');
         }
 
+        $oldStatus = $comment->status;
         $comment->status = $status;
         
         if ($status === 'resolved') {
@@ -94,6 +106,11 @@ class CommentController extends Controller
         }
 
         $comment->save();
+
+        // Send notification if status changed
+        if ($oldStatus !== $status) {
+            $this->notificationService->notifyCommentStatusChanged($comment, $oldStatus);
+        }
 
         return redirect()->back()->with('success', 'コメントステータスを更新しました。');
     }

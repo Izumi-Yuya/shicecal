@@ -5,6 +5,7 @@ use App\Http\Controllers\PdfExportController;
 use App\Http\Controllers\CsvExportController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FacilityController;
+use App\Http\Controllers\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -61,5 +62,14 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/{comment}/status', [CommentController::class, 'updateStatus'])->name('update-status');
         Route::get('/my-comments', [CommentController::class, 'myComments'])->name('my-comments');
         Route::get('/assigned', [CommentController::class, 'assignedComments'])->name('assigned');
+    });
+    
+    // Notification Routes
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', [NotificationController::class, 'index'])->name('index');
+        Route::post('/{notification}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('mark-as-read');
+        Route::post('/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
+        Route::get('/unread-count', [NotificationController::class, 'getUnreadCount'])->name('unread-count');
+        Route::get('/recent', [NotificationController::class, 'getRecent'])->name('recent');
     });
 });

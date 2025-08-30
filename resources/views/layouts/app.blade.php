@@ -69,12 +69,27 @@
                     
                     <ul class="navbar-nav">
                         @auth
+                            <!-- Notification Bell -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link position-relative" href="{{ route('notifications.index') }}" id="notificationBell">
+                                    <i class="fas fa-bell"></i>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
+                                          id="unread-count" style="display: none;">
+                                        0
+                                    </span>
+                                </a>
+                            </li>
+                            
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
                                     <i class="fas fa-user me-1"></i>
                                     {{ Auth::user()->name }}
                                 </a>
                                 <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="{{ route('notifications.index') }}">
+                                        <i class="fas fa-bell me-1"></i>通知
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                         <i class="fas fa-sign-out-alt me-1"></i>ログアウト
                                     </a></li>
@@ -101,6 +116,32 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    @auth
+    <script>
+        // Update notification count
+        function updateNotificationCount() {
+            fetch('{{ route("notifications.unread-count") }}')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.getElementById('unread-count');
+                    if (data.count > 0) {
+                        badge.textContent = data.count;
+                        badge.style.display = 'inline';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                })
+                .catch(error => console.error('Error fetching notification count:', error));
+        }
+
+        // Update count on page load
+        document.addEventListener('DOMContentLoaded', updateNotificationCount);
+        
+        // Update count every 30 seconds
+        setInterval(updateNotificationCount, 30000);
+    </script>
+    @endauth
     
     @stack('scripts')
 </body>
