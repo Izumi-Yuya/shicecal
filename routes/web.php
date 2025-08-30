@@ -25,10 +25,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Basic login route for testing
-Route::get('/login', function () {
-    return response('Login page', 200);
-})->name('login');
+// Authentication Routes
+Route::get('/login', [App\Http\Controllers\AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [App\Http\Controllers\AuthController::class, 'login']);
+Route::post('/logout', [App\Http\Controllers\AuthController::class, 'logout'])->name('logout');
 
 // Export Routes
 Route::middleware(['auth'])->group(function () {
@@ -116,5 +116,17 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{annualConfirmation}', [AnnualConfirmationController::class, 'show'])->name('show');
         Route::post('/{annualConfirmation}/respond', [AnnualConfirmationController::class, 'respond'])->name('respond');
         Route::patch('/{annualConfirmation}/resolve', [AnnualConfirmationController::class, 'resolve'])->name('resolve');
+    });
+    
+    // Admin Routes (Log Management)
+    Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
+        Route::prefix('logs')->name('logs.')->group(function () {
+            Route::get('/', [App\Http\Controllers\ActivityLogController::class, 'index'])->name('index');
+            Route::get('/export/csv', [App\Http\Controllers\ActivityLogController::class, 'exportCsv'])->name('export.csv');
+            Route::get('/export/audit-report', [App\Http\Controllers\ActivityLogController::class, 'exportAuditReport'])->name('export.audit-report');
+            Route::get('/api/recent', [App\Http\Controllers\ActivityLogController::class, 'recent'])->name('recent');
+            Route::get('/api/statistics', [App\Http\Controllers\ActivityLogController::class, 'statistics'])->name('statistics');
+            Route::get('/{activityLog}', [App\Http\Controllers\ActivityLogController::class, 'show'])->name('show');
+        });
     });
 });

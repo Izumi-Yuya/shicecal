@@ -5,11 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\ExportFavorite;
 use App\Models\Facility;
 use App\Models\User;
+use App\Services\ActivityLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class CsvExportController extends Controller
 {
+    protected $activityLogService;
+
+    public function __construct(ActivityLogService $activityLogService)
+    {
+        $this->activityLogService = $activityLogService;
+    }
     /**
      * Display the CSV export menu
      */
@@ -113,6 +120,9 @@ class CsvExportController extends Controller
         
         // Generate CSV content
         $csvContent = $this->generateCsvContent($facilities, $exportFields, $selectedFields);
+        
+        // Log CSV export
+        $this->activityLogService->logCsvExported($facilityIds, $exportFields, $request);
         
         // Generate filename with timestamp
         $timestamp = now()->format('Y-m-d_H-i-s');

@@ -25,6 +25,11 @@ class RoleMiddleware
         
         // Check if user has the required role
         if ($user->role !== $role) {
+            // Return JSON response for API routes
+            if ($request->expectsJson() || $request->is('*/api/*')) {
+                return response()->json(['error' => 'Unauthorized'], 403);
+            }
+            
             abort(403, 'この機能にアクセスする権限がありません。');
         }
 

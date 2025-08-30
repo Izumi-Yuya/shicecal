@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Facility;
 use App\Services\SecurePdfService;
 use App\Services\BatchPdfService;
+use App\Services\ActivityLogService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -16,11 +17,13 @@ class PdfExportController extends Controller
 {
     protected SecurePdfService $securePdfService;
     protected BatchPdfService $batchPdfService;
+    protected ActivityLogService $activityLogService;
 
-    public function __construct(SecurePdfService $securePdfService, BatchPdfService $batchPdfService)
+    public function __construct(SecurePdfService $securePdfService, BatchPdfService $batchPdfService, ActivityLogService $activityLogService)
     {
         $this->securePdfService = $securePdfService;
         $this->batchPdfService = $batchPdfService;
+        $this->activityLogService = $activityLogService;
     }
     /**
      * Display PDF export page
@@ -59,6 +62,9 @@ class PdfExportController extends Controller
         
         $filename = $this->generatePdfFilename($facility);
         
+        // Log PDF export
+        $this->activityLogService->logPdfExported([$facility->id], $request);
+        
         return $pdf->download($filename);
     }
 
@@ -69,6 +75,9 @@ class PdfExportController extends Controller
     {
         $pdfContent = $this->securePdfService->generateSecureFacilityPdf($facility);
         $filename = $this->securePdfService->generateSecureFilename($facility);
+        
+        // Log secure PDF export
+        $this->activityLogService->logPdfExported([$facility->id], request());
         
         return response($pdfContent)
             ->header('Content-Type', 'application/pdf')
@@ -114,6 +123,9 @@ class PdfExportController extends Controller
             $pdf = $this->generateFacilityPdf($facility);
             $filename = $this->generatePdfFilename($facility);
             
+            // Log single facility PDF export
+            $this->activityLogService->logPdfExported([$facility->id], $request);
+            
             return $pdf->download($filename);
         }
 
@@ -132,6 +144,10 @@ class PdfExportController extends Controller
         if (!$result['success']) {
             return back()->with('error', $result['error']);
         }
+        
+        // Log batch PDF export
+        $facilityIds = $facilities->pluck('id')->toArray();
+        $this->activityLogService->logPdfExported($facilityIds, request());
         
         $response = response()->download($result['zip_path'], $result['zip_filename'])
             ->deleteFileAfterSend(true);

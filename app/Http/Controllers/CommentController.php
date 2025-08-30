@@ -6,6 +6,7 @@ use App\Models\Comment;
 use App\Models\Facility;
 use App\Models\User;
 use App\Services\NotificationService;
+use App\Services\ActivityLogService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -13,10 +14,12 @@ use Illuminate\Support\Facades\Auth;
 class CommentController extends Controller
 {
     protected NotificationService $notificationService;
+    protected ActivityLogService $activityLogService;
 
-    public function __construct(NotificationService $notificationService)
+    public function __construct(NotificationService $notificationService, ActivityLogService $activityLogService)
     {
         $this->notificationService = $notificationService;
+        $this->activityLogService = $activityLogService;
     }
 
     /**
@@ -51,6 +54,14 @@ class CommentController extends Controller
             'posted_by' => Auth::id(),
             'assigned_to' => $primaryResponder?->id,
         ]);
+
+        // Log comment creation
+        $this->activityLogService->logCommentCreated(
+            $comment->id,
+            $facilityId,
+            $fieldName ?: '施設情報',
+            $request
+        );
 
         // Send notification
         $this->notificationService->notifyCommentPosted($comment);
@@ -106,6 +117,16 @@ class CommentController extends Controller
         }
 
         $comment->save();
+
+        // Log status change
+        if ($oldStatus !== $status) {
+            $this->activityLogService->logCommentStatusUpdated(
+                $comment->id,
+                $oldStatus,
+                $status,
+                $request
+            );
+        }
 
         // Send notification if status changed
         if ($oldStatus !== $status) {
@@ -214,6 +235,16 @@ class CommentController extends Controller
             }
 
             $comment->save();
+
+            // Log status change
+            if ($oldStatus !== $status) {
+                $this->activityLogService->logCommentStatusUpdated(
+                    $comment->id,
+                    $oldStatus,
+                    $status,
+                    $request
+                );
+            }
 
             // Send notification if status changed
             if ($oldStatus !== $status) {

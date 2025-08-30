@@ -3,10 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Facility;
+use App\Services\ActivityLogService;
 use Illuminate\Http\Request;
 
 class FacilityController extends Controller
 {
+    protected $activityLogService;
+
+    public function __construct(ActivityLogService $activityLogService)
+    {
+        $this->activityLogService = $activityLogService;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -45,6 +52,13 @@ class FacilityController extends Controller
             'created_by' => auth()->id(),
             'updated_by' => auth()->id(),
         ]);
+
+        // Log facility creation
+        $this->activityLogService->logFacilityCreated(
+            $facility->id,
+            $facility->facility_name,
+            $request
+        );
 
         return redirect()->route('facilities.show', $facility)
             ->with('success', '施設を登録しました。');
@@ -91,6 +105,13 @@ class FacilityController extends Controller
             'updated_by' => auth()->id(),
         ]);
 
+        // Log facility update
+        $this->activityLogService->logFacilityUpdated(
+            $facility->id,
+            $facility->facility_name,
+            $request
+        );
+
         return redirect()->route('facilities.show', $facility)
             ->with('success', '施設情報を更新しました。');
     }
@@ -100,7 +121,17 @@ class FacilityController extends Controller
      */
     public function destroy(Facility $facility)
     {
+        $facilityName = $facility->facility_name;
+        $facilityId = $facility->id;
+        
         $facility->delete();
+
+        // Log facility deletion
+        $this->activityLogService->logFacilityDeleted(
+            $facilityId,
+            $facilityName,
+            request()
+        );
 
         return redirect()->route('facilities.index')
             ->with('success', '施設を削除しました。');
