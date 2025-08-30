@@ -360,6 +360,215 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.show();
     });
     
+    // お気に入り保存処理
+    document.getElementById('saveFavoriteConfirm').addEventListener('click', function() {
+        const name = document.getElementById('favoriteName').value.trim();
+        if (!name) {
+            alert('お気に入り名を入力してください。');
+            return;
+        }
+        
+        const selectedFacilities = Array.from(document.querySelectorAll('.facility-checkbox:checked')).map(cb => cb.value);
+        const selectedFields = Array.from(document.querySelectorAll('.field-checkbox:checked')).map(cb => cb.value);
+        
+        if (selectedFacilities.length === 0 || selectedFields.length === 0) {
+            alert('施設と出力項目を選択してください。');
+            return;
+        }
+        
+        fetch('{{ route("csv.export.favorites.store") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                name: name,
+                facility_ids: selectedFacilities,
+                export_fields: selectedFields
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                document.getElementById('favoriteName').value = '';
+                const modal = bootstrap.Modal.getInstance(document.getElementById('saveFavoriteModal'));
+                modal.hide();
+                loadFavoritesList();
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('お気に入り保存エラー:', error);
+            alert('お気に入りの保存に失敗しました。');
+        });
+    });
+    
+    // お気に入り一覧を読み込む関数
+    function loadFavoritesList() {
+        fetch('{{ route("csv.export.favorites.index") }}')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayFavoritesList(data.data);
+            }
+        })
+        .catch(error => {
+            console.error('お気に入り一覧の取得に失敗しました:', error);
+        });
+    }
+    
+    // お気に入り一覧を表示する関数
+    function displayFavoritesList(favorites) {
+        const container = document.getElementById('favoritesList');
+        
+        if (favorites.length === 0) {
+            container.innerHTML = '<p class="text-muted text-center">お気に入りがありません。</p>';
+            return;
+        }
+        
+        let html = '<div class="list-group">';
+        favorites.forEach(favorite => {
+            html += `
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1">${favorite.name}</h6>
+                        <small class="text-muted">
+                            施設: ${favorite.facility_ids.length}件 | 
+                            項目: ${favorite.export_fields.length}項目 | 
+                            作成: ${new Date(favorite.created_at).toLocaleDateString()}
+                        </small>
+                    </div>
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-outline-primary" onclick="loadFavorite(${favorite.id})">
+                            読み込み
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="editFavorite(${favorite.id}, '${favorite.name}')">
+                            編集
+                        </button>
+                        <button type="button" class="btn btn-outline-danger" onclick="deleteFavorite(${favorite.id})">
+                            削除
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        
+        container.innerHTML = html;
+    }
+    
+    // お気に入りを読み込む関数
+    window.loadFavorite = function(id) {
+        fetch(`{{ route("csv.export.favorites.show", ":id") }}`.replace(':id', id))
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const favoriteData = data.data;
+                
+                // 全てのチェックボックスをクリア
+                document.querySelectorAll('.facility-checkbox').forEach(cb => cb.checked = false);
+                document.querySelectorAll('.field-checkbox').forEach(cb => cb.checked = false);
+                
+                // 施設を選択
+                favoriteData.facility_ids.forEach(facilityId => {
+                    const checkbox = document.getElementById(`facility_${facilityId}`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                    }
+                });
+                
+                // 項目を選択
+                favoriteData.export_fields.forEach(field => {
+                    const checkbox = document.getElementById(`field_${field}`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                    }
+                });
+                
+                // 選択状況を更新
+                updateSelectionStatus();
+                
+                // モーダルを閉じる
+                const modal = bootstrap.Modal.getInstance(document.getElementById('favoritesModal'));
+                modal.hide();
+                
+                // アクセスできない施設がある場合の警告
+                if (favoriteData.original_facility_count > favoriteData.accessible_facility_count) {
+                    alert(`注意: ${favoriteData.original_facility_count - favoriteData.accessible_facility_count}件の施設にアクセス権限がないため、選択から除外されました。`);
+                }
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('お気に入りの読み込みに失敗しました:', error);
+            alert('お気に入りの読み込みに失敗しました。');
+        });
+    };
+    
+    // お気に入りを編集する関数
+    window.editFavorite = function(id, currentName) {
+        const newName = prompt('新しい名前を入力してください:', currentName);
+        if (newName && newName.trim() !== '' && newName !== currentName) {
+            fetch(`{{ route("csv.export.favorites.update", ":id") }}`.replace(':id', id), {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    name: newName.trim()
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    loadFavoritesList();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('お気に入りの更新に失敗しました:', error);
+                alert('お気に入りの更新に失敗しました。');
+            });
+        }
+    };
+    
+    // お気に入りを削除する関数
+    window.deleteFavorite = function(id) {
+        if (confirm('このお気に入りを削除しますか？')) {
+            fetch(`{{ route("csv.export.favorites.destroy", ":id") }}`.replace(':id', id), {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    loadFavoritesList();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('お気に入りの削除に失敗しました:', error);
+                alert('お気に入りの削除に失敗しました。');
+            });
+        }
+    };
+    
+    // お気に入り一覧モーダルが開かれた時にリストを読み込む
+    document.getElementById('favoritesModal').addEventListener('show.bs.modal', function() {
+        loadFavoritesList();
+    });
+    
     // CSV出力フォーム送信
     document.getElementById('csvExportForm').addEventListener('submit', function(e) {
         e.preventDefault();

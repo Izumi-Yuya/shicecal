@@ -40,5 +40,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [CsvExportController::class, 'index'])->name('index');
         Route::post('/preview', [CsvExportController::class, 'getFieldPreview'])->name('preview');
         Route::post('/generate', [CsvExportController::class, 'generateCsv'])->name('generate');
+        
+        // Favorites Routes
+        Route::get('/favorites', [CsvExportController::class, 'getFavorites'])->name('favorites.index');
+        Route::post('/favorites', [CsvExportController::class, 'saveFavorite'])->name('favorites.store');
+        Route::get('/favorites/{id}', [CsvExportController::class, 'loadFavorite'])->name('favorites.show');
+        Route::put('/favorites/{id}', [CsvExportController::class, 'updateFavorite'])->name('favorites.update');
+        Route::delete('/favorites/{id}', [CsvExportController::class, 'deleteFavorite'])->name('favorites.destroy');
     });
 });

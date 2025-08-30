@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ExportFavorite;
 use App\Models\Facility;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -160,6 +161,193 @@ class CsvExportController extends Controller
         fclose($output);
         
         return $line;
+    }
+
+    /**
+     * Get user's export favorites
+     */
+    public function getFavorites()
+    {
+        $user = Auth::user();
+        
+        $favorites = ExportFavorite::where('user_id', $user->id)
+                                  ->orderBy('name')
+                                  ->get();
+        
+        return response()->json([
+            'success' => true,
+            'data' => $favorites
+        ]);
+    }
+
+    /**
+     * Save export settings as favorite
+     */
+    public function saveFavorite(Request $request)
+    {
+        $user = Auth::user();
+        $name = $request->input('name');
+        $facilityIds = $request->input('facility_ids', []);
+        $exportFields = $request->input('export_fields', []);
+        
+        if (empty($name) || empty($facilityIds) || empty($exportFields)) {
+            return response()->json([
+                'success' => false,
+                'message' => '名前、施設、出力項目を指定してください。'
+            ], 400);
+        }
+        
+        // Check if name already exists for this user
+        $existingFavorite = ExportFavorite::where('user_id', $user->id)
+                                         ->where('name', $name)
+                                         ->first();
+        
+        if ($existingFavorite) {
+            return response()->json([
+                'success' => false,
+                'message' => 'この名前のお気に入りは既に存在します。'
+            ], 400);
+        }
+        
+        // Validate that user has access to selected facilities
+        $accessibleFacilities = $this->getFacilitiesQuery($user)
+                                    ->whereIn('id', $facilityIds)
+                                    ->pluck('id')
+                                    ->toArray();
+        
+        if (count($accessibleFacilities) !== count($facilityIds)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'アクセス権限のない施設が含まれています。'
+            ], 400);
+        }
+        
+        $favorite = ExportFavorite::create([
+            'user_id' => $user->id,
+            'name' => $name,
+            'facility_ids' => $facilityIds,
+            'export_fields' => $exportFields,
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'data' => $favorite,
+            'message' => 'お気に入りを保存しました。'
+        ]);
+    }
+
+    /**
+     * Load favorite settings
+     */
+    public function loadFavorite($id)
+    {
+        $user = Auth::user();
+        
+        $favorite = ExportFavorite::where('user_id', $user->id)
+                                 ->where('id', $id)
+                                 ->first();
+        
+        if (!$favorite) {
+            return response()->json([
+                'success' => false,
+                'message' => 'お気に入りが見つかりません。'
+            ], 404);
+        }
+        
+        // Validate that user still has access to the facilities
+        $accessibleFacilities = $this->getFacilitiesQuery($user)
+                                    ->whereIn('id', $favorite->facility_ids)
+                                    ->pluck('id')
+                                    ->toArray();
+        
+        // Filter out facilities that are no longer accessible
+        $validFacilityIds = array_intersect($favorite->facility_ids, $accessibleFacilities);
+        
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $favorite->id,
+                'name' => $favorite->name,
+                'facility_ids' => $validFacilityIds,
+                'export_fields' => $favorite->export_fields,
+                'original_facility_count' => count($favorite->facility_ids),
+                'accessible_facility_count' => count($validFacilityIds)
+            ]
+        ]);
+    }
+
+    /**
+     * Update favorite name
+     */
+    public function updateFavorite(Request $request, $id)
+    {
+        $user = Auth::user();
+        $name = $request->input('name');
+        
+        if (empty($name)) {
+            return response()->json([
+                'success' => false,
+                'message' => '名前を入力してください。'
+            ], 400);
+        }
+        
+        $favorite = ExportFavorite::where('user_id', $user->id)
+                                 ->where('id', $id)
+                                 ->first();
+        
+        if (!$favorite) {
+            return response()->json([
+                'success' => false,
+                'message' => 'お気に入りが見つかりません。'
+            ], 404);
+        }
+        
+        // Check if name already exists for this user (excluding current favorite)
+        $existingFavorite = ExportFavorite::where('user_id', $user->id)
+                                         ->where('name', $name)
+                                         ->where('id', '!=', $id)
+                                         ->first();
+        
+        if ($existingFavorite) {
+            return response()->json([
+                'success' => false,
+                'message' => 'この名前のお気に入りは既に存在します。'
+            ], 400);
+        }
+        
+        $favorite->update(['name' => $name]);
+        
+        return response()->json([
+            'success' => true,
+            'data' => $favorite,
+            'message' => 'お気に入り名を更新しました。'
+        ]);
+    }
+
+    /**
+     * Delete favorite
+     */
+    public function deleteFavorite($id)
+    {
+        $user = Auth::user();
+        
+        $favorite = ExportFavorite::where('user_id', $user->id)
+                                 ->where('id', $id)
+                                 ->first();
+        
+        if (!$favorite) {
+            return response()->json([
+                'success' => false,
+                'message' => 'お気に入りが見つかりません。'
+            ], 404);
+        }
+        
+        $favorite->delete();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'お気に入りを削除しました。'
+        ]);
     }
 
     /**
