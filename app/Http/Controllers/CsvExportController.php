@@ -26,6 +26,55 @@ class CsvExportController extends Controller
     }
 
     /**
+     * Get field preview data for selected facilities and fields
+     */
+    public function getFieldPreview(Request $request)
+    {
+        $facilityIds = $request->input('facility_ids', []);
+        $exportFields = $request->input('export_fields', []);
+        
+        if (empty($facilityIds) || empty($exportFields)) {
+            return response()->json([
+                'success' => false,
+                'message' => '施設または項目が選択されていません。'
+            ]);
+        }
+        
+        $user = Auth::user();
+        
+        // Get facilities that user has access to
+        $facilities = $this->getFacilitiesForUser($user)
+                          ->whereIn('id', $facilityIds)
+                          ->take(3); // Limit preview to 3 facilities
+        
+        // Get available fields
+        $availableFields = $this->getAvailableFields();
+        
+        // Filter to only requested fields
+        $selectedFields = array_intersect_key($availableFields, array_flip($exportFields));
+        
+        // Generate preview data
+        $previewData = [];
+        foreach ($facilities as $facility) {
+            $row = [];
+            foreach ($exportFields as $field) {
+                $row[$field] = $this->getFieldValue($facility, $field);
+            }
+            $previewData[] = $row;
+        }
+        
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'fields' => $selectedFields,
+                'preview_data' => $previewData,
+                'total_facilities' => count($facilityIds),
+                'preview_count' => count($previewData)
+            ]
+        ]);
+    }
+
+    /**
      * Get facilities based on user role and access scope
      */
     private function getFacilitiesForUser(User $user)
@@ -100,5 +149,38 @@ class CsvExportController extends Controller
             'created_at' => '作成日時',
             'updated_at' => '更新日時',
         ];
+    }
+
+    /**
+     * Get formatted field value for a facility
+     */
+    private function getFieldValue(Facility $facility, string $field)
+    {
+        switch ($field) {
+            case 'status':
+                return $this->getStatusLabel($facility->status);
+            case 'approved_at':
+                return $facility->approved_at ? $facility->approved_at->format('Y-m-d H:i:s') : '';
+            case 'created_at':
+                return $facility->created_at->format('Y-m-d H:i:s');
+            case 'updated_at':
+                return $facility->updated_at->format('Y-m-d H:i:s');
+            default:
+                return $facility->{$field} ?? '';
+        }
+    }
+
+    /**
+     * Get status label in Japanese
+     */
+    private function getStatusLabel(string $status): string
+    {
+        $statusLabels = [
+            'draft' => '下書き',
+            'pending_approval' => '承認待ち',
+            'approved' => '承認済み',
+        ];
+        
+        return $statusLabels[$status] ?? $status;
     }
 }

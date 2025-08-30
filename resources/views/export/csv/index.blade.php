@@ -113,7 +113,28 @@
                                 <div class="alert alert-info">
                                     <div id="previewContent">
                                         <p class="mb-1"><strong>選択施設:</strong> <span id="previewFacilities">未選択</span></p>
-                                        <p class="mb-0"><strong>出力項目:</strong> <span id="previewFields">未選択</span></p>
+                                        <p class="mb-2"><strong>出力項目:</strong> <span id="previewFields">未選択</span></p>
+                                        
+                                        <!-- データプレビューテーブル -->
+                                        <div id="dataPreviewContainer" style="display: none;">
+                                            <hr>
+                                            <h6 class="fw-bold mb-2">データプレビュー（最大3件）</h6>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm table-bordered" id="previewTable">
+                                                    <thead class="table-light">
+                                                        <tr id="previewTableHeader">
+                                                            <!-- ヘッダーが動的に追加されます -->
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="previewTableBody">
+                                                        <!-- データが動的に追加されます -->
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <small class="text-muted">
+                                                <span id="previewInfo"></span>
+                                            </small>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -225,6 +246,82 @@ document.addEventListener('DOMContentLoaded', function() {
         const canExport = selectedFacilities.length > 0 && selectedFields.length > 0;
         exportButton.disabled = !canExport;
         saveFavoriteButton.disabled = !canExport;
+        
+        // データプレビューの更新
+        updateDataPreview();
+    }
+    
+    // データプレビューを更新する関数
+    function updateDataPreview() {
+        const selectedFacilities = Array.from(document.querySelectorAll('.facility-checkbox:checked')).map(cb => cb.value);
+        const selectedFields = Array.from(document.querySelectorAll('.field-checkbox:checked')).map(cb => cb.value);
+        
+        const previewContainer = document.getElementById('dataPreviewContainer');
+        
+        if (selectedFacilities.length === 0 || selectedFields.length === 0) {
+            previewContainer.style.display = 'none';
+            return;
+        }
+        
+        // プレビューデータを取得
+        fetch('{{ route("csv.export.preview") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                facility_ids: selectedFacilities,
+                export_fields: selectedFields
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayDataPreview(data.data);
+                previewContainer.style.display = 'block';
+            } else {
+                previewContainer.style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error('プレビューデータの取得に失敗しました:', error);
+            previewContainer.style.display = 'none';
+        });
+    }
+    
+    // データプレビューを表示する関数
+    function displayDataPreview(data) {
+        const headerRow = document.getElementById('previewTableHeader');
+        const bodyElement = document.getElementById('previewTableBody');
+        const previewInfo = document.getElementById('previewInfo');
+        
+        // ヘッダーをクリア
+        headerRow.innerHTML = '';
+        
+        // ヘッダーを追加
+        Object.values(data.fields).forEach(fieldLabel => {
+            const th = document.createElement('th');
+            th.textContent = fieldLabel;
+            headerRow.appendChild(th);
+        });
+        
+        // ボディをクリア
+        bodyElement.innerHTML = '';
+        
+        // データ行を追加
+        data.preview_data.forEach(row => {
+            const tr = document.createElement('tr');
+            Object.keys(data.fields).forEach(fieldKey => {
+                const td = document.createElement('td');
+                td.textContent = row[fieldKey] || '';
+                tr.appendChild(td);
+            });
+            bodyElement.appendChild(tr);
+        });
+        
+        // プレビュー情報を更新
+        previewInfo.textContent = `${data.preview_count}件のプレビューを表示中（全${data.total_facilities}件中）`;
     }
     
     // チェックボックスの変更を監視
