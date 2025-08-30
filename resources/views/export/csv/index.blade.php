@@ -7,7 +7,48 @@
     <div class="row">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3 mb-0">CSV出力</h1>
+                <h1>
+                    <i class="fas fa-file-csv me-2 text-success"></i>
+                    CSV出力
+                </h1>
+                <div class="d-flex gap-2">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="csvOptionsDropdown" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog"></i> 出力オプション
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="showExportHistory()">
+                                <i class="fas fa-history"></i> 出力履歴
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" onclick="showExportSettings()">
+                                <i class="fas fa-cog"></i> 出力設定
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="exportTemplate()">
+                                <i class="fas fa-download"></i> テンプレートダウンロード
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bar for Export -->
+            <div id="exportProgress" class="mb-4" style="display: none;">
+                <div class="card border-primary">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-cog fa-spin text-primary me-2"></i>
+                            <strong>CSV出力処理中...</strong>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 role="progressbar" style="width: 0%" id="exportProgressBar">
+                                0%
+                            </div>
+                        </div>
+                        <small class="text-muted mt-1" id="exportProgressText">処理を開始しています...</small>
+                    </div>
+                </div>
             </div>
 
             <div class="card">

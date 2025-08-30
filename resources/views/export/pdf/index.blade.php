@@ -6,13 +6,33 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="card-title mb-0">
-                        <i class="fas fa-file-pdf text-danger me-2"></i>
-                        PDF出力
-                    </h4>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>
+                    <i class="fas fa-file-pdf me-2 text-danger"></i>
+                    PDF出力
+                </h1>
+                <div class="d-flex gap-2">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="pdfOptionsDropdown" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog"></i> 出力オプション
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="showPdfHistory()">
+                                <i class="fas fa-history"></i> 出力履歴
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" onclick="showPdfSettings()">
+                                <i class="fas fa-cog"></i> PDF設定
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="showPdfPreview()">
+                                <i class="fas fa-eye"></i> レイアウトプレビュー
+                            </a></li>
+                        </ul>
+                    </div>
                 </div>
+            </div>
+
+            <div class="card admin-card">
                 <div class="card-body">
                     @if(session('error'))
                         <div class="alert alert-danger">

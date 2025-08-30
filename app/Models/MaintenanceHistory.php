@@ -67,7 +67,7 @@ class MaintenanceHistory extends Model
     /**
      * Scope to order by maintenance date (newest first).
      */
-    public function scopeLatest($query)
+    public function scopeLatestByDate($query)
     {
         return $query->orderBy('maintenance_date', 'desc');
     }

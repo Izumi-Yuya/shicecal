@@ -118,8 +118,28 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/{annualConfirmation}/resolve', [AnnualConfirmationController::class, 'resolve'])->name('resolve');
     });
     
-    // Admin Routes (Log Management)
-    Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
+    // Admin Routes
+    Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+        // User Management
+        Route::prefix('users')->name('users.')->group(function () {
+            Route::get('/', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('index');
+            Route::post('/', [App\Http\Controllers\Admin\UserController::class, 'store'])->name('store');
+            Route::patch('/{user}/toggle-status', [App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('toggle-status');
+            Route::get('/export', [App\Http\Controllers\Admin\UserController::class, 'export'])->name('export');
+            Route::post('/bulk-update-role', [App\Http\Controllers\Admin\UserController::class, 'bulkUpdateRole'])->name('bulk-update-role');
+        });
+
+        // Settings Management
+        Route::prefix('settings')->name('settings.')->group(function () {
+            Route::get('/', [App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('index');
+            Route::post('/update', [App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('update');
+            Route::post('/reset', [App\Http\Controllers\Admin\SettingsController::class, 'reset'])->name('reset');
+            Route::post('/clear-cache', [App\Http\Controllers\Admin\SettingsController::class, 'clearCache'])->name('clear-cache');
+            Route::post('/optimize-database', [App\Http\Controllers\Admin\SettingsController::class, 'optimizeDatabase'])->name('optimize-database');
+            Route::post('/update-single', [App\Http\Controllers\Admin\SettingsController::class, 'updateSingle'])->name('update-single');
+        });
+
+        // Log Management
         Route::prefix('logs')->name('logs.')->group(function () {
             Route::get('/', [App\Http\Controllers\ActivityLogController::class, 'index'])->name('index');
             Route::get('/export/csv', [App\Http\Controllers\ActivityLogController::class, 'exportCsv'])->name('export.csv');

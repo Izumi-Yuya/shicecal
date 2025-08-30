@@ -11,6 +11,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Admin CSS -->
+    @if(auth()->check() && auth()->user()->isAdmin())
+        <link href="{{ asset('css/admin.css') }}" rel="stylesheet">
+    @endif
     
     @stack('styles')
 </head>
@@ -72,6 +76,24 @@
                                     @endif
                                 </ul>
                             </li>
+                            @if(auth()->user()->isAdmin())
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
+                                        <i class="fas fa-cogs me-1"></i>管理
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="{{ route('admin.users.index') }}">
+                                            <i class="fas fa-users me-1"></i>ユーザー管理
+                                        </a></li>
+                                        <li><a class="dropdown-item" href="{{ route('admin.settings.index') }}">
+                                            <i class="fas fa-cog me-1"></i>システム設定
+                                        </a></li>
+                                        <li><a class="dropdown-item" href="{{ route('admin.logs.index') }}">
+                                            <i class="fas fa-list-alt me-1"></i>ログ管理
+                                        </a></li>
+                                    </ul>
+                                </li>
+                            @endif
                         @endauth
                     </ul>
                     
@@ -127,6 +149,10 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Admin JS -->
+    @if(auth()->check() && auth()->user()->isAdmin())
+        <script src="{{ asset('js/admin.js') }}"></script>
+    @endif
     
     @auth
     <script>
