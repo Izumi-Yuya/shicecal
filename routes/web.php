@@ -8,6 +8,7 @@ use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\MyPageController;
 use App\Http\Controllers\MaintenanceController;
+use App\Http\Controllers\AnnualConfirmationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -104,5 +105,16 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{maintenanceHistory}/edit', [MaintenanceController::class, 'edit'])->name('edit');
         Route::put('/{maintenanceHistory}', [MaintenanceController::class, 'update'])->name('update');
         Route::delete('/{maintenanceHistory}', [MaintenanceController::class, 'destroy'])->name('destroy');
+    });
+    
+    // Annual Confirmation Routes
+    Route::prefix('annual-confirmation')->name('annual-confirmation.')->group(function () {
+        Route::get('/', [AnnualConfirmationController::class, 'index'])->name('index');
+        Route::get('/create', [AnnualConfirmationController::class, 'create'])->name('create')->middleware('role:admin');
+        Route::post('/', [AnnualConfirmationController::class, 'store'])->name('store')->middleware('role:admin');
+        Route::get('/facilities', [AnnualConfirmationController::class, 'getFacilities'])->name('facilities');
+        Route::get('/{annualConfirmation}', [AnnualConfirmationController::class, 'show'])->name('show');
+        Route::post('/{annualConfirmation}/respond', [AnnualConfirmationController::class, 'respond'])->name('respond');
+        Route::patch('/{annualConfirmation}/resolve', [AnnualConfirmationController::class, 'resolve'])->name('resolve');
     });
 });

@@ -170,4 +170,57 @@ class NotificationService
         
         return Notification::where('created_at', '<', $cutoffDate)->delete();
     }
+
+    /**
+     * Send annual confirmation request notification.
+     */
+    public function sendAnnualConfirmationRequest(User $facilityManager, Facility $facility, int $year): void
+    {
+        $notification = Notification::create([
+            'user_id' => $facilityManager->id,
+            'type' => 'annual_confirmation_request',
+            'title' => '年次情報確認のお願い',
+            'message' => sprintf(
+                '%d年度の施設「%s」の情報確認をお願いします。',
+                $year,
+                $facility->facility_name
+            ),
+            'data' => [
+                'facility_id' => $facility->id,
+                'confirmation_year' => $year,
+            ],
+        ]);
+
+        // Send email notification
+        $this->sendEmailNotification($notification);
+    }
+
+    /**
+     * Send discrepancy notification to editors.
+     */
+    public function sendDiscrepancyNotification(User $editor, $annualConfirmation): void
+    {
+        $facility = $annualConfirmation->facility;
+        $facilityManager = $annualConfirmation->facilityManager;
+
+        $notification = Notification::create([
+            'user_id' => $editor->id,
+            'type' => 'discrepancy_reported',
+            'title' => '年次確認で相違が報告されました',
+            'message' => sprintf(
+                '施設「%s」の%d年度年次確認で相違が報告されました。対応をお願いします。',
+                $facility->facility_name,
+                $annualConfirmation->confirmation_year
+            ),
+            'data' => [
+                'annual_confirmation_id' => $annualConfirmation->id,
+                'facility_id' => $facility->id,
+                'confirmation_year' => $annualConfirmation->confirmation_year,
+                'facility_manager_id' => $facilityManager?->id,
+            ],
+        ]);
+
+        // Send email notification
+        $this->sendEmailNotification($notification);
+    }
 }
