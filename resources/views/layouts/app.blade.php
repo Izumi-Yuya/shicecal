@@ -89,6 +89,9 @@
                                     {{ Auth::user()->name }}
                                 </a>
                                 <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="{{ route('my-page.index') }}">
+                                        <i class="fas fa-home me-1"></i>マイページ
+                                    </a></li>
                                     <li><a class="dropdown-item" href="{{ route('notifications.index') }}">
                                         <i class="fas fa-bell me-1"></i>通知
                                     </a></li>

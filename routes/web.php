@@ -6,6 +6,7 @@ use App\Http\Controllers\CsvExportController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\MyPageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -73,5 +74,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
         Route::get('/unread-count', [NotificationController::class, 'getUnreadCount'])->name('unread-count');
         Route::get('/recent', [NotificationController::class, 'getRecent'])->name('recent');
+    });
+    
+    // My Page Routes
+    Route::prefix('my-page')->name('my-page.')->group(function () {
+        Route::get('/', [MyPageController::class, 'index'])->name('index');
+        Route::get('/my-comments', [MyPageController::class, 'myComments'])->name('my-comments');
+        Route::get('/activity-summary', [MyPageController::class, 'activitySummary'])->name('activity-summary');
     });
 });

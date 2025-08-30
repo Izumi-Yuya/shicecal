@@ -125,7 +125,13 @@ class CommentController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
-        return view('comments.my-comments', compact('comments'));
+        $statusCounts = [
+            'pending' => Comment::where('posted_by', Auth::id())->where('status', 'pending')->count(),
+            'in_progress' => Comment::where('posted_by', Auth::id())->where('status', 'in_progress')->count(),
+            'resolved' => Comment::where('posted_by', Auth::id())->where('status', 'resolved')->count(),
+        ];
+
+        return view('comments.my-comments', compact('comments', 'statusCounts'));
     }
 
     /**
