@@ -172,6 +172,11 @@ class AnnualConfirmationController extends Controller
             abort(403, '相違を解決する権限がありません。');
         }
 
+        // Only allow resolving discrepancy_reported confirmations
+        if ($annualConfirmation->status !== 'discrepancy_reported') {
+            return redirect()->back()->with('error', '相違報告されていない確認は解決できません。');
+        }
+
         $annualConfirmation->update([
             'status' => 'resolved',
             'resolved_at' => now(),
