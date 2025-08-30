@@ -32,14 +32,37 @@
                     <ul class="navbar-nav me-auto">
                         @auth
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('pdf.export.index') }}">
-                                    <i class="fas fa-file-pdf me-1"></i>PDF出力
+                                <a class="nav-link" href="{{ route('facilities.index') }}">
+                                    <i class="fas fa-building me-1"></i>施設一覧
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('csv.export.index') }}">
-                                    <i class="fas fa-file-csv me-1"></i>CSV出力
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="exportDropdown" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-download me-1"></i>出力
                                 </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="{{ route('pdf.export.index') }}">
+                                        <i class="fas fa-file-pdf me-1"></i>PDF出力
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{{ route('csv.export.index') }}">
+                                        <i class="fas fa-file-csv me-1"></i>CSV出力
+                                    </a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="commentDropdown" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-comments me-1"></i>コメント
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="{{ route('comments.my-comments') }}">
+                                        <i class="fas fa-user-edit me-1"></i>マイコメント
+                                    </a></li>
+                                    @if(auth()->user()->isPrimaryResponder() || auth()->user()->isAdmin())
+                                        <li><a class="dropdown-item" href="{{ route('comments.assigned') }}">
+                                            <i class="fas fa-tasks me-1"></i>担当コメント
+                                        </a></li>
+                                    @endif
+                                </ul>
                             </li>
                         @endauth
                     </ul>

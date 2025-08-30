@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PdfExportController;
 use App\Http\Controllers\CsvExportController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\FacilityController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,5 +49,17 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/favorites/{id}', [CsvExportController::class, 'loadFavorite'])->name('favorites.show');
         Route::put('/favorites/{id}', [CsvExportController::class, 'updateFavorite'])->name('favorites.update');
         Route::delete('/favorites/{id}', [CsvExportController::class, 'deleteFavorite'])->name('favorites.destroy');
+    });
+    
+    // Facility Routes
+    Route::resource('facilities', FacilityController::class);
+    
+    // Comment Routes
+    Route::prefix('comments')->name('comments.')->group(function () {
+        Route::post('/', [CommentController::class, 'store'])->name('store');
+        Route::get('/', [CommentController::class, 'index'])->name('index');
+        Route::patch('/{comment}/status', [CommentController::class, 'updateStatus'])->name('update-status');
+        Route::get('/my-comments', [CommentController::class, 'myComments'])->name('my-comments');
+        Route::get('/assigned', [CommentController::class, 'assignedComments'])->name('assigned');
     });
 });
