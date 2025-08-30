@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Facility;
 use App\Models\MaintenanceHistory;
+use App\Models\MaintenanceSearchFavorite;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -39,7 +40,13 @@ class MaintenanceController extends Controller
             ->orderBy('facility_name')
             ->get();
 
-        return view('maintenance.index', compact('maintenanceHistories', 'facilities'));
+        // Get user's search favorites
+        $searchFavorites = MaintenanceSearchFavorite::forUser(Auth::id())
+            ->with('facility')
+            ->orderBy('name')
+            ->get();
+
+        return view('maintenance.index', compact('maintenanceHistories', 'facilities', 'searchFavorites'));
     }
 
     /**
@@ -148,5 +155,142 @@ class MaintenanceController extends Controller
             ->get();
 
         return response()->json($histories);
+    }
+
+    /**
+     * Save search conditions as favorite.
+     */
+    public function saveSearchFavorite(Request $request)
+    {
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'facility_id' => 'nullable|exists:facilities,id',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'search_content' => 'nullable|string|max:255',
+        ]);
+
+        $validatedData['user_id'] = Auth::id();
+
+        $favorite = MaintenanceSearchFavorite::create($validatedData);
+
+        return response()->json([
+            'success' => true,
+            'message' => '検索条件を保存しました。',
+            'favorite' => $favorite->load('facility')
+        ]);
+    }
+
+    /**
+     * Load search favorite.
+     */
+    public function loadSearchFavorite($favoriteId)
+    {
+        $favorite = MaintenanceSearchFavorite::find($favoriteId);
+        
+        if (!$favorite) {
+            return response()->json([
+                'success' => false,
+                'message' => 'お気に入りが見つかりません。'
+            ], 404);
+        }
+
+        // Check if the favorite belongs to the current user
+        if ($favorite->user_id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'アクセス権限がありません。'
+            ], 403);
+        }
+
+        return response()->json([
+            'success' => true,
+            'favorite' => $favorite->load('facility')
+        ]);
+    }
+
+    /**
+     * Update search favorite.
+     */
+    public function updateSearchFavorite(Request $request, $favoriteId)
+    {
+        $favorite = MaintenanceSearchFavorite::find($favoriteId);
+        
+        if (!$favorite) {
+            return response()->json([
+                'success' => false,
+                'message' => 'お気に入りが見つかりません。'
+            ], 404);
+        }
+
+        // Check if the favorite belongs to the current user
+        if ($favorite->user_id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'アクセス権限がありません。'
+            ], 403);
+        }
+
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'facility_id' => 'nullable|exists:facilities,id',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'search_content' => 'nullable|string|max:255',
+        ]);
+
+        $favorite->update($validatedData);
+
+        return response()->json([
+            'success' => true,
+            'message' => '検索条件を更新しました。',
+            'favorite' => $favorite->load('facility')
+        ]);
+    }
+
+    /**
+     * Delete search favorite.
+     */
+    public function deleteSearchFavorite($favoriteId)
+    {
+        $favorite = MaintenanceSearchFavorite::find($favoriteId);
+        
+        if (!$favorite) {
+            return response()->json([
+                'success' => false,
+                'message' => 'お気に入りが見つかりません。'
+            ], 404);
+        }
+
+        // Check if the favorite belongs to the current user
+        if ($favorite->user_id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'アクセス権限がありません。'
+            ], 403);
+        }
+
+        $favorite->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => '検索条件を削除しました。'
+        ]);
+    }
+
+    /**
+     * Get user's search favorites.
+     */
+    public function getSearchFavorites()
+    {
+        $favorites = MaintenanceSearchFavorite::forUser(Auth::id())
+            ->with('facility')
+            ->orderBy('name')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'favorites' => $favorites
+        ]);
     }
 }

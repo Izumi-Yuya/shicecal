@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Facility;
 use App\Models\MaintenanceHistory;
+use App\Models\MaintenanceSearchFavorite;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -333,5 +334,326 @@ class MaintenanceHistoryTest extends TestCase
         $historyContents = collect($responseData)->pluck('content')->toArray();
         $this->assertContains($history1->content, $historyContents);
         $this->assertContains($history2->content, $historyContents);
+    }
+
+    /** @test */
+    public function it_can_save_search_conditions_as_favorite()
+    {
+        $facility = Facility::factory()->create(['status' => 'approved']);
+
+        $favoriteData = [
+            'name' => 'My Search Favorite',
+            'facility_id' => $facility->id,
+            'start_date' => '2024-01-01',
+            'end_date' => '2024-12-31',
+            'search_content' => 'air conditioning',
+        ];
+
+        $response = $this->postJson(route('maintenance.search-favorites.store'), $favoriteData);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'message' => '検索条件を保存しました。'
+        ]);
+
+        $this->assertDatabaseHas('maintenance_search_favorites', [
+            'user_id' => $this->user->id,
+            'name' => 'My Search Favorite',
+            'facility_id' => $facility->id,
+            'search_content' => 'air conditioning',
+        ]);
+        
+        $favorite = MaintenanceSearchFavorite::where('name', 'My Search Favorite')->first();
+        $this->assertEquals('2024-01-01', $favorite->start_date->format('Y-m-d'));
+        $this->assertEquals('2024-12-31', $favorite->end_date->format('Y-m-d'));
+    }
+
+    /** @test */
+    public function it_can_save_search_conditions_with_null_values()
+    {
+        $favoriteData = [
+            'name' => 'Simple Search',
+            'facility_id' => null,
+            'start_date' => null,
+            'end_date' => null,
+            'search_content' => null,
+        ];
+
+        $response = $this->postJson(route('maintenance.search-favorites.store'), $favoriteData);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'message' => '検索条件を保存しました。'
+        ]);
+
+        $this->assertDatabaseHas('maintenance_search_favorites', [
+            'user_id' => $this->user->id,
+            'name' => 'Simple Search',
+            'facility_id' => null,
+            'start_date' => null,
+            'end_date' => null,
+            'search_content' => null,
+        ]);
+    }
+
+    /** @test */
+    public function it_validates_required_fields_when_saving_search_favorite()
+    {
+        $response = $this->postJson(route('maintenance.search-favorites.store'), []);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['name']);
+    }
+
+    /** @test */
+    public function it_validates_date_range_when_saving_search_favorite()
+    {
+        $favoriteData = [
+            'name' => 'Invalid Date Range',
+            'start_date' => '2024-12-31',
+            'end_date' => '2024-01-01', // End date before start date
+        ];
+
+        $response = $this->postJson(route('maintenance.search-favorites.store'), $favoriteData);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['end_date']);
+    }
+
+    /** @test */
+    public function it_can_load_search_favorite()
+    {
+        $facility = Facility::factory()->create(['status' => 'approved']);
+        $favorite = MaintenanceSearchFavorite::factory()->create([
+            'user_id' => $this->user->id,
+            'facility_id' => $facility->id,
+        ]);
+
+        $response = $this->getJson(route('maintenance.search-favorites.show', $favorite));
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'favorite' => [
+                'id' => $favorite->id,
+                'name' => $favorite->name,
+                'facility_id' => $facility->id,
+            ]
+        ]);
+    }
+
+    /** @test */
+    public function it_prevents_loading_other_users_search_favorite()
+    {
+        $otherUser = User::factory()->create(['role' => 'editor']);
+        $favorite = MaintenanceSearchFavorite::factory()->create([
+            'user_id' => $otherUser->id,
+        ]);
+
+        $response = $this->getJson(route('maintenance.search-favorites.show', $favorite));
+
+        $response->assertStatus(403);
+        $response->assertJson([
+            'success' => false,
+            'message' => 'アクセス権限がありません。'
+        ]);
+    }
+
+    /** @test */
+    public function it_can_update_search_favorite()
+    {
+        $facility = Facility::factory()->create(['status' => 'approved']);
+        $favorite = MaintenanceSearchFavorite::factory()->create([
+            'user_id' => $this->user->id,
+        ]);
+
+        $updateData = [
+            'name' => 'Updated Search Favorite',
+            'facility_id' => $facility->id,
+            'start_date' => '2024-06-01',
+            'end_date' => '2024-06-30',
+            'search_content' => 'updated search',
+        ];
+
+        $response = $this->putJson(route('maintenance.search-favorites.update', $favorite), $updateData);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'message' => '検索条件を更新しました。'
+        ]);
+
+        $this->assertDatabaseHas('maintenance_search_favorites', [
+            'id' => $favorite->id,
+            'user_id' => $this->user->id,
+            'name' => 'Updated Search Favorite',
+            'facility_id' => $facility->id,
+            'search_content' => 'updated search',
+        ]);
+        
+        $favorite->refresh();
+        $this->assertEquals('2024-06-01', $favorite->start_date->format('Y-m-d'));
+        $this->assertEquals('2024-06-30', $favorite->end_date->format('Y-m-d'));
+    }
+
+    /** @test */
+    public function it_prevents_updating_other_users_search_favorite()
+    {
+        $otherUser = User::factory()->create(['role' => 'editor']);
+        $favorite = MaintenanceSearchFavorite::factory()->create([
+            'user_id' => $otherUser->id,
+        ]);
+
+        $updateData = [
+            'name' => 'Hacked Favorite',
+        ];
+
+        $response = $this->putJson(route('maintenance.search-favorites.update', $favorite), $updateData);
+
+        $response->assertStatus(403);
+        $response->assertJson([
+            'success' => false,
+            'message' => 'アクセス権限がありません。'
+        ]);
+    }
+
+    /** @test */
+    public function it_can_delete_search_favorite()
+    {
+        $favorite = MaintenanceSearchFavorite::factory()->create([
+            'user_id' => $this->user->id,
+        ]);
+
+        $response = $this->deleteJson(route('maintenance.search-favorites.destroy', $favorite));
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'message' => '検索条件を削除しました。'
+        ]);
+
+        $this->assertDatabaseMissing('maintenance_search_favorites', [
+            'id' => $favorite->id,
+        ]);
+    }
+
+    /** @test */
+    public function it_prevents_deleting_other_users_search_favorite()
+    {
+        $otherUser = User::factory()->create(['role' => 'editor']);
+        $favorite = MaintenanceSearchFavorite::factory()->create([
+            'user_id' => $otherUser->id,
+        ]);
+
+        $response = $this->deleteJson(route('maintenance.search-favorites.destroy', $favorite));
+
+        $response->assertStatus(403);
+        $response->assertJson([
+            'success' => false,
+            'message' => 'アクセス権限がありません。'
+        ]);
+
+        $this->assertDatabaseHas('maintenance_search_favorites', [
+            'id' => $favorite->id,
+        ]);
+    }
+
+    /** @test */
+    public function it_can_get_users_search_favorites()
+    {
+        $otherUser = User::factory()->create(['role' => 'editor']);
+        
+        // Create favorites for current user
+        $userFavorite1 = MaintenanceSearchFavorite::factory()->create([
+            'user_id' => $this->user->id,
+            'name' => 'User Favorite 1',
+        ]);
+        $userFavorite2 = MaintenanceSearchFavorite::factory()->create([
+            'user_id' => $this->user->id,
+            'name' => 'User Favorite 2',
+        ]);
+        
+        // Create favorite for other user (should not be returned)
+        MaintenanceSearchFavorite::factory()->create([
+            'user_id' => $otherUser->id,
+            'name' => 'Other User Favorite',
+        ]);
+
+        $response = $this->getJson(route('maintenance.search-favorites.index'));
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+        ]);
+
+        $favorites = $response->json('favorites');
+        $this->assertCount(2, $favorites);
+        
+        $favoriteNames = collect($favorites)->pluck('name')->toArray();
+        $this->assertContains('User Favorite 1', $favoriteNames);
+        $this->assertContains('User Favorite 2', $favoriteNames);
+        $this->assertNotContains('Other User Favorite', $favoriteNames);
+    }
+
+    /** @test */
+    public function it_displays_search_favorites_in_index_view()
+    {
+        $facility = Facility::factory()->create(['status' => 'approved']);
+        $favorite = MaintenanceSearchFavorite::factory()->create([
+            'user_id' => $this->user->id,
+            'name' => 'Test Favorite',
+            'facility_id' => $facility->id,
+        ]);
+
+        $response = $this->get(route('maintenance.index'));
+
+        $response->assertStatus(200);
+        $response->assertViewHas('searchFavorites');
+        $response->assertSee('Test Favorite');
+    }
+
+    /** @test */
+    public function it_can_combine_search_filters_with_favorites()
+    {
+        $facility1 = Facility::factory()->create(['status' => 'approved']);
+        $facility2 = Facility::factory()->create(['status' => 'approved']);
+        
+        // Create maintenance histories
+        $history1 = MaintenanceHistory::factory()->create([
+            'facility_id' => $facility1->id,
+            'created_by' => $this->user->id,
+            'maintenance_date' => '2024-01-15',
+            'content' => 'Air conditioning repair'
+        ]);
+        
+        $history2 = MaintenanceHistory::factory()->create([
+            'facility_id' => $facility2->id,
+            'created_by' => $this->user->id,
+            'maintenance_date' => '2024-02-15',
+            'content' => 'Plumbing maintenance'
+        ]);
+
+        // Create and load a favorite that should match only history1
+        $favorite = MaintenanceSearchFavorite::factory()->create([
+            'user_id' => $this->user->id,
+            'facility_id' => $facility1->id,
+            'start_date' => '2024-01-01',
+            'end_date' => '2024-01-31',
+            'search_content' => 'air conditioning',
+        ]);
+
+        // Apply the search conditions from the favorite
+        $response = $this->get(route('maintenance.index', [
+            'facility_id' => $favorite->facility_id,
+            'start_date' => $favorite->start_date,
+            'end_date' => $favorite->end_date,
+            'search' => $favorite->search_content,
+        ]));
+
+        $response->assertStatus(200);
+        $response->assertSee('Air conditioning repair');
+        $response->assertDontSee('Plumbing maintenance');
     }
 }

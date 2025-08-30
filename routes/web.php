@@ -89,10 +89,20 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [MaintenanceController::class, 'index'])->name('index');
         Route::get('/create', [MaintenanceController::class, 'create'])->name('create');
         Route::post('/', [MaintenanceController::class, 'store'])->name('store');
+        
+        // Search Favorites Routes (must be before parameterized routes)
+        Route::get('/search-favorites', [MaintenanceController::class, 'getSearchFavorites'])->name('search-favorites.index');
+        Route::post('/search-favorites', [MaintenanceController::class, 'saveSearchFavorite'])->name('search-favorites.store');
+        Route::get('/search-favorites/{favorite}', [MaintenanceController::class, 'loadSearchFavorite'])->name('search-favorites.show');
+        Route::put('/search-favorites/{favorite}', [MaintenanceController::class, 'updateSearchFavorite'])->name('search-favorites.update');
+        Route::delete('/search-favorites/{favorite}', [MaintenanceController::class, 'deleteSearchFavorite'])->name('search-favorites.destroy');
+        
+        Route::get('/facility/{facility}/histories', [MaintenanceController::class, 'getFacilityHistories'])->name('facility.histories');
+        
+        // Parameterized routes must be last
         Route::get('/{maintenanceHistory}', [MaintenanceController::class, 'show'])->name('show');
         Route::get('/{maintenanceHistory}/edit', [MaintenanceController::class, 'edit'])->name('edit');
         Route::put('/{maintenanceHistory}', [MaintenanceController::class, 'update'])->name('update');
         Route::delete('/{maintenanceHistory}', [MaintenanceController::class, 'destroy'])->name('destroy');
-        Route::get('/facility/{facility}/histories', [MaintenanceController::class, 'getFacilityHistories'])->name('facility.histories');
     });
 });
