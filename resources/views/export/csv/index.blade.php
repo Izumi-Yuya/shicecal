@@ -360,6 +360,54 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.show();
     });
     
+    // CSV出力フォーム送信
+    document.getElementById('csvExportForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const selectedFacilities = Array.from(document.querySelectorAll('.facility-checkbox:checked')).map(cb => cb.value);
+        const selectedFields = Array.from(document.querySelectorAll('.field-checkbox:checked')).map(cb => cb.value);
+        
+        if (selectedFacilities.length === 0 || selectedFields.length === 0) {
+            alert('施設と出力項目を選択してください。');
+            return;
+        }
+        
+        // Create a form to submit the data
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ route("csv.export.generate") }}';
+        
+        // Add CSRF token
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = '_token';
+        csrfToken.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        form.appendChild(csrfToken);
+        
+        // Add facility IDs
+        selectedFacilities.forEach(facilityId => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'facility_ids[]';
+            input.value = facilityId;
+            form.appendChild(input);
+        });
+        
+        // Add export fields
+        selectedFields.forEach(field => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'export_fields[]';
+            input.value = field;
+            form.appendChild(input);
+        });
+        
+        // Submit the form
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    });
+    
     // 初期状態の更新
     updateSelectionStatus();
 });

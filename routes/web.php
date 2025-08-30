@@ -39,5 +39,6 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('export/csv')->name('csv.export.')->group(function () {
         Route::get('/', [CsvExportController::class, 'index'])->name('index');
         Route::post('/preview', [CsvExportController::class, 'getFieldPreview'])->name('preview');
+        Route::post('/generate', [CsvExportController::class, 'generateCsv'])->name('generate');
     });
 });

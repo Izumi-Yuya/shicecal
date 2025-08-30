@@ -43,9 +43,10 @@ class CsvExportController extends Controller
         $user = Auth::user();
         
         // Get facilities that user has access to
-        $facilities = $this->getFacilitiesForUser($user)
+        $facilities = $this->getFacilitiesQuery($user)
                           ->whereIn('id', $facilityIds)
-                          ->take(3); // Limit preview to 3 facilities
+                          ->take(3) // Limit preview to 3 facilities
+                          ->get();
         
         // Get available fields
         $availableFields = $this->getAvailableFields();
@@ -75,9 +76,96 @@ class CsvExportController extends Controller
     }
 
     /**
-     * Get facilities based on user role and access scope
+     * Generate and download CSV file
      */
-    private function getFacilitiesForUser(User $user)
+    public function generateCsv(Request $request)
+    {
+        $facilityIds = $request->input('facility_ids', []);
+        $exportFields = $request->input('export_fields', []);
+        
+        if (empty($facilityIds) || empty($exportFields)) {
+            return response()->json([
+                'success' => false,
+                'message' => '施設または項目が選択されていません。'
+            ], 400);
+        }
+        
+        $user = Auth::user();
+        
+        // Get facilities that user has access to
+        $facilities = $this->getFacilitiesQuery($user)
+                          ->whereIn('id', $facilityIds)
+                          ->get();
+        
+        if ($facilities->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => '出力可能な施設がありません。'
+            ], 400);
+        }
+        
+        // Get available fields
+        $availableFields = $this->getAvailableFields();
+        
+        // Filter to only requested fields
+        $selectedFields = array_intersect_key($availableFields, array_flip($exportFields));
+        
+        // Generate CSV content
+        $csvContent = $this->generateCsvContent($facilities, $exportFields, $selectedFields);
+        
+        // Generate filename with timestamp
+        $timestamp = now()->format('Y-m-d_H-i-s');
+        $filename = "facility_export_{$timestamp}.csv";
+        
+        // Return CSV file as download
+        return response($csvContent)
+            ->header('Content-Type', 'text/csv; charset=UTF-8')
+            ->header('Content-Disposition', "attachment; filename=\"{$filename}\"")
+            ->header('Content-Length', strlen($csvContent));
+    }
+
+    /**
+     * Generate CSV content with UTF-8 BOM
+     */
+    private function generateCsvContent($facilities, $exportFields, $selectedFields)
+    {
+        // Start with UTF-8 BOM to prevent character encoding issues
+        $csvContent = "\xEF\xBB\xBF";
+        
+        // Create CSV header
+        $header = array_values($selectedFields);
+        $csvContent .= $this->arrayToCsvLine($header);
+        
+        // Add data rows
+        foreach ($facilities as $facility) {
+            $row = [];
+            foreach ($exportFields as $field) {
+                $row[] = $this->getFieldValue($facility, $field);
+            }
+            $csvContent .= $this->arrayToCsvLine($row);
+        }
+        
+        return $csvContent;
+    }
+
+    /**
+     * Convert array to CSV line
+     */
+    private function arrayToCsvLine(array $data): string
+    {
+        $output = fopen('php://temp', 'r+');
+        fputcsv($output, $data);
+        rewind($output);
+        $line = fgets($output);
+        fclose($output);
+        
+        return $line;
+    }
+
+    /**
+     * Get facilities query based on user role and access scope
+     */
+    private function getFacilitiesQuery(User $user)
     {
         $query = Facility::approved(); // Only show approved facilities
         
@@ -126,8 +214,15 @@ class CsvExportController extends Controller
         }
         
         return $query->orderBy('company_name')
-                    ->orderBy('facility_name')
-                    ->get();
+                    ->orderBy('facility_name');
+    }
+
+    /**
+     * Get facilities based on user role and access scope
+     */
+    private function getFacilitiesForUser(User $user)
+    {
+        return $this->getFacilitiesQuery($user)->get();
     }
 
     /**
