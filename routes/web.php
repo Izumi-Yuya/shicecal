@@ -7,6 +7,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\MyPageController;
+use App\Http\Controllers\MaintenanceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -81,5 +82,17 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [MyPageController::class, 'index'])->name('index');
         Route::get('/my-comments', [MyPageController::class, 'myComments'])->name('my-comments');
         Route::get('/activity-summary', [MyPageController::class, 'activitySummary'])->name('activity-summary');
+    });
+    
+    // Maintenance History Routes
+    Route::prefix('maintenance')->name('maintenance.')->group(function () {
+        Route::get('/', [MaintenanceController::class, 'index'])->name('index');
+        Route::get('/create', [MaintenanceController::class, 'create'])->name('create');
+        Route::post('/', [MaintenanceController::class, 'store'])->name('store');
+        Route::get('/{maintenanceHistory}', [MaintenanceController::class, 'show'])->name('show');
+        Route::get('/{maintenanceHistory}/edit', [MaintenanceController::class, 'edit'])->name('edit');
+        Route::put('/{maintenanceHistory}', [MaintenanceController::class, 'update'])->name('update');
+        Route::delete('/{maintenanceHistory}', [MaintenanceController::class, 'destroy'])->name('destroy');
+        Route::get('/facility/{facility}/histories', [MaintenanceController::class, 'getFacilityHistories'])->name('facility.histories');
     });
 });

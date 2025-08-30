@@ -36,6 +36,11 @@
                                     <i class="fas fa-building me-1"></i>施設一覧
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('maintenance.index') }}">
+                                    <i class="fas fa-tools me-1"></i>修繕履歴
+                                </a>
+                            </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="exportDropdown" role="button" data-bs-toggle="dropdown">
                                     <i class="fas fa-download me-1"></i>出力

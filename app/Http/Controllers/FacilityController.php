@@ -55,7 +55,13 @@ class FacilityController extends Controller
      */
     public function show(Facility $facility)
     {
-        $facility->load(['comments.poster', 'comments.assignee']);
+        $facility->load([
+            'comments.poster', 
+            'comments.assignee',
+            'maintenanceHistories' => function($query) {
+                $query->with('creator')->latest('maintenance_date');
+            }
+        ]);
         
         return view('facilities.show', compact('facility'));
     }

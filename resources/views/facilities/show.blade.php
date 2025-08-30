@@ -72,6 +72,78 @@
                         </div>
                     </div>
 
+                    <!-- 修繕履歴 -->
+                    <div class="mt-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5><i class="fas fa-tools me-2"></i>修繕履歴</h5>
+                            @if(auth()->user()->isEditor() || auth()->user()->isAdmin())
+                                <a href="{{ route('maintenance.create', ['facility_id' => $facility->id]) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-plus"></i> 履歴追加
+                                </a>
+                            @endif
+                        </div>
+                        
+                        <div id="maintenance-histories">
+                            @if($facility->maintenanceHistories->count() > 0)
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>修繕日</th>
+                                                <th>内容</th>
+                                                <th>費用</th>
+                                                <th>業者</th>
+                                                <th>登録者</th>
+                                                <th>操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($facility->maintenanceHistories->take(5) as $history)
+                                                <tr>
+                                                    <td>{{ $history->maintenance_date->format('Y/m/d') }}</td>
+                                                    <td>
+                                                        <div class="text-truncate" style="max-width: 200px;" title="{{ $history->content }}">
+                                                            {{ $history->content }}
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        @if($history->cost)
+                                                            ¥{{ number_format($history->cost) }}
+                                                        @else
+                                                            <span class="text-muted">-</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ $history->contractor ?? '-' }}</td>
+                                                    <td>{{ $history->creator->name }}</td>
+                                                    <td>
+                                                        <a href="{{ route('maintenance.show', $history) }}" class="btn btn-outline-primary btn-xs">詳細</a>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                @if($facility->maintenanceHistories->count() > 5)
+                                    <div class="text-center mt-2">
+                                        <a href="{{ route('maintenance.index', ['facility_id' => $facility->id]) }}" class="btn btn-outline-secondary btn-sm">
+                                            すべての履歴を見る ({{ $facility->maintenanceHistories->count() }}件)
+                                        </a>
+                                    </div>
+                                @endif
+                            @else
+                                <div class="text-center py-3 text-muted">
+                                    <i class="fas fa-tools fa-2x mb-2"></i>
+                                    <p>修繕履歴がありません</p>
+                                    @if(auth()->user()->isEditor() || auth()->user()->isAdmin())
+                                        <a href="{{ route('maintenance.create', ['facility_id' => $facility->id]) }}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-plus"></i> 最初の履歴を追加
+                                        </a>
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
                     <!-- コメント機能 -->
                     @include('comments.comment-section', ['facility' => $facility])
                 </div>
