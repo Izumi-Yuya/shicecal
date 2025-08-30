@@ -179,9 +179,21 @@ class ActivityLoggingTest extends TestCase
 
     public function test_activity_log_scopes()
     {
-        ActivityLog::factory()->create(['action' => 'create', 'user_id' => $this->user->id]);
-        ActivityLog::factory()->create(['action' => 'update', 'user_id' => $this->user->id]);
-        ActivityLog::factory()->create(['target_type' => 'facility', 'user_id' => $this->user->id]);
+        ActivityLog::factory()->create([
+            'action' => 'create', 
+            'target_type' => 'user',
+            'user_id' => $this->user->id
+        ]);
+        ActivityLog::factory()->create([
+            'action' => 'update', 
+            'target_type' => 'user',
+            'user_id' => $this->user->id
+        ]);
+        ActivityLog::factory()->create([
+            'action' => 'view',
+            'target_type' => 'facility', 
+            'user_id' => $this->user->id
+        ]);
 
         $createLogs = ActivityLog::byAction('create')->get();
         $facilityLogs = ActivityLog::byTargetType('facility')->get();
