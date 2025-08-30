@@ -106,8 +106,13 @@ class AnnualConfirmationController extends Controller
      */
     public function show(AnnualConfirmation $annualConfirmation)
     {
-        // Check if user is the facility manager for this confirmation
-        if (Auth::id() !== $annualConfirmation->facility_manager_id && !Auth::user()->isAdmin()) {
+        // Check if user has permission to view this confirmation
+        $user = Auth::user();
+        $canView = $user->isAdmin() || 
+                   $user->isEditor() || 
+                   $user->id === $annualConfirmation->facility_manager_id;
+        
+        if (!$canView) {
             abort(403, 'この確認依頼にアクセスする権限がありません。');
         }
 
