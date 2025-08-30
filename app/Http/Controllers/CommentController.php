@@ -140,4 +140,81 @@ class CommentController extends Controller
 
         return view('comments.assigned-comments', compact('comments'));
     }
+
+    /**
+     * Show status dashboard for comment management.
+     */
+    public function statusDashboard(Request $request)
+    {
+        // Build query with filters
+        $query = Comment::with(['facility', 'poster', 'assignee']);
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        // Filter by facility name
+        if ($request->filled('facility_name')) {
+            $query->whereHas('facility', function ($q) use ($request) {
+                $q->where('facility_name', 'like', '%' . $request->input('facility_name') . '%');
+            });
+        }
+
+        // Filter by assignee
+        if ($request->filled('assignee')) {
+            $query->where('assigned_to', $request->input('assignee'));
+        }
+
+        $comments = $query->orderBy('created_at', 'desc')->paginate(20);
+
+        // Get status counts
+        $statusCounts = [
+            'pending' => Comment::where('status', 'pending')->count(),
+            'in_progress' => Comment::where('status', 'in_progress')->count(),
+            'resolved' => Comment::where('status', 'resolved')->count(),
+        ];
+
+        // Get assignees for filter dropdown
+        $assignees = User::whereIn('role', ['primary_responder', 'admin'])
+            ->orderBy('name')
+            ->get();
+
+        return view('comments.status-dashboard', compact('comments', 'statusCounts', 'assignees'));
+    }
+
+    /**
+     * Bulk update comment statuses.
+     */
+    public function bulkUpdateStatus(Request $request)
+    {
+        $commentIds = $request->input('comment_ids', []);
+        $status = $request->input('status');
+
+        if (empty($commentIds) || !in_array($status, ['pending', 'in_progress', 'resolved'])) {
+            return redirect()->back()->with('error', '無効な操作です。');
+        }
+
+        $comments = Comment::whereIn('id', $commentIds)->get();
+
+        foreach ($comments as $comment) {
+            $oldStatus = $comment->status;
+            $comment->status = $status;
+            
+            if ($status === 'resolved') {
+                $comment->resolved_at = now();
+            } else {
+                $comment->resolved_at = null;
+            }
+
+            $comment->save();
+
+            // Send notification if status changed
+            if ($oldStatus !== $status) {
+                $this->notificationService->notifyCommentStatusChanged($comment, $oldStatus);
+            }
+        }
+
+        return redirect()->back()->with('success', count($commentIds) . '件のコメントステータスを更新しました。');
+    }
 }

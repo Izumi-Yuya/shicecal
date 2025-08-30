@@ -74,6 +74,29 @@
                                         | 解決日時: {{ $comment->resolved_at->format('Y年m月d日 H:i') }}
                                     @endif
                                 </small>
+                                
+                                <!-- ステータス進捗表示 -->
+                                <div class="mt-2">
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar 
+                                            @if($comment->status === 'pending') bg-warning
+                                            @elseif($comment->status === 'in_progress') bg-info
+                                            @else bg-success
+                                            @endif" 
+                                            role="progressbar" 
+                                            style="width: 
+                                                @if($comment->status === 'pending') 33%
+                                                @elseif($comment->status === 'in_progress') 66%
+                                                @else 100%
+                                                @endif">
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-1">
+                                        <small class="text-muted">未対応</small>
+                                        <small class="text-muted">対応中</small>
+                                        <small class="text-muted">対応済</small>
+                                    </div>
+                                </div>
                             </div>
                             
                             <!-- ステータス更新ボタン（担当者または管理者のみ） -->

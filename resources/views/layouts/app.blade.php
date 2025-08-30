@@ -61,6 +61,9 @@
                                         <li><a class="dropdown-item" href="{{ route('comments.assigned') }}">
                                             <i class="fas fa-tasks me-1"></i>担当コメント
                                         </a></li>
+                                        <li><a class="dropdown-item" href="{{ route('comments.status-dashboard') }}">
+                                            <i class="fas fa-chart-bar me-1"></i>ステータス管理
+                                        </a></li>
                                     @endif
                                 </ul>
                             </li>

@@ -62,6 +62,8 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/{comment}/status', [CommentController::class, 'updateStatus'])->name('update-status');
         Route::get('/my-comments', [CommentController::class, 'myComments'])->name('my-comments');
         Route::get('/assigned', [CommentController::class, 'assignedComments'])->name('assigned');
+        Route::get('/status-dashboard', [CommentController::class, 'statusDashboard'])->name('status-dashboard');
+        Route::post('/bulk-update-status', [CommentController::class, 'bulkUpdateStatus'])->name('bulk-update-status');
     });
     
     // Notification Routes
