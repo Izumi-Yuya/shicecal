@@ -36,6 +36,11 @@
                                     <i class="fas fa-file-pdf me-1"></i>PDF出力
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('csv.export.index') }}">
+                                    <i class="fas fa-file-csv me-1"></i>CSV出力
+                                </a>
+                            </li>
                         @endauth
                     </ul>
                     
