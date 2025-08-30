@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PdfExportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,4 +16,20 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+// Basic login route for testing
+Route::get('/login', function () {
+    return response('Login page', 200);
+})->name('login');
+
+// PDF Export Routes
+Route::middleware(['auth'])->group(function () {
+    Route::prefix('export/pdf')->name('pdf.export.')->group(function () {
+        Route::get('/', [PdfExportController::class, 'index'])->name('index');
+        Route::get('/facility/{facility}', [PdfExportController::class, 'generateSingle'])->name('single');
+        Route::get('/secure/{facility}', [PdfExportController::class, 'generateSecureSingle'])->name('secure.single');
+        Route::post('/batch', [PdfExportController::class, 'generateBatch'])->name('batch');
+        Route::get('/progress/{batchId}', [PdfExportController::class, 'getBatchProgress'])->name('progress');
+    });
 });
