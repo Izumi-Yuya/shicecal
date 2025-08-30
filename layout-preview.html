@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>施設管理システム - レイアウトプレビュー</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUa6c+yl9+TGUS79eP1l/5sLWppSFS+fDpSbiDVXUo+/xJr7+/EGVQtvlWRn" crossorigin="anonymous">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <!-- Custom CSS -->
+    <style>
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .main-content {
+            min-height: calc(100vh - 120px);
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px 0;
+            margin-top: auto;
+        }
+        .sidebar {
+            min-height: calc(100vh - 56px);
+            background-color: #f8f9fa;
+        }
+        .content-wrapper {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Navigation -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">
+                    <i class="bi bi-building"></i>
+                    施設管理システム
+                </a>
+                
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="bi bi-list-ul"></i>
+                                施設一覧
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="bi bi-plus-circle"></i>
+                                施設登録
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-gear"></i>
+                                管理
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                                <li><a class="dropdown-item" href="#">ユーザー管理</a></li>
+                                <li><a class="dropdown-item" href="#">システム設定</a></li>
+                                <li><a class="dropdown-item" href="#">ログ管理</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    
+                    <ul class="navbar-nav">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle"></i>
+                                テストユーザー
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="#">プロフィール</a></li>
+                                <li><a class="dropdown-item" href="#">マイページ</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#">ログアウト</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12 content-wrapper">
+                
+                <!-- Success Alert Example -->
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    レイアウトが正常に表示されています！
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+                <!-- Page Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="h3 mb-0">ダッシュボード</h1>
+                    <div>
+                        <button class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i>
+                            新規作成
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Main Content -->
+                <main class="main-content">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <i class="bi bi-house"></i>
+                                        施設管理システムへようこそ
+                                    </h5>
+                                    <p class="card-text">
+                                        このシステムでは、施設情報の管理、承認フロー、ファイル管理、レポート出力などの機能を提供しています。
+                                    </p>
+                                    
+                                    <div class="row mt-4">
+                                        <div class="col-md-6 col-lg-3 mb-3">
+                                            <div class="card bg-primary text-white">
+                                                <div class="card-body">
+                                                    <div class="d-flex justify-content-between">
+                                                        <div>
+                                                            <h6 class="card-title">施設数</h6>
+                                                            <h4 class="mb-0">125</h4>
+                                                        </div>
+                                                        <div class="align-self-center">
+                                                            <i class="bi bi-building fs-2"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6 col-lg-3 mb-3">
+                                            <div class="card bg-warning text-white">
+                                                <div class="card-body">
+                                                    <div class="d-flex justify-content-between">
+                                                        <div>
+                                                            <h6 class="card-title">承認待ち</h6>
+                                                            <h4 class="mb-0">8</h4>
+                                                        </div>
+                                                        <div class="align-self-center">
+                                                            <i class="bi bi-clock fs-2"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6 col-lg-3 mb-3">
+                                            <div class="card bg-info text-white">
+                                                <div class="card-body">
+                                                    <div class="d-flex justify-content-between">
+                                                        <div>
+                                                            <h6 class="card-title">未読コメント</h6>
+                                                            <h4 class="mb-0">3</h4>
+                                                        </div>
+                                                        <div class="align-self-center">
+                                                            <i class="bi bi-chat fs-2"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6 col-lg-3 mb-3">
+                                            <div class="card bg-success text-white">
+                                                <div class="card-body">
+                                                    <div class="d-flex justify-content-between">
+                                                        <div>
+                                                            <h6 class="card-title">今月の修繕</h6>
+                                                            <h4 class="mb-0">12</h4>
+                                                        </div>
+                                                        <div class="align-self-center">
+                                                            <i class="bi bi-tools fs-2"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-activity"></i>
+                                        最近の活動
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="list-group list-group-flush">
+                                        <div class="list-group-item d-flex justify-content-between align-items-start">
+                                            <div class="ms-2 me-auto">
+                                                <div class="fw-bold">施設情報が更新されました</div>
+                                                <small class="text-muted">2024/08/29 14:30</small>
+                                            </div>
+                                            <span class="badge bg-primary rounded-pill">更新</span>
+                                        </div>
+                                        <div class="list-group-item d-flex justify-content-between align-items-start">
+                                            <div class="ms-2 me-auto">
+                                                <div class="fw-bold">新しいコメントが投稿されました</div>
+                                                <small class="text-muted">2024/08/29 13:15</small>
+                                            </div>
+                                            <span class="badge bg-info rounded-pill">コメント</span>
+                                        </div>
+                                        <div class="list-group-item d-flex justify-content-between align-items-start">
+                                            <div class="ms-2 me-auto">
+                                                <div class="fw-bold">承認が完了しました</div>
+                                                <small class="text-muted">2024/08/29 12:00</small>
+                                            </div>
+                                            <span class="badge bg-success rounded-pill">承認</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-link-45deg"></i>
+                                        クイックアクション
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-primary">
+                                            <i class="bi bi-list-ul"></i>
+                                            施設一覧を見る
+                                        </button>
+                                        
+                                        <button class="btn btn-outline-success">
+                                            <i class="bi bi-plus-circle"></i>
+                                            新しい施設を登録
+                                        </button>
+                                        
+                                        <button class="btn btn-outline-info">
+                                            <i class="bi bi-download"></i>
+                                            CSV出力
+                                        </button>
+                                        
+                                        <button class="btn btn-outline-warning">
+                                            <i class="bi bi-check-circle"></i>
+                                            承認待ち一覧
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+                
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer mt-auto">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-0 text-muted">
+                            &copy; 2024 施設管理システム. All rights reserved.
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <p class="mb-0 text-muted">
+                            Version 1.0.0
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    
+    <!-- Custom JS -->
+    <script>
+        // Auto-hide alerts after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert:not(.alert-danger)');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }, 5000);
+            });
+        });
+
+        // Confirm delete actions
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('btn-delete') || e.target.closest('.btn-delete')) {
+                if (!confirm('本当に削除しますか？この操作は取り消せません。')) {
+                    e.preventDefault();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

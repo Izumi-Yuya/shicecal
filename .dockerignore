@@ -1,0 +1,51 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# Environment files
+.env
+.env.*
+!.env.production
+
+# Development files
+.kiro/
+tests/
+phpunit.xml
+.phpunit.result.cache
+
+# Node modules and build artifacts
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+storage/logs/*
+
+# Cache
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+bootstrap/cache/*
+
+# Vendor (will be installed via composer)
+vendor/
+
+# Docker files (except production configs)
+docker-compose.yml
+docker-compose.*.yml
+Dockerfile.dev
