@@ -11,147 +11,268 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Vite Assets -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <!-- Admin CSS -->
     @if(auth()->check() && auth()->user()->isAdmin())
-        <link href="{{ asset('css/admin.css') }}" rel="stylesheet">
+        @vite('resources/css/admin.css')
     @endif
     
     @stack('styles')
 </head>
 <body>
     <div id="app">
-        <!-- Navigation -->
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <!-- Top Navigation -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
             <div class="container-fluid">
-                <a class="navbar-brand" href="{{ url('/') }}">
-                    <i class="fas fa-building me-2"></i>
-                    {{ config('app.name', 'Shise-Cal') }}
-                </a>
-                
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                    <span class="navbar-toggler-icon"></span>
+                <!-- Sidebar Toggle Button -->
+                <button class="btn btn-outline-light me-3" type="button" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
                 </button>
                 
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav me-auto">
-                        @auth
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('facilities.index') }}">
-                                    <i class="fas fa-building me-1"></i>施設一覧
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('maintenance.index') }}">
-                                    <i class="fas fa-tools me-1"></i>修繕履歴
-                                </a>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="exportDropdown" role="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-download me-1"></i>出力
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="{{ route('pdf.export.index') }}">
-                                        <i class="fas fa-file-pdf me-1"></i>PDF出力
-                                    </a></li>
-                                    <li><a class="dropdown-item" href="{{ route('csv.export.index') }}">
-                                        <i class="fas fa-file-csv me-1"></i>CSV出力
-                                    </a></li>
-                                </ul>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="commentDropdown" role="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-comments me-1"></i>コメント
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="{{ route('comments.my-comments') }}">
-                                        <i class="fas fa-user-edit me-1"></i>マイコメント
-                                    </a></li>
-                                    @if(auth()->user()->isPrimaryResponder() || auth()->user()->isAdmin())
-                                        <li><a class="dropdown-item" href="{{ route('comments.assigned') }}">
-                                            <i class="fas fa-tasks me-1"></i>担当コメント
-                                        </a></li>
-                                        <li><a class="dropdown-item" href="{{ route('comments.status-dashboard') }}">
-                                            <i class="fas fa-chart-bar me-1"></i>ステータス管理
-                                        </a></li>
-                                    @endif
-                                </ul>
-                            </li>
-                            @if(auth()->user()->isAdmin())
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
-                                        <i class="fas fa-cogs me-1"></i>管理
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="{{ route('admin.users.index') }}">
-                                            <i class="fas fa-users me-1"></i>ユーザー管理
-                                        </a></li>
-                                        <li><a class="dropdown-item" href="{{ route('admin.settings.index') }}">
-                                            <i class="fas fa-cog me-1"></i>システム設定
-                                        </a></li>
-                                        <li><a class="dropdown-item" href="{{ route('admin.logs.index') }}">
-                                            <i class="fas fa-list-alt me-1"></i>ログ管理
-                                        </a></li>
-                                    </ul>
-                                </li>
-                            @endif
-                        @endauth
-                    </ul>
-                    
-                    <ul class="navbar-nav">
-                        @auth
-                            <!-- Notification Bell -->
-                            <li class="nav-item dropdown">
-                                <a class="nav-link position-relative" href="{{ route('notifications.index') }}" id="notificationBell">
-                                    <i class="fas fa-bell"></i>
-                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
-                                          id="unread-count" style="display: none;">
-                                        0
-                                    </span>
-                                </a>
-                            </li>
-                            
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-user me-1"></i>
-                                    {{ Auth::user()->name }}
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="{{ route('my-page.index') }}">
-                                        <i class="fas fa-home me-1"></i>マイページ
-                                    </a></li>
-                                    <li><a class="dropdown-item" href="{{ route('notifications.index') }}">
-                                        <i class="fas fa-bell me-1"></i>通知
-                                    </a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                        <i class="fas fa-sign-out-alt me-1"></i>ログアウト
-                                    </a></li>
-                                </ul>
-                                <form id="logout-form" action="#" method="POST" style="display: none;">
-                                    @csrf
-                                </form>
-                            </li>
-                        @else
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">ログイン</a>
-                            </li>
-                        @endauth
-                    </ul>
+                <a class="navbar-brand d-flex align-items-center" href="{{ url('/') }}">
+                    <img src="{{ asset('images/shicecal-logo.png') }}" 
+                         alt="Shise-Cal Logo" 
+                         class="navbar-logo me-2"
+                         onerror="this.style.display='none';">
+                    <span class="navbar-brand-text">{{ config('app.name', 'Shise-Cal') }}</span>
+                </a>
+                
+                <div class="ms-auto d-flex align-items-center">
+                    @auth
+                        <!-- Notification Bell -->
+                        <a class="nav-link position-relative text-white me-3" href="{{ route('notifications.index') }}" id="notificationBell">
+                            <i class="fas fa-bell"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
+                                  id="unread-count" style="display: none;">
+                                0
+                            </span>
+                        </a>
+                        
+                        <!-- User Dropdown -->
+                        <div class="dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user me-1"></i>
+                                {{ Auth::user()->name }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{{ route('my-page.index') }}">
+                                    <i class="fas fa-home me-2"></i>マイページ
+                                </a></li>
+                                <li><a class="dropdown-item" href="{{ route('notifications.index') }}">
+                                    <i class="fas fa-bell me-2"></i>通知
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                    <i class="fas fa-sign-out-alt me-2"></i>ログアウト
+                                </a></li>
+                            </ul>
+                            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                @csrf
+                            </form>
+                        </div>
+                    @else
+                        <a class="nav-link text-white" href="{{ route('login') }}">ログイン</a>
+                    @endauth
                 </div>
             </div>
         </nav>
 
-        <!-- Main Content -->
-        <main class="py-4">
-            @yield('content')
-        </main>
+        <div class="d-flex">
+            <!-- Sidebar -->
+            @auth
+            <nav id="sidebar" class="sidebar bg-light border-end">
+                <div class="sidebar-header p-3 border-bottom">
+                    <h5 class="mb-0 text-primary">
+                        <i class="fas fa-building me-2"></i>
+                        メニュー
+                    </h5>
+                </div>
+                
+                <div class="sidebar-content">
+                    <ul class="nav flex-column">
+                        <!-- Dashboard -->
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('facilities.index') ? 'active' : '' }}" 
+                               href="{{ route('facilities.index') }}">
+                                <i class="fas fa-tachometer-alt me-2"></i>
+                                ダッシュボード
+                            </a>
+                        </li>
+                        
+                        <!-- Facilities Section -->
+                        <li class="nav-item">
+                            <div class="nav-section-header">
+                                <i class="fas fa-building me-2"></i>
+                                施設管理
+                            </div>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('facilities.*') ? 'active' : '' }}" 
+                               href="{{ route('facilities.index') }}">
+                                <i class="fas fa-list me-2"></i>
+                                施設一覧
+                            </a>
+                        </li>
+                        @if(auth()->user()->canEdit())
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('facilities.create') }}">
+                                <i class="fas fa-plus me-2"></i>
+                                施設登録
+                            </a>
+                        </li>
+                        @endif
+                        
+                        <!-- Maintenance Section -->
+                        <li class="nav-item">
+                            <div class="nav-section-header">
+                                <i class="fas fa-tools me-2"></i>
+                                修繕管理
+                            </div>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('maintenance.*') ? 'active' : '' }}" 
+                               href="{{ route('maintenance.index') }}">
+                                <i class="fas fa-history me-2"></i>
+                                修繕履歴
+                            </a>
+                        </li>
+                        @if(auth()->user()->canEdit())
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('maintenance.create') }}">
+                                <i class="fas fa-plus me-2"></i>
+                                修繕記録追加
+                            </a>
+                        </li>
+                        @endif
+                        
+                        <!-- Export Section -->
+                        <li class="nav-item">
+                            <div class="nav-section-header">
+                                <i class="fas fa-download me-2"></i>
+                                出力機能
+                            </div>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('pdf.export.*') ? 'active' : '' }}" 
+                               href="{{ route('pdf.export.index') }}">
+                                <i class="fas fa-file-pdf me-2"></i>
+                                PDF出力
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('csv.export.*') ? 'active' : '' }}" 
+                               href="{{ route('csv.export.index') }}">
+                                <i class="fas fa-file-csv me-2"></i>
+                                CSV出力
+                            </a>
+                        </li>
+                        
+                        <!-- Comments Section -->
+                        <li class="nav-item">
+                            <div class="nav-section-header">
+                                <i class="fas fa-comments me-2"></i>
+                                コメント管理
+                            </div>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('comments.my-comments') ? 'active' : '' }}" 
+                               href="{{ route('comments.my-comments') }}">
+                                <i class="fas fa-user-edit me-2"></i>
+                                マイコメント
+                            </a>
+                        </li>
+                        @if(auth()->user()->isPrimaryResponder() || auth()->user()->isAdmin())
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('comments.assigned') ? 'active' : '' }}" 
+                               href="{{ route('comments.assigned') }}">
+                                <i class="fas fa-tasks me-2"></i>
+                                担当コメント
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('comments.status-dashboard') ? 'active' : '' }}" 
+                               href="{{ route('comments.status-dashboard') }}">
+                                <i class="fas fa-chart-bar me-2"></i>
+                                ステータス管理
+                            </a>
+                        </li>
+                        @endif
+                        
+                        <!-- Annual Confirmation Section -->
+                        <li class="nav-item">
+                            <div class="nav-section-header">
+                                <i class="fas fa-calendar-check me-2"></i>
+                                年次確認
+                            </div>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('annual-confirmation.*') ? 'active' : '' }}" 
+                               href="{{ route('annual-confirmation.index') }}">
+                                <i class="fas fa-clipboard-check me-2"></i>
+                                年次確認一覧
+                            </a>
+                        </li>
+                        @if(auth()->user()->isAdmin())
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('annual-confirmation.create') }}">
+                                <i class="fas fa-plus me-2"></i>
+                                確認依頼作成
+                            </a>
+                        </li>
+                        @endif
+                        
+                        <!-- Admin Section -->
+                        @if(auth()->user()->isAdmin())
+                        <li class="nav-item">
+                            <div class="nav-section-header">
+                                <i class="fas fa-cogs me-2"></i>
+                                システム管理
+                            </div>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" 
+                               href="{{ route('admin.users.index') }}">
+                                <i class="fas fa-users me-2"></i>
+                                ユーザー管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}" 
+                               href="{{ route('admin.settings.index') }}">
+                                <i class="fas fa-cog me-2"></i>
+                                システム設定
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('admin.logs.*') ? 'active' : '' }}" 
+                               href="{{ route('admin.logs.index') }}">
+                                <i class="fas fa-list-alt me-2"></i>
+                                ログ管理
+                            </a>
+                        </li>
+                        @endif
+                    </ul>
+                </div>
+            </nav>
+            @endauth
+
+            <!-- Main Content -->
+            <main class="main-content flex-grow-1">
+                <div class="container-fluid py-4">
+                    @yield('content')
+                </div>
+            </main>
+        </div>
     </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Admin JS -->
     @if(auth()->check() && auth()->user()->isAdmin())
-        <script src="{{ asset('js/admin.js') }}"></script>
+        @vite('resources/js/admin.js')
     @endif
     
     @auth

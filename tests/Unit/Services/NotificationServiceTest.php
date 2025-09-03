@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\NotificationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
+use Mockery;
 use Tests\TestCase;
 
 class NotificationServiceTest extends TestCase
@@ -22,6 +23,8 @@ class NotificationServiceTest extends TestCase
         parent::setUp();
         $this->service = new NotificationService();
     }
+
+
 
     /**
      * Test comment posted notification.
@@ -66,34 +69,43 @@ class NotificationServiceTest extends TestCase
      */
     public function test_notify_comment_posted_no_primary_responder()
     {
-        // Clear any existing notifications
-        Notification::truncate();
+        // Use database transactions to isolate this test
+        \DB::beginTransaction();
         
-        $poster = User::factory()->create(['role' => 'viewer']);
-        $facility = Facility::factory()->create();
-        $comment = Comment::factory()->create([
-            'facility_id' => $facility->id,
-            'posted_by' => $poster->id,
-        ]);
-
-        $comment->setRelation('facility', $facility);
-        $comment->setRelation('poster', $poster);
-
-        Log::shouldReceive('warning')->once()->with(
-            'No primary responder found for comment notification',
-            [
-                'comment_id' => $comment->id,
+        try {
+            // Start with a clean slate - delete all users first
+            User::query()->forceDelete();
+            Notification::query()->forceDelete();
+            
+            $poster = User::factory()->create(['role' => 'viewer']);
+            $facility = Facility::factory()->create();
+            $comment = Comment::factory()->create([
                 'facility_id' => $facility->id,
-            ]
-        );
-        
-        Log::shouldReceive('info')->never();
-        Log::shouldReceive('error')->never();
+                'posted_by' => $poster->id,
+            ]);
 
-        $this->service->notifyCommentPosted($comment);
+            $comment->setRelation('facility', $facility);
+            $comment->setRelation('poster', $poster);
 
-        // Check no notification was created
-        $this->assertEquals(0, Notification::count());
+            Log::shouldReceive('warning')->once()->with(
+                'No primary responder found for comment notification',
+                [
+                    'comment_id' => $comment->id,
+                    'facility_id' => $facility->id,
+                ]
+            );
+            
+            Log::shouldReceive('info')->never();
+            Log::shouldReceive('error')->never();
+
+            $this->service->notifyCommentPosted($comment);
+
+            // Check no notification was created
+            $this->assertEquals(0, Notification::count());
+            
+        } finally {
+            \DB::rollBack();
+        }
     }
 
     /**

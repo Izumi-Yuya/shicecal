@@ -1,4 +1,0 @@
-PHP Deprecated:  Illuminate\Log\Logger::__construct(): Implicitly marking parameter $dispatcher as nullable is deprecated, the explicit nullable type must be used instead in /Users/izumiisamunari/Desktop/shicecal/vendor/laravel/framework/src/Illuminate/Log/Logger.php on line 43
-
-   WARN  Failed to listen on 127.0.0.1:8001 (reason: Address already in use).  
-

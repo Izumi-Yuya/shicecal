@@ -22,7 +22,7 @@ use App\Http\Controllers\AnnualConfirmationController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 // Authentication Routes

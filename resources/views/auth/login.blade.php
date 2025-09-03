@@ -1,65 +1,103 @@
-@extends('layouts.app')
+@extends('layouts.auth')
 
 @section('title', 'ログイン')
 
 @section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0">ログイン</h4>
-                </div>
-                <div class="card-body">
-                    <form method="POST" action="{{ route('login') }}">
-                        @csrf
-                        
-                        <div class="mb-3">
-                            <label for="email" class="form-label">メールアドレス</label>
-                            <input type="email" 
-                                   class="form-control @error('email') is-invalid @enderror" 
-                                   id="email" 
-                                   name="email" 
-                                   value="{{ old('email') }}" 
-                                   required 
-                                   autofocus>
-                            @error('email')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
-                            @enderror
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="password" class="form-label">パスワード</label>
-                            <input type="password" 
-                                   class="form-control @error('password') is-invalid @enderror" 
-                                   id="password" 
-                                   name="password" 
-                                   required>
-                            @error('password')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
-                            @enderror
-                        </div>
-                        
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="remember" name="remember">
-                            <label class="form-check-label" for="remember">
-                                ログイン状態を保持する
-                            </label>
-                        </div>
-                        
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">
-                                ログイン
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+<div class="login-container">
+    <!-- Marble Background -->
+    <div class="marble-background" id="marble-bg" style="background-image: url('{{ asset('images/marble-background.png') }}');"></div>
+    
+    <!-- Logo Container -->
+    <div class="logo-container">
+        <div class="logo-image">
+            <img src="{{ asset('images/shicecal-logo.png') }}" 
+                 alt="Shise-Cal Logo" 
+                 class="logo-img"
+                 onerror="this.style.display='none'; this.parentElement.classList.add('logo-fallback');">
         </div>
     </div>
+    
+    <!-- Login Form -->
+    <form method="POST" action="{{ route('login') }}">
+        @csrf
+        
+        <div class="login-form-container">
+            <!-- Username Field -->
+            <label for="email" class="form-label username-label">UserName</label>
+            <input type="email" 
+                   class="form-input username-input" 
+                   id="email" 
+                   name="email" 
+                   value="{{ old('email') }}" 
+                   placeholder="*********@cedar-web.com"
+                   required 
+                   autofocus>
+            @error('email')
+                <div class="error-message username-error">
+                    {{ $message }}
+                </div>
+            @enderror
+            
+            <!-- Password Field -->
+            <label for="password" class="form-label password-label">Password</label>
+            <input type="password" 
+                   class="form-input password-input" 
+                   id="password" 
+                   name="password" 
+                   placeholder="PASSWORD"
+                   required>
+            @error('password')
+                <div class="error-message password-error">
+                    {{ $message }}
+                </div>
+            @enderror
+        </div>
+        
+        <!-- Login Button -->
+        <button type="submit" class="login-button">
+            <span class="login-button-text">LOGIN</span>
+        </button>
+    </form>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if marble background image loads successfully
+    const marbleBackground = document.getElementById('marble-bg');
+    const imageUrl = '{{ asset('images/marble-background.png') }}';
+    const testImage = new Image();
+    
+    console.log('Attempting to load marble background from:', imageUrl);
+    
+    testImage.onload = function() {
+        // Image loaded successfully
+        console.log('Marble background image loaded successfully');
+        marbleBackground.style.opacity = '1';
+    };
+    
+    testImage.onerror = function() {
+        // Image failed to load, show fallback
+        console.log('Marble background image failed to load, showing fallback');
+        console.log('Image URL that failed:', imageUrl);
+        marbleBackground.classList.add('image-error');
+    };
+    
+    // Set initial opacity to 0 and fade in when loaded
+    marbleBackground.style.opacity = '0';
+    marbleBackground.style.transition = 'opacity 0.5s ease';
+    
+    testImage.src = imageUrl;
+    
+    // Fallback timeout - if image doesn't load within 3 seconds, show fallback
+    setTimeout(function() {
+        if (!testImage.complete || testImage.naturalHeight === 0) {
+            console.log('Image load timeout, showing fallback');
+            marbleBackground.classList.add('image-error');
+            marbleBackground.style.opacity = '1';
+        }
+    }, 3000);
+});
+</script>
+@endpush
 @endsection

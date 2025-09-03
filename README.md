@@ -1,66 +1,173 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Shise-Cal（シセカル）- 施設カルテシステム
 
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+    <img src="public/images/shicecal-logo.png" width="200" alt="Shise-Cal Logo">
 </p>
 
-## About Laravel
+<p align="center">
+    <a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
+    <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
+    <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+</p>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 📋 プロジェクト概要
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Shise-Cal（シセカル）は、施設情報を一元管理するWebアプリケーションです。権限ベースのアクセス制御と承認フローにより、情報の整合性と業務効率を向上させます。
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 主な機能
 
-## Learning Laravel
+- 🏢 **施設管理**: 施設基本情報の登録・更新・削除
+- 📄 **ファイル管理**: PDF書類のアップロード・ダウンロード
+- 👥 **権限制御**: ロール別のアクセス制御
+- ✅ **承認フロー**: 編集内容の承認・差戻し機能
+- 📊 **出力機能**: PDF帳票・CSV出力
+- 💬 **コメント機能**: 確認・修正依頼の記録・通知
+- 📈 **修繕履歴**: 修繕対応の履歴管理
+- 🔍 **年次確認**: 定期的な情報確認機能
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 🚀 クイックスタート
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 必要な環境
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- PHP 8.1以上
+- Composer 2.x
+- Node.js 16以上
+- MySQL 8.0以上（または SQLite）
 
-## Laravel Sponsors
+### インストール
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+```bash
+# リポジトリのクローン
+git clone <repository-url>
+cd shicecal
 
-### Premium Partners
+# 依存関係のインストール
+composer install
+npm install
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+# 環境設定
+cp .env.example .env
+php artisan key:generate
 
-## Contributing
+# データベースのセットアップ
+php artisan migrate --seed
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# フロントエンドアセットのビルド
+npm run build
 
-## Code of Conduct
+# 開発サーバーの起動
+php artisan serve
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+アプリケーションは http://localhost:8000 でアクセスできます。
 
-## Security Vulnerabilities
+### テストユーザー
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+| ロール | メールアドレス | パスワード |
+|--------|---------------|-----------|
+| 管理者 | admin@shisecal.example.com | password |
+| 編集者 | editor@shisecal.example.com | password |
+| 承認者 | approver@shisecal.example.com | password |
+| 閲覧者 | viewer@shisecal.example.com | password |
 
-## License
+## 📚 ドキュメント
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+詳細なドキュメントは [docs](docs/) ディレクトリに整理されています：
+
+- [📋 要件定義書](docs/requirements/要件定義書（v2.2）.md) - システムの要件と仕様
+- [🔧 開発環境セットアップ](docs/setup/DEVELOPMENT.md) - ローカル開発環境の構築
+- [🚀 本番環境デプロイ](docs/deployment/PRODUCTION.md) - 本番環境へのデプロイ手順
+- [💻 技術実装](docs/implementation/) - 各機能の実装詳細
+
+## 🏗️ 技術スタック
+
+### バックエンド
+- **フレームワーク**: Laravel 9.x
+- **言語**: PHP 8.1+
+- **データベース**: MySQL 8.0 / SQLite
+- **キャッシュ**: Redis
+
+### フロントエンド
+- **CSS**: Bootstrap 5.1.3 + カスタムCSS
+- **JavaScript**: Vanilla JS (ES6+)
+- **ビルドツール**: Vite
+- **アイコン**: Font Awesome 6.0.0
+
+### インフラ
+- **Webサーバー**: Nginx
+- **プロセス管理**: Supervisor
+- **コンテナ**: Docker (オプション)
+
+## 🔐 セキュリティ
+
+- **認証**: メールアドレス + パスワード
+- **認可**: ロールベースアクセス制御（RBAC）
+- **IP制限**: 社内固定IPからのみアクセス可能
+- **HTTPS**: SSL/TLS通信の強制
+- **セキュリティヘッダー**: XSS、CSRF、Clickjacking対策
+
+## 🧪 テスト
+
+```bash
+# 全テストの実行
+php artisan test
+
+# カバレッジレポート付き
+php artisan test --coverage
+
+# 特定のテストスイート
+php artisan test --testsuite=Feature
+```
+
+## 📦 デプロイメント
+
+### 開発環境
+```bash
+npm run dev
+php artisan serve
+```
+
+### 本番環境
+```bash
+# アセットビルド
+npm run build
+
+# 最適化
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# デプロイスクリプト実行
+./deploy.sh
+```
+
+詳細は [本番環境デプロイガイド](docs/deployment/PRODUCTION.md) を参照してください。
+
+## 🤝 開発への参加
+
+1. このリポジトリをフォーク
+2. 機能ブランチを作成 (`git checkout -b feature/amazing-feature`)
+3. 変更をコミット (`git commit -m 'Add some amazing feature'`)
+4. ブランチにプッシュ (`git push origin feature/amazing-feature`)
+5. プルリクエストを作成
+
+## 📄 ライセンス
+
+このプロジェクトは [MIT ライセンス](https://opensource.org/licenses/MIT) の下で公開されています。
+
+## 🆘 サポート
+
+問題が発生した場合：
+
+1. [トラブルシューティングガイド](docs/troubleshooting/) を確認
+2. [GitHub Issues](https://github.com/your-repo/shisecal/issues) で既存の問題を検索
+3. 新しい Issue を作成して詳細を報告
+
+## 📞 連絡先
+
+- **プロジェクト管理者**: 泉勇也
+- **開発チーム**: [開発チーム連絡先]
+
+---
+
+**Shise-Cal** - 施設管理をもっとスマートに 🏢✨

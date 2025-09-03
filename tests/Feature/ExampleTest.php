@@ -16,6 +16,8 @@ class ExampleTest extends TestCase
     {
         $response = $this->get('/');
 
-        $response->assertStatus(200);
+        // Root route should redirect to login for unauthenticated users
+        $response->assertStatus(302);
+        $response->assertRedirect(route('login'));
     }
 }

@@ -38,9 +38,12 @@ class DiscrepancyHandlingTest extends TestCase
 
     public function test_discrepancy_notification_sent_to_all_editors()
     {
-        // Create a new pending confirmation
+        // Create a different facility to avoid unique constraint
+        $differentFacility = Facility::factory()->create(['status' => 'approved']);
+        
+        // Create a new pending confirmation for a different facility
         $pendingConfirmation = AnnualConfirmation::factory()->pending()->create([
-            'facility_id' => $this->facility->id,
+            'facility_id' => $differentFacility->id,
             'facility_manager_id' => $this->facilityManager->id,
             'requested_by' => $this->admin->id,
         ]);

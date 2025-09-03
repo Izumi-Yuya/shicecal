@@ -1,0 +1,153 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: shisecal-app-dev
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      # Mount source code for live editing
+      - .:/var/www/html
+      # Exclude vendor and node_modules for performance
+      - /var/www/html/vendor
+      - /var/www/html/node_modules
+      # Persistent storage volumes
+      - storage_data:/var/www/html/storage/app
+      - cache_data:/var/www/html/bootstrap/cache
+    networks:
+      - shisecal-dev-network
+    depends_on:
+      - db
+      - redis
+      - mailhog
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - DB_HOST=db
+      - DB_DATABASE=shisecal_development
+      - DB_USERNAME=shisecal_dev
+      - DB_PASSWORD=dev_password
+      - REDIS_HOST=redis
+      - REDIS_PASSWORD=dev_redis_password
+      - MAIL_MAILER=smtp
+      - MAIL_HOST=mailhog
+      - MAIL_PORT=1025
+      - MAIL_USERNAME=null
+      - MAIL_PASSWORD=null
+      - MAIL_ENCRYPTION=null
+      - AWS_ACCESS_KEY_ID=minioadmin
+      - AWS_SECRET_ACCESS_KEY=minioadmin
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_BUCKET=shisecal-dev
+      - AWS_ENDPOINT=http://minio:9000
+      - AWS_USE_PATH_STYLE_ENDPOINT=true
+    ports:
+      - "8000:8000"  # Laravel development server
+      - "5173:5173"  # Vite dev server
+
+  nginx:
+    image: nginx:alpine
+    container_name: shisecal-nginx-dev
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./public:/var/www/html/public:ro
+      - ./docker/nginx-dev.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - shisecal-dev-network
+    depends_on:
+      - app
+
+  db:
+    image: mysql:8.0
+    container_name: shisecal-db-dev
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: shisecal_development
+      MYSQL_USER: shisecal_dev
+      MYSQL_PASSWORD: dev_password
+      MYSQL_ROOT_PASSWORD: root_dev_password
+    volumes:
+      - db_dev_data:/var/lib/mysql
+      - ./docker/mysql-dev.cnf:/etc/mysql/conf.d/custom.cnf:ro
+    ports:
+      - "3307:3306"  # Different port to avoid conflicts
+    networks:
+      - shisecal-dev-network
+    command: --default-authentication-plugin=mysql_native_password
+
+  redis:
+    image: redis:7-alpine
+    container_name: shisecal-redis-dev
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass dev_redis_password
+    volumes:
+      - redis_dev_data:/data
+    ports:
+      - "6380:6379"  # Different port to avoid conflicts
+    networks:
+      - shisecal-dev-network
+
+  # Local S3-compatible storage for development
+  minio:
+    image: minio/minio:latest
+    container_name: shisecal-minio-dev
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_dev_data:/data
+    ports:
+      - "9000:9000"  # API
+      - "9001:9001"  # Console
+    networks:
+      - shisecal-dev-network
+    command: server /data --console-address ":9001"
+
+  # Email testing with MailHog
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: shisecal-mailhog-dev
+    restart: unless-stopped
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # Web UI
+    networks:
+      - shisecal-dev-network
+
+  # Node.js for frontend development
+  node:
+    image: node:18-alpine
+    container_name: shisecal-node-dev
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+      - node_modules_cache:/var/www/html/node_modules
+    networks:
+      - shisecal-dev-network
+    command: sh -c "npm install && npm run dev"
+    ports:
+      - "5173:5173"
+
+volumes:
+  db_dev_data:
+    driver: local
+  redis_dev_data:
+    driver: local
+  minio_dev_data:
+    driver: local
+  storage_data:
+    driver: local
+  cache_data:
+    driver: local
+  node_modules_cache:
+    driver: local
+
+networks:
+  shisecal-dev-network:
+    driver: bridge
