@@ -379,4 +379,24 @@ class ActivityLogService
             $request
         );
     }
+
+    /**
+     * Log file deletion.
+     *
+     * @param int $fileId
+     * @param string $fileName
+     * @param int $facilityId
+     * @param Request|null $request
+     * @return ActivityLog
+     */
+    public function logFileDeleted(int $fileId, string $fileName, int $facilityId, ?Request $request = null): ActivityLog
+    {
+        return $this->log(
+            'delete',
+            'file',
+            $fileId,
+            "ファイル「{$fileName}」を削除しました（施設ID: {$facilityId}）",
+            $request
+        );
+    }
 }

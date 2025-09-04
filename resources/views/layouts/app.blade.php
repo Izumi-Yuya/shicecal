@@ -13,6 +13,11 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- DataTables CSS (for admin users) -->
+    @if(auth()->check() && auth()->user()->isAdmin())
+        <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+        <link href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.bootstrap5.min.css" rel="stylesheet">
+    @endif
     <!-- Vite Assets -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <!-- Admin CSS -->
@@ -25,25 +30,27 @@
 <body>
     <div id="app">
         <!-- Top Navigation -->
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
-            <div class="container-fluid">
-                <!-- Sidebar Toggle Button -->
-                <button class="btn btn-outline-light me-3" type="button" id="sidebarToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top figma-header">
+            <div class="figma-header-container">
+                <!-- Left side: Logo (prominent) -->
+                <div class="d-flex align-items-center header-left">
+                    <a class="navbar-brand d-flex align-items-center me-4" href="{{ url('/') }}">
+                        <img src="{{ asset('images/shicecal-logo.png') }}" 
+                             alt="Shise-Cal Logo" 
+                             class="navbar-logo me-3"
+                             onerror="this.style.display='none';">
+                        <span class="navbar-brand-text">{{ config('app.name', 'Shise-Cal') }}</span>
+                    </a>
+                    <button class="btn btn-outline-light" type="button" id="sidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
                 
-                <a class="navbar-brand d-flex align-items-center" href="{{ url('/') }}">
-                    <img src="{{ asset('images/shicecal-logo.png') }}" 
-                         alt="Shise-Cal Logo" 
-                         class="navbar-logo me-2"
-                         onerror="this.style.display='none';">
-                    <span class="navbar-brand-text">{{ config('app.name', 'Shise-Cal') }}</span>
-                </a>
-                
-                <div class="ms-auto d-flex align-items-center">
+                <!-- Right side: Navigation -->
+                <div class="d-flex align-items-center header-right">
                     @auth
                         <!-- Notification Bell -->
-                        <a class="nav-link position-relative text-white me-3" href="{{ route('notifications.index') }}" id="notificationBell">
+                        <a class="nav-link position-relative me-2" href="{{ route('notifications.index') }}" id="notificationBell">
                             <i class="fas fa-bell"></i>
                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
                                   id="unread-count" style="display: none;">
@@ -53,9 +60,9 @@
                         
                         <!-- User Dropdown -->
                         <div class="dropdown">
-                            <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-user me-1"></i>
-                                {{ Auth::user()->name }}
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user me-2"></i>
+                                <span>{{ Auth::user()->name }}</span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" href="{{ route('my-page.index') }}">
@@ -74,8 +81,12 @@
                             </form>
                         </div>
                     @else
-                        <a class="nav-link text-white" href="{{ route('login') }}">ログイン</a>
+                        <a class="nav-link" href="{{ route('login') }}">
+                            <i class="fas fa-sign-in-alt me-2"></i>
+                            ログイン
+                        </a>
                     @endauth
+                    </div>
                 </div>
             </div>
         </nav>
@@ -268,10 +279,21 @@
         </div>
     </div>
 
+    <!-- jQuery (required for admin.js) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Admin JS -->
+    <!-- DataTables JS (for admin users) -->
     @if(auth()->check() && auth()->user()->isAdmin())
+        <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.bootstrap5.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+        <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js"></script>
         @vite('resources/js/admin.js')
     @endif
     

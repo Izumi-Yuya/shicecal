@@ -18,10 +18,10 @@ class NotificationService
     {
         $facility = $comment->facility;
         $poster = $comment->poster;
-        
+
         // Find primary responder to notify
         $primaryResponder = User::where('role', 'primary_responder')->first();
-        
+
         if (!$primaryResponder) {
             Log::warning('No primary responder found for comment notification', [
                 'comment_id' => $comment->id,
@@ -60,7 +60,7 @@ class NotificationService
         $facility = $comment->facility;
         $poster = $comment->poster;
         $assignee = $comment->assignee;
-        
+
         $statusText = $this->getStatusText($comment->status);
         $oldStatusText = $this->getStatusText($oldStatus);
 
@@ -105,7 +105,6 @@ class NotificationService
 
             // Mark email as sent
             $notification->markEmailAsSent();
-            
         } catch (\Exception $e) {
             Log::error('Failed to send email notification', [
                 'notification_id' => $notification->id,
@@ -167,7 +166,7 @@ class NotificationService
     public function cleanupOldNotifications(int $daysOld = 30): int
     {
         $cutoffDate = now()->subDays($daysOld);
-        
+
         return Notification::where('created_at', '<', $cutoffDate)->delete();
     }
 
@@ -222,5 +221,18 @@ class NotificationService
 
         // Send email notification
         $this->sendEmailNotification($notification);
+    }
+
+    /**
+     * Create a notification with the given data.
+     */
+    public function createNotification(array $data): Notification
+    {
+        $notification = Notification::create($data);
+
+        // Send email notification
+        $this->sendEmailNotification($notification);
+
+        return $notification;
     }
 }

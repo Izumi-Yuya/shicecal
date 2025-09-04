@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             SystemSettingsSeeder::class,
             FacilitySeeder::class,
+            FacilityServiceSeeder::class,
+            FacilityBasicInfoSeeder::class,
             MaintenanceHistorySeeder::class,
             TestDataSeeder::class,
         ]);

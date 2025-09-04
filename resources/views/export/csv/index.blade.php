@@ -129,20 +129,71 @@
 
                                 <!-- 項目一覧 -->
                                 <div class="row">
-                                    @foreach($availableFields as $field => $label)
-                                        <div class="col-md-6 col-lg-4 mb-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input field-checkbox" 
-                                                       type="checkbox" 
-                                                       name="export_fields[]" 
-                                                       value="{{ $field }}" 
-                                                       id="field_{{ $field }}">
-                                                <label class="form-check-label" for="field_{{ $field }}">
-                                                    {{ $label }}
-                                                </label>
-                                            </div>
+                                    <!-- 基本情報項目 -->
+                                    <div class="col-12 mb-3">
+                                        <h6 class="fw-bold text-primary mb-2">
+                                            <i class="fas fa-building me-1"></i>基本情報
+                                        </h6>
+                                        <div class="row">
+                                            @php
+                                                $facilityFields = [
+                                                    'company_name' => '会社名',
+                                                    'office_code' => '事業所コード',
+                                                    'designation_number' => '指定番号',
+                                                    'facility_name' => '施設名',
+                                                    'postal_code' => '郵便番号',
+                                                    'address' => '住所',
+                                                    'phone_number' => '電話番号',
+                                                    'fax_number' => 'FAX番号',
+                                                    'status' => 'ステータス',
+                                                    'approved_at' => '承認日時',
+                                                    'created_at' => '作成日時',
+                                                    'updated_at' => '更新日時',
+                                                ];
+                                            @endphp
+                                            @foreach($facilityFields as $field => $label)
+                                                @if(isset($availableFields[$field]))
+                                                    <div class="col-md-6 col-lg-4 mb-2">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input field-checkbox" 
+                                                                   type="checkbox" 
+                                                                   name="export_fields[]" 
+                                                                   value="{{ $field }}" 
+                                                                   id="field_{{ $field }}">
+                                                            <label class="form-check-label" for="field_{{ $field }}">
+                                                                {{ $label }}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            @endforeach
                                         </div>
-                                    @endforeach
+                                    </div>
+
+                                    <!-- 土地情報項目 -->
+                                    <div class="col-12 mb-3">
+                                        <h6 class="fw-bold text-success mb-2">
+                                            <i class="fas fa-map-marked-alt me-1"></i>土地情報
+                                        </h6>
+                                        <div class="row">
+                                            @foreach($availableFields as $field => $label)
+                                                @if(str_starts_with($field, 'land_'))
+                                                    <div class="col-md-6 col-lg-4 mb-2">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input field-checkbox" 
+                                                                   type="checkbox" 
+                                                                   name="export_fields[]" 
+                                                                   value="{{ $field }}" 
+                                                                   id="field_{{ $field }}">
+                                                            <label class="form-check-label" for="field_{{ $field }}">
+                                                                {{ $label }}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

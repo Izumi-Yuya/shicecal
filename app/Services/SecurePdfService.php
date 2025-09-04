@@ -14,8 +14,14 @@ class SecurePdfService
      */
     public function generateSecureFacilityPdf(Facility $facility, array $options = []): string
     {
+        // Load land info if not already loaded
+        if (!$facility->relationLoaded('landInfo')) {
+            $facility->load('landInfo');
+        }
+
         $data = [
             'facility' => $facility,
+            'landInfo' => $facility->landInfo,
             'generated_at' => now(),
             'generated_by' => Auth::user(),
         ];
@@ -154,11 +160,11 @@ class SecurePdfService
     {
         $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
         $password = '';
-        
+
         for ($i = 0; $i < $length; $i++) {
             $password .= $characters[random_int(0, strlen($characters) - 1)];
         }
-        
+
         return $password;
     }
 
@@ -169,7 +175,7 @@ class SecurePdfService
     {
         $safeFilename = preg_replace('/[^a-zA-Z0-9\-_]/', '_', $facility->facility_name);
         $hash = substr(hash('sha256', $facility->id . $facility->updated_at . Auth::id()), 0, 8);
-        
+
         return "secure_facility_report_{$facility->office_code}_{$safeFilename}_{$hash}_" . now()->format('Y-m-d') . '.pdf';
     }
 

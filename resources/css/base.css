@@ -1,0 +1,70 @@
+/* Base Styles and Typography */
+
+/* Base styles for the application */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-family-jp);
+  background-color: var(--light-color);
+  line-height: 1.6;
+  padding-top: var(--header-height) !important;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--header-height);
+}
+
+#app {
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Hide scrollbars by default for card sections only */
+.card-section-content {
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+}
+
+.card-section-content::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari, Opera */
+}
+
+/* Japanese Typography */
+.jp-title {
+  font-family: var(--font-family-jp);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.jp-text {
+  font-family: var(--font-family-jp);
+  line-height: 1.8;
+}
+
+/* Custom utility classes */
+.text-primary {
+  color: var(--primary-color) !important;
+}
+
+.bg-primary {
+  background-color: var(--primary-color) !important;
+}
+
+.text-muted {
+  color: var(--secondary-color) !important;
+}
+
+.border-primary {
+  border-color: var(--primary-color) !important;
+}

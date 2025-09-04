@@ -32,7 +32,7 @@ class PdfExportController extends Controller
     {
         // Get facilities based on user permissions
         $facilities = $this->getFacilitiesForUser();
-        
+
         return view('export.pdf.index', compact('facilities'));
     }
 
@@ -53,18 +53,18 @@ class PdfExportController extends Controller
 
         // Check if secure PDF is requested
         $useSecure = $request->get('secure', true);
-        
+
         if ($useSecure) {
             return $this->generateSecureSingle($facility);
         }
 
         $pdf = $this->generateFacilityPdf($facility);
-        
+
         $filename = $this->generatePdfFilename($facility);
-        
+
         // Log PDF export
         $this->activityLogService->logPdfExported([$facility->id], $request);
-        
+
         return $pdf->download($filename);
     }
 
@@ -75,10 +75,10 @@ class PdfExportController extends Controller
     {
         $pdfContent = $this->securePdfService->generateSecureFacilityPdf($facility);
         $filename = $this->securePdfService->generateSecureFilename($facility);
-        
+
         // Log secure PDF export
         $this->activityLogService->logPdfExported([$facility->id], request());
-        
+
         return response($pdfContent)
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'attachment; filename="' . $filename . '"')
@@ -94,13 +94,14 @@ class PdfExportController extends Controller
     {
         $facilityIds = $request->input('facility_ids', []);
         $useSecure = $request->input('secure', true);
-        
+
         if (empty($facilityIds)) {
             return back()->with('error', '出力する施設を選択してください。');
         }
 
         $facilities = Facility::whereIn('id', $facilityIds)
             ->approved()
+            ->with('landInfo')
             ->get();
 
         // Filter facilities based on user permissions
@@ -115,17 +116,17 @@ class PdfExportController extends Controller
         if ($facilities->count() === 1) {
             // Single facility - direct PDF download
             $facility = $facilities->first();
-            
+
             if ($useSecure) {
                 return $this->generateSecureSingle($facility);
             }
-            
+
             $pdf = $this->generateFacilityPdf($facility);
             $filename = $this->generatePdfFilename($facility);
-            
+
             // Log single facility PDF export
             $this->activityLogService->logPdfExported([$facility->id], $request);
-            
+
             return $pdf->download($filename);
         }
 
@@ -140,18 +141,18 @@ class PdfExportController extends Controller
     {
         $options = ['secure' => $useSecure];
         $result = $this->batchPdfService->generateBatchPdf($facilities, $options);
-        
+
         if (!$result['success']) {
             return back()->with('error', $result['error']);
         }
-        
+
         // Log batch PDF export
         $facilityIds = $facilities->pluck('id')->toArray();
         $this->activityLogService->logPdfExported($facilityIds, request());
-        
+
         $response = response()->download($result['zip_path'], $result['zip_filename'])
             ->deleteFileAfterSend(true);
-            
+
         // Add batch information to session for potential progress tracking
         session()->flash('batch_info', [
             'batch_id' => $result['batch_id'],
@@ -159,7 +160,7 @@ class PdfExportController extends Controller
             'total_count' => $result['total_count'],
             'errors' => $result['errors']
         ]);
-        
+
         return $response;
     }
 
@@ -169,7 +170,7 @@ class PdfExportController extends Controller
     public function getBatchProgress(Request $request, string $batchId)
     {
         $progress = $this->batchPdfService->getBatchProgress($batchId);
-        
+
         return response()->json($progress);
     }
 
@@ -178,17 +179,23 @@ class PdfExportController extends Controller
      */
     private function generateFacilityPdf(Facility $facility)
     {
+        // Load land info if not already loaded
+        if (!$facility->relationLoaded('landInfo')) {
+            $facility->load('landInfo');
+        }
+
         $data = [
             'facility' => $facility,
+            'landInfo' => $facility->landInfo,
             'generated_at' => now(),
             'generated_by' => Auth::user(),
         ];
 
         $pdf = Pdf::loadView('export.pdf.facility-report', $data);
-        
+
         // Set paper size and orientation
         $pdf->setPaper('A4', 'portrait');
-        
+
         return $pdf;
     }
 
@@ -199,14 +206,14 @@ class PdfExportController extends Controller
     {
         $zipFilename = ($useSecure ? 'secure_' : '') . 'facility_reports_' . now()->format('Y-m-d_H-i-s') . '.zip';
         $zipPath = storage_path('app/temp/' . $zipFilename);
-        
+
         // Ensure temp directory exists
         if (!file_exists(dirname($zipPath))) {
             mkdir(dirname($zipPath), 0755, true);
         }
 
         $zip = new ZipArchive;
-        
+
         if ($zip->open($zipPath, ZipArchive::CREATE) === TRUE) {
             foreach ($facilities as $facility) {
                 if ($useSecure) {
@@ -217,15 +224,15 @@ class PdfExportController extends Controller
                     $pdfContent = $pdf->output();
                     $pdfFilename = $this->generatePdfFilename($facility);
                 }
-                
+
                 $zip->addFromString($pdfFilename, $pdfContent);
             }
-            
+
             $zip->close();
-            
+
             return response()->download($zipPath, $zipFilename)->deleteFileAfterSend(true);
         }
-        
+
         return back()->with('error', 'ZIP ファイルの作成に失敗しました。');
     }
 
@@ -244,10 +251,10 @@ class PdfExportController extends Controller
     private function getFacilitiesForUser()
     {
         $user = Auth::user();
-        
-        // For now, return all approved facilities
+
+        // For now, return all approved facilities with land info
         // This will be enhanced with proper permission checking in later tasks
-        return Facility::approved()->orderBy('facility_name')->get();
+        return Facility::approved()->with('landInfo')->orderBy('facility_name')->get();
     }
 
     /**

@@ -150,8 +150,8 @@ class User extends Authenticatable
      */
     public function canViewAll(): bool
     {
-        return in_array($this->role, ['admin', 'editor', 'primary_responder', 'approver']) || 
-               ($this->role === 'viewer' && empty($this->access_scope));
+        return in_array($this->role, ['admin', 'editor', 'primary_responder', 'approver']) ||
+            ($this->role === 'viewer' && empty($this->access_scope));
     }
 
     /**
@@ -166,11 +166,11 @@ class User extends Authenticatable
         if ($this->role === 'viewer' && !empty($this->access_scope)) {
             // Get facilities based on access scope
             $query = Facility::query();
-            
+
             if (isset($this->access_scope['prefectures'])) {
                 $query->whereIn('prefecture', $this->access_scope['prefectures']);
             }
-            
+
             return $query->pluck('id')->toArray();
         }
 
@@ -188,5 +188,23 @@ class User extends Authenticatable
 
         $accessibleIds = $this->getAccessibleFacilityIds();
         return empty($accessibleIds) || in_array($facilityId, $accessibleIds);
+    }
+
+    /**
+     * Check if user can edit specific facility.
+     */
+    public function canEditFacility($facilityId): bool
+    {
+        // Must have edit permissions and access to the facility
+        return $this->canEdit() && $this->canAccessFacility($facilityId);
+    }
+
+    /**
+     * Check if user can view specific facility.
+     */
+    public function canViewFacility($facilityId): bool
+    {
+        // Same as canAccessFacility for now
+        return $this->canAccessFacility($facilityId);
     }
 }
