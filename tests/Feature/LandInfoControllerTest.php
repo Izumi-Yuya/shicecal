@@ -45,11 +45,12 @@ class LandInfoControllerTest extends TestCase
     /** @test */
     public function admin_can_view_land_info()
     {
-        $landInfo = LandInfo::factory()->create([
+        $landInfo = LandInfo::factory()->owned()->create([
             'facility_id' => $this->facility->id,
-            'ownership_type' => 'owned',
             'purchase_price' => 10000000,
-            'site_area_tsubo' => 100.0
+            'site_area_tsubo' => 100.0,
+            'created_by' => $this->adminUser->id,
+            'updated_by' => $this->adminUser->id,
         ]);
 
         $response = $this->actingAs($this->adminUser)
@@ -69,10 +70,11 @@ class LandInfoControllerTest extends TestCase
     /** @test */
     public function editor_can_view_land_info()
     {
-        $landInfo = LandInfo::factory()->create([
+        $landInfo = LandInfo::factory()->leased()->create([
             'facility_id' => $this->facility->id,
-            'ownership_type' => 'leased',
-            'monthly_rent' => 500000
+            'monthly_rent' => 500000,
+            'created_by' => $this->editorUser->id,
+            'updated_by' => $this->editorUser->id,
         ]);
 
         $response = $this->actingAs($this->editorUser)
@@ -91,9 +93,10 @@ class LandInfoControllerTest extends TestCase
     /** @test */
     public function viewer_can_view_land_info()
     {
-        $landInfo = LandInfo::factory()->create([
+        $landInfo = LandInfo::factory()->ownedRental()->create([
             'facility_id' => $this->facility->id,
-            'ownership_type' => 'owned_rental'
+            'created_by' => $this->adminUser->id,
+            'updated_by' => $this->adminUser->id,
         ]);
 
         $response = $this->actingAs($this->viewerUser)
@@ -134,7 +137,9 @@ class LandInfoControllerTest extends TestCase
     public function admin_can_edit_land_info()
     {
         $landInfo = LandInfo::factory()->create([
-            'facility_id' => $this->facility->id
+            'facility_id' => $this->facility->id,
+            'created_by' => $this->adminUser->id,
+            'updated_by' => $this->adminUser->id,
         ]);
 
         $response = $this->actingAs($this->adminUser)
@@ -153,7 +158,9 @@ class LandInfoControllerTest extends TestCase
     public function editor_can_edit_land_info()
     {
         $landInfo = LandInfo::factory()->create([
-            'facility_id' => $this->facility->id
+            'facility_id' => $this->facility->id,
+            'created_by' => $this->editorUser->id,
+            'updated_by' => $this->editorUser->id,
         ]);
 
         $response = $this->actingAs($this->editorUser)
@@ -210,10 +217,11 @@ class LandInfoControllerTest extends TestCase
     /** @test */
     public function editor_can_update_existing_land_info()
     {
-        $landInfo = LandInfo::factory()->create([
+        $landInfo = LandInfo::factory()->owned()->create([
             'facility_id' => $this->facility->id,
-            'ownership_type' => 'owned',
-            'purchase_price' => 10000000
+            'purchase_price' => 10000000,
+            'created_by' => $this->editorUser->id,
+            'updated_by' => $this->editorUser->id,
         ]);
 
         $updateData = [
@@ -245,7 +253,9 @@ class LandInfoControllerTest extends TestCase
     public function viewer_cannot_update_land_info()
     {
         $landInfo = LandInfo::factory()->create([
-            'facility_id' => $this->facility->id
+            'facility_id' => $this->facility->id,
+            'created_by' => $this->adminUser->id,
+            'updated_by' => $this->adminUser->id,
         ]);
 
         $updateData = [
@@ -464,11 +474,12 @@ class LandInfoControllerTest extends TestCase
     /** @test */
     public function can_get_land_info_status()
     {
-        $landInfo = LandInfo::factory()->create([
+        $landInfo = LandInfo::factory()->approved()->create([
             'facility_id' => $this->facility->id,
-            'status' => 'approved',
             'approved_at' => now(),
-            'approved_by' => $this->adminUser->id
+            'approved_by' => $this->adminUser->id,
+            'created_by' => $this->adminUser->id,
+            'updated_by' => $this->adminUser->id,
         ]);
 
         $response = $this->actingAs($this->adminUser)
@@ -487,9 +498,10 @@ class LandInfoControllerTest extends TestCase
     /** @test */
     public function admin_can_approve_pending_land_info()
     {
-        $landInfo = LandInfo::factory()->create([
+        $landInfo = LandInfo::factory()->pendingApproval()->create([
             'facility_id' => $this->facility->id,
-            'status' => 'pending_approval'
+            'created_by' => $this->editorUser->id,
+            'updated_by' => $this->editorUser->id,
         ]);
 
         $response = $this->actingAs($this->adminUser)
@@ -511,9 +523,10 @@ class LandInfoControllerTest extends TestCase
     /** @test */
     public function editor_cannot_approve_land_info()
     {
-        $landInfo = LandInfo::factory()->create([
+        $landInfo = LandInfo::factory()->pendingApproval()->create([
             'facility_id' => $this->facility->id,
-            'status' => 'pending_approval'
+            'created_by' => $this->editorUser->id,
+            'updated_by' => $this->editorUser->id,
         ]);
 
         $response = $this->actingAs($this->editorUser)
@@ -529,9 +542,10 @@ class LandInfoControllerTest extends TestCase
     /** @test */
     public function admin_can_reject_pending_land_info()
     {
-        $landInfo = LandInfo::factory()->create([
+        $landInfo = LandInfo::factory()->pendingApproval()->create([
             'facility_id' => $this->facility->id,
-            'status' => 'pending_approval'
+            'created_by' => $this->editorUser->id,
+            'updated_by' => $this->editorUser->id,
         ]);
 
         $rejectionData = [
@@ -558,9 +572,10 @@ class LandInfoControllerTest extends TestCase
     /** @test */
     public function rejection_requires_reason()
     {
-        $landInfo = LandInfo::factory()->create([
+        $landInfo = LandInfo::factory()->pendingApproval()->create([
             'facility_id' => $this->facility->id,
-            'status' => 'pending_approval'
+            'created_by' => $this->editorUser->id,
+            'updated_by' => $this->editorUser->id,
         ]);
 
         $response = $this->actingAs($this->adminUser)
@@ -573,9 +588,10 @@ class LandInfoControllerTest extends TestCase
     /** @test */
     public function cannot_approve_non_pending_land_info()
     {
-        $landInfo = LandInfo::factory()->create([
+        $landInfo = LandInfo::factory()->approved()->create([
             'facility_id' => $this->facility->id,
-            'status' => 'approved'
+            'created_by' => $this->adminUser->id,
+            'updated_by' => $this->adminUser->id,
         ]);
 
         $response = $this->actingAs($this->adminUser)

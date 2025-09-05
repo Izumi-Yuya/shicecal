@@ -23,9 +23,9 @@ class LandInfoFactory extends Factory
             'site_area_sqm' => $this->faker->randomFloat(2, 100, 1000),
             'site_area_tsubo' => $this->faker->randomFloat(2, 30, 300),
             'notes' => $this->faker->optional()->text(500),
-            'status' => $this->faker->randomElement(['draft', 'pending_approval', 'approved']),
-            'created_by' => User::factory(),
-            'updated_by' => User::factory(),
+            'status' => 'approved', // Default to approved to avoid foreign key issues
+            'created_by' => 1, // Use existing user ID or will be overridden
+            'updated_by' => 1, // Use existing user ID or will be overridden
         ];
 
         // Add ownership-specific fields
@@ -214,7 +214,7 @@ class LandInfoFactory extends Factory
             return [
                 'status' => 'approved',
                 'approved_at' => $this->faker->dateTimeBetween('-1 month', 'now'),
-                'approved_by' => User::factory(),
+                'approved_by' => 1, // Use existing user ID or will be overridden
             ];
         });
     }

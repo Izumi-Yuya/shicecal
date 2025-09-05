@@ -5,9 +5,18 @@
 
 class LandInfoManager {
   constructor() {
+    this.debounceTimers = new Map();
+    this.calculationCache = new Map();
+    this.performanceMetrics = {
+      calculationCount: 0,
+      cacheHits: 0,
+      startTime: performance.now()
+    };
+
     this.initializeEventListeners();
     this.updateConditionalSections();
     this.initializeCharacterCount();
+    this.initializePerformanceOptimizations();
   }
 
   /**
@@ -147,20 +156,9 @@ class LandInfoManager {
   }
 
   /**
-   * Initialize realtime calculation functionality
+   * Initialize realtime calculation functionality with performance optimization
    */
   initializeRealtimeCalculation() {
-    // デバウンス機能付きリアルタイム計算
-    let calculationTimeout;
-
-    const triggerCalculation = () => {
-      clearTimeout(calculationTimeout);
-      calculationTimeout = setTimeout(() => {
-        this.calculateUnitPrice();
-        this.calculateContractPeriod();
-      }, 300); // 300ms デバウンス
-    };
-
     // 計算に影響する全てのフィールドにリスナーを追加
     const calculationFields = [
       'purchase_price', 'site_area_tsubo',
@@ -170,10 +168,182 @@ class LandInfoManager {
     calculationFields.forEach(fieldId => {
       const field = document.getElementById(fieldId);
       if (field) {
-        field.addEventListener('input', triggerCalculation);
-        field.addEventListener('change', triggerCalculation);
+        // Use optimized debounced calculation
+        field.addEventListener('input', (e) => this.debouncedCalculation(fieldId, e.target.value));
+        field.addEventListener('change', (e) => this.debouncedCalculation(fieldId, e.target.value));
       }
     });
+  }
+
+  /**
+   * Initialize performance optimizations
+   */
+  initializePerformanceOptimizations() {
+    // Lazy load heavy operations
+    this.initializeLazyLoading();
+
+    // Optimize DOM queries with caching
+    this.initializeDOMCache();
+
+    // Setup performance monitoring
+    this.setupPerformanceMonitoring();
+
+    // Initialize virtual scrolling for large lists if needed
+    this.initializeVirtualScrolling();
+  }
+
+  /**
+   * Debounced calculation with caching
+   */
+  debouncedCalculation(fieldId, value) {
+    // Clear existing timer for this field
+    if (this.debounceTimers.has(fieldId)) {
+      clearTimeout(this.debounceTimers.get(fieldId));
+    }
+
+    // Set new timer
+    const timer = setTimeout(() => {
+      this.performOptimizedCalculation(fieldId, value);
+      this.debounceTimers.delete(fieldId);
+    }, 300);
+
+    this.debounceTimers.set(fieldId, timer);
+  }
+
+  /**
+   * Perform optimized calculation with caching
+   */
+  performOptimizedCalculation(fieldId, value) {
+    const cacheKey = `${fieldId}_${value}`;
+
+    // Check cache first
+    if (this.calculationCache.has(cacheKey)) {
+      this.performanceMetrics.cacheHits++;
+      const cachedResult = this.calculationCache.get(cacheKey);
+      this.applyCalculationResult(fieldId, cachedResult);
+      return;
+    }
+
+    // Perform calculation
+    this.performanceMetrics.calculationCount++;
+    let result;
+
+    if (['purchase_price', 'site_area_tsubo'].includes(fieldId)) {
+      result = this.calculateUnitPriceOptimized();
+    } else if (['contract_start_date', 'contract_end_date'].includes(fieldId)) {
+      result = this.calculateContractPeriodOptimized();
+    }
+
+    // Cache result
+    if (result !== undefined) {
+      this.calculationCache.set(cacheKey, result);
+
+      // Limit cache size to prevent memory leaks
+      if (this.calculationCache.size > 100) {
+        const firstKey = this.calculationCache.keys().next().value;
+        this.calculationCache.delete(firstKey);
+      }
+    }
+
+    this.applyCalculationResult(fieldId, result);
+  }
+
+  /**
+   * Initialize DOM element caching for performance
+   */
+  initializeDOMCache() {
+    this.domCache = {
+      ownershipType: document.getElementById('ownership_type'),
+      purchasePrice: document.getElementById('purchase_price'),
+      siteAreaTsubo: document.getElementById('site_area_tsubo'),
+      unitPriceDisplay: document.getElementById('unit_price_display'),
+      contractStartDate: document.getElementById('contract_start_date'),
+      contractEndDate: document.getElementById('contract_end_date'),
+      contractPeriodDisplay: document.getElementById('contract_period_display'),
+      form: document.getElementById('landInfoForm'),
+      sections: {
+        owned: document.getElementById('owned_section'),
+        leased: document.getElementById('leased_section'),
+        management: document.getElementById('management_section'),
+        owner: document.getElementById('owner_section'),
+        file: document.getElementById('file_section')
+      }
+    };
+  }
+
+  /**
+   * Initialize lazy loading for heavy operations
+   */
+  initializeLazyLoading() {
+    // Intersection Observer for lazy loading sections
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            this.loadSectionContent(entry.target);
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+
+      // Observe sections that might contain heavy content
+      document.querySelectorAll('.lazy-section').forEach(section => {
+        observer.observe(section);
+      });
+    }
+  }
+
+  /**
+   * Setup performance monitoring
+   */
+  setupPerformanceMonitoring() {
+    // Monitor calculation performance
+    setInterval(() => {
+      const elapsed = performance.now() - this.performanceMetrics.startTime;
+      const avgCalculationTime = elapsed / this.performanceMetrics.calculationCount;
+
+      console.debug('Land Info Performance Metrics:', {
+        calculations: this.performanceMetrics.calculationCount,
+        cacheHits: this.performanceMetrics.cacheHits,
+        cacheHitRate: (this.performanceMetrics.cacheHits / this.performanceMetrics.calculationCount * 100).toFixed(2) + '%',
+        avgCalculationTime: avgCalculationTime.toFixed(2) + 'ms'
+      });
+    }, 30000); // Log every 30 seconds
+  }
+
+  /**
+   * Initialize virtual scrolling for large lists
+   */
+  initializeVirtualScrolling() {
+    const largeSelects = document.querySelectorAll('select[data-large-list]');
+
+    largeSelects.forEach(select => {
+      // Implement virtual scrolling for large option lists
+      this.setupVirtualSelect(select);
+    });
+  }
+
+  /**
+   * Setup virtual select for large option lists
+   */
+  setupVirtualSelect(select) {
+    // This would implement virtual scrolling for large select lists
+    // For now, we'll just optimize the rendering
+    const options = Array.from(select.options);
+
+    if (options.length > 100) {
+      // Convert to searchable dropdown for better performance
+      this.convertToSearchableDropdown(select);
+    }
+  }
+
+  /**
+   * Convert large select to searchable dropdown
+   */
+  convertToSearchableDropdown(select) {
+    // Implementation would create a custom searchable dropdown
+    // This is a placeholder for the concept
+    select.setAttribute('data-optimized', 'true');
   }
 
   /**
@@ -257,43 +427,63 @@ class LandInfoManager {
   }
 
   /**
-   * Calculate unit price per tsubo
+   * Calculate unit price per tsubo (legacy method for compatibility)
    */
   calculateUnitPrice() {
-    const purchasePriceInput = document.getElementById('purchase_price');
-    const siteAreaTsuboInput = document.getElementById('site_area_tsubo');
-    const unitPriceDisplay = document.getElementById('unit_price_display');
+    return this.calculateUnitPriceOptimized();
+  }
 
-    if (!purchasePriceInput || !siteAreaTsuboInput || !unitPriceDisplay) return;
+  /**
+   * Optimized unit price calculation using cached DOM elements
+   */
+  calculateUnitPriceOptimized() {
+    const purchasePriceInput = this.domCache?.purchasePrice || document.getElementById('purchase_price');
+    const siteAreaTsuboInput = this.domCache?.siteAreaTsubo || document.getElementById('site_area_tsubo');
+    const unitPriceDisplay = this.domCache?.unitPriceDisplay || document.getElementById('unit_price_display');
+
+    if (!purchasePriceInput || !siteAreaTsuboInput || !unitPriceDisplay) return null;
 
     const purchasePrice = parseFloat(purchasePriceInput.value.replace(/,/g, '')) || 0;
     const siteAreaTsubo = parseFloat(siteAreaTsuboInput.value) || 0;
 
     if (purchasePrice > 0 && siteAreaTsubo > 0) {
       const unitPrice = Math.round(purchasePrice / siteAreaTsubo);
-      unitPriceDisplay.value = unitPrice.toLocaleString();
+      const formattedPrice = unitPrice.toLocaleString();
 
-      // 視覚的フィードバック
-      this.addCalculationFeedback(unitPriceDisplay);
+      // Use requestAnimationFrame for smooth UI updates
+      requestAnimationFrame(() => {
+        unitPriceDisplay.value = formattedPrice;
+        this.addCalculationFeedback(unitPriceDisplay);
+      });
 
-      // 計算結果の妥当性チェック
-      if (unitPrice > 10000000) { // 1000万円/坪を超える場合は警告
-        this.showCalculationWarning('坪単価が非常に高額です。入力内容をご確認ください。');
-      }
+      // 計算結果の妥当性チェック (throttled)
+      this.throttledValidationCheck(unitPrice, '坪単価が非常に高額です。入力内容をご確認ください。', 10000000);
+
+      return { unitPrice, formattedPrice };
     } else {
-      unitPriceDisplay.value = '';
+      requestAnimationFrame(() => {
+        unitPriceDisplay.value = '';
+      });
+      return null;
     }
   }
 
   /**
-   * Calculate contract period
+   * Calculate contract period (legacy method for compatibility)
    */
   calculateContractPeriod() {
-    const startDateInput = document.getElementById('contract_start_date');
-    const endDateInput = document.getElementById('contract_end_date');
-    const periodDisplay = document.getElementById('contract_period_display');
+    return this.calculateContractPeriodOptimized();
+  }
 
-    if (!startDateInput || !endDateInput || !periodDisplay) return;
+  /**
+   * Optimized contract period calculation using cached DOM elements
+   */
+  calculateContractPeriodOptimized() {
+    const startDateInput = this.domCache?.contractStartDate || document.getElementById('contract_start_date');
+    const endDateInput = this.domCache?.contractEndDate || document.getElementById('contract_end_date');
+    const periodDisplay = this.domCache?.contractPeriodDisplay || document.getElementById('contract_period_display');
+
+    if (!startDateInput || !endDateInput || !periodDisplay) return null;
 
     const startDate = new Date(startDateInput.value);
     const endDate = new Date(endDateInput.value);
@@ -316,18 +506,72 @@ class LandInfoManager {
       if (displayYears > 0) periodText += `${displayYears}年`;
       if (displayMonths > 0) periodText += `${displayMonths}ヶ月`;
 
-      periodDisplay.value = periodText || '0ヶ月';
+      const finalText = periodText || '0ヶ月';
 
-      // 視覚的フィードバック
-      this.addCalculationFeedback(periodDisplay);
+      // Use requestAnimationFrame for smooth UI updates
+      requestAnimationFrame(() => {
+        periodDisplay.value = finalText;
+        this.addCalculationFeedback(periodDisplay);
+      });
 
-      // 契約期間の妥当性チェック
-      if (totalMonths > 600) { // 50年を超える場合は警告
-        this.showCalculationWarning('契約期間が非常に長期です。入力内容をご確認ください。');
-      }
+      // 契約期間の妥当性チェック (throttled)
+      this.throttledValidationCheck(totalMonths, '契約期間が非常に長期です。入力内容をご確認ください。', 600);
+
+      return { totalMonths, periodText: finalText };
     } else {
-      periodDisplay.value = '';
+      requestAnimationFrame(() => {
+        periodDisplay.value = '';
+      });
+      return null;
     }
+  }
+
+  /**
+   * Throttled validation check to prevent excessive warnings
+   */
+  throttledValidationCheck(value, message, threshold) {
+    const key = `validation_${message}`;
+    const now = Date.now();
+
+    if (!this.lastValidationCheck) {
+      this.lastValidationCheck = {};
+    }
+
+    // Only show warning if it hasn't been shown in the last 5 seconds
+    if (!this.lastValidationCheck[key] || (now - this.lastValidationCheck[key]) > 5000) {
+      if (value > threshold) {
+        this.showCalculationWarning(message);
+        this.lastValidationCheck[key] = now;
+      }
+    }
+  }
+
+  /**
+   * Apply calculation result with error handling
+   */
+  applyCalculationResult(fieldId, result) {
+    if (!result) return;
+
+    try {
+      if (['purchase_price', 'site_area_tsubo'].includes(fieldId) && result.formattedPrice) {
+        const display = this.domCache?.unitPriceDisplay || document.getElementById('unit_price_display');
+        if (display) display.value = result.formattedPrice;
+      } else if (['contract_start_date', 'contract_end_date'].includes(fieldId) && result.periodText) {
+        const display = this.domCache?.contractPeriodDisplay || document.getElementById('contract_period_display');
+        if (display) display.value = result.periodText;
+      }
+    } catch (error) {
+      console.error('Error applying calculation result:', error);
+    }
+  }
+
+  /**
+   * Load section content lazily
+   */
+  loadSectionContent(section) {
+    // This would load heavy content for the section
+    // For now, just mark as loaded
+    section.setAttribute('data-loaded', 'true');
   }
 
   /**

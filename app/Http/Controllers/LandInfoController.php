@@ -89,6 +89,11 @@ class LandInfoController extends Controller
                 'success' => true,
                 'data' => $landInfo ? $landInfo->toArray() : null
             ]);
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'この施設の土地情報を編集する権限がありません。'
+            ], 403);
         } catch (Exception $e) {
             Log::error('Land info edit failed', [
                 'facility_id' => $facility->id,
@@ -132,6 +137,17 @@ class LandInfoController extends Controller
                 'message' => '土地情報を更新しました。',
                 'data' => $formattedData
             ]);
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'この施設の土地情報を編集する権限がありません。'
+            ], 403);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => '入力内容に誤りがあります。',
+                'errors' => $e->errors()
+            ], 422);
         } catch (Exception $e) {
             Log::error('Land info update failed', [
                 'facility_id' => $facility->id,
@@ -269,10 +285,11 @@ class LandInfoController extends Controller
             $landInfo = $this->landInfoService->getLandInfo($facility);
 
             if (!$landInfo || $landInfo->status !== 'pending_approval') {
+                $message = !$landInfo ? '承認待ちの土地情報がありません。' : 'この土地情報は既に承認済みです。';
                 return response()->json([
                     'success' => false,
-                    'message' => '承認待ちの土地情報がありません。'
-                ], 400);
+                    'message' => $message
+                ], 422);
             }
 
             $landInfo->update([
@@ -280,6 +297,28 @@ class LandInfoController extends Controller
                 'approved_at' => now(),
                 'approved_by' => auth()->id()
             ]);
+
+            // Send notification to the editor who created/updated the land info
+            if ($landInfo->updated_by) {
+                DB::table('notifications')->insert([
+                    'id' => \Illuminate\Support\Str::uuid(),
+                    'type' => 'land_info_approved',
+                    'notifiable_type' => 'App\\Models\\User',
+                    'notifiable_id' => $landInfo->updated_by,
+                    'data' => json_encode([
+                        'land_info_id' => $landInfo->id,
+                        'facility_id' => $landInfo->facility_id,
+                        'approved_by' => auth()->id(),
+                        'title' => '土地情報承認完了',
+                        'message' => sprintf(
+                            '施設「%s」の土地情報が承認されました。',
+                            $facility->facility_name
+                        ),
+                    ]),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
 
             // Log the approval
             $this->activityLogService->logFacilityUpdated(
@@ -292,6 +331,11 @@ class LandInfoController extends Controller
                 'success' => true,
                 'message' => '土地情報を承認しました。'
             ]);
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'この施設の土地情報を承認する権限がありません。'
+            ], 403);
         } catch (Exception $e) {
             Log::error('Land info approval failed', [
                 'facility_id' => $facility->id,
@@ -325,15 +369,39 @@ class LandInfoController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => '承認待ちの土地情報がありません。'
-                ], 400);
+                ], 422);
             }
 
             $landInfo->update([
-                'status' => 'draft',
+                'status' => 'rejected',
                 'rejection_reason' => $validated['rejection_reason'],
                 'rejected_at' => now(),
                 'rejected_by' => auth()->id()
             ]);
+
+            // Send notification to the editor who created/updated the land info
+            if ($landInfo->updated_by) {
+                DB::table('notifications')->insert([
+                    'id' => \Illuminate\Support\Str::uuid(),
+                    'type' => 'land_info_rejected',
+                    'notifiable_type' => 'App\\Models\\User',
+                    'notifiable_id' => $landInfo->updated_by,
+                    'data' => json_encode([
+                        'land_info_id' => $landInfo->id,
+                        'facility_id' => $landInfo->facility_id,
+                        'rejected_by' => auth()->id(),
+                        'rejection_reason' => $validated['rejection_reason'],
+                        'title' => '土地情報差戻し',
+                        'message' => sprintf(
+                            '施設「%s」の土地情報が差戻しされました。理由: %s',
+                            $facility->facility_name,
+                            $validated['rejection_reason']
+                        ),
+                    ]),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
 
             // Log the rejection
             $this->activityLogService->logFacilityUpdated(
@@ -346,6 +414,11 @@ class LandInfoController extends Controller
                 'success' => true,
                 'message' => '土地情報を差戻ししました。'
             ]);
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'この施設の土地情報を差戻しする権限がありません。'
+            ], 403);
         } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,

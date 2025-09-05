@@ -1,67 +1,80 @@
 @extends('layouts.app')
 
+@section('title', '担当コメント')
+
 @section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-12">
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h4>担当コメント</h4>
+                    <h3 class="card-title">担当コメント</h3>
                 </div>
-
                 <div class="card-body">
-                    @if (session('success'))
-                        <div class="alert alert-success">
-                            {{ session('success') }}
+                    @if($comments->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>施設名</th>
+                                        <th>投稿者</th>
+                                        <th>コメント内容</th>
+                                        <th>ステータス</th>
+                                        <th>投稿日時</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($comments as $comment)
+                                    <tr>
+                                        <td>
+                                            <a href="{{ route('facilities.show', $comment->facility) }}">
+                                                {{ $comment->facility->facility_name }}
+                                            </a>
+                                        </td>
+                                        <td>{{ $comment->poster->name }}</td>
+                                        <td>{{ Str::limit($comment->content, 100) }}</td>
+                                        <td>
+                                            @switch($comment->status)
+                                                @case('pending')
+                                                    <span class="badge bg-warning">未対応</span>
+                                                    @break
+                                                @case('in_progress')
+                                                    <span class="badge bg-info">対応中</span>
+                                                    @break
+                                                @case('resolved')
+                                                    <span class="badge bg-success">解決済み</span>
+                                                    @break
+                                            @endswitch
+                                        </td>
+                                        <td>{{ $comment->created_at->format('Y/m/d H:i') }}</td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                @if($comment->status !== 'resolved')
+                                                <form method="POST" action="{{ route('comments.update-status', $comment) }}" class="d-inline">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <input type="hidden" name="status" value="resolved">
+                                                    <button type="submit" class="btn btn-sm btn-success">
+                                                        <i class="fas fa-check"></i> 解決
+                                                    </button>
+                                                </form>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
-                    @endif
 
-                    <!-- ステータス別タブ -->
-                    <ul class="nav nav-tabs mb-3" id="statusTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
-                                未対応 <span class="badge bg-warning ms-1">{{ $comments->where('status', 'pending')->count() }}</span>
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="in-progress-tab" data-bs-toggle="tab" data-bs-target="#in-progress" type="button" role="tab">
-                                対応中 <span class="badge bg-info ms-1">{{ $comments->where('status', 'in_progress')->count() }}</span>
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="resolved-tab" data-bs-toggle="tab" data-bs-target="#resolved" type="button" role="tab">
-                                対応済 <span class="badge bg-success ms-1">{{ $comments->where('status', 'resolved')->count() }}</span>
-                            </button>
-                        </li>
-                    </ul>
-
-                    <div class="tab-content" id="statusTabsContent">
-                        <!-- 未対応コメント -->
-                        <div class="tab-pane fade show active" id="pending" role="tabpanel">
-                            @include('comments.comment-list', ['comments' => $comments->where('status', 'pending'), 'showActions' => true])
-                        </div>
-
-                        <!-- 対応中コメント -->
-                        <div class="tab-pane fade" id="in-progress" role="tabpanel">
-                            @include('comments.comment-list', ['comments' => $comments->where('status', 'in_progress'), 'showActions' => true])
-                        </div>
-
-                        <!-- 対応済コメント -->
-                        <div class="tab-pane fade" id="resolved" role="tabpanel">
-                            @include('comments.comment-list', ['comments' => $comments->where('status', 'resolved'), 'showActions' => false])
-                        </div>
-                    </div>
-
-                    @if($comments->count() === 0)
-                        <div class="text-center py-4">
-                            <p class="text-muted">担当するコメントはありません。</p>
-                        </div>
-                    @endif
-
-                    <!-- ページネーション -->
-                    @if($comments->hasPages())
-                        <div class="d-flex justify-content-center mt-4">
+                        <!-- Pagination -->
+                        <div class="d-flex justify-content-center">
                             {{ $comments->links() }}
+                        </div>
+                    @else
+                        <div class="text-center py-4">
+                            <p class="text-muted">担当コメントがありません。</p>
                         </div>
                     @endif
                 </div>

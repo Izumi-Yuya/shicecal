@@ -165,7 +165,7 @@ class User extends Authenticatable
 
         if ($this->role === 'viewer' && !empty($this->access_scope)) {
             // Get facilities based on access scope
-            $query = Facility::query();
+            $query = \App\Models\Facility::query();
 
             if (isset($this->access_scope['prefectures'])) {
                 $query->whereIn('prefecture', $this->access_scope['prefectures']);

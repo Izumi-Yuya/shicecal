@@ -77,8 +77,17 @@
                     <div class="tab-pane fade show active" id="basic-info" role="tabpanel" aria-labelledby="basic-tab">
                         @include('facilities.partials.basic-info', ['facility' => $facility])
                     </div>
-                    <div class="tab-pane fade" id="land-info" role="tabpanel" aria-labelledby="land-tab">
-                        @include('facilities.partials.land-info', ['facility' => $facility, 'landInfo' => $landInfo ?? null])
+                    <div class="tab-pane fade" id="land-info" role="tabpanel" aria-labelledby="land-tab" data-lazy-load="true">
+                        <div class="land-info-loading" style="display: none;">
+                            <div class="d-flex justify-content-center p-4">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">読み込み中...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="land-info-content">
+                            @include('facilities.partials.land-info', ['facility' => $facility, 'landInfo' => $landInfo ?? null])
+                        </div>
                     </div>
                 </div>
             </div>
@@ -86,6 +95,76 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Lazy loading for land info tab
+    const landTab = document.getElementById('land-tab');
+    const landInfoPane = document.getElementById('land-info');
+    let landInfoLoaded = false;
+
+    if (landTab && landInfoPane) {
+        landTab.addEventListener('click', function() {
+            if (!landInfoLoaded) {
+                loadLandInfo();
+            }
+        });
+    }
+
+    function loadLandInfo() {
+        const loadingDiv = landInfoPane.querySelector('.land-info-loading');
+        const contentDiv = landInfoPane.querySelector('.land-info-content');
+        
+        if (loadingDiv && contentDiv) {
+            // Show loading spinner
+            loadingDiv.style.display = 'block';
+            contentDiv.style.display = 'none';
+            
+            // Simulate loading delay for heavy content
+            setTimeout(() => {
+                // Hide loading spinner and show content
+                loadingDiv.style.display = 'none';
+                contentDiv.style.display = 'block';
+                
+                // Initialize land info manager if not already done
+                if (typeof LandInfoManager !== 'undefined' && !window.landInfoManagerInitialized) {
+                    new LandInfoManager();
+                    window.landInfoManagerInitialized = true;
+                }
+                
+                landInfoLoaded = true;
+            }, 500);
+        }
+    }
+
+    // Performance monitoring for tab switching
+    let tabSwitchTimes = [];
+    
+    document.querySelectorAll('.nav-tabs .nav-link').forEach(tab => {
+        tab.addEventListener('click', function() {
+            const startTime = performance.now();
+            
+            setTimeout(() => {
+                const endTime = performance.now();
+                const switchTime = endTime - startTime;
+                tabSwitchTimes.push(switchTime);
+                
+                // Log performance metrics every 10 tab switches
+                if (tabSwitchTimes.length >= 10) {
+                    const avgTime = tabSwitchTimes.reduce((a, b) => a + b, 0) / tabSwitchTimes.length;
+                    console.debug('Tab switch performance:', {
+                        average: avgTime.toFixed(2) + 'ms',
+                        samples: tabSwitchTimes.length
+                    });
+                    tabSwitchTimes = []; // Reset
+                }
+            }, 0);
+        });
+    });
+});
+</script>
+@endpush
 
 @push('styles')
 <style>

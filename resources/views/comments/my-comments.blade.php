@@ -1,158 +1,97 @@
 @extends('layouts.app')
 
+@section('title', 'マイコメント')
+
 @section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-12">
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4>マイコメント</h4>
-                    <a href="{{ route('my-page.index') }}" class="btn btn-secondary btn-sm">マイページに戻る</a>
+                <div class="card-header">
+                    <h3 class="card-title">マイコメント</h3>
                 </div>
-
                 <div class="card-body">
-                    @if (session('success'))
-                        <div class="alert alert-success">
-                            {{ session('success') }}
-                        </div>
-                    @endif
-
-                    <!-- ステータス概要 -->
+                    <!-- Status Summary -->
                     <div class="row mb-4">
                         <div class="col-md-3">
-                            <div class="card bg-warning text-white">
-                                <div class="card-body text-center">
-                                    <h3>{{ $statusCounts['pending'] }}</h3>
-                                    <p class="mb-0">未対応</p>
+                            <div class="info-box bg-warning">
+                                <span class="info-box-icon"><i class="fas fa-clock"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">未対応</span>
+                                    <span class="info-box-number">{{ $statusCounts['pending'] }}</span>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="card bg-info text-white">
-                                <div class="card-body text-center">
-                                    <h3>{{ $statusCounts['in_progress'] }}</h3>
-                                    <p class="mb-0">対応中</p>
+                            <div class="info-box bg-info">
+                                <span class="info-box-icon"><i class="fas fa-spinner"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">対応中</span>
+                                    <span class="info-box-number">{{ $statusCounts['in_progress'] }}</span>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="card bg-success text-white">
-                                <div class="card-body text-center">
-                                    <h3>{{ $statusCounts['resolved'] }}</h3>
-                                    <p class="mb-0">対応済</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card bg-primary text-white">
-                                <div class="card-body text-center">
-                                    <h3>{{ array_sum($statusCounts) }}</h3>
-                                    <p class="mb-0">合計</p>
+                            <div class="info-box bg-success">
+                                <span class="info-box-icon"><i class="fas fa-check"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">解決済み</span>
+                                    <span class="info-box-number">{{ $statusCounts['resolved'] }}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- フィルター -->
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <form method="GET" action="{{ route('my-page.my-comments') }}" class="row g-3">
-                                <div class="col-md-4">
-                                    <label for="status" class="form-label">ステータス</label>
-                                    <select name="status" id="status" class="form-select">
-                                        <option value="">すべて</option>
-                                        <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>未対応</option>
-                                        <option value="in_progress" {{ request('status') === 'in_progress' ? 'selected' : '' }}>対応中</option>
-                                        <option value="resolved" {{ request('status') === 'resolved' ? 'selected' : '' }}>対応済</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="facility_name" class="form-label">施設名</label>
-                                    <input type="text" name="facility_name" id="facility_name" class="form-control" 
-                                           value="{{ request('facility_name') }}" placeholder="施設名で検索">
-                                </div>
-                                <div class="col-md-4 d-flex align-items-end">
-                                    <button type="submit" class="btn btn-primary me-2">検索</button>
-                                    <a href="{{ route('my-page.my-comments') }}" class="btn btn-secondary">リセット</a>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
+                    <!-- Comments List -->
                     @if($comments->count() > 0)
-                        @foreach($comments as $comment)
-                            <div class="card mb-3">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div class="flex-grow-1">
-                                            <h6 class="card-title">
-                                                <a href="{{ route('facilities.show', $comment->facility) }}">
-                                                    {{ $comment->facility->facility_name }}
-                                                </a>
-                                                @if($comment->field_name)
-                                                    <span class="badge bg-secondary ms-2">{{ $comment->field_name }}</span>
-                                                @endif
-                                            </h6>
-                                            <p class="card-text">{{ $comment->content }}</p>
-                                            <small class="text-muted">
-                                                投稿日時: {{ $comment->created_at->format('Y年m月d日 H:i') }}
-                                                @if($comment->assignee)
-                                                    | 担当者: {{ $comment->assignee->name }}
-                                                @endif
-                                                @if($comment->resolved_at)
-                                                    | 解決日時: {{ $comment->resolved_at->format('Y年m月d日 H:i') }}
-                                                    | 対応時間: {{ $comment->created_at->diffInHours($comment->resolved_at) }}時間
-                                                @endif
-                                            </small>
-                                            
-                                            <!-- 対応状況の進捗表示 -->
-                                            <div class="mt-2">
-                                                <div class="progress" style="height: 10px;">
-                                                    <div class="progress-bar 
-                                                        @if($comment->status === 'pending') bg-warning
-                                                        @elseif($comment->status === 'in_progress') bg-info
-                                                        @else bg-success
-                                                        @endif" 
-                                                        role="progressbar" 
-                                                        style="width: 
-                                                            @if($comment->status === 'pending') 33%
-                                                            @elseif($comment->status === 'in_progress') 66%
-                                                            @else 100%
-                                                            @endif">
-                                                    </div>
-                                                </div>
-                                                <div class="d-flex justify-content-between mt-1">
-                                                    <small class="text-muted">投稿</small>
-                                                    <small class="text-muted">対応中</small>
-                                                    <small class="text-muted">完了</small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="ms-3">
-                                            <span class="badge 
-                                                @if($comment->status === 'pending') bg-warning
-                                                @elseif($comment->status === 'in_progress') bg-info
-                                                @else bg-success
-                                                @endif">
-                                                @if($comment->status === 'pending') 未対応
-                                                @elseif($comment->status === 'in_progress') 対応中
-                                                @else 対応済
-                                                @endif
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>施設名</th>
+                                        <th>コメント内容</th>
+                                        <th>ステータス</th>
+                                        <th>担当者</th>
+                                        <th>投稿日時</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($comments as $comment)
+                                    <tr>
+                                        <td>
+                                            <a href="{{ route('facilities.show', $comment->facility) }}">
+                                                {{ $comment->facility->facility_name }}
+                                            </a>
+                                        </td>
+                                        <td>{{ Str::limit($comment->content, 100) }}</td>
+                                        <td>
+                                            @switch($comment->status)
+                                                @case('pending')
+                                                    <span class="badge bg-warning">未対応</span>
+                                                    @break
+                                                @case('in_progress')
+                                                    <span class="badge bg-info">対応中</span>
+                                                    @break
+                                                @case('resolved')
+                                                    <span class="badge bg-success">解決済み</span>
+                                                    @break
+                                            @endswitch
+                                        </td>
+                                        <td>{{ $comment->assignee->name ?? '未割当' }}</td>
+                                        <td>{{ $comment->created_at->format('Y/m/d H:i') }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
 
-                        <!-- ページネーション -->
+                        <!-- Pagination -->
                         <div class="d-flex justify-content-center">
-                            {{ $comments->appends(request()->query())->links() }}
+                            {{ $comments->links() }}
                         </div>
                     @else
                         <div class="text-center py-4">
-                            <p class="text-muted">該当するコメントはありません。</p>
-                            <a href="{{ route('facilities.index') }}" class="btn btn-primary">施設一覧を見る</a>
+                            <p class="text-muted">コメントがありません。</p>
                         </div>
                     @endif
                 </div>

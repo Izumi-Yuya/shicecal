@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -18,10 +19,19 @@ return new class extends Migration
 
             $table->foreign('rejected_by')->references('id')->on('users');
         });
+
+        // Update the enum to include 'rejected' - handle SQLite vs MySQL differently
+        if (DB::getDriverName() === 'sqlite') {
+            // SQLite doesn't support MODIFY COLUMN, so we'll handle this in the model validation
+            // The enum constraint will be enforced at the application level
+        } else {
+            // MySQL supports MODIFY COLUMN
+            DB::statement("ALTER TABLE land_info MODIFY COLUMN status ENUM('draft', 'pending_approval', 'approved', 'rejected') DEFAULT 'approved'");
+        }
     }
 
     /**
-     * Run the migrations.
+     * Reverse the migrations.
      */
     public function down(): void
     {
@@ -29,5 +39,14 @@ return new class extends Migration
             $table->dropForeign(['rejected_by']);
             $table->dropColumn(['rejection_reason', 'rejected_at', 'rejected_by']);
         });
+
+        // Revert enum back to original values - handle SQLite vs MySQL differently
+        if (DB::getDriverName() === 'sqlite') {
+            // SQLite doesn't support MODIFY COLUMN, so we'll handle this in the model validation
+            // The enum constraint will be enforced at the application level
+        } else {
+            // MySQL supports MODIFY COLUMN
+            DB::statement("ALTER TABLE land_info MODIFY COLUMN status ENUM('draft', 'pending_approval', 'approved') DEFAULT 'approved'");
+        }
     }
 };

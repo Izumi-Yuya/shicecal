@@ -75,7 +75,7 @@ class CommentController extends Controller
     public function index(Request $request)
     {
         $facilityId = $request->input('facility_id');
-        
+
         if (!$facilityId) {
             return response()->json(['error' => '施設IDが必要です。'], 400);
         }
@@ -102,14 +102,14 @@ class CommentController extends Controller
     public function updateStatus(Request $request, Comment $comment): RedirectResponse
     {
         $status = $request->input('status');
-        
+
         if (!in_array($status, ['pending', 'in_progress', 'resolved'])) {
             return redirect()->back()->with('error', '無効なステータスです。');
         }
 
         $oldStatus = $comment->status;
         $comment->status = $status;
-        
+
         if ($status === 'resolved') {
             $comment->resolved_at = now();
         } else {
@@ -158,7 +158,7 @@ class CommentController extends Controller
     /**
      * Show comments assigned to current user.
      */
-    public function assignedComments()
+    public function assigned()
     {
         $comments = Comment::with(['facility', 'poster'])
             ->where('assigned_to', Auth::id())
@@ -227,7 +227,7 @@ class CommentController extends Controller
         foreach ($comments as $comment) {
             $oldStatus = $comment->status;
             $comment->status = $status;
-            
+
             if ($status === 'resolved') {
                 $comment->resolved_at = now();
             } else {

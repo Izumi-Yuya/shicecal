@@ -67,6 +67,22 @@ class LandInfo extends Model
         'rejected_at' => 'datetime',
     ];
 
+    // Valid status values
+    const STATUS_DRAFT = 'draft';
+    const STATUS_PENDING_APPROVAL = 'pending_approval';
+    const STATUS_APPROVED = 'approved';
+    const STATUS_REJECTED = 'rejected';
+
+    public static function getValidStatuses(): array
+    {
+        return [
+            self::STATUS_DRAFT,
+            self::STATUS_PENDING_APPROVAL,
+            self::STATUS_APPROVED,
+            self::STATUS_REJECTED,
+        ];
+    }
+
     // Relationships
     public function facility(): BelongsTo
     {

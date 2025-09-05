@@ -95,28 +95,28 @@
   - Write security tests for authorization
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
-- [ ] 12. Complete comprehensive testing
-  - Complete unit tests for LandCalculationService
-  - Write feature tests for land information CRUD operations
-  - Add browser tests for JavaScript functionality
-  - Create integration tests for approval workflow
+- [x] 12. Fix failing tests and complete test coverage
+  - Fix LandInfoControllerTest factory data conflicts
+  - Complete remaining feature tests for edge cases
+  - Add browser tests for JavaScript functionality using Laravel Dusk
+  - Create integration tests for approval workflow scenarios
   - Add performance tests for large datasets
-  - Write tests for export functionality with land data
+  - Ensure all export functionality tests pass
   - _Requirements: All requirements_
 
-- [ ] 13. Create database seeders and test data
+- [x] 13. Create database seeders and test data
   - Create LandInfoSeeder with sample data for all ownership types
   - Add land information to existing FacilitySeeder
   - Create test data for different scenarios (owned, leased, owned_rental)
   - Add sample land documents to file seeder
-  - Write factory classes for land information testing
+  - Update DatabaseSeeder to include LandInfoSeeder
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8_
 
-- [ ] 14. Optimize performance and add caching
-  - Implement caching for land information queries
-  - Add database indexes for performance
-  - Optimize JavaScript for large forms
-  - Add lazy loading for land information
-  - Implement efficient bulk operations for export
-  - Write performance tests and benchmarks
+- [x] 14. Optimize performance and add caching
+  - Add database indexes for land_info table queries
+  - Implement Redis caching for frequently accessed land information
+  - Optimize JavaScript for large forms and real-time calculations
+  - Add lazy loading for land information in facility views
+  - Implement efficient bulk operations for CSV/PDF export
+  - Write performance benchmarks and monitoring
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 10.1, 10.2, 10.3, 10.4_

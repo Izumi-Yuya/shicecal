@@ -66,16 +66,83 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('facilities/{facility}/land-info')->name('facilities.land-info.')->group(function () {
         Route::get('/', [App\Http\Controllers\LandInfoController::class, 'show'])->name('show');
         Route::get('/edit', [App\Http\Controllers\LandInfoController::class, 'edit'])->name('edit');
+        Route::post('/', [App\Http\Controllers\LandInfoController::class, 'update'])->name('create');
         Route::put('/', [App\Http\Controllers\LandInfoController::class, 'update'])->name('update');
         Route::post('/calculate', [App\Http\Controllers\LandInfoController::class, 'calculateFields'])->name('calculate');
         Route::get('/status', [App\Http\Controllers\LandInfoController::class, 'getStatus'])->name('status');
         Route::post('/approve', [App\Http\Controllers\LandInfoController::class, 'approve'])->name('approve');
         Route::post('/reject', [App\Http\Controllers\LandInfoController::class, 'reject'])->name('reject');
-        
+
         // File management routes
         Route::post('/documents', [App\Http\Controllers\LandInfoController::class, 'uploadDocuments'])->name('documents.upload');
         Route::get('/documents', [App\Http\Controllers\LandInfoController::class, 'getDocuments'])->name('documents.index');
         Route::get('/documents/{fileId}/download', [App\Http\Controllers\LandInfoController::class, 'downloadDocument'])->name('documents.download');
         Route::delete('/documents/{fileId}', [App\Http\Controllers\LandInfoController::class, 'deleteDocument'])->name('documents.delete');
     });
+
+    // Notification Routes
+    Route::resource('notifications', NotificationController::class)->only(['index', 'show', 'update']);
+
+    // My Page Routes
+    Route::get('/my-page', [MyPageController::class, 'index'])->name('my-page.index');
+
+    // Maintenance Routes
+    Route::resource('maintenance', MaintenanceController::class);
+
+    // Annual Confirmation Routes
+    Route::resource('annual-confirmation', AnnualConfirmationController::class);
+
+    // Comment Routes
+    Route::resource('comments', CommentController::class);
+    Route::get('/comments/my-comments', [CommentController::class, 'myComments'])->name('comments.my-comments');
+    Route::get('/comments/assigned', [CommentController::class, 'assigned'])->name('comments.assigned');
+    Route::get('/comments/status-dashboard', [CommentController::class, 'statusDashboard'])->name('comments.status-dashboard');
+    Route::patch('/comments/{comment}/status', [CommentController::class, 'updateStatus'])->name('comments.update-status');
+    Route::post('/comments/bulk-update-status', [CommentController::class, 'bulkUpdateStatus'])->name('comments.bulk-update-status');
+    Route::get('/comments/assigned', [CommentController::class, 'assignedComments'])->name('comments.assigned');
+    Route::get('/comments/status-dashboard', [CommentController::class, 'statusDashboard'])->name('comments.status-dashboard');
+    Route::post('/comments/bulk-update-status', [CommentController::class, 'bulkUpdateStatus'])->name('comments.bulk-update-status');
+    Route::put('/comments/{comment}/status', [CommentController::class, 'updateStatus'])->name('comments.update-status');
+
+    // Admin Routes (for admin users only)
+    Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
+        // User Management
+        Route::get('/users', function () {
+            return view('admin.users.index');
+        })->name('users.index');
+        Route::get('/users/create', function () {
+            return view('admin.users.create');
+        })->name('users.create');
+        Route::get('/users/{user}', function () {
+            return view('admin.users.show');
+        })->name('users.show');
+        Route::get('/users/{user}/edit', function () {
+            return view('admin.users.edit');
+        })->name('users.edit');
+
+        // System Settings
+        Route::get('/settings', function () {
+            return view('admin.settings.index');
+        })->name('settings.index');
+        Route::get('/settings/general', function () {
+            return view('admin.settings.general');
+        })->name('settings.general');
+        Route::get('/settings/security', function () {
+            return view('admin.settings.security');
+        })->name('settings.security');
+
+        // Log Management
+        Route::get('/logs', function () {
+            return view('admin.logs.index');
+        })->name('logs.index');
+        Route::get('/logs/activity', function () {
+            return view('admin.logs.activity');
+        })->name('logs.activity');
+        Route::get('/logs/system', function () {
+            return view('admin.logs.system');
+        })->name('logs.system');
+    });
+
+    // Additional missing routes
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
 });

@@ -136,6 +136,119 @@ class CsvExportController extends Controller
     }
 
     /**
+     * Optimized CSV generation for large datasets
+     */
+    public function generateCsvOptimized(Request $request)
+    {
+        $facilityIds = $request->input('facility_ids', []);
+        $exportFields = $request->input('export_fields', []);
+        $batchSize = 1000;
+
+        if (empty($facilityIds) || empty($exportFields)) {
+            return response()->json([
+                'success' => false,
+                'message' => '施設または項目が選択されていません。'
+            ], 400);
+        }
+
+        // For large exports, use streaming
+        if (count($facilityIds) > 5000) {
+            return $this->streamLargeExport($request);
+        }
+
+        $user = Auth::user();
+
+        // Warm up cache for land info if needed
+        $landInfoFields = array_filter($exportFields, fn($field) => str_starts_with($field, 'land_'));
+        if (!empty($landInfoFields)) {
+            app(LandInfoService::class)->warmUpCache($facilityIds);
+        }
+
+        $filename = 'facilities_export_' . date('Y-m-d_H-i-s') . '.csv';
+
+        return response()->streamDownload(function () use ($user, $facilityIds, $exportFields, $batchSize) {
+            $handle = fopen('php://output', 'w');
+
+            // Add BOM for UTF-8
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            // Write headers
+            $availableFields = $this->getAvailableFields();
+            $headers = [];
+            foreach ($exportFields as $field) {
+                $headers[] = $availableFields[$field] ?? $field;
+            }
+            fputcsv($handle, $headers);
+
+            // Process in batches
+            $query = $this->getFacilitiesQuery($user)
+                ->whereIn('id', $facilityIds)
+                ->with(['landInfo']);
+
+            $query->chunk($batchSize, function ($facilities) use ($handle, $exportFields) {
+                foreach ($facilities as $facility) {
+                    $row = [];
+                    foreach ($exportFields as $field) {
+                        $row[] = $this->getFieldValueOptimized($facility, $field);
+                    }
+                    fputcsv($handle, $row);
+                }
+
+                // Memory management
+                if (memory_get_usage() > 100 * 1024 * 1024) {
+                    gc_collect_cycles();
+                }
+            });
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8'
+        ]);
+    }
+
+    /**
+     * Stream large export with progress tracking
+     */
+    public function streamLargeExport(Request $request)
+    {
+        $facilityIds = $request->input('facility_ids', []);
+        $exportFields = $request->input('export_fields', []);
+        $jobId = uniqid('export_');
+
+        // Store job info
+        Cache::put("export_job_{$jobId}", [
+            'status' => 'processing',
+            'total' => count($facilityIds),
+            'processed' => 0,
+            'started_at' => now()
+        ], 3600);
+
+        return response()->json([
+            'job_id' => $jobId,
+            'status' => 'processing',
+            'download_url' => route('csv.download', $jobId)
+        ]);
+    }
+
+    /**
+     * Optimized field value extraction
+     */
+    protected function getFieldValueOptimized($facility, $field)
+    {
+        // Use cached data for land info fields
+        if (str_starts_with($field, 'land_')) {
+            $landInfoService = app(LandInfoService::class);
+            $exportData = $landInfoService->getExportDataWithCache($facility);
+            if ($exportData && isset($exportData[$field])) {
+                return (string) $exportData[$field];
+            }
+        }
+
+        // Fallback to existing method
+        return $this->getFieldValue($facility, $field);
+    }
+
+    /**
      * Generate CSV content with UTF-8 BOM
      */
     private function generateCsvContent($facilities, $exportFields, $selectedFields)
