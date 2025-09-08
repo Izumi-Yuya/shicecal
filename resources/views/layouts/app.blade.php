@@ -301,25 +301,55 @@
     <script>
         // Update notification count
         function updateNotificationCount() {
-            fetch('{{ route("notifications.unread-count") }}')
-                .then(response => response.json())
+            fetch('{{ route("notifications.unread-count") }}', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                },
+                credentials: 'same-origin'
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        if (response.status === 401) {
+                            console.warn('User not authenticated, stopping notification updates');
+                            return null;
+                        }
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
+                    if (data === null) return; // Skip if unauthenticated
+                    
                     const badge = document.getElementById('unread-count');
-                    if (data.count > 0) {
-                        badge.textContent = data.count;
-                        badge.style.display = 'inline';
-                    } else {
-                        badge.style.display = 'none';
+                    if (badge) {
+                        if (data.count > 0) {
+                            badge.textContent = data.count;
+                            badge.style.display = 'inline';
+                        } else {
+                            badge.style.display = 'none';
+                        }
                     }
                 })
-                .catch(error => console.error('Error fetching notification count:', error));
+                .catch(error => {
+                    console.error('Error fetching notification count:', error);
+                    // Optionally stop the interval on persistent errors
+                });
         }
 
         // Update count on page load
-        document.addEventListener('DOMContentLoaded', updateNotificationCount);
-        
-        // Update count every 30 seconds
-        setInterval(updateNotificationCount, 30000);
+        document.addEventListener('DOMContentLoaded', function() {
+            // Only start if we have the notification badge element
+            if (document.getElementById('unread-count')) {
+                updateNotificationCount();
+                
+                // Update count every 30 seconds
+                setInterval(updateNotificationCount, 30000);
+            }
+        });
     </script>
     @endauth
     

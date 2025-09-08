@@ -7,9 +7,17 @@ use App\Models\LandInfo;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Carbon\Carbon;
+use Faker\Factory as Faker;
 
 class LandInfoSeeder extends Seeder
 {
+    private $faker;
+
+    public function __construct()
+    {
+        $this->faker = Faker::create('ja_JP');
+    }
+
     /**
      * Run the database seeds.
      */
@@ -294,6 +302,19 @@ class LandInfoSeeder extends Seeder
             'owner_email' => null,
             'owner_url' => null,
             'owner_notes' => null,
+
+            // PDF file information for owned properties (registry only)
+            'lease_contract_pdf_path' => null,
+            'lease_contract_pdf_name' => null,
+            'registry_pdf_path' => fake()->optional(0.95)->randomElement([
+                'land_documents/registry/owned_property_' . fake()->uuid() . '.pdf',
+                'land_documents/registry/self_owned_registry_' . fake()->uuid() . '.pdf',
+            ]),
+            'registry_pdf_name' => fake()->optional(0.95)->randomElement([
+                '自社所有不動産登記簿謄本.pdf',
+                '土地建物登記事項証明書.pdf',
+                '不動産登記簿謄本_自社所有.pdf',
+            ]),
         ];
     }
 
@@ -313,27 +334,47 @@ class LandInfoSeeder extends Seeder
             'auto_renewal' => fake()->randomElement(['yes', 'no']),
             'contract_period_text' => $this->calculateContractPeriod($startDate, $endDate),
 
-            // Management company
+            // Management company (complete information)
             'management_company_name' => $this->getManagementCompanyName(),
             'management_company_postal_code' => fake()->regexify('\d{3}-\d{4}'),
             'management_company_address' => $this->getManagementCompanyAddress($facility),
-            'management_company_building' => fake()->optional(0.3)->secondaryAddress(),
+            'management_company_building' => $this->getManagementCompanyBuilding(),
             'management_company_phone' => fake()->regexify('0\d{1,3}-\d{2,4}-\d{4}'),
-            'management_company_fax' => fake()->optional(0.7)->regexify('0\d{1,3}-\d{2,4}-\d{4}'),
-            'management_company_email' => fake()->safeEmail(),
-            'management_company_url' => fake()->optional(0.6)->url(),
-            'management_company_notes' => fake()->optional(0.4)->realText(80),
+            'management_company_fax' => fake()->regexify('0\d{1,3}-\d{2,4}-\d{4}'),
+            'management_company_email' => $this->getManagementCompanyEmail(),
+            'management_company_url' => $this->getManagementCompanyUrl(),
+            'management_company_notes' => $this->getManagementCompanyNotes(),
 
-            // Owner
+            // Owner (complete information)
             'owner_name' => $this->getOwnerName(),
             'owner_postal_code' => fake()->regexify('\d{3}-\d{4}'),
             'owner_address' => $this->getOwnerAddress($facility),
-            'owner_building' => fake()->optional(0.3)->secondaryAddress(),
+            'owner_building' => $this->getOwnerBuilding(),
             'owner_phone' => fake()->regexify('0\d{1,3}-\d{2,4}-\d{4}'),
-            'owner_fax' => fake()->optional(0.5)->regexify('0\d{1,3}-\d{2,4}-\d{4}'),
-            'owner_email' => fake()->optional(0.7)->safeEmail(),
-            'owner_url' => fake()->optional(0.2)->url(),
-            'owner_notes' => fake()->optional(0.3)->realText(60),
+            'owner_fax' => fake()->optional(0.6)->regexify('0\d{1,3}-\d{2,4}-\d{4}'),
+            'owner_email' => fake()->optional(0.8)->safeEmail(),
+            'owner_url' => fake()->optional(0.3)->url(),
+            'owner_notes' => $this->getOwnerNotes(),
+
+            // PDF file information (simulated)
+            'lease_contract_pdf_path' => fake()->optional(0.8)->randomElement([
+                'land_documents/lease_contracts/contract_' . fake()->uuid() . '.pdf',
+                'land_documents/lease_contracts/lease_agreement_' . fake()->uuid() . '.pdf',
+            ]),
+            'lease_contract_pdf_name' => fake()->optional(0.8)->randomElement([
+                '賃貸借契約書_' . $facility->facility_name . '.pdf',
+                '土地賃貸契約書_' . date('Y年m月d日') . '.pdf',
+                '賃貸借契約書及び覚書.pdf',
+            ]),
+            'registry_pdf_path' => fake()->optional(0.9)->randomElement([
+                'land_documents/registry/registry_' . fake()->uuid() . '.pdf',
+                'land_documents/registry/land_registry_' . fake()->uuid() . '.pdf',
+            ]),
+            'registry_pdf_name' => fake()->optional(0.9)->randomElement([
+                '土地登記簿謄本_' . $facility->facility_name . '.pdf',
+                '不動産登記事項証明書.pdf',
+                '登記簿謄本_' . date('Y年m月d日取得') . '.pdf',
+            ]),
         ];
     }
 
@@ -370,12 +411,32 @@ class LandInfoSeeder extends Seeder
             'owner_name' => $this->getTenantCompanyName(),
             'owner_postal_code' => fake()->regexify('\d{3}-\d{4}'),
             'owner_address' => $this->getTenantAddress($facility),
-            'owner_building' => fake()->optional(0.3)->secondaryAddress(),
+            'owner_building' => $this->getTenantBuilding(),
             'owner_phone' => fake()->regexify('0\d{1,3}-\d{2,4}-\d{4}'),
-            'owner_fax' => fake()->optional(0.7)->regexify('0\d{1,3}-\d{2,4}-\d{4}'),
-            'owner_email' => fake()->safeEmail(),
-            'owner_url' => fake()->optional(0.8)->url(),
-            'owner_notes' => fake()->optional(0.4)->realText(80),
+            'owner_fax' => fake()->regexify('0\d{1,3}-\d{2,4}-\d{4}'),
+            'owner_email' => $this->getTenantEmail(),
+            'owner_url' => $this->getTenantUrl(),
+            'owner_notes' => $this->getTenantNotes(),
+
+            // PDF file information (simulated)
+            'lease_contract_pdf_path' => fake()->optional(0.9)->randomElement([
+                'land_documents/lease_contracts/rental_contract_' . fake()->uuid() . '.pdf',
+                'land_documents/lease_contracts/tenant_agreement_' . fake()->uuid() . '.pdf',
+            ]),
+            'lease_contract_pdf_name' => fake()->optional(0.9)->randomElement([
+                'テナント賃貸借契約書_' . $facility->facility_name . '.pdf',
+                '事業用賃貸借契約書.pdf',
+                '賃貸借契約書_' . date('Y年m月d日') . '.pdf',
+            ]),
+            'registry_pdf_path' => fake()->optional(0.95)->randomElement([
+                'land_documents/registry/owned_registry_' . fake()->uuid() . '.pdf',
+                'land_documents/registry/property_registry_' . fake()->uuid() . '.pdf',
+            ]),
+            'registry_pdf_name' => fake()->optional(0.95)->randomElement([
+                '自社所有土地登記簿謄本.pdf',
+                '不動産登記事項証明書_自社所有.pdf',
+                '土地建物登記簿謄本.pdf',
+            ]),
         ];
     }
 
@@ -715,5 +776,195 @@ class LandInfoSeeder extends Seeder
         $endDate = (clone $startDate)->modify("+{$contractYears} years");
 
         return [$startDate, $endDate];
+    }
+
+    /**
+     * Get management company building name
+     */
+    private function getManagementCompanyBuilding(): ?string
+    {
+        $buildings = [
+            '○○ビル5F',
+            '△△タワー12階',
+            '□□プラザ3F',
+            'ビジネスセンター8階',
+            '不動産会館7F',
+            'オフィスタワー15階',
+            '商業ビル4F',
+            null, // Some don't have building names
+        ];
+
+        return fake()->randomElement($buildings);
+    }
+
+    /**
+     * Get management company email
+     */
+    private function getManagementCompanyEmail(): string
+    {
+        $domains = [
+            'property-mgmt.co.jp',
+            'real-estate.jp',
+            'management.com',
+            'property.co.jp',
+            'realestate-service.jp',
+        ];
+
+        $prefixes = [
+            'info',
+            'contact',
+            'support',
+            'office',
+            'management',
+        ];
+
+        return fake()->randomElement($prefixes) . '@' . fake()->randomElement($domains);
+    }
+
+    /**
+     * Get management company URL
+     */
+    private function getManagementCompanyUrl(): ?string
+    {
+        $domains = [
+            'property-management.co.jp',
+            'real-estate-service.jp',
+            'management-company.com',
+            'property-care.jp',
+            'realestate-pro.co.jp',
+        ];
+
+        return fake()->boolean(70) ? 'https://www.' . fake()->randomElement($domains) : null;
+    }
+
+    /**
+     * Get management company notes
+     */
+    private function getManagementCompanyNotes(): ?string
+    {
+        $notes = [
+            '24時間対応可能な管理体制を整備。緊急時の連絡先も明確化されている。',
+            '月次報告書の提出あり。建物の維持管理状況を定期的に報告。',
+            '清掃・設備点検等の日常管理業務を包括的に委託。',
+            '入居者対応、契約更新手続き等も含めた総合管理サービス。',
+            '地域密着型の管理会社として、きめ細かいサービスを提供。',
+            '大手不動産会社系列で、豊富な管理実績とノウハウを保有。',
+            '設備故障時の迅速な対応体制が整っており、信頼性が高い。',
+            null,
+        ];
+
+        return fake()->randomElement($notes);
+    }
+
+    /**
+     * Get owner building name
+     */
+    private function getOwnerBuilding(): ?string
+    {
+        $buildings = [
+            'マンション○○号室',
+            '△△ハイツ□□号',
+            '住宅○○',
+            'アパート△△',
+            '戸建て住宅',
+            null, // Some don't have building names
+        ];
+
+        return fake()->randomElement($buildings);
+    }
+
+    /**
+     * Get owner notes
+     */
+    private function getOwnerNotes(): ?string
+    {
+        $notes = [
+            '長期保有を前提とした安定的な賃貸経営を志向。',
+            '建物の維持管理に積極的で、定期的な修繕を実施。',
+            '賃料改定については市場相場を考慮した柔軟な対応。',
+            '相続により取得した不動産で、家族経営による管理。',
+            '不動産投資の一環として複数物件を所有・運営。',
+            '地域の発展に貢献したいとの意向で長期契約を希望。',
+            '建物の老朽化に伴う大規模修繕の計画を検討中。',
+            null,
+        ];
+
+        return fake()->randomElement($notes);
+    }
+
+    /**
+     * Get tenant building name for owned rental properties
+     */
+    private function getTenantBuilding(): ?string
+    {
+        $buildings = [
+            '○○ビル本社',
+            '△△センター',
+            '□□オフィス',
+            'ビジネスプラザ',
+            '企業会館',
+            null,
+        ];
+
+        return fake()->randomElement($buildings);
+    }
+
+    /**
+     * Get tenant email
+     */
+    private function getTenantEmail(): string
+    {
+        $domains = [
+            'medical-care.co.jp',
+            'healthcare.jp',
+            'welfare.or.jp',
+            'senior-care.com',
+            'medical.co.jp',
+        ];
+
+        $prefixes = [
+            'info',
+            'contact',
+            'office',
+            'admin',
+            'facility',
+        ];
+
+        return fake()->randomElement($prefixes) . '@' . fake()->randomElement($domains);
+    }
+
+    /**
+     * Get tenant URL
+     */
+    private function getTenantUrl(): ?string
+    {
+        $domains = [
+            'medical-care.co.jp',
+            'healthcare-service.jp',
+            'welfare-group.or.jp',
+            'senior-life.com',
+            'medical-support.co.jp',
+        ];
+
+        return fake()->boolean(80) ? 'https://www.' . fake()->randomElement($domains) : null;
+    }
+
+    /**
+     * Get tenant notes
+     */
+    private function getTenantNotes(): ?string
+    {
+        $notes = [
+            '医療・介護事業を主力とする安定した事業基盤を持つ企業。',
+            '地域密着型のサービス提供により、利用者からの信頼も厚い。',
+            '施設の運営実績が豊富で、適切な管理体制が構築されている。',
+            '契約更新時の条件交渉においても誠実な対応を心がけている。',
+            '建物の維持管理についても積極的に協力する姿勢を示している。',
+            '事業拡大に伴い、長期的な利用を前提とした契約を希望。',
+            '地域の高齢化社会に対応したサービス展開を計画中。',
+            null,
+        ];
+
+        return fake()->randomElement($notes);
     }
 }

@@ -40,24 +40,405 @@
                                     @endswitch
                                 </span>
                             </div>
-                            @if($landInfo->parking_spaces !== null)
                             <div class="detail-row">
                                 <span class="detail-label">敷地内駐車場台数</span>
-                                <span class="detail-value">{{ number_format($landInfo->parking_spaces) }}台</span>
+                                <span class="detail-value">
+                                    @if($landInfo->parking_spaces !== null)
+                                        {{ number_format($landInfo->parking_spaces) }}台
+                                    @else
+                                        <span class="text-muted">未設定</span>
+                                    @endif
+                                </span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">敷地面積</span>
+                                <span class="detail-value">
+                                    @if($landInfo->site_area_sqm !== null)
+                                        {{ number_format($landInfo->site_area_sqm, 2) }}㎡
+                                        @if($landInfo->site_area_tsubo !== null)
+                                            ({{ number_format($landInfo->site_area_tsubo, 2) }}坪)
+                                        @endif
+                                    @else
+                                        <span class="text-muted">未設定</span>
+                                    @endif
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 金額・契約情報カード -->
+            <div class="col-lg-6 mb-4">
+                <div class="card facility-info-card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-yen-sign text-success me-2"></i>金額・契約情報
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="facility-detail-table">
+                            @if($landInfo->ownership_type === 'owned')
+                                <div class="detail-row">
+                                    <span class="detail-label">購入金額</span>
+                                    <span class="detail-value">
+                                        @if($landInfo->purchase_price !== null)
+                                            {{ number_format($landInfo->purchase_price) }}円
+                                        @else
+                                            <span class="text-muted">未設定</span>
+                                        @endif
+                                    </span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">坪単価</span>
+                                    <span class="detail-value">
+                                        @if($landInfo->unit_price_per_tsubo !== null)
+                                            {{ number_format($landInfo->unit_price_per_tsubo) }}円/坪
+                                        @else
+                                            <span class="text-muted">未設定</span>
+                                        @endif
+                                    </span>
+                                </div>
+                            @elseif(in_array($landInfo->ownership_type, ['leased', 'owned_rental']))
+                                <div class="detail-row">
+                                    <span class="detail-label">月額賃料</span>
+                                    <span class="detail-value">
+                                        @if($landInfo->monthly_rent !== null)
+                                            {{ number_format($landInfo->monthly_rent) }}円
+                                        @else
+                                            <span class="text-muted">未設定</span>
+                                        @endif
+                                    </span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">契約期間</span>
+                                    <span class="detail-value">
+                                        @if($landInfo->contract_start_date && $landInfo->contract_end_date)
+                                            {{ $landInfo->contract_start_date->format('Y/m/d') }} ～ 
+                                            {{ $landInfo->contract_end_date->format('Y/m/d') }}
+                                            @if($landInfo->contract_period_text)
+                                                <br><small class="text-muted">({{ $landInfo->contract_period_text }})</small>
+                                            @endif
+                                        @else
+                                            <span class="text-muted">未設定</span>
+                                        @endif
+                                    </span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">自動更新</span>
+                                    <span class="detail-value">
+                                        @if($landInfo->auto_renewal === 'yes')
+                                            <span class="badge bg-success">あり</span>
+                                        @elseif($landInfo->auto_renewal === 'no')
+                                            <span class="badge bg-secondary">なし</span>
+                                        @else
+                                            <span class="text-muted">未設定</span>
+                                        @endif
+                                    </span>
+                                </div>
+                                @if($landInfo->ownership_type === 'owned_rental' && $landInfo->purchase_price)
+                                    <div class="detail-row">
+                                        <span class="detail-label">購入金額</span>
+                                        <span class="detail-value">{{ number_format($landInfo->purchase_price) }}円</span>
+                                    </div>
+                                @endif
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 管理会社情報カード -->
+            @if($landInfo->management_company_name)
+            <div class="col-lg-6 mb-4">
+                <div class="card facility-info-card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-building text-secondary me-2"></i>管理会社情報
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="facility-detail-table">
+                            <div class="detail-row">
+                                <span class="detail-label">会社名</span>
+                                <span class="detail-value">{{ $landInfo->management_company_name }}</span>
+                            </div>
+                            @if($landInfo->management_company_address)
+                            <div class="detail-row">
+                                <span class="detail-label">住所</span>
+                                <span class="detail-value">
+                                    @if($landInfo->management_company_postal_code)
+                                        〒{{ $landInfo->management_company_postal_code }}<br>
+                                    @endif
+                                    {{ $landInfo->management_company_address }}
+                                    @if($landInfo->management_company_building)
+                                        <br>{{ $landInfo->management_company_building }}
+                                    @endif
+                                </span>
                             </div>
                             @endif
-                            @if($landInfo->site_area_sqm)
+                            @if($landInfo->management_company_phone)
+                            <div class="detail-row">
+                                <span class="detail-label">電話番号</span>
+                                <span class="detail-value">{{ $landInfo->management_company_phone }}</span>
+                            </div>
+                            @endif
+                            @if($landInfo->management_company_fax)
+                            <div class="detail-row">
+                                <span class="detail-label">FAX番号</span>
+                                <span class="detail-value">{{ $landInfo->management_company_fax }}</span>
+                            </div>
+                            @endif
+                            @if($landInfo->management_company_email)
+                            <div class="detail-row">
+                                <span class="detail-label">メールアドレス</span>
+                                <span class="detail-value">
+                                    <a href="mailto:{{ $landInfo->management_company_email }}">{{ $landInfo->management_company_email }}</a>
+                                </span>
+                            </div>
+                            @endif
+                            @if($landInfo->management_company_url)
+                            <div class="detail-row">
+                                <span class="detail-label">URL</span>
+                                <span class="detail-value">
+                                    <a href="{{ $landInfo->management_company_url }}" target="_blank">{{ $landInfo->management_company_url }}</a>
+                                </span>
+                            </div>
+                            @endif
+                            @if($landInfo->management_company_notes)
+                            <div class="detail-row">
+                                <span class="detail-label">備考</span>
+                                <span class="detail-value">{{ $landInfo->management_company_notes }}</span>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
+
+            <!-- オーナー・テナント情報カード -->
+            @if($landInfo->owner_name)
+            <div class="col-lg-6 mb-4">
+                <div class="card facility-info-card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user-tie text-dark me-2"></i>
+                            @if($landInfo->ownership_type === 'owned_rental')
+                                テナント情報
+                            @else
+                                オーナー情報
+                            @endif
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="facility-detail-table">
+                            <div class="detail-row">
+                                <span class="detail-label">
+                                    @if($landInfo->ownership_type === 'owned_rental')
+                                        テナント名
+                                    @else
+                                        オーナー名
+                                    @endif
+                                </span>
+                                <span class="detail-value">{{ $landInfo->owner_name }}</span>
+                            </div>
+                            @if($landInfo->owner_address)
+                            <div class="detail-row">
+                                <span class="detail-label">住所</span>
+                                <span class="detail-value">
+                                    @if($landInfo->owner_postal_code)
+                                        〒{{ $landInfo->owner_postal_code }}<br>
+                                    @endif
+                                    {{ $landInfo->owner_address }}
+                                    @if($landInfo->owner_building)
+                                        <br>{{ $landInfo->owner_building }}
+                                    @endif
+                                </span>
+                            </div>
+                            @endif
+                            @if($landInfo->owner_phone)
+                            <div class="detail-row">
+                                <span class="detail-label">電話番号</span>
+                                <span class="detail-value">{{ $landInfo->owner_phone }}</span>
+                            </div>
+                            @endif
+                            @if($landInfo->owner_fax)
+                            <div class="detail-row">
+                                <span class="detail-label">FAX番号</span>
+                                <span class="detail-value">{{ $landInfo->owner_fax }}</span>
+                            </div>
+                            @endif
+                            @if($landInfo->owner_email)
+                            <div class="detail-row">
+                                <span class="detail-label">メールアドレス</span>
+                                <span class="detail-value">
+                                    <a href="mailto:{{ $landInfo->owner_email }}">{{ $landInfo->owner_email }}</a>
+                                </span>
+                            </div>
+                            @endif
+                            @if($landInfo->owner_url)
+                            <div class="detail-row">
+                                <span class="detail-label">URL</span>
+                                <span class="detail-value">
+                                    <a href="{{ $landInfo->owner_url }}" target="_blank">{{ $landInfo->owner_url }}</a>
+                                </span>
+                            </div>
+                            @endif
+                            @if($landInfo->owner_notes)
+                            <div class="detail-row">
+                                <span class="detail-label">備考</span>
+                                <span class="detail-value">{{ $landInfo->owner_notes }}</span>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
+
+            <!-- 関連書類カード -->
+            @if($landInfo->lease_contract_pdf_name || $landInfo->registry_pdf_name)
+            <div class="col-lg-12 mb-4">
+                <div class="card facility-info-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-file-pdf text-danger me-2"></i>関連書類
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            @if($landInfo->lease_contract_pdf_name)
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-file-contract text-warning me-2"></i>
+                                    <div>
+                                        <strong>賃貸借契約書・覚書</strong><br>
+                                        <small class="text-muted">{{ $landInfo->lease_contract_pdf_name }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
+                            @if($landInfo->registry_pdf_name)
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-file-alt text-info me-2"></i>
+                                    <div>
+                                        <strong>謄本</strong><br>
+                                        <small class="text-muted">{{ $landInfo->registry_pdf_name }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
+
+            <!-- 備考カード -->
+            @if($landInfo->notes)
+            <div class="col-lg-12 mb-4">
+                <div class="card facility-info-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-sticky-note text-warning me-2"></i>備考
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0">{{ $landInfo->notes }}</p>
+                    </div>
+                </div>
+            </div>
+            @endif
+        </div>
+
+    @else
+        <!-- 土地情報未登録の場合 -->
+        <div class="text-center py-5">
+            <div class="mb-4">
+                <i class="fas fa-map-marked-alt fa-4x text-muted"></i>
+            </div>
+            <h4 class="text-muted mb-3">土地情報が登録されていません</h4>
+            <p class="text-muted mb-4">
+                この施設の土地情報はまだ登録されていません。<br>
+                土地情報を登録するには、編集ボタンから登録してください。
+            </p>
+            @if(auth()->user()->canEditLandInfo())
+                <a href="{{ route('facilities.land-info.edit', $facility) }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>土地情報を登録
+                </a>
+            @endif
+        </div>
+    @endif
+</div>
+
+<!-- 土地情報コメントセクション -->
+<div class="comments-section" data-section="land_basic" style="display: none;">
+    <div class="card mt-3">
+        <div class="card-header">
+            <h6 class="mb-0">
+                <i class="fas fa-comments me-2"></i>土地情報に関するコメント
+            </h6>
+        </div>
+        <div class="card-body">
+            <!-- コメント表示エリア -->
+            <div class="comments-list" data-section="land_basic">
+                <!-- コメントはJavaScriptで動的に読み込まれます -->
+            </div>
+            
+            <!-- 新規コメント投稿フォーム -->
+            @if(auth()->user()->canEdit())
+            <form class="comment-form mt-3" data-section="land_basic">
+                @csrf
+                <div class="mb-3">
+                    <textarea name="content" class="form-control" rows="3" 
+                              placeholder="土地情報に関するコメントを入力してください..." required></textarea>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <label class="form-label">担当者に割り当て（任意）</label>
+                        <select name="assigned_to" class="form-select form-select-sm" style="width: auto;">
+                            <option value="">選択してください</option>
+                            @foreach(\App\Models\User::where('is_active', true)->orderBy('name')->get() as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-paper-plane me-1"></i>投稿
+                    </button>
+                </div>
+            </form>
+            @endif
+        </div>
+    </div>
+</div>
+                                    @else
+                                        未設定
+                                    @endif
+                                </span>
+                            </div>
                             <div class="detail-row">
                                 <span class="detail-label">敷地面積（㎡）</span>
-                                <span class="detail-value">{{ $landInfo->formatted_site_area_sqm }}</span>
+                                <span class="detail-value">
+                                    @if($landInfo->site_area_sqm)
+                                        {{ $landInfo->formatted_site_area_sqm }}
+                                    @else
+                                        未設定
+                                    @endif
+                                </span>
                             </div>
-                            @endif
-                            @if($landInfo->site_area_tsubo)
                             <div class="detail-row">
                                 <span class="detail-label">敷地面積（坪数）</span>
-                                <span class="detail-value">{{ $landInfo->formatted_site_area_tsubo }}</span>
+                                <span class="detail-value">
+                                    @if($landInfo->site_area_tsubo)
+                                        {{ $landInfo->formatted_site_area_tsubo }}
+                                    @else
+                                        未設定
+                                    @endif
+                                </span>
                             </div>
-                            @endif
                         </div>
                         
                         <!-- コメントセクション -->
@@ -87,11 +468,9 @@
                 <div class="card facility-info-card h-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">
-                            <i class="fas fa-yen-sign text-success me-2"></i>
-                            @if($landInfo->ownership_type === 'owned')
-                                購入情報
-                            @else
-                                契約情報
+                            <i class="fas fa-yen-sign text-success me-2"></i>購入/契約情報
+                            @if(auth()->user()->canEditLandFinancialInfo())
+                                <small class="text-muted ms-2">(土地総務・経理変更時)</small>
                             @endif
                         </h5>
                         <button class="btn btn-outline-secondary btn-sm comment-toggle" 
@@ -104,57 +483,90 @@
                     </div>
                     <div class="card-body">
                         <div class="facility-detail-table">
-                            @if($landInfo->ownership_type === 'owned')
-                                @if($landInfo->purchase_price)
-                                <div class="detail-row">
-                                    <span class="detail-label">購入金額</span>
-                                    <span class="detail-value">{{ $landInfo->formatted_purchase_price }}円</span>
-                                </div>
-                                @endif
-                                @if($landInfo->unit_price_per_tsubo)
-                                <div class="detail-row">
-                                    <span class="detail-label">坪単価</span>
-                                    <span class="detail-value">{{ number_format($landInfo->unit_price_per_tsubo) }}円/坪</span>
-                                </div>
-                                @endif
-                            @else
-                                @if($landInfo->monthly_rent)
-                                <div class="detail-row">
-                                    <span class="detail-label">家賃</span>
-                                    <span class="detail-value">{{ $landInfo->formatted_monthly_rent }}円</span>
-                                </div>
-                                @endif
-                                @if($landInfo->contract_start_date)
-                                <div class="detail-row">
-                                    <span class="detail-label">契約開始日</span>
-                                    <span class="detail-value">{{ $landInfo->japanese_contract_start_date }}</span>
-                                </div>
-                                @endif
-                                @if($landInfo->contract_end_date)
-                                <div class="detail-row">
-                                    <span class="detail-label">契約終了日</span>
-                                    <span class="detail-value">{{ $landInfo->japanese_contract_end_date }}</span>
-                                </div>
-                                @endif
-                                @if($landInfo->contract_period_text)
-                                <div class="detail-row">
-                                    <span class="detail-label">契約年数</span>
-                                    <span class="detail-value">{{ $landInfo->contract_period_text }}</span>
-                                </div>
-                                @endif
-                                @if($landInfo->auto_renewal)
-                                <div class="detail-row">
-                                    <span class="detail-label">自動更新</span>
-                                    <span class="detail-value">
-                                        @if($landInfo->auto_renewal === 'yes')
-                                            <span class="badge bg-success">あり</span>
+                            <div class="detail-row">
+                                <span class="detail-label">購入金額</span>
+                                <span class="detail-value">
+                                    @if($landInfo->purchase_price)
+                                        {{ $landInfo->formatted_purchase_price ?? number_format((int)$landInfo->purchase_price) }}円
+                                    @else
+                                        未設定
+                                    @endif
+                                </span>
+                            </div>
+                            @php
+                              $unit = $landInfo->unit_price_per_tsubo;
+                              if(is_null($unit) && ($landInfo->site_area_tsubo ?? 0) > 0 && $landInfo->purchase_price){
+                                  $unit = (int) round($landInfo->purchase_price / $landInfo->site_area_tsubo);
+                              }
+                            @endphp
+                            <div class="detail-row">
+                                <span class="detail-label">坪単価（自動計算）</span>
+                                <span class="detail-value">
+                                    @if(!is_null($unit))
+                                        {{ number_format($unit) }}円/坪
+                                    @else
+                                        未設定
+                                    @endif
+                                </span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">家賃</span>
+                                <span class="detail-value">
+                                    @if($landInfo->monthly_rent)
+                                        {{ $landInfo->formatted_monthly_rent ?? number_format((int)$landInfo->monthly_rent) }}円
+                                    @else
+                                        未設定
+                                    @endif
+                                </span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">契約開始日</span>
+                                <span class="detail-value">
+                                    @if($landInfo->contract_start_date)
+                                        {{ $landInfo->japanese_contract_start_date ?? \Illuminate\Support\Carbon::parse($landInfo->contract_start_date)->format('Y-m-d') }}
+                                    @else
+                                        未設定
+                                    @endif
+                                </span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">契約終了日</span>
+                                <span class="detail-value">
+                                    @if($landInfo->contract_end_date)
+                                        {{ $landInfo->japanese_contract_end_date ?? \Illuminate\Support\Carbon::parse($landInfo->contract_end_date)->format('Y-m-d') }}
+                                    @else
+                                        未設定
+                                    @endif
+                                </span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">自動更新の有無</span>
+                                <span class="detail-value">
+                                    @php
+                                      $ar = $landInfo->auto_renewal;
+                                      $arBool = filter_var($ar, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+                                    @endphp
+                                    @if(!is_null($ar) && $ar !== '')
+                                        @if($arBool === null)
+                                            {{ is_string($ar) ? $ar : ($ar ? 'あり' : 'なし') }}
                                         @else
-                                            <span class="badge bg-secondary">なし</span>
+                                            <span class="badge {{ $arBool ? 'bg-success' : 'bg-secondary' }}">{{ $arBool ? 'あり' : 'なし' }}</span>
                                         @endif
-                                    </span>
-                                </div>
-                                @endif
-                            @endif
+                                    @else
+                                        未設定
+                                    @endif
+                                </span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">契約年数（自動計算）</span>
+                                <span class="detail-value">
+                                    @if($landInfo->contract_period_text)
+                                        {{ $landInfo->contract_period_text }}
+                                    @else
+                                        未設定
+                                    @endif
+                                </span>
+                            </div>
                         </div>
                         
                         <!-- コメントセクション -->
@@ -179,13 +591,16 @@
                 </div>
             </div>
 
-            @if($landInfo->ownership_type === 'leased')
+
             <!-- 管理会社情報カード -->
             <div class="col-lg-6 mb-4">
                 <div class="card facility-info-card h-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">
                             <i class="fas fa-building text-warning me-2"></i>管理会社情報
+                            @if(auth()->user()->canEditLandManagementInfo())
+                                <small class="text-muted ms-2">(土地総務・経理変更時)</small>
+                            @endif
                         </h5>
                         <button class="btn btn-outline-secondary btn-sm comment-toggle" 
                                 data-section="land_management" 
@@ -197,42 +612,62 @@
                     </div>
                     <div class="card-body">
                         <div class="facility-detail-table">
-                            @if($landInfo->management_company_name)
                             <div class="detail-row">
                                 <span class="detail-label">会社名</span>
-                                <span class="detail-value">{{ $landInfo->management_company_name }}</span>
+                                <span class="detail-value">{{ $landInfo->management_company_name ?: '未設定' }}</span>
                             </div>
-                            @endif
-                            @if($landInfo->management_company_postal_code || $landInfo->management_company_address)
+                            <div class="detail-row">
+                                <span class="detail-label">郵便番号</span>
+                                <span class="detail-value">{{ $landInfo->management_company_postal_code ?: '未設定' }}</span>
+                            </div>
                             <div class="detail-row">
                                 <span class="detail-label">住所</span>
-                                <span class="detail-value">
-                                    @if($landInfo->management_company_postal_code)
-                                        〒{{ $landInfo->management_company_postal_code }}<br>
-                                    @endif
-                                    {{ $landInfo->management_company_address }}
-                                    @if($landInfo->management_company_building)
-                                        {{ $landInfo->management_company_building }}
-                                    @endif
-                                </span>
+                                <span class="detail-value">{{ $landInfo->management_company_address ?: '未設定' }}</span>
                             </div>
-                            @endif
-                            @if($landInfo->management_company_phone)
+                            <div class="detail-row">
+                                <span class="detail-label">住所建物名</span>
+                                <span class="detail-value">{{ $landInfo->management_company_building ?: '未設定' }}</span>
+                            </div>
                             <div class="detail-row">
                                 <span class="detail-label">電話番号</span>
-                                <span class="detail-value">{{ $landInfo->management_company_phone }}</span>
+                                <span class="detail-value">{{ $landInfo->management_company_phone ?: '未設定' }}</span>
                             </div>
-                            @endif
-                            @if($landInfo->management_company_email)
+                            <div class="detail-row">
+                                <span class="detail-label">FAX番号</span>
+                                <span class="detail-value">{{ $landInfo->management_company_fax ?: '未設定' }}</span>
+                            </div>
                             <div class="detail-row">
                                 <span class="detail-label">メールアドレス</span>
                                 <span class="detail-value">
-                                    <a href="mailto:{{ $landInfo->management_company_email }}" class="text-decoration-none">
-                                        <i class="fas fa-envelope me-1"></i>{{ $landInfo->management_company_email }}
-                                    </a>
+                                    @if($landInfo->management_company_email)
+                                        <a href="mailto:{{ $landInfo->management_company_email }}" class="text-decoration-none">
+                                            <i class="fas fa-envelope me-1"></i>{{ $landInfo->management_company_email }}
+                                        </a>
+                                    @else
+                                        未設定
+                                    @endif
                                 </span>
                             </div>
-                            @endif
+                            <div class="detail-row">
+                                <span class="detail-label">URL</span>
+                                <span class="detail-value">
+                                    @if($landInfo->management_company_url)
+                                        <a href="{{ $landInfo->management_company_url }}" target="_blank" rel="noopener">{{ $landInfo->management_company_url }}</a>
+                                    @else
+                                        未設定
+                                    @endif
+                                </span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">備考</span>
+                                <span class="detail-value">
+                                    @if($landInfo->management_company_notes)
+                                        {!! nl2br(e($landInfo->management_company_notes)) !!}
+                                    @else
+                                        未設定
+                                    @endif
+                                </span>
+                            </div>
                         </div>
                         
                         <!-- コメントセクション -->
@@ -263,6 +698,9 @@
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">
                             <i class="fas fa-user-tie text-info me-2"></i>オーナー情報
+                            @if(auth()->user()->canEditLandManagementInfo())
+                                <small class="text-muted ms-2">(土地総務・経理変更時)</small>
+                            @endif
                         </h5>
                         <button class="btn btn-outline-secondary btn-sm comment-toggle" 
                                 data-section="land_owner" 
@@ -274,42 +712,62 @@
                     </div>
                     <div class="card-body">
                         <div class="facility-detail-table">
-                            @if($landInfo->owner_name)
                             <div class="detail-row">
                                 <span class="detail-label">氏名・会社名</span>
-                                <span class="detail-value">{{ $landInfo->owner_name }}</span>
+                                <span class="detail-value">{{ $landInfo->owner_name ?: '未設定' }}</span>
                             </div>
-                            @endif
-                            @if($landInfo->owner_postal_code || $landInfo->owner_address)
+                            <div class="detail-row">
+                                <span class="detail-label">郵便番号</span>
+                                <span class="detail-value">{{ $landInfo->owner_postal_code ?: '未設定' }}</span>
+                            </div>
                             <div class="detail-row">
                                 <span class="detail-label">住所</span>
-                                <span class="detail-value">
-                                    @if($landInfo->owner_postal_code)
-                                        〒{{ $landInfo->owner_postal_code }}<br>
-                                    @endif
-                                    {{ $landInfo->owner_address }}
-                                    @if($landInfo->owner_building)
-                                        {{ $landInfo->owner_building }}
-                                    @endif
-                                </span>
+                                <span class="detail-value">{{ $landInfo->owner_address ?: '未設定' }}</span>
                             </div>
-                            @endif
-                            @if($landInfo->owner_phone)
+                            <div class="detail-row">
+                                <span class="detail-label">住所建物名</span>
+                                <span class="detail-value">{{ $landInfo->owner_building ?: '未設定' }}</span>
+                            </div>
                             <div class="detail-row">
                                 <span class="detail-label">電話番号</span>
-                                <span class="detail-value">{{ $landInfo->owner_phone }}</span>
+                                <span class="detail-value">{{ $landInfo->owner_phone ?: '未設定' }}</span>
                             </div>
-                            @endif
-                            @if($landInfo->owner_email)
+                            <div class="detail-row">
+                                <span class="detail-label">FAX番号</span>
+                                <span class="detail-value">{{ $landInfo->owner_fax ?: '未設定' }}</span>
+                            </div>
                             <div class="detail-row">
                                 <span class="detail-label">メールアドレス</span>
                                 <span class="detail-value">
-                                    <a href="mailto:{{ $landInfo->owner_email }}" class="text-decoration-none">
-                                        <i class="fas fa-envelope me-1"></i>{{ $landInfo->owner_email }}
-                                    </a>
+                                    @if($landInfo->owner_email)
+                                        <a href="mailto:{{ $landInfo->owner_email }}" class="text-decoration-none">
+                                            <i class="fas fa-envelope me-1"></i>{{ $landInfo->owner_email }}
+                                        </a>
+                                    @else
+                                        未設定
+                                    @endif
                                 </span>
                             </div>
-                            @endif
+                            <div class="detail-row">
+                                <span class="detail-label">URL</span>
+                                <span class="detail-value">
+                                    @if($landInfo->owner_url)
+                                        <a href="{{ $landInfo->owner_url }}" target="_blank" rel="noopener">{{ $landInfo->owner_url }}</a>
+                                    @else
+                                        未設定
+                                    @endif
+                                </span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">備考欄</span>
+                                <span class="detail-value">
+                                    @if($landInfo->owner_notes)
+                                        {!! nl2br(e($landInfo->owner_notes)) !!}
+                                    @else
+                                        未設定
+                                    @endif
+                                </span>
+                            </div>
                         </div>
                         
                         <!-- コメントセクション -->
@@ -333,50 +791,130 @@
                     </div>
                 </div>
             </div>
-            @endif
         </div>
 
-        @if($landInfo->notes)
-        <!-- 備考カード -->
-        <div class="card-section mb-4">
-            <div class="card-section-header">
-                <div>
-                    <i class="fas fa-sticky-note me-2"></i>備考
+        <!-- 書類情報カード -->
+        <!-- 書類情報カード -->
+        <div class="col-12 mb-4">
+            <div class="card facility-info-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-pdf text-danger me-2"></i>関連書類
+                        @if(auth()->user()->canEditLandDocuments())
+                            <small class="text-muted ms-2">(土地総務・工程表により検討変更時)</small>
+                        @endif
+                    </h5>
+                    <button class="btn btn-outline-secondary btn-sm comment-toggle" 
+                            data-section="land_documents" 
+                            data-bs-toggle="tooltip" 
+                            title="コメントを表示/非表示">
+                        <i class="fas fa-comment"></i>
+                        <span class="comment-count" data-section="land_documents">0</span>
+                    </button>
                 </div>
-                <button class="btn btn-outline-light btn-sm comment-toggle" 
-                        data-section="land_notes" 
-                        data-bs-toggle="tooltip" 
-                        title="コメントを表示/非表示">
-                    <i class="fas fa-comment"></i>
-                    <span class="comment-count" data-section="land_notes">0</span>
-                </button>
-            </div>
-            <div class="card-section-content">
-                <div class="p-3">
-                    {!! nl2br(e($landInfo->notes)) !!}
-                </div>
-                
-                <!-- コメントセクション -->
-                <div class="comment-section mt-3 d-none" data-section="land_notes">
-                    <hr>
-                    <div class="comment-form mb-3">
-                        <div class="input-group">
-                            <input type="text" class="form-control comment-input" 
-                                   placeholder="コメントを入力..." 
-                                   data-section="land_notes">
-                            <button class="btn btn-primary comment-submit" 
-                                    data-section="land_notes">
-                                <i class="fas fa-paper-plane"></i>
-                            </button>
+                <div class="card-body">
+                    <div class="facility-detail-table">
+                        <div class="detail-row">
+                            <span class="detail-label">賃貸借契約書・覚書PDF</span>
+                            <span class="detail-value">
+                                @if($landInfo->lease_contract_pdf_path)
+                                    <a href="{{ \Storage::url($landInfo->lease_contract_pdf_path) }}" 
+                                       target="_blank" class="btn btn-outline-danger btn-sm">
+                                        <i class="fas fa-file-pdf me-1"></i>
+                                        {{ $landInfo->lease_contract_pdf_name ?? 'ダウンロード' }}
+                                    </a>
+                                @else
+                                    <span class="text-muted">未アップロード</span>
+                                @endif
+                            </span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">謄本PDF</span>
+                            <span class="detail-value">
+                                @if($landInfo->registry_pdf_path)
+                                    <a href="{{ \Storage::url($landInfo->registry_pdf_path) }}" 
+                                       target="_blank" class="btn btn-outline-danger btn-sm">
+                                        <i class="fas fa-file-pdf me-1"></i>
+                                        {{ $landInfo->registry_pdf_name ?? 'ダウンロード' }}
+                                    </a>
+                                @else
+                                    <span class="text-muted">未アップロード</span>
+                                @endif
+                            </span>
                         </div>
                     </div>
-                    <div class="comment-list" data-section="land_notes">
-                        <!-- コメントがここに動的に追加されます -->
+                    
+                    <!-- コメントセクション -->
+                    <div class="comment-section mt-3 d-none" data-section="land_documents">
+                        <hr>
+                        <div class="comment-form mb-3">
+                            <div class="input-group">
+                                <input type="text" class="form-control comment-input" 
+                                       placeholder="コメントを入力..." 
+                                       data-section="land_documents">
+                                <button class="btn btn-primary comment-submit" 
+                                        data-section="land_documents">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="comment-list" data-section="land_documents">
+                            <!-- コメントがここに動的に追加されます -->
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        @endif
+
+        <!-- 備考カード -->
+        <!-- 備考カード -->
+        <div class="col-12 mb-4">
+            <div class="card-section mb-4">
+                <div class="card-section-header">
+                    <div>
+                        <i class="fas fa-sticky-note me-2"></i>備考欄
+                        @if(auth()->user()->canEditLandBasicInfo())
+                            <small class="text-muted ms-2">(土地総務変更時)</small>
+                        @endif
+                    </div>
+                    <button class="btn btn-outline-light btn-sm comment-toggle" 
+                            data-section="land_notes" 
+                            data-bs-toggle="tooltip" 
+                            title="コメントを表示/非表示">
+                        <i class="fas fa-comment"></i>
+                        <span class="comment-count" data-section="land_notes">0</span>
+                    </button>
+                </div>
+                <div class="card-section-content">
+                    <div class="p-3">
+                        @if($landInfo->notes)
+                            {!! nl2br(e($landInfo->notes)) !!}
+                        @else
+                            <span class="text-muted">未設定</span>
+                        @endif
+                    </div>
+                    
+                    <!-- コメントセクション -->
+                    <div class="comment-section mt-3 d-none" data-section="land_notes">
+                        <hr>
+                        <div class="comment-form mb-3">
+                            <div class="input-group">
+                                <input type="text" class="form-control comment-input" 
+                                       placeholder="コメントを入力..." 
+                                       data-section="land_notes">
+                                <button class="btn btn-primary comment-submit" 
+                                        data-section="land_notes">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="comment-list" data-section="land_notes">
+                            <!-- コメントがここに動的に追加されます -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
 
 

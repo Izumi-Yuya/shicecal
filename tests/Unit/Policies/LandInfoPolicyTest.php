@@ -52,7 +52,10 @@ class LandInfoPolicyTest extends TestCase
      */
     public function test_editor_permissions()
     {
-        $editor = User::factory()->create(['role' => 'editor']);
+        $editor = User::factory()->create([
+            'role' => 'editor',
+            'department' => 'land_affairs'
+        ]);
 
         $this->assertTrue($this->policy->viewAny($editor));
         $this->assertTrue($this->policy->view($editor, $this->facility));
@@ -74,7 +77,10 @@ class LandInfoPolicyTest extends TestCase
      */
     public function test_primary_responder_permissions()
     {
-        $primaryResponder = User::factory()->create(['role' => 'primary_responder']);
+        $primaryResponder = User::factory()->create([
+            'role' => 'primary_responder',
+            'department' => 'land_affairs'
+        ]);
 
         $this->assertTrue($this->policy->viewAny($primaryResponder));
         $this->assertTrue($this->policy->view($primaryResponder, $this->facility));
@@ -181,7 +187,10 @@ class LandInfoPolicyTest extends TestCase
      */
     public function test_facility_access_dependency()
     {
-        $editor = User::factory()->create(['role' => 'editor']);
+        $editor = User::factory()->create([
+            'role' => 'editor',
+            'department' => 'land_affairs'
+        ]);
 
         // Test that the policy calls canAccessFacility method
         // In a real scenario, this would be controlled by the User model's canAccessFacility method
@@ -202,8 +211,8 @@ class LandInfoPolicyTest extends TestCase
     {
         $users = [
             'admin' => User::factory()->create(['role' => 'admin']),
-            'editor' => User::factory()->create(['role' => 'editor']),
-            'primary_responder' => User::factory()->create(['role' => 'primary_responder']),
+            'editor' => User::factory()->create(['role' => 'editor', 'department' => 'land_affairs']),
+            'primary_responder' => User::factory()->create(['role' => 'primary_responder', 'department' => 'land_affairs']),
             'approver' => User::factory()->create(['role' => 'approver']),
             'viewer' => User::factory()->create(['role' => 'viewer']),
         ];
@@ -245,8 +254,8 @@ class LandInfoPolicyTest extends TestCase
     {
         $users = [
             'admin' => User::factory()->create(['role' => 'admin']),
-            'editor' => User::factory()->create(['role' => 'editor']),
-            'primary_responder' => User::factory()->create(['role' => 'primary_responder']),
+            'editor' => User::factory()->create(['role' => 'editor', 'department' => 'land_affairs']),
+            'primary_responder' => User::factory()->create(['role' => 'primary_responder', 'department' => 'land_affairs']),
             'approver' => User::factory()->create(['role' => 'approver']),
             'viewer' => User::factory()->create(['role' => 'viewer']),
         ];
@@ -278,8 +287,8 @@ class LandInfoPolicyTest extends TestCase
     {
         $users = [
             'admin' => User::factory()->create(['role' => 'admin']),
-            'editor' => User::factory()->create(['role' => 'editor']),
-            'primary_responder' => User::factory()->create(['role' => 'primary_responder']),
+            'editor' => User::factory()->create(['role' => 'editor', 'department' => 'land_affairs']),
+            'primary_responder' => User::factory()->create(['role' => 'primary_responder', 'department' => 'land_affairs']),
             'approver' => User::factory()->create(['role' => 'approver']),
             'viewer' => User::factory()->create(['role' => 'viewer']),
         ];
@@ -303,8 +312,8 @@ class LandInfoPolicyTest extends TestCase
     {
         $users = [
             'admin' => User::factory()->create(['role' => 'admin']),
-            'editor' => User::factory()->create(['role' => 'editor']),
-            'primary_responder' => User::factory()->create(['role' => 'primary_responder']),
+            'editor' => User::factory()->create(['role' => 'editor', 'department' => 'land_affairs']),
+            'primary_responder' => User::factory()->create(['role' => 'primary_responder', 'department' => 'land_affairs']),
             'approver' => User::factory()->create(['role' => 'approver']),
             'viewer' => User::factory()->create(['role' => 'viewer']),
         ];

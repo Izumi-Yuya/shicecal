@@ -27,7 +27,6 @@ class FacilityComment extends Model
         'user_id',
         'section',
         'comment',
-        'assigned_to',
     ];
 
     protected $casts = [
@@ -59,13 +58,7 @@ class FacilityComment extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    /**
-     * コメント担当者との関連
-     */
-    public function assignee(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'assigned_to');
-    }
+
 
     /**
      * セクション名の日本語表示

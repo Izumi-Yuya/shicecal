@@ -89,7 +89,6 @@ class FacilityController extends Controller
         $facility->load([
             'services',
             'comments.poster',
-            'comments.assignee',
             'maintenanceHistories' => function ($query) {
                 $query->with('creator')->latest('maintenance_date');
             },

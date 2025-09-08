@@ -19,14 +19,14 @@ class AdminUserSeeder extends Seeder
                 'name' => 'システム管理者',
                 'email' => 'admin@example.com',
                 'role' => 'admin',
-                'department' => 'システム管理部',
+                'department' => 'land_affairs', // 管理者は土地総務権限も持つ
                 'access_scope' => null,
             ],
             [
                 'name' => '副管理者',
                 'email' => 'sub-admin@example.com',
                 'role' => 'admin',
-                'department' => 'システム管理部',
+                'department' => 'land_affairs', // 管理者は土地総務権限も持つ
                 'access_scope' => null,
             ],
         ];
@@ -52,6 +52,42 @@ class AdminUserSeeder extends Seeder
                 'email' => 'editor@example.com',
                 'role' => 'editor',
                 'department' => '施設管理部',
+                'access_scope' => null,
+            ],
+            // 土地情報編集権限を持つユーザー
+            [
+                'name' => '土地総務担当者',
+                'email' => 'land-affairs@example.com',
+                'role' => 'editor',
+                'department' => 'land_affairs',
+                'access_scope' => null,
+            ],
+            [
+                'name' => '経理担当者',
+                'email' => 'accounting@example.com',
+                'role' => 'editor',
+                'department' => 'accounting',
+                'access_scope' => null,
+            ],
+            [
+                'name' => '工程表担当者',
+                'email' => 'construction@example.com',
+                'role' => 'editor',
+                'department' => 'construction_planning',
+                'access_scope' => null,
+            ],
+            [
+                'name' => '土地総務・経理担当者',
+                'email' => 'land-accounting@example.com',
+                'role' => 'editor',
+                'department' => 'land_affairs,accounting',
+                'access_scope' => null,
+            ],
+            [
+                'name' => '全部門担当者',
+                'email' => 'multi-dept@example.com',
+                'role' => 'editor',
+                'department' => 'land_affairs,accounting,construction_planning',
                 'access_scope' => null,
             ],
         ];

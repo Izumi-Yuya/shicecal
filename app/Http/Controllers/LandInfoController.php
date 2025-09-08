@@ -77,7 +77,7 @@ class LandInfoController extends Controller
     /**
      * Show the form for editing land information.
      */
-    public function edit(Facility $facility): JsonResponse
+    public function edit(Facility $facility)
     {
         try {
             // Check authorization using policy
@@ -85,15 +85,10 @@ class LandInfoController extends Controller
 
             $landInfo = $this->landInfoService->getLandInfo($facility);
 
-            return response()->json([
-                'success' => true,
-                'data' => $landInfo ? $landInfo->toArray() : null
-            ]);
+            return view('facilities.land-info-edit', compact('facility', 'landInfo'));
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'この施設の土地情報を編集する権限がありません。'
-            ], 403);
+            return redirect()->route('facilities.show', $facility)
+                ->with('error', 'この施設の土地情報を編集する権限がありません。');
         } catch (Exception $e) {
             Log::error('Land info edit failed', [
                 'facility_id' => $facility->id,
@@ -101,27 +96,37 @@ class LandInfoController extends Controller
                 'error' => $e->getMessage()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'システムエラーが発生しました。'
-            ], 500);
+            return redirect()->route('facilities.show', $facility)
+                ->with('error', 'システムエラーが発生しました。');
         }
     }
 
     /**
      * Update the land information for the specified facility.
      */
-    public function update(LandInfoRequest $request, Facility $facility): JsonResponse
+    public function update(LandInfoRequest $request, Facility $facility)
     {
         try {
             // Check authorization using policy
             $this->authorize('update', [LandInfo::class, $facility]);
 
+            // Check field-level permissions
+            $user = auth()->user();
+            $validatedData = $request->validated();
+
+            // Filter data based on user permissions
+            $filteredData = $this->filterDataByPermissions($validatedData, $user);
+
             $landInfo = $this->landInfoService->createOrUpdateLandInfo(
                 $facility,
-                $request->validated(),
-                auth()->user()
+                $filteredData,
+                $user
             );
+
+            // Handle PDF file uploads if user has permission
+            if ($user->canEditLandDocuments()) {
+                $this->handlePdfUploads($request, $landInfo);
+            }
 
             // Log the activity
             $this->activityLogService->logFacilityUpdated(
@@ -130,24 +135,38 @@ class LandInfoController extends Controller
                 $request
             );
 
-            $formattedData = $this->landInfoService->formatDisplayData($landInfo);
+            // Return appropriate response based on request type
+            if ($request->expectsJson()) {
+                $formattedData = $this->landInfoService->formatDisplayData($landInfo);
+                return response()->json([
+                    'success' => true,
+                    'message' => '土地情報を更新しました。',
+                    'data' => $formattedData
+                ]);
+            }
 
-            return response()->json([
-                'success' => true,
-                'message' => '土地情報を更新しました。',
-                'data' => $formattedData
-            ]);
+            return redirect()->route('facilities.show', $facility)
+                ->with('success', '土地情報を更新しました。');
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'この施設の土地情報を編集する権限がありません。'
-            ], 403);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'この施設の土地情報を編集する権限がありません。'
+                ], 403);
+            }
+            return redirect()->route('facilities.show', $facility)
+                ->with('error', 'この施設の土地情報を編集する権限がありません。');
         } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => '入力内容に誤りがあります。',
-                'errors' => $e->errors()
-            ], 422);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '入力内容に誤りがあります。',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput();
         } catch (Exception $e) {
             Log::error('Land info update failed', [
                 'facility_id' => $facility->id,
@@ -156,10 +175,88 @@ class LandInfoController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'システムエラーが発生しました。'
-            ], 500);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'システムエラーが発生しました。'
+                ], 500);
+            }
+            return redirect()->back()
+                ->with('error', 'システムエラーが発生しました。')
+                ->withInput();
+        }
+    }
+
+    /**
+     * Filter data based on user permissions (simplified)
+     */
+    private function filterDataByPermissions(array $data, $user): array
+    {
+        // If user can edit land info, allow all fields
+        if ($user->canEditLandInfo()) {
+            return $data;
+        }
+
+        // If no permission, return empty array
+        return [];
+    }
+
+    /**
+     * Handle PDF file uploads
+     */
+    private function handlePdfUploads(Request $request, LandInfo $landInfo): void
+    {
+        // Handle file deletions first
+        if ($request->input('delete_lease_contract_pdf')) {
+            if ($landInfo->lease_contract_pdf_path) {
+                \Storage::disk('public')->delete($landInfo->lease_contract_pdf_path);
+                $landInfo->update([
+                    'lease_contract_pdf_path' => null,
+                    'lease_contract_pdf_name' => null
+                ]);
+            }
+        }
+
+        if ($request->input('delete_registry_pdf')) {
+            if ($landInfo->registry_pdf_path) {
+                \Storage::disk('public')->delete($landInfo->registry_pdf_path);
+                $landInfo->update([
+                    'registry_pdf_path' => null,
+                    'registry_pdf_name' => null
+                ]);
+            }
+        }
+
+        // Handle lease contract PDF upload
+        if ($request->hasFile('lease_contract_pdf')) {
+            // Delete old file if exists
+            if ($landInfo->lease_contract_pdf_path) {
+                \Storage::disk('public')->delete($landInfo->lease_contract_pdf_path);
+            }
+
+            $file = $request->file('lease_contract_pdf');
+            $path = $file->store('land_documents/lease_contracts', 'public');
+
+            $landInfo->update([
+                'lease_contract_pdf_path' => $path,
+                'lease_contract_pdf_name' => $file->getClientOriginalName()
+            ]);
+        }
+
+        // Handle registry PDF upload
+        if ($request->hasFile('registry_pdf')) {
+            // Delete old file if exists
+            if ($landInfo->registry_pdf_path) {
+                \Storage::disk('public')->delete($landInfo->registry_pdf_path);
+            }
+
+            $file = $request->file('registry_pdf');
+            $path = $file->store('land_documents/registry', 'public');
+
+            $landInfo->update([
+                'registry_pdf_path' => $path,
+                'registry_pdf_name' => $file->getClientOriginalName()
+            ]);
         }
     }
 

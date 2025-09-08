@@ -81,7 +81,44 @@ class LandInfoPolicy
         }
 
         // Must have access to the facility
-        return $user->canAccessFacility($facility->id);
+        if (!$user->canAccessFacility($facility->id)) {
+            return false;
+        }
+
+        // Check if user has permission to edit land info (simplified)
+        return $user->canEditLandInfo();
+    }
+
+    /**
+     * Determine whether the user can update basic land information fields.
+     */
+    public function updateBasicInfo(User $user, Facility $facility): bool
+    {
+        return $user->canEditLandBasicInfo() && $user->canAccessFacility($facility->id);
+    }
+
+    /**
+     * Determine whether the user can update financial land information fields.
+     */
+    public function updateFinancialInfo(User $user, Facility $facility): bool
+    {
+        return $user->canEditLandFinancialInfo() && $user->canAccessFacility($facility->id);
+    }
+
+    /**
+     * Determine whether the user can update management/owner information fields.
+     */
+    public function updateManagementInfo(User $user, Facility $facility): bool
+    {
+        return $user->canEditLandManagementInfo() && $user->canAccessFacility($facility->id);
+    }
+
+    /**
+     * Determine whether the user can update land documents.
+     */
+    public function updateDocuments(User $user, Facility $facility): bool
+    {
+        return $user->canEditLandDocuments() && $user->canAccessFacility($facility->id);
     }
 
     /**

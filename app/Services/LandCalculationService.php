@@ -35,7 +35,9 @@ class LandCalculationService
     public function calculateContractPeriod(string $startDate, string $endDate): string
     {
         try {
+            /** @var \Carbon\Carbon $start */
             $start = Carbon::parse($startDate);
+            /** @var \Carbon\Carbon $end */
             $end = Carbon::parse($endDate);
 
             if ($end <= $start) {
@@ -116,6 +118,7 @@ class LandCalculationService
         }
 
         try {
+            /** @var \Carbon\Carbon $carbon */
             $carbon = Carbon::parse($date);
             return $carbon->format('Y年n月j日');
         } catch (\Exception $e) {

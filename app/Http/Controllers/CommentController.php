@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Comment;
+use App\Models\FacilityComment;
 use App\Models\Facility;
 use App\Models\User;
 use App\Services\NotificationService;
@@ -46,13 +46,11 @@ class CommentController extends Controller
         $primaryResponder = User::where('role', 'primary_responder')->first();
 
         // Create comment
-        $comment = Comment::create([
+        $comment = FacilityComment::create([
             'facility_id' => $facilityId,
-            'field_name' => $fieldName,
-            'content' => $content,
-            'status' => 'pending',
-            'posted_by' => Auth::id(),
-            'assigned_to' => $primaryResponder?->id,
+            'user_id' => Auth::id(),
+            'section' => 'facility_info', // Default section
+            'comment' => $content,
         ]);
 
         // Log comment creation
@@ -85,7 +83,7 @@ class CommentController extends Controller
             return response()->json(['error' => '施設が見つかりません。'], 404);
         }
 
-        $comments = Comment::with(['poster', 'assignee'])
+        $comments = FacilityComment::with(['poster', 'assignee'])
             ->where('facility_id', $facilityId)
             ->orderBy('created_at', 'desc')
             ->get();
@@ -141,15 +139,15 @@ class CommentController extends Controller
      */
     public function myComments()
     {
-        $comments = Comment::with(['facility', 'assignee'])
+        $comments = FacilityComment::with(['facility', 'assignee'])
             ->where('posted_by', Auth::id())
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
         $statusCounts = [
-            'pending' => Comment::where('posted_by', Auth::id())->where('status', 'pending')->count(),
-            'in_progress' => Comment::where('posted_by', Auth::id())->where('status', 'in_progress')->count(),
-            'resolved' => Comment::where('posted_by', Auth::id())->where('status', 'resolved')->count(),
+            'pending' => FacilityComment::where('user_id', Auth::id())->count(),
+            'in_progress' => 0, // FacilityComment doesn't have status field yet
+            'resolved' => 0, // FacilityComment doesn't have status field yet
         ];
 
         return view('comments.my-comments', compact('comments', 'statusCounts'));
@@ -160,7 +158,7 @@ class CommentController extends Controller
      */
     public function assigned()
     {
-        $comments = Comment::with(['facility', 'poster'])
+        $comments = FacilityComment::with(['facility', 'poster'])
             ->where('assigned_to', Auth::id())
             ->orderBy('created_at', 'desc')
             ->paginate(20);
@@ -174,7 +172,7 @@ class CommentController extends Controller
     public function statusDashboard(Request $request)
     {
         // Build query with filters
-        $query = Comment::with(['facility', 'poster', 'assignee']);
+        $query = FacilityComment::with(['facility', 'poster']);
 
         // Filter by status
         if ($request->filled('status')) {
@@ -197,9 +195,9 @@ class CommentController extends Controller
 
         // Get status counts
         $statusCounts = [
-            'pending' => Comment::where('status', 'pending')->count(),
-            'in_progress' => Comment::where('status', 'in_progress')->count(),
-            'resolved' => Comment::where('status', 'resolved')->count(),
+            'pending' => FacilityComment::count(),
+            'in_progress' => 0, // FacilityComment doesn't have status field yet
+            'resolved' => 0, // FacilityComment doesn't have status field yet
         ];
 
         // Get assignees for filter dropdown
@@ -222,7 +220,7 @@ class CommentController extends Controller
             return redirect()->back()->with('error', '無効な操作です。');
         }
 
-        $comments = Comment::whereIn('id', $commentIds)->get();
+        $comments = FacilityComment::whereIn('id', $commentIds)->get();
 
         foreach ($comments as $comment) {
             $oldStatus = $comment->status;

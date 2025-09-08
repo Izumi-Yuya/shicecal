@@ -25,7 +25,7 @@ class AnnualConfirmationController extends Controller
     public function index(Request $request)
     {
         $year = $request->get('year', date('Y'));
-        
+
         $confirmations = AnnualConfirmation::with(['facility', 'requestedBy', 'facilityManager'])
             ->forYear($year)
             ->orderBy('requested_at', 'desc')
@@ -43,6 +43,11 @@ class AnnualConfirmationController extends Controller
      */
     public function create()
     {
+        // Only admins can create annual confirmation requests
+        if (!Auth::user()->isAdmin()) {
+            abort(403, 'Unauthorized access');
+        }
+
         $facilities = Facility::where('status', 'approved')
             ->orderBy('facility_name')
             ->get();
@@ -55,9 +60,14 @@ class AnnualConfirmationController extends Controller
      */
     public function store(Request $request)
     {
+        // Only admins can create annual confirmation requests
+        if (!Auth::user()->isAdmin()) {
+            abort(403, 'Unauthorized access');
+        }
+
         $year = $request->input('year', date('Y'));
         $facilityIds = $request->input('facility_ids', []);
-        
+
         if (empty($facilityIds)) {
             return redirect()->back()->with('error', '確認対象の施設を選択してください。');
         }
@@ -65,7 +75,7 @@ class AnnualConfirmationController extends Controller
         DB::transaction(function () use ($year, $facilityIds) {
             foreach ($facilityIds as $facilityId) {
                 $facility = Facility::findOrFail($facilityId);
-                
+
                 // Find facility manager (user with role 'viewer' associated with this facility)
                 // For now, we'll use a simple approach - find any viewer user
                 // In production, this would be based on proper facility-user relationships
@@ -108,10 +118,10 @@ class AnnualConfirmationController extends Controller
     {
         // Check if user has permission to view this confirmation
         $user = Auth::user();
-        $canView = $user->isAdmin() || 
-                   $user->isEditor() || 
-                   $user->id === $annualConfirmation->facility_manager_id;
-        
+        $canView = $user->isAdmin() ||
+            $user->isEditor() ||
+            $user->id === $annualConfirmation->facility_manager_id;
+
         if (!$canView) {
             abort(403, 'この確認依頼にアクセスする権限がありません。');
         }
@@ -155,8 +165,8 @@ class AnnualConfirmationController extends Controller
             }
         }
 
-        $message = $status === 'confirmed' 
-            ? '確認完了を報告しました。' 
+        $message = $status === 'confirmed'
+            ? '確認完了を報告しました。'
             : '相違報告を送信しました。';
 
         return redirect()->route('annual-confirmation.show', $annualConfirmation)
@@ -191,13 +201,13 @@ class AnnualConfirmationController extends Controller
     public function getFacilities(Request $request)
     {
         $search = $request->get('search', '');
-        
+
         $facilities = Facility::where('status', 'approved')
             ->when($search, function ($query, $search) {
                 return $query->where(function ($q) use ($search) {
                     $q->where('facility_name', 'like', "%{$search}%")
-                      ->orWhere('office_code', 'like', "%{$search}%")
-                      ->orWhere('company_name', 'like', "%{$search}%");
+                        ->orWhere('office_code', 'like', "%{$search}%")
+                        ->orWhere('company_name', 'like', "%{$search}%");
                 });
             })
             ->orderBy('facility_name')

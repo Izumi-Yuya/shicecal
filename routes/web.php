@@ -91,6 +91,9 @@ Route::middleware(['auth'])->group(function () {
 
     // Annual Confirmation Routes
     Route::resource('annual-confirmation', AnnualConfirmationController::class);
+    Route::post('/annual-confirmation/{annualConfirmation}/respond', [AnnualConfirmationController::class, 'respond'])->name('annual-confirmation.respond');
+    Route::patch('/annual-confirmation/{annualConfirmation}/resolve', [AnnualConfirmationController::class, 'resolve'])->name('annual-confirmation.resolve');
+    Route::get('/annual-confirmation/facilities/ajax', [AnnualConfirmationController::class, 'getFacilities'])->name('annual-confirmation.facilities');
 
     // Comment Routes
     Route::resource('comments', CommentController::class);
@@ -142,7 +145,32 @@ Route::middleware(['auth'])->group(function () {
             return view('admin.logs.system');
         })->name('logs.system');
     });
-
-    // Additional missing routes
-    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
 });
+
+// Notification routes (outside admin group but still require auth)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
+    Route::get('/notifications/recent', [NotificationController::class, 'getRecent'])->name('notifications.recent');
+    Route::get('/notifications/{notification}', [NotificationController::class, 'show'])->name('notifications.show');
+    Route::put('/notifications/{notification}', [NotificationController::class, 'update'])->name('notifications.update');
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+});
+
+// Test route for debugging (remove in production)
+Route::get('/test-notifications', function () {
+    if (!auth()->check()) {
+        return response()->json(['error' => 'Not authenticated', 'user' => null]);
+    }
+
+    $user = auth()->user();
+    $count = \App\Models\Notification::where('user_id', $user->id)->where('is_read', false)->count();
+
+    return response()->json([
+        'authenticated' => true,
+        'user_id' => $user->id,
+        'user_name' => $user->name,
+        'unread_count' => $count,
+        'route_exists' => route('notifications.unread-count')
+    ]);
+})->middleware('auth');

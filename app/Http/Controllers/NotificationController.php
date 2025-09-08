@@ -29,9 +29,22 @@ class NotificationController extends Controller
     }
 
     /**
-     * Mark a notification as read.
+     * Display the specified notification.
      */
-    public function markAsRead(Notification $notification)
+    public function show(Notification $notification)
+    {
+        // Check if the notification belongs to the authenticated user
+        if ($notification->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        return view('notifications.show', compact('notification'));
+    }
+
+    /**
+     * Update the specified notification (mark as read).
+     */
+    public function update(Notification $notification)
     {
         // Check if the notification belongs to the authenticated user
         if ($notification->user_id !== Auth::id()) {
@@ -40,7 +53,19 @@ class NotificationController extends Controller
 
         $notification->markAsRead();
 
-        return response()->json(['success' => true]);
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->back()->with('success', '通知を既読にしました。');
+    }
+
+    /**
+     * Mark a notification as read.
+     */
+    public function markAsRead(Notification $notification)
+    {
+        return $this->update($notification);
     }
 
     /**
@@ -56,11 +81,39 @@ class NotificationController extends Controller
     /**
      * Get unread notification count for the authenticated user.
      */
+    public function unreadCount()
+    {
+        try {
+            if (!Auth::check()) {
+                return response()->json(['message' => 'Unauthenticated.'], 401);
+            }
+
+            $count = $this->notificationService->getUnreadCount(Auth::user());
+
+            return response()->json([
+                'success' => true,
+                'count' => $count
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Failed to get notification count', [
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch notification count',
+                'count' => 0
+            ], 500);
+        }
+    }
+
+    /**
+     * Get unread notification count for the authenticated user (alias).
+     */
     public function getUnreadCount()
     {
-        $count = $this->notificationService->getUnreadCount(Auth::user());
-
-        return response()->json(['count' => $count]);
+        return $this->unreadCount();
     }
 
     /**

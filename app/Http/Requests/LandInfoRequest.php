@@ -54,9 +54,9 @@ class LandInfoRequest extends FormRequest
 
             'notes' => 'nullable|string|max:2000',
 
-            // ファイルアップロード
-            'lease_contracts.*' => 'nullable|file|mimes:pdf|max:10240',
-            'property_register' => 'nullable|file|mimes:pdf|max:10240',
+            // PDFファイルアップロード
+            'lease_contract_pdf' => 'nullable|file|mimes:pdf|max:10240',
+            'registry_pdf' => 'nullable|file|mimes:pdf|max:10240',
         ];
     }
 
@@ -116,13 +116,13 @@ class LandInfoRequest extends FormRequest
 
             'notes.max' => '備考は2000文字以内で入力してください。',
 
-            // ファイルアップロード
-            'lease_contracts.*.file' => '賃貸借契約書は有効なファイルをアップロードしてください。',
-            'lease_contracts.*.mimes' => '賃貸借契約書はPDFファイルをアップロードしてください。',
-            'lease_contracts.*.max' => '賃貸借契約書のファイルサイズは10MB以下にしてください。',
-            'property_register.file' => '謄本は有効なファイルをアップロードしてください。',
-            'property_register.mimes' => '謄本はPDFファイルをアップロードしてください。',
-            'property_register.max' => '謄本のファイルサイズは10MB以下にしてください。',
+            // PDFファイルアップロード
+            'lease_contract_pdf.file' => '賃貸借契約書・覚書PDFは有効なファイルをアップロードしてください。',
+            'lease_contract_pdf.mimes' => '賃貸借契約書・覚書PDFはPDFファイルをアップロードしてください。',
+            'lease_contract_pdf.max' => '賃貸借契約書・覚書PDFのファイルサイズは10MB以下にしてください。',
+            'registry_pdf.file' => '謄本PDFは有効なファイルをアップロードしてください。',
+            'registry_pdf.mimes' => '謄本PDFはPDFファイルをアップロードしてください。',
+            'registry_pdf.max' => '謄本PDFのファイルサイズは10MB以下にしてください。',
         ];
     }
 

@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Models\Notification;
 use App\Models\User;
-use App\Models\Comment;
+use App\Models\FacilityComment;
 use App\Models\Facility;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
@@ -14,7 +14,7 @@ class NotificationService
     /**
      * Create a notification for comment posted.
      */
-    public function notifyCommentPosted(Comment $comment): void
+    public function notifyCommentPosted(FacilityComment $comment): void
     {
         $facility = $comment->facility;
         $poster = $comment->poster;
@@ -44,7 +44,7 @@ class NotificationService
                 'comment_id' => $comment->id,
                 'facility_id' => $facility->id,
                 'poster_id' => $poster->id,
-                'field_name' => $comment->field_name,
+                'section' => $comment->section,
             ],
         ]);
 
@@ -55,7 +55,7 @@ class NotificationService
     /**
      * Create a notification for comment status change.
      */
-    public function notifyCommentStatusChanged(Comment $comment, string $oldStatus): void
+    public function notifyCommentStatusChanged(FacilityComment $comment, string $oldStatus): void
     {
         $facility = $comment->facility;
         $poster = $comment->poster;

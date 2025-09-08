@@ -4,7 +4,7 @@ namespace Tests\Unit\Models;
 
 use App\Models\Facility;
 use App\Models\User;
-use App\Models\Comment;
+use App\Models\FacilityComment;
 use App\Models\MaintenanceHistory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -38,7 +38,7 @@ class FacilityTest extends TestCase
         $this->assertEquals($approver->id, $facility->approver->id);
 
         // Test comments relationship
-        $comment = Comment::factory()->create(['facility_id' => $facility->id]);
+        $comment = FacilityComment::factory()->create(['facility_id' => $facility->id]);
         $this->assertTrue($facility->comments->contains($comment));
 
         // Test maintenance histories relationship
@@ -90,7 +90,7 @@ class FacilityTest extends TestCase
     public function test_facility_fillable_attributes()
     {
         $user = User::factory()->create();
-        
+
         $facilityData = [
             'company_name' => 'Test Company',
             'office_code' => 'TC001',

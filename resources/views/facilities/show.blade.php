@@ -90,7 +90,7 @@
                             <h4 class="mb-0">
                                 <i class="fas fa-map text-primary me-2"></i>土地情報
                             </h4>
-                            @if(auth()->user()->isEditor() || auth()->user()->isAdmin())
+                            @if(auth()->user()->canEditLandInfo())
                                 <a href="{{ route('facilities.land-info.edit', $facility) }}" class="btn btn-primary">
                                     <i class="fas fa-edit me-2"></i>
                                     @if(isset($landInfo) && $landInfo)
@@ -110,7 +110,325 @@
                             </div>
                         </div>
                         <div class="land-info-content">
-                            @include('facilities.partials.land-info', ['facility' => $facility, 'landInfo' => $landInfo ?? null])
+                            @if(isset($landInfo) && $landInfo)
+                                <!-- 土地情報詳細表示 -->
+                                <div class="row">
+                                    <!-- 基本情報カード -->
+                                    <div class="col-lg-6 mb-4">
+                                        <div class="card facility-info-card h-100">
+                                            <div class="card-header">
+                                                <h5 class="mb-0">
+                                                    <i class="fas fa-map me-2"></i>基本情報
+                                                </h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="facility-detail-table">
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">所有形態</span>
+                                                        <span class="detail-value">
+                                                            @switch($landInfo->ownership_type)
+                                                                @case('owned')
+                                                                    <span class="badge bg-success">自社</span>
+                                                                    @break
+                                                                @case('leased')
+                                                                    <span class="badge bg-warning">賃借</span>
+                                                                    @break
+                                                                @case('owned_rental')
+                                                                    <span class="badge bg-info">自社（賃貸）</span>
+                                                                    @break
+                                                                @default
+                                                                    <span class="text-muted">未設定</span>
+                                                            @endswitch
+                                                        </span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">敷地内駐車場台数</span>
+                                                        <span class="detail-value">
+                                                            {{ $landInfo->parking_spaces !== null ? number_format($landInfo->parking_spaces) . '台' : '未設定' }}
+                                                        </span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">敷地面積（㎡）</span>
+                                                        <span class="detail-value">
+                                                            {{ $landInfo->site_area_sqm !== null ? number_format($landInfo->site_area_sqm, 2) . '㎡' : '未設定' }}
+                                                        </span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">敷地面積（坪数）</span>
+                                                        <span class="detail-value">
+                                                            {{ $landInfo->site_area_tsubo !== null ? number_format($landInfo->site_area_tsubo, 2) . '坪' : '未設定' }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 金額・契約情報カード -->
+                                    <div class="col-lg-6 mb-4">
+                                        <div class="card facility-info-card h-100">
+                                            <div class="card-header">
+                                                <h5 class="mb-0">
+                                                    <i class="fas fa-yen-sign me-2"></i>金額・契約情報
+                                                </h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="facility-detail-table">
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">購入金額</span>
+                                                        <span class="detail-value">
+                                                            {{ $landInfo->purchase_price !== null ? number_format($landInfo->purchase_price) . '円' : '未設定' }}
+                                                        </span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">坪単価（自動計算）</span>
+                                                        <span class="detail-value">
+                                                            @php
+                                                                $unitPrice = null;
+                                                                if ($landInfo->unit_price_per_tsubo !== null) {
+                                                                    $unitPrice = $landInfo->unit_price_per_tsubo;
+                                                                } elseif ($landInfo->purchase_price && $landInfo->site_area_tsubo && $landInfo->site_area_tsubo > 0) {
+                                                                    $unitPrice = round($landInfo->purchase_price / $landInfo->site_area_tsubo);
+                                                                }
+                                                            @endphp
+                                                            {{ $unitPrice !== null ? number_format($unitPrice) . '円/坪' : '未設定' }}
+                                                        </span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">家賃</span>
+                                                        <span class="detail-value">
+                                                            {{ $landInfo->monthly_rent !== null ? number_format($landInfo->monthly_rent) . '円' : '未設定' }}
+                                                        </span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">契約期間（契約開始日）</span>
+                                                        <span class="detail-value">
+                                                            {{ $landInfo->contract_start_date ? $landInfo->contract_start_date->format('Y年m月d日') : '未設定' }}
+                                                        </span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">契約期間（契約終了日）</span>
+                                                        <span class="detail-value">
+                                                            {{ $landInfo->contract_end_date ? $landInfo->contract_end_date->format('Y年m月d日') : '未設定' }}
+                                                        </span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">自動更新の有無</span>
+                                                        <span class="detail-value">
+                                                            @if($landInfo->auto_renewal === 'yes')
+                                                                <span class="badge bg-success">あり</span>
+                                                            @elseif($landInfo->auto_renewal === 'no')
+                                                                <span class="badge bg-secondary">なし</span>
+                                                            @else
+                                                                <span class="text-muted">未設定</span>
+                                                            @endif
+                                                        </span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">契約年数（自動計算）</span>
+                                                        <span class="detail-value">
+                                                            @php
+                                                                $contractYears = null;
+                                                                if ($landInfo->contract_start_date && $landInfo->contract_end_date) {
+                                                                    $contractYears = $landInfo->contract_start_date->diffInYears($landInfo->contract_end_date);
+                                                                }
+                                                            @endphp
+                                                            {{ $contractYears !== null ? $contractYears . '年' : '未設定' }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 管理会社情報カード -->
+                                    <div class="col-lg-6 mb-4">
+                                        <div class="card facility-info-card h-100">
+                                            <div class="card-header">
+                                                <h5 class="mb-0">
+                                                    <i class="fas fa-building me-2"></i>管理会社情報
+                                                </h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="facility-detail-table">
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">管理会社（会社名）</span>
+                                                        <span class="detail-value">{{ $landInfo->management_company_name ?? '未設定' }}</span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">管理会社（郵便番号）</span>
+                                                        <span class="detail-value">{{ $landInfo->management_company_postal_code ?? '未設定' }}</span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">管理会社（住所）</span>
+                                                        <span class="detail-value">{{ $landInfo->management_company_address ?? '未設定' }}</span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">管理会社（住所建物名）</span>
+                                                        <span class="detail-value">{{ $landInfo->management_company_building ?? '未設定' }}</span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">管理会社（電話番号）</span>
+                                                        <span class="detail-value">{{ $landInfo->management_company_phone ?? '未設定' }}</span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">管理会社（FAX番号）</span>
+                                                        <span class="detail-value">{{ $landInfo->management_company_fax ?? '未設定' }}</span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">管理会社（メールアドレス）</span>
+                                                        <span class="detail-value">
+                                                            @if($landInfo->management_company_email)
+                                                                <a href="mailto:{{ $landInfo->management_company_email }}">{{ $landInfo->management_company_email }}</a>
+                                                            @else
+                                                                未設定
+                                                            @endif
+                                                        </span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">管理会社（URL）</span>
+                                                        <span class="detail-value">
+                                                            @if($landInfo->management_company_url)
+                                                                <a href="{{ $landInfo->management_company_url }}" target="_blank">{{ $landInfo->management_company_url }}</a>
+                                                            @else
+                                                                未設定
+                                                            @endif
+                                                        </span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">管理会社（備考）</span>
+                                                        <span class="detail-value">{{ $landInfo->management_company_notes ?? '未設定' }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- オーナー情報カード -->
+                                    <div class="col-lg-6 mb-4">
+                                        <div class="card facility-info-card h-100">
+                                            <div class="card-header">
+                                                <h5 class="mb-0">
+                                                    <i class="fas fa-user-tie me-2"></i>オーナー情報
+                                                </h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="facility-detail-table">
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">オーナー（氏名・会社名）</span>
+                                                        <span class="detail-value">{{ $landInfo->owner_name ?? '未設定' }}</span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">オーナー（郵便番号）</span>
+                                                        <span class="detail-value">{{ $landInfo->owner_postal_code ?? '未設定' }}</span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">オーナー（住所）</span>
+                                                        <span class="detail-value">{{ $landInfo->owner_address ?? '未設定' }}</span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">オーナー（住所建物名）</span>
+                                                        <span class="detail-value">{{ $landInfo->owner_building ?? '未設定' }}</span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">オーナー（電話番号）</span>
+                                                        <span class="detail-value">{{ $landInfo->owner_phone ?? '未設定' }}</span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">オーナー（FAX番号）</span>
+                                                        <span class="detail-value">{{ $landInfo->owner_fax ?? '未設定' }}</span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">オーナー（メールアドレス）</span>
+                                                        <span class="detail-value">
+                                                            @if($landInfo->owner_email)
+                                                                <a href="mailto:{{ $landInfo->owner_email }}">{{ $landInfo->owner_email }}</a>
+                                                            @else
+                                                                未設定
+                                                            @endif
+                                                        </span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">オーナー（URL）</span>
+                                                        <span class="detail-value">
+                                                            @if($landInfo->owner_url)
+                                                                <a href="{{ $landInfo->owner_url }}" target="_blank">{{ $landInfo->owner_url }}</a>
+                                                            @else
+                                                                未設定
+                                                            @endif
+                                                        </span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">オーナー（備考欄）</span>
+                                                        <span class="detail-value">{{ $landInfo->owner_notes ?? '未設定' }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 関連書類・備考カード -->
+                                    <div class="col-lg-12 mb-4">
+                                        <div class="card facility-info-card">
+                                            <div class="card-header">
+                                                <h5 class="mb-0">
+                                                    <i class="fas fa-file-pdf me-2"></i>関連書類・備考
+                                                </h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="facility-detail-table">
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">賃貸借契約書・覚書</span>
+                                                        <span class="detail-value">
+                                                            @if($landInfo->lease_contract_pdf_name)
+                                                                <i class="fas fa-file-contract text-warning me-2"></i>{{ $landInfo->lease_contract_pdf_name }}
+                                                            @else
+                                                                未設定
+                                                            @endif
+                                                        </span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">謄本</span>
+                                                        <span class="detail-value">
+                                                            @if($landInfo->registry_pdf_name)
+                                                                <i class="fas fa-file-alt text-info me-2"></i>{{ $landInfo->registry_pdf_name }}
+                                                            @else
+                                                                未設定
+                                                            @endif
+                                                        </span>
+                                                    </div>
+                                                    <div class="detail-row">
+                                                        <span class="detail-label">備考欄</span>
+                                                        <span class="detail-value">
+                                                            @if($landInfo->notes)
+                                                                <div class="border rounded p-2 bg-light">{{ $landInfo->notes }}</div>
+                                                            @else
+                                                                未設定
+                                                            @endif
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="text-center py-5">
+                                    <div class="mb-4">
+                                        <i class="fas fa-map-marked-alt fa-4x text-muted"></i>
+                                    </div>
+                                    <h4 class="text-muted mb-3">土地情報が登録されていません</h4>
+                                    <p class="text-muted mb-4">
+                                        この施設の土地情報はまだ登録されていません。<br>
+                                        土地情報を登録するには、編集ボタンから登録してください。
+                                    </p>
+                                    @if(auth()->user()->canEditLandInfo())
+                                        <a href="{{ route('facilities.land-info.edit', $facility) }}" class="btn btn-primary">
+                                            <i class="fas fa-plus me-2"></i>土地情報を登録
+                                        </a>
+                                    @endif
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -119,76 +437,6 @@
     </div>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Lazy loading for land info tab
-    const landTab = document.getElementById('land-tab');
-    const landInfoPane = document.getElementById('land-info');
-    let landInfoLoaded = false;
-
-    if (landTab && landInfoPane) {
-        landTab.addEventListener('click', function() {
-            if (!landInfoLoaded) {
-                loadLandInfo();
-            }
-        });
-    }
-
-    function loadLandInfo() {
-        const loadingDiv = landInfoPane.querySelector('.land-info-loading');
-        const contentDiv = landInfoPane.querySelector('.land-info-content');
-        
-        if (loadingDiv && contentDiv) {
-            // Show loading spinner
-            loadingDiv.style.display = 'block';
-            contentDiv.style.display = 'none';
-            
-            // Simulate loading delay for heavy content
-            setTimeout(() => {
-                // Hide loading spinner and show content
-                loadingDiv.style.display = 'none';
-                contentDiv.style.display = 'block';
-                
-                // Initialize land info manager if not already done
-                if (typeof LandInfoManager !== 'undefined' && !window.landInfoManagerInitialized) {
-                    new LandInfoManager();
-                    window.landInfoManagerInitialized = true;
-                }
-                
-                landInfoLoaded = true;
-            }, 500);
-        }
-    }
-
-    // Performance monitoring for tab switching
-    let tabSwitchTimes = [];
-    
-    document.querySelectorAll('.nav-tabs .nav-link').forEach(tab => {
-        tab.addEventListener('click', function() {
-            const startTime = performance.now();
-            
-            setTimeout(() => {
-                const endTime = performance.now();
-                const switchTime = endTime - startTime;
-                tabSwitchTimes.push(switchTime);
-                
-                // Log performance metrics every 10 tab switches
-                if (tabSwitchTimes.length >= 10) {
-                    const avgTime = tabSwitchTimes.reduce((a, b) => a + b, 0) / tabSwitchTimes.length;
-                    console.debug('Tab switch performance:', {
-                        average: avgTime.toFixed(2) + 'ms',
-                        samples: tabSwitchTimes.length
-                    });
-                    tabSwitchTimes = []; // Reset
-                }
-            }, 0);
-        });
-    });
-});
-</script>
-@endpush
 
 @push('styles')
 <style>
@@ -269,6 +517,100 @@ document.addEventListener('DOMContentLoaded', function() {
     opacity: 1;
     transform: translateY(0);
 }
+
+/* 施設詳細テーブルのスタイル */
+.facility-detail-table {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.detail-row {
+    display: flex;
+    align-items: flex-start;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #495057;
+    min-width: 140px;
+    flex-shrink: 0;
+    margin-right: 1rem;
+    font-size: 0.9rem;
+}
+
+.detail-value {
+    flex: 1;
+    color: #212529;
+    word-break: break-word;
+}
+
+.facility-info-card {
+    border: 1px solid #e3e6f0;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    transition: all 0.3s;
+}
+
+.facility-info-card:hover {
+    box-shadow: 0 0.25rem 2rem 0 rgba(58, 59, 69, 0.2);
+}
+
+.facility-info-card .card-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    border-bottom: none;
+    font-weight: 600;
+}
+
+.facility-info-card .card-header h5 {
+    margin: 0;
+    font-size: 1rem;
+    color: white;
+}
+
+.facility-info-card .card-header i {
+    color: white !important;
+}
+
+.facility-info-card .card-header .btn {
+    color: white;
+    border-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.facility-info-card .card-header .btn:hover {
+    color: white;
+    border-color: rgba(255, 255, 255, 0.5);
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.facility-info-card .card-header .btn i {
+    color: white !important;
+}
+
+.facility-info-card .card-header .comment-count {
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .detail-row {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .detail-label {
+        min-width: auto;
+        margin-right: 0;
+        font-weight: 700;
+        color: #6c757d;
+    }
+}
 </style>
 @endpush
 
@@ -277,255 +619,63 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
     const facilityId = {{ $facility->id }};
     
-    // コメント機能の初期化
-    initCommentSystem();
-    
-    // タブ切り替え時のイベント処理
-    const tabTriggerList = [].slice.call(document.querySelectorAll('#facilityTabs button[data-bs-toggle="tab"]'));
-    tabTriggerList.forEach(function (tabTrigger) {
-        tabTrigger.addEventListener('shown.bs.tab', function (event) {
-            // タブが表示された時の処理
-            const targetTab = event.target.getAttribute('data-bs-target');
-            
-            // 土地タブが表示された時の処理
-            if (targetTab === '#land-info') {
-                // 土地情報のコメント数を更新
-                updateLandInfoCommentCounts();
+    // Lazy loading for land info tab
+    const landTab = document.getElementById('land-tab');
+    const landInfoPane = document.getElementById('land-info');
+    let landInfoLoaded = false;
+
+    if (landTab && landInfoPane) {
+        landTab.addEventListener('click', function() {
+            if (!landInfoLoaded) {
+                loadLandInfo();
             }
+        });
+    }
+
+    function loadLandInfo() {
+        const loadingDiv = landInfoPane.querySelector('.land-info-loading');
+        const contentDiv = landInfoPane.querySelector('.land-info-content');
+        
+        if (loadingDiv && contentDiv) {
+            // Show loading spinner
+            loadingDiv.style.display = 'block';
+            contentDiv.style.display = 'none';
+            
+            // Simulate loading delay for heavy content
+            setTimeout(() => {
+                // Hide loading spinner and show content
+                loadingDiv.style.display = 'none';
+                contentDiv.style.display = 'block';
+                
+                landInfoLoaded = true;
+            }, 500);
+        }
+    }
+
+    // Performance monitoring for tab switching
+    let tabSwitchTimes = [];
+    
+    document.querySelectorAll('.nav-tabs .nav-link').forEach(tab => {
+        tab.addEventListener('click', function() {
+            const startTime = performance.now();
+            
+            setTimeout(() => {
+                const endTime = performance.now();
+                const switchTime = endTime - startTime;
+                tabSwitchTimes.push(switchTime);
+                
+                // Log performance metrics every 10 tab switches
+                if (tabSwitchTimes.length >= 10) {
+                    const avgTime = tabSwitchTimes.reduce((a, b) => a + b, 0) / tabSwitchTimes.length;
+                    console.debug('Tab switch performance:', {
+                        average: avgTime.toFixed(2) + 'ms',
+                        samples: tabSwitchTimes.length
+                    });
+                    tabSwitchTimes = []; // Reset
+                }
+            }, 0);
         });
     });
-    
-    function initCommentSystem() {
-        // コメントトグルボタンのイベントリスナー
-        document.querySelectorAll('.comment-toggle').forEach(button => {
-            button.addEventListener('click', function() {
-                const section = this.dataset.section;
-                toggleCommentSection(section);
-            });
-        });
-        
-        // コメント送信ボタンのイベントリスナー
-        document.querySelectorAll('.comment-submit').forEach(button => {
-            button.addEventListener('click', function() {
-                const section = this.dataset.section;
-                submitComment(section);
-            });
-        });
-        
-        // Enterキーでコメント送信
-        document.querySelectorAll('.comment-input').forEach(input => {
-            input.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    const section = this.dataset.section;
-                    submitComment(section);
-                }
-            });
-        });
-        
-        // 初期コメント数を読み込み
-        loadAllCommentCounts();
-    }
-    
-    function toggleCommentSection(section) {
-        const commentSection = document.querySelector(`.comment-section[data-section="${section}"]`);
-        const isVisible = !commentSection.classList.contains('d-none');
-        
-        if (isVisible) {
-            commentSection.classList.add('d-none');
-        } else {
-            commentSection.classList.remove('d-none');
-            loadComments(section);
-        }
-    }
-    
-    function loadComments(section) {
-        const commentList = document.querySelector(`.comment-list[data-section="${section}"]`);
-        
-        fetch(`/facilities/${facilityId}/comments/${section}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    displayComments(section, data.comments);
-                }
-            })
-            .catch(error => {
-                console.error('コメントの読み込みに失敗しました:', error);
-                showToast('コメントの読み込みに失敗しました。', 'error');
-            });
-    }
-    
-    function displayComments(section, comments) {
-        const commentList = document.querySelector(`.comment-list[data-section="${section}"]`);
-        
-        if (comments.length === 0) {
-            commentList.innerHTML = '<div class="text-muted text-center py-2"><small>コメントはありません</small></div>';
-            return;
-        }
-        
-        const commentsHtml = comments.map(comment => `
-            <div class="comment-item mb-2 p-2 border rounded bg-light" data-comment-id="${comment.id}">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div class="flex-grow-1">
-                        <div class="comment-text">${escapeHtml(comment.comment)}</div>
-                        <small class="text-muted">
-                            <i class="fas fa-user me-1"></i>${escapeHtml(comment.user_name)}
-                            <i class="fas fa-clock ms-2 me-1"></i>${comment.created_at}
-                        </small>
-                    </div>
-                    ${comment.can_delete ? `
-                        <button class="btn btn-outline-danger btn-sm ms-2 comment-delete" 
-                                data-comment-id="${comment.id}" 
-                                data-section="${section}"
-                                title="削除">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    ` : ''}
-                </div>
-            </div>
-        `).join('');
-        
-        commentList.innerHTML = commentsHtml;
-        
-        // 削除ボタンのイベントリスナーを追加
-        commentList.querySelectorAll('.comment-delete').forEach(button => {
-            button.addEventListener('click', function() {
-                const commentId = this.dataset.commentId;
-                const section = this.dataset.section;
-                deleteComment(commentId, section);
-            });
-        });
-    }
-    
-    function submitComment(section) {
-        const input = document.querySelector(`.comment-input[data-section="${section}"]`);
-        const comment = input.value.trim();
-        
-        if (!comment) {
-            showToast('コメントを入力してください。', 'warning');
-            return;
-        }
-        
-        const submitButton = document.querySelector(`.comment-submit[data-section="${section}"]`);
-        submitButton.disabled = true;
-        
-        fetch(`/facilities/${facilityId}/comments`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({
-                section: section,
-                comment: comment
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                input.value = '';
-                loadComments(section);
-                updateCommentCount(section);
-                showToast(data.message, 'success');
-            } else {
-                showToast(data.message || 'コメントの投稿に失敗しました。', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('コメントの投稿に失敗しました:', error);
-            showToast('コメントの投稿に失敗しました。', 'error');
-        })
-        .finally(() => {
-            submitButton.disabled = false;
-        });
-    }
-    
-    function deleteComment(commentId, section) {
-        if (!confirm('このコメントを削除しますか？')) {
-            return;
-        }
-        
-        fetch(`/facilities/${facilityId}/comments/${commentId}`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                loadComments(section);
-                updateCommentCount(section);
-                showToast(data.message, 'success');
-            } else {
-                showToast(data.message || 'コメントの削除に失敗しました。', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('コメントの削除に失敗しました:', error);
-            showToast('コメントの削除に失敗しました。', 'error');
-        });
-    }
-    
-    function loadAllCommentCounts() {
-        const sections = ['basic_info', 'contact_info', 'building_info', 'facility_info', 'services'];
-        
-        sections.forEach(section => {
-            updateCommentCount(section);
-        });
-    }
-    
-    function updateLandInfoCommentCounts() {
-        const landSections = ['land_basic', 'land_financial', 'land_management', 'land_owner', 'land_notes'];
-        
-        landSections.forEach(section => {
-            updateCommentCount(section);
-        });
-    }
-    
-    function updateCommentCount(section) {
-        fetch(`/facilities/${facilityId}/comments/${section}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const countElement = document.querySelector(`.comment-count[data-section="${section}"]`);
-                    if (countElement) {
-                        countElement.textContent = data.comments.length;
-                        
-                        // コメント数に応じてボタンのスタイルを変更
-                        const toggleButton = countElement.closest('.comment-toggle');
-                        if (data.comments.length > 0) {
-                            toggleButton.classList.remove('btn-outline-secondary', 'btn-outline-light');
-                            toggleButton.classList.add('btn-warning');
-                        } else {
-                            toggleButton.classList.remove('btn-warning');
-                            if (toggleButton.closest('.card-section-header')) {
-                                toggleButton.classList.add('btn-outline-light');
-                            } else {
-                                toggleButton.classList.add('btn-outline-secondary');
-                            }
-                        }
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('コメント数の取得に失敗しました:', error);
-            });
-    }
-    
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-    
-    function showToast(message, type = 'info') {
-        // 既存のtoast機能を使用
-        if (window.ShiseCal && window.ShiseCal.utils && window.ShiseCal.utils.showToast) {
-            window.ShiseCal.utils.showToast(message, type);
-        } else {
-            alert(message);
-        }
-    }
 });
 </script>
 @endpush

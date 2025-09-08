@@ -207,4 +207,88 @@ class User extends Authenticatable
         // Same as canAccessFacility for now
         return $this->canAccessFacility($facilityId);
     }
+
+    /**
+     * Check if user has multiple departments (comma-separated).
+     */
+    public function hasMultipleDepartments(): bool
+    {
+        return str_contains($this->department, ',');
+    }
+
+    /**
+     * Get array of user's departments.
+     */
+    public function getDepartments(): array
+    {
+        if ($this->hasMultipleDepartments()) {
+            return array_map('trim', explode(',', $this->department));
+        }
+
+        return [$this->department];
+    }
+
+    /**
+     * Check if user is in specific department (supports multiple departments).
+     */
+    public function isInDepartment(string $department): bool
+    {
+        return in_array($department, $this->getDepartments());
+    }
+
+    /**
+     * Check if user is in land affairs department (土地総務).
+     */
+    public function isLandAffairs(): bool
+    {
+        return $this->isInDepartment('land_affairs') || $this->isAdmin();
+    }
+
+    /**
+     * Check if user is in accounting department (経理).
+     */
+    public function isAccounting(): bool
+    {
+        return $this->isInDepartment('accounting') || $this->isAdmin();
+    }
+
+    /**
+     * Check if user is in construction planning department (工程表).
+     */
+    public function isConstructionPlanning(): bool
+    {
+        return $this->isInDepartment('construction_planning') || $this->isAdmin();
+    }
+
+    /**
+     * Check if user can edit land information (simplified).
+     * Only admins and editors can edit land information.
+     */
+    public function canEditLandInfo(): bool
+    {
+        return $this->isAdmin() || $this->isEditor();
+    }
+
+    /**
+     * Legacy methods for backward compatibility.
+     */
+    public function canEditLandBasicInfo(): bool
+    {
+        return $this->canEditLandInfo();
+    }
+
+    public function canEditLandFinancialInfo(): bool
+    {
+        return $this->canEditLandInfo();
+    }
+
+    public function canEditLandManagementInfo(): bool
+    {
+        return $this->canEditLandInfo();
+    }
+
+    public function canEditLandDocuments(): bool
+    {
+        return $this->canEditLandInfo();
+    }
 }
