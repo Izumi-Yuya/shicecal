@@ -1,11 +1,7 @@
 <!-- 土地情報フォーム -->
 <div class="land-info-form">
     @if(isset($landInfo) && $landInfo)
-        <!-- 既存の土地情報を表示 -->
-        <div class="alert alert-info mb-4">
-            <i class="fas fa-info-circle me-2"></i>
-            土地情報が登録されています。編集するには編集ボタンをクリックしてください。
-        </div>
+
         
         <!-- 土地情報表示 -->
         <div class="row">
@@ -382,14 +378,7 @@
         </div>
         @endif
 
-        <!-- 編集ボタン -->
-        @if(auth()->user()->isEditor() || auth()->user()->isAdmin())
-        <div class="text-center mt-4">
-            <a href="{{ route('facilities.land-info.edit', $facility) }}" class="btn btn-primary">
-                <i class="fas fa-edit me-2"></i>土地情報を編集
-            </a>
-        </div>
-        @endif
+
 
     @else
         <!-- 土地情報が未登録の場合 -->
@@ -403,11 +392,7 @@
                 土地情報を登録すると、施設の詳細な管理が可能になります。
             </p>
             
-            @if(auth()->user()->isEditor() || auth()->user()->isAdmin())
-            <a href="{{ route('facilities.land-info.edit', $facility) }}" class="btn btn-primary btn-lg">
-                <i class="fas fa-plus me-2"></i>土地情報を登録
-            </a>
-            @else
+            @if(!auth()->user()->isEditor() && !auth()->user()->isAdmin())
             <div class="alert alert-info d-inline-block">
                 <i class="fas fa-info-circle me-2"></i>
                 土地情報の登録には編集権限が必要です。

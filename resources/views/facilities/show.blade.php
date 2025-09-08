@@ -27,11 +27,6 @@
                         </div>
                         <div class="col-md-4 text-end">
                             <div class="facility-actions">
-                                @if(auth()->user()->isEditor() || auth()->user()->isAdmin())
-                                    <a href="{{ route('facilities.edit-basic-info', $facility) }}" class="btn btn-primary btn-sm me-2">
-                                        <i class="fas fa-edit"></i> 編集
-                                    </a>
-                                @endif
                                 <a href="{{ route('facilities.index') }}" class="btn btn-outline-secondary btn-sm">
                                     <i class="fas fa-arrow-left"></i> 一覧に戻る
                                 </a>
@@ -75,9 +70,38 @@
                 
                 <div class="tab-content" id="facilityTabContent">
                     <div class="tab-pane fade show active" id="basic-info" role="tabpanel" aria-labelledby="basic-tab">
+                        <!-- 基本情報タブヘッダー -->
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="mb-0">
+                                <i class="fas fa-info-circle text-primary me-2"></i>基本情報
+                            </h4>
+                            @if(auth()->user()->isEditor() || auth()->user()->isAdmin())
+                                <a href="{{ route('facilities.edit-basic-info', $facility) }}" class="btn btn-primary">
+                                    <i class="fas fa-edit me-2"></i>編集
+                                </a>
+                            @endif
+                        </div>
+                        
                         @include('facilities.partials.basic-info', ['facility' => $facility])
                     </div>
                     <div class="tab-pane fade" id="land-info" role="tabpanel" aria-labelledby="land-tab" data-lazy-load="true">
+                        <!-- 土地情報タブヘッダー -->
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="mb-0">
+                                <i class="fas fa-map text-primary me-2"></i>土地情報
+                            </h4>
+                            @if(auth()->user()->isEditor() || auth()->user()->isAdmin())
+                                <a href="{{ route('facilities.land-info.edit', $facility) }}" class="btn btn-primary">
+                                    <i class="fas fa-edit me-2"></i>
+                                    @if(isset($landInfo) && $landInfo)
+                                        編集
+                                    @else
+                                        登録
+                                    @endif
+                                </a>
+                            @endif
+                        </div>
+                        
                         <div class="land-info-loading" style="display: none;">
                             <div class="d-flex justify-content-center p-4">
                                 <div class="spinner-border" role="status">
