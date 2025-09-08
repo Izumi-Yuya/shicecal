@@ -1,0 +1,68 @@
+#!/bin/bash
+
+# AWS デプロイメントスクリプト
+# 使用方法: ./deployment/deploy-to-aws.sh
+
+set -e
+
+# 設定
+AWS_HOST="35.75.1.64"
+AWS_USER="ec2-user"
+SSH_KEY="~/Shise-Cal-test-key.pem"
+REMOTE_PATH="/home/ec2-user/shicecal"
+
+echo "🚀 AWS EC2へのデプロイを開始します..."
+
+# ローカルでの事前チェック
+echo "📋 ローカルでの事前チェック..."
+if ! git diff --quiet; then
+    echo "❌ 未コミットの変更があります。先にコミットしてください。"
+    exit 1
+fi
+
+# 現在のブランチを確認
+CURRENT_BRANCH=$(git branch --show-current)
+echo "📍 現在のブランチ: $CURRENT_BRANCH"
+
+# productionブランチにプッシュ
+echo "📤 GitHubにプッシュ中..."
+git push origin $CURRENT_BRANCH
+
+# AWS EC2に接続してデプロイ
+echo "🔗 AWS EC2に接続してデプロイ中..."
+ssh -i $SSH_KEY $AWS_USER@$AWS_HOST << EOF
+    set -e
+    cd $REMOTE_PATH
+    
+    echo "📥 最新コードを取得中..."
+    git pull origin $CURRENT_BRANCH
+    
+    echo "📦 依存関係をインストール中..."
+    composer install --no-dev --optimize-autoloader
+    npm install
+    
+    echo "🏗️ アセットをビルド中..."
+    npm run build
+    
+    echo "🗄️ データベースマイグレーション実行中..."
+    php artisan migrate --force
+    
+    echo "🌱 シーダーを実行中..."
+    php artisan db:seed --class=AdminUserSeeder --force
+    php artisan db:seed --class=FacilitySeeder --force
+    php artisan db:seed --class=LandInfoSeeder --force
+    
+    echo "⚡ キャッシュを最適化中..."
+    php artisan config:cache
+    php artisan route:cache
+    php artisan view:cache
+    
+    echo "🔄 サービスを再起動中..."
+    sudo systemctl restart nginx
+    sudo systemctl restart php-fpm
+    
+    echo "✅ デプロイ完了!"
+EOF
+
+echo "🎉 AWS EC2へのデプロイが完了しました!"
+echo "🌐 アプリケーション URL: http://$AWS_HOST"
