@@ -6,6 +6,7 @@ use App\Models\Facility;
 use App\Models\LandInfo;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Carbon\Carbon;
 
 class LandInfoSeeder extends Seeder
 {
@@ -31,52 +32,67 @@ class LandInfoSeeder extends Seeder
         }
 
         $landInfoData = [];
+        $createdCount = 0;
 
         // Create realistic land information for each facility
         foreach ($facilities as $facility) {
             // Skip if land info already exists
             if (LandInfo::where('facility_id', $facility->id)->exists()) {
+                $this->command->info("Land info already exists for facility: {$facility->facility_name}");
                 continue;
             }
 
-            // Determine ownership type based on facility characteristics
-            $ownershipType = $this->determineOwnershipType($facility);
+            try {
+                // Determine ownership type based on facility characteristics
+                $ownershipType = $this->determineOwnershipType($facility);
+                $siteAreaSqm = $this->getSiteAreaSqm($facility);
+                $siteAreaTsubo = round($siteAreaSqm / 3.306, 2);
 
-            $baseData = [
-                'facility_id' => $facility->id,
-                'ownership_type' => $ownershipType,
-                'parking_spaces' => $this->getParkingSpaces($facility),
-                'site_area_sqm' => $this->getSiteAreaSqm($facility),
-                'site_area_tsubo' => null, // Will be calculated
-                'notes' => $this->getNotes($facility, $ownershipType),
-                'status' => $facility->status === 'approved' ? 'approved' : 'draft',
-                'created_by' => $editor->id,
-                'updated_by' => $editor->id,
-                'approved_by' => $facility->status === 'approved' ? $approver->id : null,
-                'approved_at' => $facility->status === 'approved' ? $facility->approved_at : null,
-            ];
+                $baseData = [
+                    'facility_id' => $facility->id,
+                    'ownership_type' => $ownershipType,
+                    'parking_spaces' => $this->getParkingSpaces($facility),
+                    'site_area_sqm' => $siteAreaSqm,
+                    'site_area_tsubo' => $siteAreaTsubo,
+                    'notes' => $this->getNotes($facility, $ownershipType),
+                    'status' => $facility->status === 'approved' ? 'approved' : 'draft',
+                    'created_by' => $editor->id,
+                    'updated_by' => $editor->id,
+                    'approved_by' => $facility->status === 'approved' ? $approver->id : null,
+                    'approved_at' => $facility->status === 'approved' ? $facility->approved_at : null,
+                ];
 
-            // Calculate tsubo from sqm (1 tsubo ≈ 3.306 sqm)
-            $baseData['site_area_tsubo'] = round($baseData['site_area_sqm'] / 3.306, 2);
+                // Add ownership-specific data
+                if ($ownershipType === 'owned') {
+                    $baseData = array_merge($baseData, $this->getOwnedPropertyData($facility, $siteAreaTsubo));
+                } elseif ($ownershipType === 'leased') {
+                    $baseData = array_merge($baseData, $this->getLeasedPropertyData($facility));
+                } elseif ($ownershipType === 'owned_rental') {
+                    $baseData = array_merge($baseData, $this->getOwnedRentalPropertyData($facility, $siteAreaTsubo));
+                }
 
-            // Add ownership-specific data
-            if ($ownershipType === 'owned') {
-                $baseData = array_merge($baseData, $this->getOwnedPropertyData($facility, $baseData['site_area_tsubo']));
-            } elseif ($ownershipType === 'leased') {
-                $baseData = array_merge($baseData, $this->getLeasedPropertyData($facility));
-            } elseif ($ownershipType === 'owned_rental') {
-                $baseData = array_merge($baseData, $this->getOwnedRentalPropertyData($facility, $baseData['site_area_tsubo']));
+                $landInfoData[] = $baseData;
+                $createdCount++;
+            } catch (\Exception $e) {
+                $this->command->error("Error creating land info for facility {$facility->id}: " . $e->getMessage());
+                continue;
             }
-
-            $landInfoData[] = $baseData;
         }
 
-        // Create land info records
-        foreach ($landInfoData as $data) {
-            LandInfo::create($data);
+        // Create land info records in batches for better performance
+        if (!empty($landInfoData)) {
+            foreach (array_chunk($landInfoData, 50) as $chunk) {
+                foreach ($chunk as $data) {
+                    try {
+                        LandInfo::create($data);
+                    } catch (\Exception $e) {
+                        $this->command->error("Error saving land info: " . $e->getMessage());
+                    }
+                }
+            }
         }
 
-        $this->command->info('Created land information for ' . count($landInfoData) . ' facilities.');
+        $this->command->info("Created land information for {$createdCount} facilities.");
     }
 
     /**
@@ -173,36 +189,71 @@ class LandInfoSeeder extends Seeder
     private function getNotes(Facility $facility, string $ownershipType): ?string
     {
         $notes = [];
+        $facilityName = $facility->facility_name ?? '';
+        $address = $facility->address ?? '';
 
+        // Ownership-specific notes
         if ($ownershipType === 'owned') {
             $notes[] = '自社所有物件として長期的な運営を予定';
             if (fake()->boolean(30)) {
                 $notes[] = '将来的な増築・改修計画あり';
+            }
+            if (fake()->boolean(20)) {
+                $notes[] = '土地・建物の資産価値維持のため定期メンテナンス実施';
             }
         } elseif ($ownershipType === 'leased') {
             $notes[] = '賃貸契約による運営';
             if (fake()->boolean(40)) {
                 $notes[] = '契約更新時の条件見直し要検討';
             }
+            if (fake()->boolean(25)) {
+                $notes[] = '賃料改定の可能性について定期的に協議';
+            }
         } elseif ($ownershipType === 'owned_rental') {
             $notes[] = '自社所有物件を第三者に賃貸';
             if (fake()->boolean(20)) {
                 $notes[] = '賃料収入による安定的な収益確保';
             }
+            if (fake()->boolean(15)) {
+                $notes[] = 'テナントとの良好な関係維持を重視';
+            }
         }
 
-        if (str_contains($facility->address, '東京') || str_contains($facility->address, '大阪')) {
+        // Location-based notes
+        if (str_contains($address, '東京都') || str_contains($address, '大阪府')) {
             if (fake()->boolean(30)) {
                 $notes[] = '都市部立地のため地価上昇傾向';
             }
         }
 
-        if (fake()->boolean(20)) {
+        if (fake()->boolean(25)) {
             $notes[] = '近隣に公共交通機関あり、アクセス良好';
         }
 
-        if (fake()->boolean(15)) {
+        if (fake()->boolean(20)) {
             $notes[] = '周辺環境は住宅地で静穏';
+        }
+
+        // Facility-specific notes
+        if (str_contains($facilityName, '病院') || str_contains($facilityName, 'リハビリテーション')) {
+            if (fake()->boolean(15)) {
+                $notes[] = '救急車両の出入りを考慮した立地';
+            }
+        }
+
+        if (str_contains($facilityName, 'デイサービス') || str_contains($facilityName, 'グループホーム')) {
+            if (fake()->boolean(18)) {
+                $notes[] = '利用者の送迎に配慮した駐車場配置';
+            }
+        }
+
+        // Additional considerations
+        if (fake()->boolean(12)) {
+            $notes[] = '災害時の避難経路確保済み';
+        }
+
+        if (fake()->boolean(10)) {
+            $notes[] = 'バリアフリー対応済み';
         }
 
         return empty($notes) ? null : implode('。', $notes) . '。';
@@ -251,8 +302,7 @@ class LandInfoSeeder extends Seeder
      */
     private function getLeasedPropertyData(Facility $facility): array
     {
-        $startDate = fake()->dateTimeBetween('-2 years', '-6 months');
-        $endDate = fake()->dateTimeBetween('+6 months', '+5 years');
+        [$startDate, $endDate] = $this->getContractDates();
 
         return [
             'purchase_price' => null,
@@ -268,22 +318,22 @@ class LandInfoSeeder extends Seeder
             'management_company_postal_code' => fake()->regexify('\d{3}-\d{4}'),
             'management_company_address' => $this->getManagementCompanyAddress($facility),
             'management_company_building' => fake()->optional(0.3)->secondaryAddress(),
-            'management_company_phone' => fake()->regexify('\d{2,4}-\d{2,4}-\d{4}'),
-            'management_company_fax' => fake()->optional(0.7)->regexify('\d{2,4}-\d{2,4}-\d{4}'),
+            'management_company_phone' => fake()->regexify('0\d{1,3}-\d{2,4}-\d{4}'),
+            'management_company_fax' => fake()->optional(0.7)->regexify('0\d{1,3}-\d{2,4}-\d{4}'),
             'management_company_email' => fake()->safeEmail(),
             'management_company_url' => fake()->optional(0.6)->url(),
-            'management_company_notes' => fake()->optional(0.4)->text(100),
+            'management_company_notes' => fake()->optional(0.4)->realText(80),
 
             // Owner
-            'owner_name' => fake()->name(),
+            'owner_name' => $this->getOwnerName(),
             'owner_postal_code' => fake()->regexify('\d{3}-\d{4}'),
-            'owner_address' => fake()->address(),
+            'owner_address' => $this->getOwnerAddress($facility),
             'owner_building' => fake()->optional(0.3)->secondaryAddress(),
-            'owner_phone' => fake()->regexify('\d{2,4}-\d{2,4}-\d{4}'),
-            'owner_fax' => fake()->optional(0.5)->regexify('\d{2,4}-\d{2,4}-\d{4}'),
+            'owner_phone' => fake()->regexify('0\d{1,3}-\d{2,4}-\d{4}'),
+            'owner_fax' => fake()->optional(0.5)->regexify('0\d{1,3}-\d{2,4}-\d{4}'),
             'owner_email' => fake()->optional(0.7)->safeEmail(),
             'owner_url' => fake()->optional(0.2)->url(),
-            'owner_notes' => fake()->optional(0.3)->text(100),
+            'owner_notes' => fake()->optional(0.3)->realText(60),
         ];
     }
 
@@ -294,9 +344,7 @@ class LandInfoSeeder extends Seeder
     {
         $basePrice = $this->getBasePricePerTsubo($facility);
         $purchasePrice = round($basePrice * $siteAreaTsubo);
-
-        $startDate = fake()->dateTimeBetween('-1 year', 'now');
-        $endDate = fake()->dateTimeBetween('+1 year', '+3 years');
+        [$startDate, $endDate] = $this->getContractDates();
 
         return [
             'purchase_price' => $purchasePrice,
@@ -318,16 +366,16 @@ class LandInfoSeeder extends Seeder
             'management_company_url' => null,
             'management_company_notes' => null,
 
-            // Tenant information
+            // Tenant information (stored in owner fields)
             'owner_name' => $this->getTenantCompanyName(),
             'owner_postal_code' => fake()->regexify('\d{3}-\d{4}'),
-            'owner_address' => fake()->address(),
+            'owner_address' => $this->getTenantAddress($facility),
             'owner_building' => fake()->optional(0.3)->secondaryAddress(),
-            'owner_phone' => fake()->regexify('\d{2,4}-\d{2,4}-\d{4}'),
-            'owner_fax' => fake()->optional(0.7)->regexify('\d{2,4}-\d{2,4}-\d{4}'),
+            'owner_phone' => fake()->regexify('0\d{1,3}-\d{2,4}-\d{4}'),
+            'owner_fax' => fake()->optional(0.7)->regexify('0\d{1,3}-\d{2,4}-\d{4}'),
             'owner_email' => fake()->safeEmail(),
             'owner_url' => fake()->optional(0.8)->url(),
-            'owner_notes' => fake()->optional(0.4)->text(100),
+            'owner_notes' => fake()->optional(0.4)->realText(80),
         ];
     }
 
@@ -336,35 +384,66 @@ class LandInfoSeeder extends Seeder
      */
     private function getBasePricePerTsubo(Facility $facility): int
     {
-        if (str_contains($facility->address, '東京都')) {
+        $address = $facility->address ?? '';
+
+        // Tokyo premium areas
+        if (str_contains($address, '東京都')) {
             if (
-                str_contains($facility->address, '千代田区') ||
-                str_contains($facility->address, '中央区') ||
-                str_contains($facility->address, '港区')
+                str_contains($address, '千代田区') ||
+                str_contains($address, '中央区') ||
+                str_contains($address, '港区') ||
+                str_contains($address, '渋谷区') ||
+                str_contains($address, '新宿区')
             ) {
-                return fake()->numberBetween(800000, 1500000); // Premium Tokyo areas
+                return fake()->numberBetween(600000, 1200000); // Premium Tokyo areas
             }
-            return fake()->numberBetween(400000, 800000); // Other Tokyo areas
-        }
-
-        if (str_contains($facility->address, '大阪府')) {
             if (
-                str_contains($facility->address, '北区') ||
-                str_contains($facility->address, '中央区')
+                str_contains($address, '品川区') ||
+                str_contains($address, '目黒区') ||
+                str_contains($address, '世田谷区')
             ) {
-                return fake()->numberBetween(300000, 600000); // Central Osaka
+                return fake()->numberBetween(400000, 700000); // High-end residential
             }
-            return fake()->numberBetween(200000, 400000); // Other Osaka areas
+            return fake()->numberBetween(300000, 600000); // Other Tokyo areas
         }
 
-        if (
-            str_contains($facility->address, '神奈川県') ||
-            str_contains($facility->address, '愛知県')
-        ) {
-            return fake()->numberBetween(250000, 500000); // Major cities
+        // Osaka areas
+        if (str_contains($address, '大阪府')) {
+            if (
+                str_contains($address, '北区') ||
+                str_contains($address, '中央区') ||
+                str_contains($address, '西区')
+            ) {
+                return fake()->numberBetween(250000, 500000); // Central Osaka
+            }
+            return fake()->numberBetween(150000, 350000); // Other Osaka areas
         }
 
-        return fake()->numberBetween(150000, 300000); // Other areas
+        // Other major cities
+        if (str_contains($address, '神奈川県')) {
+            if (str_contains($address, '横浜市')) {
+                return fake()->numberBetween(200000, 450000);
+            }
+            return fake()->numberBetween(180000, 350000);
+        }
+
+        if (str_contains($address, '愛知県')) {
+            if (str_contains($address, '名古屋市')) {
+                return fake()->numberBetween(180000, 400000);
+            }
+            return fake()->numberBetween(120000, 280000);
+        }
+
+        // Other prefectures
+        $majorPrefectures = ['兵庫県', '福岡県', '埼玉県', '千葉県'];
+        foreach ($majorPrefectures as $prefecture) {
+            if (str_contains($address, $prefecture)) {
+                return fake()->numberBetween(100000, 250000);
+            }
+        }
+
+        // Rural areas
+        return fake()->numberBetween(80000, 200000);
     }
 
     /**
@@ -372,30 +451,68 @@ class LandInfoSeeder extends Seeder
      */
     private function getMonthlyRent(Facility $facility): int
     {
+        $facilityName = $facility->facility_name ?? '';
+        $address = $facility->address ?? '';
         $baseRent = 0;
 
-        // Base rent by facility type
+        // Base rent by facility type and size
         if (
-            str_contains($facility->facility_name, '病院') ||
-            str_contains($facility->facility_name, 'リハビリテーションセンター')
+            str_contains($facilityName, '病院') ||
+            str_contains($facilityName, 'リハビリテーションセンター')
         ) {
-            $baseRent = fake()->numberBetween(1000000, 3000000);
-        } elseif (str_contains($facility->facility_name, '特別養護老人ホーム')) {
-            $baseRent = fake()->numberBetween(500000, 1500000);
-        } elseif (str_contains($facility->facility_name, 'ケアセンター')) {
-            $baseRent = fake()->numberBetween(300000, 1000000);
+            $baseRent = fake()->numberBetween(800000, 2500000);
+        } elseif (str_contains($facilityName, '特別養護老人ホーム')) {
+            $baseRent = fake()->numberBetween(400000, 1200000);
+        } elseif (
+            str_contains($facilityName, 'ケアセンター') ||
+            str_contains($facilityName, 'ケアプラザ')
+        ) {
+            $baseRent = fake()->numberBetween(250000, 800000);
+        } elseif (
+            str_contains($facilityName, 'デイサービス') ||
+            str_contains($facilityName, 'グループホーム')
+        ) {
+            $baseRent = fake()->numberBetween(150000, 500000);
         } else {
-            $baseRent = fake()->numberBetween(200000, 800000);
+            $baseRent = fake()->numberBetween(200000, 600000);
         }
 
-        // Adjust by location
-        if (str_contains($facility->address, '東京都')) {
-            $baseRent = round($baseRent * 1.5);
-        } elseif (str_contains($facility->address, '大阪府')) {
-            $baseRent = round($baseRent * 1.2);
+        // Location multipliers
+        $locationMultiplier = 1.0;
+
+        if (str_contains($address, '東京都')) {
+            if (
+                str_contains($address, '千代田区') ||
+                str_contains($address, '中央区') ||
+                str_contains($address, '港区')
+            ) {
+                $locationMultiplier = 1.8;
+            } elseif (
+                str_contains($address, '渋谷区') ||
+                str_contains($address, '新宿区') ||
+                str_contains($address, '品川区')
+            ) {
+                $locationMultiplier = 1.6;
+            } else {
+                $locationMultiplier = 1.4;
+            }
+        } elseif (str_contains($address, '大阪府')) {
+            if (
+                str_contains($address, '北区') ||
+                str_contains($address, '中央区')
+            ) {
+                $locationMultiplier = 1.3;
+            } else {
+                $locationMultiplier = 1.1;
+            }
+        } elseif (
+            str_contains($address, '神奈川県') ||
+            str_contains($address, '愛知県')
+        ) {
+            $locationMultiplier = 1.2;
         }
 
-        return $baseRent;
+        return round($baseRent * $locationMultiplier);
     }
 
     /**
@@ -461,9 +578,95 @@ class LandInfoSeeder extends Seeder
             '医療法人仁愛会',
             '社会福祉法人希望の会',
             '株式会社ライフケアサービス',
+            '医療法人康生会',
+            '社会福祉法人愛心会',
+            '株式会社ヘルスケアパートナーズ',
+            '医療法人清和会',
+            '社会福祉法人恵愛会',
         ];
 
         return fake()->randomElement($companies);
+    }
+
+    /**
+     * Get owner name (individual or company)
+     */
+    private function getOwnerName(): string
+    {
+        // 70% chance of individual owner, 30% company
+        if (fake()->boolean(70)) {
+            return fake()->name();
+        }
+
+        $companies = [
+            '株式会社不動産投資',
+            '有限会社プロパティホールディングス',
+            '株式会社アセットマネジメント',
+            '合同会社不動産開発',
+            '株式会社都市開発',
+            '有限会社土地活用',
+            '株式会社リアルエステート',
+            '合資会社不動産経営',
+        ];
+
+        return fake()->randomElement($companies);
+    }
+
+    /**
+     * Get owner address based on facility location
+     */
+    private function getOwnerAddress(Facility $facility): string
+    {
+        $facilityAddress = $facility->address ?? '';
+
+        // 60% chance owner is in same prefecture
+        if (fake()->boolean(60)) {
+            if (str_contains($facilityAddress, '東京都')) {
+                return fake()->randomElement([
+                    '東京都世田谷区成城1-2-3',
+                    '東京都杉並区阿佐谷南1-4-5',
+                    '東京都練馬区石神井町2-6-7',
+                    '東京都大田区田園調布1-8-9',
+                ]);
+            }
+            if (str_contains($facilityAddress, '大阪府')) {
+                return fake()->randomElement([
+                    '大阪府豊中市緑丘1-2-3',
+                    '大阪府吹田市千里山東1-4-5',
+                    '大阪府枚方市楠葉並木2-6-7',
+                ]);
+            }
+        }
+
+        return fake()->address();
+    }
+
+    /**
+     * Get tenant address for owned rental properties
+     */
+    private function getTenantAddress(Facility $facility): string
+    {
+        $facilityAddress = $facility->address ?? '';
+
+        // Tenant companies often have offices in business districts
+        if (str_contains($facilityAddress, '東京都')) {
+            return fake()->randomElement([
+                '東京都千代田区丸の内1-1-1',
+                '東京都港区虎ノ門1-2-3',
+                '東京都新宿区西新宿2-4-5',
+                '東京都渋谷区恵比寿1-6-7',
+            ]);
+        }
+
+        if (str_contains($facilityAddress, '大阪府')) {
+            return fake()->randomElement([
+                '大阪府大阪市北区梅田1-1-1',
+                '大阪府大阪市中央区本町2-3-4',
+                '大阪府大阪市西区江戸堀1-5-6',
+            ]);
+        }
+
+        return fake()->address();
     }
 
     /**
@@ -475,25 +678,42 @@ class LandInfoSeeder extends Seeder
             return '';
         }
 
-        $start = is_string($startDate) ? new \DateTime($startDate) : $startDate;
-        $end = is_string($endDate) ? new \DateTime($endDate) : $endDate;
+        try {
+            $start = $startDate instanceof Carbon ? $startDate : Carbon::parse($startDate);
+            $end = $endDate instanceof Carbon ? $endDate : Carbon::parse($endDate);
 
-        if ($end <= $start) {
+            if ($end <= $start) {
+                return '';
+            }
+
+            $totalMonths = $start->diffInMonths($end);
+            $years = intval($totalMonths / 12);
+            $months = $totalMonths % 12;
+
+            $result = '';
+            if ($years > 0) {
+                $result .= $years . '年';
+            }
+            if ($months > 0) {
+                $result .= $months . 'ヶ月';
+            }
+
+            return $result ?: '1ヶ月未満';
+        } catch (\Exception $e) {
             return '';
         }
+    }
 
-        $diff = $start->diff($end);
-        $years = $diff->y;
-        $months = $diff->m;
+    /**
+     * Get realistic contract dates
+     */
+    private function getContractDates(): array
+    {
+        // Generate realistic contract periods (1-5 years)
+        $contractYears = fake()->randomElement([1, 2, 3, 5]);
+        $startDate = fake()->dateTimeBetween('-2 years', 'now');
+        $endDate = (clone $startDate)->modify("+{$contractYears} years");
 
-        $result = '';
-        if ($years > 0) {
-            $result .= $years . '年';
-        }
-        if ($months > 0) {
-            $result .= $months . 'ヶ月';
-        }
-
-        return $result ?: '0ヶ月';
+        return [$startDate, $endDate];
     }
 }
