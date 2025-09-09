@@ -50,8 +50,15 @@ return new class extends Migration
     public function down()
     {
         Schema::table('land_info', function (Blueprint $table) {
-            $table->dropForeign(['rejected_by']);
-            $table->dropColumn([
+            // SQLite doesn't support dropping foreign keys, so we'll skip it for SQLite
+            if (Schema::getConnection()->getDriverName() !== 'sqlite') {
+                if (Schema::hasColumn('land_info', 'rejected_by')) {
+                    $table->dropForeign(['rejected_by']);
+                }
+            }
+            
+            // Only drop columns that exist
+            $columnsToCheck = [
                 'lease_contract_pdf_path',
                 'lease_contract_pdf_name',
                 'registry_pdf_path',
@@ -59,7 +66,18 @@ return new class extends Migration
                 'rejection_reason',
                 'rejected_at',
                 'rejected_by'
-            ]);
+            ];
+            $columnsToDrop = [];
+            
+            foreach ($columnsToCheck as $column) {
+                if (Schema::hasColumn('land_info', $column)) {
+                    $columnsToDrop[] = $column;
+                }
+            }
+            
+            if (!empty($columnsToDrop)) {
+                $table->dropColumn($columnsToDrop);
+            }
         });
     }
 };

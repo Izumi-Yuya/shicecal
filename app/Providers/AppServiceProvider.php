@@ -33,6 +33,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        // Register view composers
+        $this->registerViewComposers();
+    }
+
+    /**
+     * Register view composers
+     */
+    private function registerViewComposers(): void
+    {
+        view()->composer(
+            'facilities.partials.service-table',
+            \App\Http\View\Composers\ServiceTableComposer::class
+        );
     }
 }

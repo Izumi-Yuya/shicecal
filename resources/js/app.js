@@ -27,6 +27,9 @@ import { validateForm, displayFormErrors, clearFormErrors } from './shared/valid
 import { initializeFacilityManager } from './modules/facilities.js';
 import { initializeNotificationManager } from './modules/notifications.js';
 import { initializeExportManager } from './modules/export.js';
+import { initialize as initializeServiceTableManager } from './modules/service-table-manager.js';
+import { initializeFacilityViewToggle } from './modules/facility-view-toggle.js';
+import { initializeTableViewComments } from './modules/table-view-comments.js';
 
 // Import component modules
 import {
@@ -202,12 +205,23 @@ class Application {
   async initializeModules() {
     const currentPath = window.location.pathname;
 
+    // Initialize service table manager on pages with service tables
+    if (document.querySelector('[data-service-table]')) {
+      initializeServiceTableManager();
+    }
+
     // Initialize facility module on facility pages
     if (currentPath.includes('/facilities/')) {
       const facilityIdMatch = currentPath.match(/\/facilities\/(\d+)/);
       if (facilityIdMatch) {
         const facilityId = facilityIdMatch[1];
         appState.setModule('facility', initializeFacilityManager(facilityId));
+
+        // Initialize view toggle on facility show pages
+        if (currentPath.match(/\/facilities\/\d+$/)) {
+          appState.setModule('viewToggle', initializeFacilityViewToggle());
+          appState.setModule('tableComments', initializeTableViewComments(facilityId));
+        }
       }
     }
 
@@ -326,5 +340,6 @@ export {
   initializeFacilityManager,
   initializeNotificationManager,
   initializeExportManager,
+  initializeFacilityViewToggle,
   initializeSidebar
 };

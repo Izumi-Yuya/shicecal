@@ -1,0 +1,191 @@
+/**
+ * Service Table Component Styles
+ * Matching the image layout with proper cell styling
+ * Uses CSS custom properties for maintainability and theming support
+ */
+
+:root {
+  --service-table-border-color: var(--bs-border-color, #dee2e6);
+  --service-table-header-bg: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  --service-table-header-color: white;
+  --service-table-cell-bg: var(--bs-white, #fff);
+  --service-table-text-muted: var(--bs-secondary, #6c757d);
+  --service-table-focus-color: var(--primary-color, #00B4E3);
+}
+
+.service-info {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  border: 1px solid var(--service-table-border-color);
+  /* Performance optimizations */
+  contain: layout style;
+  will-change: auto;
+}
+
+.service-info th,
+.service-info td {
+  border: 1px solid var(--service-table-border-color);
+  padding: .4rem .6rem;
+  vertical-align: middle;
+  font-size: 0.9rem;
+}
+
+/* Service type header (left column with rowspan) - 左寄せ・幅自動・統一ラベルカラー */
+.service-info .service-header {
+  background: var(--service-table-header-bg);
+  color: var(--service-table-header-color);
+  font-weight: 600;
+  text-align: left;
+  width: auto;
+  white-space: nowrap;
+}
+
+/* Service name cells - 余白あり */
+.service-info .service-name {
+  background: var(--service-table-cell-bg);
+  padding: .4rem .6rem;
+  text-align: left;
+  width: 100%;
+  /* 余白を持たせるため */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  /* Improve readability for long service names */
+  line-height: 1.4;
+}
+
+/* Period header cells - 右寄せ・幅自動・統一ラベルカラー */
+.service-info .period-header {
+  background: var(--service-table-header-bg);
+  color: var(--service-table-header-color);
+  font-weight: 600;
+  text-align: right;
+  width: auto;
+  white-space: nowrap;
+}
+
+/* Period date cells - 右寄せ・幅自動 */
+.service-info .period-start,
+.service-info .period-end {
+  background: var(--service-table-cell-bg);
+  text-align: right;
+  width: auto;
+  white-space: nowrap;
+}
+
+/* Period separator - 中央寄せ・幅自動 */
+.service-info .period-separator {
+  background: var(--service-table-cell-bg);
+  text-align: center;
+  width: auto;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+/* Responsive design improvements */
+@media (max-width: 768px) {
+  .service-info .service-name {
+    width: 100%;
+    font-size: 0.85rem;
+  }
+
+  .service-info .service-header,
+  .service-info .period-header {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.4rem;
+  }
+
+  .service-info .period-start,
+  .service-info .period-end {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .service-info {
+    font-size: 0.8rem;
+  }
+
+  .service-info .service-name {
+    width: 15em;
+    /* Reduce width on very small screens */
+  }
+}
+
+/* Template rows (empty rows) */
+.service-info .template-row {
+  display: none;
+  /* Hidden by default, shown via JavaScript when needed */
+}
+
+/* Empty state styling */
+.service-info .empty-state-row .empty-cell {
+  color: var(--service-table-text-muted);
+  font-style: italic;
+}
+
+/* Accessibility improvements */
+.service-info tr:focus {
+  outline: 2px solid var(--service-table-focus-color);
+  outline-offset: -2px;
+}
+
+.service-info tr:focus-visible {
+  outline: 2px solid var(--service-table-focus-color);
+  outline-offset: -2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .service-info {
+    border: 2px solid;
+  }
+
+  .service-info th,
+  .service-info td {
+    border: 1px solid;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .service-info * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Service table header styling */
+.service-table-header {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.service-table-header h6 {
+  font-weight: 600;
+  color: var(--bs-info, #17a2b8);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .service-info {
+    font-size: 0.8rem;
+  }
+
+  .service-info th,
+  .service-info td {
+    padding: .3rem .4rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .service-info {
+    font-size: 0.75rem;
+  }
+
+  .service-info th,
+  .service-info td {
+    padding: .2rem .3rem;
+  }
+}

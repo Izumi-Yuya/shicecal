@@ -1,0 +1,342 @@
+/* Facility Table View Styles */
+/*
+ * Label width calculation based on maximum character count:
+ * - Longest left labels: 7 characters (住所（建物名）, フリーダイヤル, メールアドレス)
+ * - Longest right labels: 6 characters (事業所コード)
+ * - Width set to 8.5em to accommodate 7 Japanese characters + padding
+ */
+:root {
+  /* Color variables with fallbacks */
+  --primary-color: #00B4E3;
+  --primary-dark: #028caf;
+  --table-border-color: #dee2e6;
+  --table-header-bg: #f8f9fa;
+  --table-hover-bg: #f5f5f5;
+  --table-stripe-bg: #fbfbfb;
+
+  /* Header background - gradient using current primary colors */
+  --table-header-gradient: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  --table-header-border: 1px solid rgba(255, 255, 255, 0.2);
+
+  /* Layout variables */
+  --table-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --table-border-radius: 0.5rem;
+
+  /* Responsive width variables based on Japanese character measurements */
+  --label-width-desktop: 8.5em;
+  /* 7 Japanese chars + padding */
+  --label-width-tablet: 7.5em;
+  --label-width-mobile: 6.5em;
+
+  /* Typography variables */
+  --table-font-size-base: 0.9rem;
+  --table-font-size-tablet: 0.875rem;
+  --table-font-size-mobile: 0.8rem;
+  --table-font-size-small: 0.75rem;
+}
+
+/* Main table view container */
+.facility-table-view {
+  background: white;
+  border-radius: var(--table-border-radius);
+  box-shadow: var(--table-shadow);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.facility-table-view .table-responsive {
+  border-radius: var(--table-border-radius);
+}
+
+/* Table styling */
+.facility-table-view .table {
+  margin-bottom: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--table-font-size-base);
+}
+
+.facility-table-view .table th {
+  background: var(--table-header-gradient);
+  color: white;
+  border: var(--table-header-border);
+  font-weight: 600;
+  padding: 1rem 0.75rem;
+  vertical-align: middle;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  /* Width based on maximum character count (7 Japanese characters + padding) */
+  width: var(--label-width-desktop);
+  min-width: var(--label-width-desktop);
+  max-width: var(--label-width-desktop);
+  text-align: left;
+  letter-spacing: 0.02em;
+}
+
+/* First column (left label) - left aligned */
+.facility-table-view .table th:nth-child(1) {
+  text-align: left;
+}
+
+/* Second column (left value) - left aligned, can expand */
+.facility-table-view .table td:nth-child(2) {
+  text-align: left;
+  width: auto;
+}
+
+/* Third column (right label) - right aligned */
+.facility-table-view .table th:nth-child(3) {
+  text-align: right;
+}
+
+/* Fourth column (right value) - right aligned */
+.facility-table-view .table td:nth-child(4) {
+  text-align: right;
+  width: auto;
+}
+
+.facility-table-view .table td {
+  padding: 0.75rem;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--table-border-color);
+  word-wrap: break-word;
+  max-width: 200px;
+}
+
+/* Row hover effects */
+.facility-table-view .table tbody tr:hover {
+  background-color: var(--table-hover-bg);
+  transition: background-color 0.2s ease;
+}
+
+.facility-table-view .table tbody tr:nth-child(even) {
+  background-color: var(--table-stripe-bg);
+}
+
+.facility-table-view .table tbody tr:nth-child(even):hover {
+  background-color: var(--table-hover-bg);
+}
+
+/* Column-specific styling */
+.facility-table-view .table .label-column {
+  font-weight: 600;
+  background: var(--table-header-gradient);
+  color: white;
+  border: var(--table-header-border);
+  /* Width based on maximum character count (7 Japanese characters + padding) */
+  width: var(--label-width-desktop);
+  min-width: var(--label-width-desktop);
+  max-width: var(--label-width-desktop);
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+.facility-table-view .table .value-column {
+  width: auto;
+  min-width: 120px;
+}
+
+/* Empty state styling */
+.facility-table-view .empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6c757d;
+}
+
+.facility-table-view .empty-state i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+/* Badge and link styling within table */
+.facility-table-view .badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.facility-table-view a {
+  color: #0d6efd;
+  text-decoration: none;
+}
+
+.facility-table-view a:hover {
+  text-decoration: underline;
+}
+
+/* Loading state */
+.facility-table-view .loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Responsive design */
+@media (max-width: 992px) {
+
+  .facility-table-view .table th,
+  .facility-table-view .table td {
+    padding: 0.5rem 0.375rem;
+    font-size: var(--table-font-size-tablet);
+  }
+
+  .facility-table-view .table .label-column {
+    width: var(--label-width-tablet);
+    min-width: var(--label-width-tablet);
+    max-width: var(--label-width-tablet);
+  }
+
+  .facility-table-view .table .value-column {
+    min-width: 100px;
+  }
+
+  /* Maintain column alignment on tablet */
+  .facility-table-view .table th:nth-child(1),
+  .facility-table-view .table td:nth-child(2) {
+    text-align: left;
+  }
+
+  .facility-table-view .table th:nth-child(3),
+  .facility-table-view .table td:nth-child(4) {
+    text-align: right;
+  }
+
+  .facility-table-view .table th {
+    width: var(--label-width-tablet);
+    min-width: var(--label-width-tablet);
+    max-width: var(--label-width-tablet);
+  }
+}
+
+@media (max-width: 768px) {
+
+  .facility-table-view .table th,
+  .facility-table-view .table td {
+    padding: 0.375rem 0.25rem;
+    font-size: var(--table-font-size-mobile);
+  }
+
+  .facility-table-view .table .label-column {
+    width: var(--label-width-mobile);
+    min-width: var(--label-width-mobile);
+    max-width: var(--label-width-mobile);
+  }
+
+  .facility-table-view .table .value-column {
+    min-width: 80px;
+    width: auto;
+  }
+
+  /* Reset column-specific alignment on mobile since table is stacked */
+  .facility-table-view .table th:nth-child(1),
+  .facility-table-view .table th:nth-child(3),
+  .facility-table-view .table td:nth-child(2),
+  .facility-table-view .table td:nth-child(4) {
+    text-align: left;
+  }
+
+  .facility-table-view .table th {
+    width: var(--label-width-mobile);
+    min-width: var(--label-width-mobile);
+    max-width: var(--label-width-mobile);
+  }
+
+  .facility-table-view .table td {
+    max-width: 150px;
+  }
+}
+
+@media (max-width: 576px) {
+  .facility-table-view {
+    margin: 0 -0.5rem 2rem;
+    border-radius: 0;
+  }
+
+  .facility-table-view .table-responsive {
+    border-radius: 0;
+  }
+
+  .facility-table-view .table th,
+  .facility-table-view .table td {
+    padding: 0.25rem;
+    font-size: var(--table-font-size-small);
+  }
+}
+
+/* Print styles */
+@media print {
+  .facility-table-view {
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+
+  .facility-table-view .table th {
+    background: var(--table-header-gradient) !important;
+    color: white !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .facility-table-view .table tbody tr:hover {
+    background-color: transparent !important;
+  }
+}
+
+/* Accessibility improvements */
+.facility-table-view .table th[scope="col"] {
+  cursor: default;
+}
+
+.facility-table-view .table td:focus,
+.facility-table-view .table th:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: -2px;
+}
+
+/* Focus management for interactive elements within table */
+.facility-table-view .table a:focus,
+.facility-table-view .table button:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Screen reader support */
+.facility-table-view .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .facility-table-view .table th {
+    border-bottom-width: 3px;
+  }
+
+  .facility-table-view .table td {
+    border-bottom-width: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .facility-table-view .table tbody tr {
+    transition: none;
+  }
+}

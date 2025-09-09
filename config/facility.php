@@ -42,6 +42,13 @@ return [
         'max_facilities_per_export' => 100,
     ],
 
+    // Service Display Settings
+    'services' => [
+        'max_display_rows' => env('FACILITY_MAX_SERVICES_DISPLAY', 10),
+        'expiry_warning_days' => env('FACILITY_SERVICE_EXPIRY_WARNING_DAYS', 30),
+        'date_format' => 'Y年m月d日',
+    ],
+
     // Notification Settings
     'notifications' => [
         'email_enabled' => env('MAIL_ENABLED', true),

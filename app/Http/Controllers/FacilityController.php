@@ -33,6 +33,40 @@ class FacilityController extends Controller
         $this->facilityService = $facilityService;
         $this->exportService = $exportService;
     }
+
+    // View mode session management constants
+    const VIEW_PREFERENCE_KEY = 'facility_basic_info_view_mode';
+    const VIEW_MODES = [
+        'card' => 'カード形式',
+        'table' => 'テーブル形式'
+    ];
+
+    /**
+     * Set view mode preference via AJAX
+     */
+    public function setViewMode(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'view_mode' => 'required|in:card,table'
+        ]);
+
+        // Store view preference in session
+        session([self::VIEW_PREFERENCE_KEY => $validated['view_mode']]);
+
+        return response()->json([
+            'success' => true,
+            'view_mode' => $validated['view_mode'],
+            'message' => '表示形式を変更しました。'
+        ]);
+    }
+
+    /**
+     * Get current view mode preference with 'card' as default
+     */
+    public function getViewMode(): string
+    {
+        return session(self::VIEW_PREFERENCE_KEY, 'card');
+    }
     /**
      * Display a listing of the resource.
      */
@@ -114,8 +148,9 @@ class FacilityController extends Controller
         ]);
 
         $landInfo = $facility->landInfo;
+        $viewMode = $this->getViewMode();
 
-        return view('facilities.show', compact('facility', 'landInfo'));
+        return view('facilities.show', compact('facility', 'landInfo', 'viewMode'));
     }
 
     /**

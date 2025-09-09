@@ -36,8 +36,26 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('land_info', function (Blueprint $table) {
-            $table->dropForeign(['rejected_by']);
-            $table->dropColumn(['rejection_reason', 'rejected_at', 'rejected_by']);
+            // SQLite doesn't support dropping foreign keys, so we'll skip it for SQLite
+            if (Schema::getConnection()->getDriverName() !== 'sqlite') {
+                if (Schema::hasColumn('land_info', 'rejected_by')) {
+                    $table->dropForeign(['rejected_by']);
+                }
+            }
+            
+            // Only drop columns that exist
+            $columnsToCheck = ['rejection_reason', 'rejected_at', 'rejected_by'];
+            $columnsToDrop = [];
+            
+            foreach ($columnsToCheck as $column) {
+                if (Schema::hasColumn('land_info', $column)) {
+                    $columnsToDrop[] = $column;
+                }
+            }
+            
+            if (!empty($columnsToDrop)) {
+                $table->dropColumn($columnsToDrop);
+            }
         });
 
         // Revert enum back to original values - handle SQLite vs MySQL differently

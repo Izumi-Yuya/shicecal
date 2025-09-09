@@ -35,6 +35,7 @@ class CommentFactory extends Factory
         return [
             'facility_id' => Facility::factory(),
             'field_name' => $this->faker->randomElement($fieldNames),
+            'section' => $this->faker->randomElement(['basic_info', 'service_info', 'land_info']),
             'content' => $this->faker->paragraph(),
             'status' => $this->faker->randomElement(['pending', 'in_progress', 'resolved']),
             'posted_by' => User::factory(),

@@ -76,6 +76,11 @@ Route::middleware(['auth'])->group(function () {
     // Main facility resource routes
     Route::resource('facilities', FacilityController::class);
 
+    // Facility view mode management - with proper CSRF protection
+    Route::post('/facilities/set-view-mode', [FacilityController::class, 'setViewMode'])
+        ->middleware(['web', 'throttle:60,1'])
+        ->name('facilities.set-view-mode');
+
     // Facility basic information routes
     Route::prefix('facilities/{facility}')->name('facilities.')->group(function () {
         Route::get('/basic-info', [FacilityController::class, 'basicInfo'])->name('basic-info');

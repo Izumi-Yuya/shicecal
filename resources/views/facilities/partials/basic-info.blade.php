@@ -304,11 +304,11 @@
                     <div class="service-card-dates">
                         <span class="text-muted me-2">有効期限:</span>
                         @if($service->renewal_start_date && $service->renewal_end_date)
-                            {{ \Carbon\Carbon::parse($service->renewal_start_date)->format('Y/m/d') }} 〜 {{ \Carbon\Carbon::parse($service->renewal_end_date)->format('Y/m/d') }}
+                            {{ \Carbon\Carbon::parse($service->renewal_start_date)->format('Y年m月d日') }} 〜 {{ \Carbon\Carbon::parse($service->renewal_end_date)->format('Y年m月d日') }}
                         @elseif($service->renewal_start_date)
-                            {{ \Carbon\Carbon::parse($service->renewal_start_date)->format('Y/m/d') }} 〜
+                            {{ \Carbon\Carbon::parse($service->renewal_start_date)->format('Y年m月d日') }} 〜
                         @elseif($service->renewal_end_date)
-                            〜 {{ \Carbon\Carbon::parse($service->renewal_end_date)->format('Y/m/d') }}
+                            〜 {{ \Carbon\Carbon::parse($service->renewal_end_date)->format('Y年m月d日') }}
                         @else
                             <span class="text-muted">未設定</span>
                         @endif

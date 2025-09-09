@@ -680,4 +680,206 @@ class FacilityControllerTest extends TestCase
             'purchase_price' => 10000000
         ]);
     }
+
+    public function test_view_toggle_component_renders_correctly()
+    {
+        $response = $this->actingAs($this->adminUser)
+            ->get(route('facilities.show', $this->facility));
+
+        $response->assertStatus(200);
+
+        // Check that viewMode variable is passed to the view
+        $response->assertViewHas('viewMode');
+
+        // The view toggle component should be included in the basic info tab
+        // We'll test this when the component is integrated in task 4
+    }
+
+    public function test_set_view_mode_ajax_endpoint()
+    {
+        // Test setting card view mode
+        $response = $this->actingAs($this->adminUser)
+            ->postJson(route('facilities.set-view-mode'), [
+                'view_mode' => 'card'
+            ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'view_mode' => 'card'
+        ]);
+
+        // Test setting table view mode
+        $response = $this->actingAs($this->adminUser)
+            ->postJson(route('facilities.set-view-mode'), [
+                'view_mode' => 'table'
+            ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'view_mode' => 'table'
+        ]);
+
+        // Test invalid view mode
+        $response = $this->actingAs($this->adminUser)
+            ->postJson(route('facilities.set-view-mode'), [
+                'view_mode' => 'invalid'
+            ]);
+
+        $response->assertStatus(422);
+    }
+
+    // ========================================
+    // Edit Workflow Integration Tests (Task 8)
+    // ========================================
+
+    public function test_edit_button_functionality_works_in_table_view_mode()
+    {
+        // Set view mode to table
+        $this->actingAs($this->adminUser)
+            ->postJson(route('facilities.set-view-mode'), [
+                'view_mode' => 'table'
+            ]);
+
+        // Access facility show page in table view mode
+        $response = $this->actingAs($this->adminUser)
+            ->get(route('facilities.show', $this->facility));
+
+        $response->assertStatus(200);
+        $response->assertViewHas('viewMode', 'table');
+
+        // Check that edit button is present and functional for authorized users
+        $response->assertSee('編集');
+        $response->assertSee(route('facilities.edit-basic-info', $this->facility));
+    }
+
+    public function test_view_mode_preference_maintained_after_edit_operations()
+    {
+        // Set view mode to table
+        $this->actingAs($this->adminUser)
+            ->postJson(route('facilities.set-view-mode'), [
+                'view_mode' => 'table'
+            ]);
+
+        // Perform edit operation
+        $updateData = [
+            'company_name' => $this->facility->company_name,
+            'office_code' => $this->facility->office_code,
+            'facility_name' => '編集後の施設名',
+            'address' => '編集後の住所'
+        ];
+
+        $response = $this->actingAs($this->adminUser)
+            ->put(route('facilities.update-basic-info', $this->facility), $updateData);
+
+        // Should redirect back to show page
+        $response->assertRedirect(route('facilities.show', $this->facility));
+
+        // Follow redirect and check that table view mode is maintained
+        $response = $this->actingAs($this->adminUser)
+            ->get(route('facilities.show', $this->facility));
+
+        $response->assertStatus(200);
+        $response->assertViewHas('viewMode', 'table');
+    }
+
+    public function test_seamless_transition_back_to_selected_view_mode_after_editing()
+    {
+        // Test with card view mode
+        $this->actingAs($this->adminUser)
+            ->postJson(route('facilities.set-view-mode'), [
+                'view_mode' => 'card'
+            ]);
+
+        // Edit and verify card view is maintained
+        $updateData = [
+            'company_name' => $this->facility->company_name,
+            'office_code' => $this->facility->office_code,
+            'facility_name' => 'カード表示テスト',
+        ];
+
+        $this->actingAs($this->adminUser)
+            ->put(route('facilities.update-basic-info', $this->facility), $updateData);
+
+        $response = $this->actingAs($this->adminUser)
+            ->get(route('facilities.show', $this->facility));
+
+        $response->assertViewHas('viewMode', 'card');
+
+        // Test with table view mode
+        $this->actingAs($this->adminUser)
+            ->postJson(route('facilities.set-view-mode'), [
+                'view_mode' => 'table'
+            ]);
+
+        // Edit and verify table view is maintained
+        $updateData['facility_name'] = 'テーブル表示テスト';
+
+        $this->actingAs($this->adminUser)
+            ->put(route('facilities.update-basic-info', $this->facility), $updateData);
+
+        $response = $this->actingAs($this->adminUser)
+            ->get(route('facilities.show', $this->facility));
+
+        $response->assertViewHas('viewMode', 'table');
+    }
+
+    public function test_edit_button_visibility_based_on_user_permissions_in_table_view()
+    {
+        // Set view mode to table
+        $this->actingAs($this->adminUser)
+            ->postJson(route('facilities.set-view-mode'), [
+                'view_mode' => 'table'
+            ]);
+
+        // Test admin user can see edit button
+        $response = $this->actingAs($this->adminUser)
+            ->get(route('facilities.show', $this->facility));
+
+        $response->assertStatus(200);
+        $response->assertSee('編集');
+
+        // Test editor user can see edit button
+        $response = $this->actingAs($this->editorUser)
+            ->get(route('facilities.show', $this->facility));
+
+        $response->assertStatus(200);
+        $response->assertSee('編集');
+
+        // Test viewer user cannot see edit button
+        $response = $this->actingAs($this->viewerUser)
+            ->get(route('facilities.show', $this->facility));
+
+        $response->assertStatus(200);
+        // The edit button should not be visible for viewers
+        $response->assertDontSee(route('facilities.edit-basic-info', $this->facility));
+    }
+
+    public function test_view_mode_session_persistence_across_multiple_edit_cycles()
+    {
+        // Set initial view mode to table
+        $this->actingAs($this->adminUser)
+            ->postJson(route('facilities.set-view-mode'), [
+                'view_mode' => 'table'
+            ]);
+
+        // Perform multiple edit operations
+        for ($i = 1; $i <= 3; $i++) {
+            $updateData = [
+                'company_name' => $this->facility->company_name,
+                'office_code' => $this->facility->office_code,
+                'facility_name' => "編集サイクル{$i}",
+            ];
+
+            $this->actingAs($this->adminUser)
+                ->put(route('facilities.update-basic-info', $this->facility), $updateData);
+
+            // Verify view mode is still table after each edit
+            $response = $this->actingAs($this->adminUser)
+                ->get(route('facilities.show', $this->facility));
+
+            $response->assertViewHas('viewMode', 'table');
+        }
+    }
 }

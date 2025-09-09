@@ -82,7 +82,15 @@
                             @endif
                         </div>
                         
-                        @include('facilities.partials.basic-info', ['facility' => $facility])
+                        <!-- View Toggle Component -->
+                        @include('facilities.partials.view-toggle', ['viewMode' => $viewMode])
+                        
+                        <!-- Conditional rendering based on view mode -->
+                        @if($viewMode === 'table')
+                            @include('facilities.partials.basic-info-table', ['facility' => $facility])
+                        @else
+                            @include('facilities.partials.basic-info', ['facility' => $facility])
+                        @endif
                     </div>
                     <div class="tab-pane fade" id="land-info" role="tabpanel" aria-labelledby="land-tab" data-lazy-load="true">
                         <!-- 土地情報タブヘッダー -->
