@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "name": "Japanese Chat Support",
+  "description": "Monitors language configuration files and chat-related components to ensure Japanese language support is properly configured and maintained",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "lang/ja/**/*.php",
+      "config/app.php",
+      "resources/views/**/*.blade.php",
+      "resources/js/**/*.js"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Japanese language configuration files or chat-related components have been modified. Please ensure that:\n1. Japanese language files are properly structured and complete\n2. The application locale is set to support Japanese (ja)\n3. Chat interfaces display Japanese text correctly\n4. Date/time formats follow Japanese conventions\n5. All user-facing text supports Japanese characters\n6. Font configurations support Japanese typography\n\nReview the changes and verify Japanese language support is working correctly throughout the application."
+  }
+}

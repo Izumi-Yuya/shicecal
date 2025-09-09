@@ -1,18 +1,31 @@
-# Shise-Cal（シセカル）- 施設カルテシステム
+# Shise-Cal（シセカル）- 施設管理システム v2.0.0
 
 <p align="center">
     <img src="public/images/shicecal-logo.png" width="200" alt="Shise-Cal Logo">
 </p>
 
 <p align="center">
-    <a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-    <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-    <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+    <img src="https://img.shields.io/badge/version-2.0.0-blue.svg" alt="Version">
+    <img src="https://img.shields.io/badge/Laravel-9.x-red.svg" alt="Laravel Version">
+    <img src="https://img.shields.io/badge/PHP-8.2+-purple.svg" alt="PHP Version">
+    <img src="https://img.shields.io/badge/Node.js-18+-green.svg" alt="Node.js Version">
+    <img src="https://img.shields.io/badge/license-MIT-brightgreen.svg" alt="License">
 </p>
+
+> **🎉 v2.0.0 リリース**: プロジェクト構造の大幅簡素化を実施しました。  
+> 詳細は [リリースノート](docs/RELEASE_NOTES_v2.0.0.md) および [移行ガイド](docs/migration/PROJECT_SIMPLIFICATION_GUIDE.md) をご確認ください。
 
 ## 📋 プロジェクト概要
 
+**パッケージ名**: `shise-cal/facility-management`
+
 Shise-Cal（シセカル）は、施設情報を一元管理するWebアプリケーションです。権限ベースのアクセス制御と承認フローにより、情報の整合性と業務効率を向上させます。
+
+### キーワード
+- 施設管理 (facility-management)
+- Laravel フレームワーク
+- 日本語対応システム (japanese)
+- 土地情報管理 (land-information)
 
 ### 主な機能
 
@@ -39,7 +52,7 @@ Shise-Cal（シセカル）は、施設情報を一元管理するWebアプリ�
 ```bash
 # リポジトリのクローン
 git clone <repository-url>
-cd shicecal
+cd shise-cal
 
 # 依存関係のインストール
 composer install
@@ -70,28 +83,83 @@ php artisan serve
 | 承認者 | approver@shisecal.example.com | password |
 | 閲覧者 | viewer@shisecal.example.com | password |
 
+## 🏛️ プロジェクト構造
+
+### 簡素化されたアーキテクチャ
+
+このプロジェクトは保守性と可読性を向上させるため、2025年に大幅なリファクタリングを実施しました：
+
+#### コントローラー構成（8個）
+- **FacilityController**: 施設管理 + 土地情報管理（統合）
+- **CommentController**: コメント機能（統合）
+- **ExportController**: PDF・CSV出力機能（統合）
+- **AuthController**: 認証機能
+- **NotificationController**: 通知機能
+- **MyPageController**: マイページ機能
+- **MaintenanceController**: 修繕履歴管理
+- **AnnualConfirmationController**: 年次確認機能
+
+#### サービス層（5個）
+- **FacilityService**: 施設・土地情報のビジネスロジック
+- **ExportService**: PDF・CSV出力処理
+- **ActivityLogService**: アクティビティログ管理
+- **NotificationService**: 通知処理
+- **PerformanceMonitoringService**: パフォーマンス監視
+
+#### フロントエンド構成
+```
+resources/
+├── css/
+│   ├── shared/          # 共通スタイル（変数、コンポーネント、ユーティリティ）
+│   └── pages/           # ページ固有スタイル
+├── js/
+│   ├── modules/         # 機能別JavaScriptモジュール
+│   └── shared/          # 共通ユーティリティ
+└── views/
+    ├── facilities/      # 施設管理（基本情報・土地情報含む）
+    ├── export/          # 出力機能
+    ├── comments/        # コメント機能
+    └── shared/          # 共通コンポーネント
+```
+
 ## 📚 ドキュメント
 
 詳細なドキュメントは [docs](docs/) ディレクトリに整理されています：
 
+### 📋 基本ドキュメント
 - [📋 要件定義書](docs/requirements/要件定義書（v2.2）.md) - システムの要件と仕様
+- [🏗️ アーキテクチャガイド](docs/architecture/SIMPLIFIED_ARCHITECTURE.md) - 簡素化されたシステム構成
 - [🔧 開発環境セットアップ](docs/setup/DEVELOPMENT.md) - ローカル開発環境の構築
 - [🚀 本番環境デプロイ](docs/deployment/PRODUCTION.md) - 本番環境へのデプロイ手順
 - [💻 技術実装](docs/implementation/) - 各機能の実装詳細
+
+### 🔄 v2.0.0 移行関連
+- [🎉 リリースノート v2.0.0](docs/RELEASE_NOTES_v2.0.0.md) - 新機能と改善点の詳細
+- [⚠️ 破壊的変更一覧](docs/BREAKING_CHANGES_v2.0.0.md) - API・コード変更の詳細
+- [🔄 マイグレーションガイド](docs/migration/PROJECT_SIMPLIFICATION_GUIDE.md) - リファクタリング内容と移行手順
+- [✅ 移行チェックリスト](docs/migration/MIGRATION_CHECKLIST.md) - 段階的移行作業ガイド
+- [📝 変更履歴](docs/CHANGELOG.md) - 全バージョンの変更履歴
 
 ## 🏗️ 技術スタック
 
 ### バックエンド
 - **フレームワーク**: Laravel 9.x
-- **言語**: PHP 8.1+
+- **言語**: PHP 8.2+
 - **データベース**: MySQL 8.0 / SQLite
 - **キャッシュ**: Redis
 
 ### フロントエンド
-- **CSS**: Bootstrap 5.1.3 + カスタムCSS
-- **JavaScript**: Vanilla JS (ES6+)
-- **ビルドツール**: Vite
+- **CSS**: Bootstrap 5.1.3 + 機能別モジュール構成
+- **JavaScript**: ES6 Modules + Vanilla JS
+- **ビルドツール**: Vite 4.x
 - **アイコン**: Font Awesome 6.0.0
+- **アーキテクチャ**: 機能別モジュール + 共有ユーティリティ
+
+### 簡素化されたアーキテクチャ
+- **8個のコントローラー**: 機能別に統合（従来の13個から削減）
+- **5個のサービス**: ビジネスロジックを明確に分離（従来の8個から削減）
+- **分離されたアセット**: CSS/JavaScriptをBladeテンプレートから分離
+- **RESTfulルート**: 一貫性のあるURL構造
 
 ### インフラ
 - **Webサーバー**: Nginx

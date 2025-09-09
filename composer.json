@@ -1,10 +1,13 @@
 {
-    "name": "laravel/laravel",
+    "name": "shise-cal/facility-management",
     "type": "project",
-    "description": "The Laravel Framework.",
+    "description": "Shise-Cal Facility Management System - Simplified Architecture v2.0.0",
+    "version": "2.0.0",
     "keywords": [
-        "framework",
-        "laravel"
+        "facility-management",
+        "laravel",
+        "japanese",
+        "land-information"
     ],
     "license": "MIT",
     "require": {
