@@ -60,8 +60,13 @@
 }
 
 .header-right {
-  flex: 0 0 auto;
-  gap: 1rem;
+  display: flex !important;
+  align-items: center !important;
+  gap: 1rem !important;
+  position: fixed !important;
+  right: 60px !important;
+  top: 25px !important;
+  z-index: 1031 !important;
 }
 
 /* Brand and Logo */
@@ -72,6 +77,10 @@
   margin: 0;
   padding: 0;
   text-decoration: none;
+  position: fixed !important;
+  left: 40px !important;
+  top: 10px !important;
+  z-index: 1031 !important;
 }
 
 .navbar-logo {
@@ -89,7 +98,7 @@
 }
 
 .figma-header .navbar-logo {
-  width: 64px;
+  width: 120px;
   height: 64px;
   object-fit: contain;
 }
@@ -123,6 +132,10 @@
   padding: 0.375rem 0.75rem;
   font-size: 0.9rem;
   border-radius: 6px;
+  position: fixed !important;
+  left: 304px !important;
+  top: 25px !important;
+  z-index: 1031 !important;
 }
 
 #sidebarToggle:hover {
