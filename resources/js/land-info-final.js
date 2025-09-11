@@ -297,11 +297,11 @@ class LandInfoManager {
   }
 
   validateFileSize(input) {
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    const maxSize = 2 * 1024 * 1024; // 2MB (PHP upload_max_filesize limit)
 
     Array.from(input.files).forEach(file => {
       if (file.size > maxSize) {
-        alert(`ファイル "${file.name}" のサイズが大きすぎます。10MB以下のファイルを選択してください。`);
+        alert(`ファイル "${file.name}" のサイズが大きすぎます。2MB以下のファイルを選択してください。`);
         input.value = '';
       }
     });

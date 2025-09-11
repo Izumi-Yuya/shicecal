@@ -389,7 +389,11 @@
                                                         <span class="detail-label">賃貸借契約書・覚書</span>
                                                         <span class="detail-value">
                                                             @if($landInfo->lease_contract_pdf_name)
-                                                                <i class="fas fa-file-contract text-warning me-2"></i>{{ $landInfo->lease_contract_pdf_name }}
+                                                                <a href="{{ route('facilities.land-info.download', ['facility' => $facility, 'type' => 'lease_contract']) }}" 
+                                                                   class="text-decoration-none" target="_blank">
+                                                                    <i class="fas fa-file-contract text-warning me-2"></i>{{ $landInfo->lease_contract_pdf_name }}
+                                                                    <i class="fas fa-external-link-alt ms-1 text-muted" style="font-size: 0.8em;"></i>
+                                                                </a>
                                                             @else
                                                                 未設定
                                                             @endif
@@ -399,7 +403,11 @@
                                                         <span class="detail-label">謄本</span>
                                                         <span class="detail-value">
                                                             @if($landInfo->registry_pdf_name)
-                                                                <i class="fas fa-file-alt text-info me-2"></i>{{ $landInfo->registry_pdf_name }}
+                                                                <a href="{{ route('facilities.land-info.download', ['facility' => $facility, 'type' => 'registry']) }}" 
+                                                                   class="text-decoration-none" target="_blank">
+                                                                    <i class="fas fa-file-alt text-info me-2"></i>{{ $landInfo->registry_pdf_name }}
+                                                                    <i class="fas fa-external-link-alt ms-1 text-muted" style="font-size: 0.8em;"></i>
+                                                                </a>
                                                             @else
                                                                 未設定
                                                             @endif

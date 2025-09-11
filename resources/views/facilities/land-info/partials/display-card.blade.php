@@ -314,7 +314,11 @@
                                     <i class="fas fa-file-contract text-warning me-2"></i>
                                     <div>
                                         <strong>賃貸借契約書・覚書</strong><br>
-                                        <small class="text-muted">{{ $landInfo->lease_contract_pdf_name }}</small>
+                                        <a href="{{ route('facilities.land-info.download', ['facility' => $facility, 'type' => 'lease_contract']) }}" 
+                                           class="text-decoration-none" target="_blank">
+                                            <small class="text-primary">{{ $landInfo->lease_contract_pdf_name }}</small>
+                                            <i class="fas fa-external-link-alt ms-1" style="font-size: 0.7em;"></i>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -325,7 +329,11 @@
                                     <i class="fas fa-file-alt text-info me-2"></i>
                                     <div>
                                         <strong>謄本</strong><br>
-                                        <small class="text-muted">{{ $landInfo->registry_pdf_name }}</small>
+                                        <a href="{{ route('facilities.land-info.download', ['facility' => $facility, 'type' => 'registry']) }}" 
+                                           class="text-decoration-none" target="_blank">
+                                            <small class="text-primary">{{ $landInfo->registry_pdf_name }}</small>
+                                            <i class="fas fa-external-link-alt ms-1" style="font-size: 0.7em;"></i>
+                                        </a>
                                     </div>
                                 </div>
                             </div>

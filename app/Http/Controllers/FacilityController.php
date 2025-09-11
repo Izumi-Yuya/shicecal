@@ -410,7 +410,20 @@ class FacilityController extends Controller
 
             // Handle PDF file uploads if user has permission
             if ($user->canEditLandDocuments()) {
-                $this->handlePdfUploads($request, $landInfo);
+                try {
+                    $this->handlePdfUploads($request, $landInfo);
+                } catch (\Exception $e) {
+                    if ($request->expectsJson()) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'ファイルのアップロードに失敗しました: ' . $e->getMessage(),
+                        ], 422);
+                    }
+
+                    return redirect()->back()
+                        ->withErrors(['file_upload' => 'ファイルのアップロードに失敗しました: ' . $e->getMessage()])
+                        ->withInput();
+                }
             }
 
             // Log the activity
@@ -712,8 +725,8 @@ class FacilityController extends Controller
             $this->authorize('uploadDocuments', [LandInfo::class, $facility]);
 
             $request->validate([
-                'lease_contracts.*' => 'nullable|file|mimes:pdf|max:10240',
-                'property_register' => 'nullable|file|mimes:pdf|max:10240',
+                'lease_contract_pdf' => 'nullable|file|mimes:pdf|max:2048',
+                'registry_pdf' => 'nullable|file|mimes:pdf|max:2048',
             ]);
 
             $uploadedFiles = [];
@@ -967,61 +980,189 @@ class FacilityController extends Controller
     }
 
     /**
+     * Download land info PDF file
+     */
+    public function downloadLandInfoPdf(Facility $facility, string $type)
+    {
+        try {
+            // Check authorization
+            $this->authorize('view', [LandInfo::class, $facility]);
+
+            $landInfo = $facility->landInfo;
+            if (!$landInfo) {
+                abort(404, '土地情報が見つかりません。');
+            }
+
+            $filePath = null;
+            $fileName = null;
+
+            switch ($type) {
+                case 'lease_contract':
+                    $filePath = $landInfo->lease_contract_pdf_path;
+                    $fileName = $landInfo->lease_contract_pdf_name;
+                    break;
+                case 'registry':
+                    $filePath = $landInfo->registry_pdf_path;
+                    $fileName = $landInfo->registry_pdf_name;
+                    break;
+                default:
+                    abort(404, '指定されたファイルタイプが無効です。');
+            }
+
+            if (!$filePath || !Storage::disk('public')->exists($filePath)) {
+                abort(404, 'ファイルが見つかりません。');
+            }
+
+            // Log file access
+            Log::info('Land info PDF accessed', [
+                'facility_id' => $facility->id,
+                'user_id' => auth()->id(),
+                'file_type' => $type,
+                'file_name' => $fileName
+            ]);
+
+            return Storage::disk('public')->download($filePath, $fileName);
+
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            abort(403, 'このファイルにアクセスする権限がありません。');
+        } catch (\Exception $e) {
+            Log::error('Land info PDF download failed', [
+                'facility_id' => $facility->id,
+                'user_id' => auth()->id(),
+                'file_type' => $type,
+                'error' => $e->getMessage()
+            ]);
+            abort(500, 'ファイルのダウンロードに失敗しました。');
+        }
+    }
+
+    /**
      * Handle PDF file uploads
      */
     private function handlePdfUploads(Request $request, LandInfo $landInfo): void
     {
-        // Handle file deletions first
-        if ($request->input('delete_lease_contract_pdf')) {
-            if ($landInfo->lease_contract_pdf_path) {
-                \Storage::disk('public')->delete($landInfo->lease_contract_pdf_path);
+        try {
+            // Handle file deletions first
+            if ($request->input('delete_lease_contract_pdf')) {
+                if ($landInfo->lease_contract_pdf_path) {
+                    Storage::disk('public')->delete($landInfo->lease_contract_pdf_path);
+                    $landInfo->update([
+                        'lease_contract_pdf_path' => null,
+                        'lease_contract_pdf_name' => null,
+                    ]);
+                    Log::info('Lease contract PDF deleted', [
+                        'facility_id' => $landInfo->facility_id,
+                        'user_id' => auth()->id()
+                    ]);
+                }
+            }
+
+            if ($request->input('delete_registry_pdf')) {
+                if ($landInfo->registry_pdf_path) {
+                    Storage::disk('public')->delete($landInfo->registry_pdf_path);
+                    $landInfo->update([
+                        'registry_pdf_path' => null,
+                        'registry_pdf_name' => null,
+                    ]);
+                    Log::info('Registry PDF deleted', [
+                        'facility_id' => $landInfo->facility_id,
+                        'user_id' => auth()->id()
+                    ]);
+                }
+            }
+
+            // Handle lease contract PDF upload
+            if ($request->hasFile('lease_contract_pdf')) {
+                $file = $request->file('lease_contract_pdf');
+                
+                // Validate file
+                if (!$file->isValid()) {
+                    throw new \Exception('アップロードされたファイルが無効です: ' . $file->getErrorMessage());
+                }
+
+                if ($file->getSize() > 2097152) { // 2MB (PHP upload_max_filesize limit)
+                    throw new \Exception('ファイルサイズが大きすぎます。2MB以下のファイルを選択してください。');
+                }
+
+                if ($file->getMimeType() !== 'application/pdf') {
+                    throw new \Exception('PDFファイルのみアップロード可能です。');
+                }
+
+                // Delete old file if exists
+                if ($landInfo->lease_contract_pdf_path) {
+                    Storage::disk('public')->delete($landInfo->lease_contract_pdf_path);
+                }
+
+                // Store new file
+                $path = $file->store('land_documents/lease_contracts', 'public');
+                
+                if (!$path) {
+                    throw new \Exception('ファイルの保存に失敗しました。');
+                }
+
                 $landInfo->update([
-                    'lease_contract_pdf_path' => null,
-                    'lease_contract_pdf_name' => null,
+                    'lease_contract_pdf_path' => $path,
+                    'lease_contract_pdf_name' => $file->getClientOriginalName(),
+                ]);
+
+                Log::info('Lease contract PDF uploaded', [
+                    'facility_id' => $landInfo->facility_id,
+                    'user_id' => auth()->id(),
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_path' => $path
                 ]);
             }
-        }
 
-        if ($request->input('delete_registry_pdf')) {
-            if ($landInfo->registry_pdf_path) {
-                \Storage::disk('public')->delete($landInfo->registry_pdf_path);
+            // Handle registry PDF upload
+            if ($request->hasFile('registry_pdf')) {
+                $file = $request->file('registry_pdf');
+                
+                // Validate file
+                if (!$file->isValid()) {
+                    throw new \Exception('アップロードされたファイルが無効です: ' . $file->getErrorMessage());
+                }
+
+                if ($file->getSize() > 2097152) { // 2MB (PHP upload_max_filesize limit)
+                    throw new \Exception('ファイルサイズが大きすぎます。2MB以下のファイルを選択してください。');
+                }
+
+                if ($file->getMimeType() !== 'application/pdf') {
+                    throw new \Exception('PDFファイルのみアップロード可能です。');
+                }
+
+                // Delete old file if exists
+                if ($landInfo->registry_pdf_path) {
+                    Storage::disk('public')->delete($landInfo->registry_pdf_path);
+                }
+
+                // Store new file
+                $path = $file->store('land_documents/registry', 'public');
+                
+                if (!$path) {
+                    throw new \Exception('ファイルの保存に失敗しました。');
+                }
+
                 $landInfo->update([
-                    'registry_pdf_path' => null,
-                    'registry_pdf_name' => null,
+                    'registry_pdf_path' => $path,
+                    'registry_pdf_name' => $file->getClientOriginalName(),
+                ]);
+
+                Log::info('Registry PDF uploaded', [
+                    'facility_id' => $landInfo->facility_id,
+                    'user_id' => auth()->id(),
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_path' => $path
                 ]);
             }
-        }
 
-        // Handle lease contract PDF upload
-        if ($request->hasFile('lease_contract_pdf')) {
-            // Delete old file if exists
-            if ($landInfo->lease_contract_pdf_path) {
-                \Storage::disk('public')->delete($landInfo->lease_contract_pdf_path);
-            }
-
-            $file = $request->file('lease_contract_pdf');
-            $path = $file->store('land_documents/lease_contracts', 'public');
-
-            $landInfo->update([
-                'lease_contract_pdf_path' => $path,
-                'lease_contract_pdf_name' => $file->getClientOriginalName(),
+        } catch (\Exception $e) {
+            Log::error('PDF upload failed', [
+                'facility_id' => $landInfo->facility_id,
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
-        }
-
-        // Handle registry PDF upload
-        if ($request->hasFile('registry_pdf')) {
-            // Delete old file if exists
-            if ($landInfo->registry_pdf_path) {
-                \Storage::disk('public')->delete($landInfo->registry_pdf_path);
-            }
-
-            $file = $request->file('registry_pdf');
-            $path = $file->store('land_documents/registry', 'public');
-
-            $landInfo->update([
-                'registry_pdf_path' => $path,
-                'registry_pdf_name' => $file->getClientOriginalName(),
-            ]);
+            throw $e;
         }
     }
 }

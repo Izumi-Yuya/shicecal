@@ -114,6 +114,9 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/', [CommentController::class, 'store'])->name('store');
             Route::delete('/{comment}', [CommentController::class, 'destroyFacilityComment'])->name('destroy');
         });
+
+        // Land info document download routes
+        Route::get('/land-info/download/{type}', [FacilityController::class, 'downloadLandInfoPdf'])->name('land-info.download');
     });
 });
 
