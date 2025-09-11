@@ -41,9 +41,22 @@ class TableViewComments {
         return false;
       }
 
+      // Check if the required container exists
+      const container = document.querySelector('.facility-table-view');
+      if (!container) {
+        console.warn('Table view container not found, skipping comments initialization');
+        return false;
+      }
+
       // Initialize separated components
       this.commentManager = new CommentManager(facilityId, this.config);
       this.commentUI = new CommentUI('.facility-table-view');
+
+      // Verify CommentUI was initialized properly
+      if (!this.commentUI.container) {
+        console.warn('CommentUI container not found, comments functionality disabled');
+        return false;
+      }
 
       // Setup UI event listeners
       this.commentUI.setupEventListeners(this.commentManager);
@@ -462,10 +475,15 @@ class TableViewComments {
  * @returns {TableViewComments|null} The initialized instance or null
  */
 export function initializeTableViewComments(facilityId) {
-  const tableViewComments = new TableViewComments();
-  const initialized = tableViewComments.init(facilityId);
+  try {
+    const tableViewComments = new TableViewComments();
+    const initialized = tableViewComments.init(facilityId);
 
-  return initialized ? tableViewComments : null;
+    return initialized ? tableViewComments : null;
+  } catch (error) {
+    console.error('Failed to initialize table view comments:', error);
+    return null;
+  }
 }
 
 /**

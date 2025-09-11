@@ -303,6 +303,8 @@ describe('FacilityFormLayout', () => {
       expect(localStorage.removeItem).toHaveBeenCalledWith('test-form_draft');
     });
   });
+
+
 });
 
 describe('FacilityFormUtils', () => {
