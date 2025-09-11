@@ -25,6 +25,9 @@ export class SidebarComponent {
     const sidebarState = localStorage.getItem('sidebarCollapsed');
     if (sidebarState === 'true') {
       this.collapseSidebar();
+    } else {
+      // Set initial position when sidebar is expanded
+      this.updateToggleButtonPosition(false);
     }
 
     // Toggle sidebar on button click
@@ -61,6 +64,9 @@ export class SidebarComponent {
     if (toggleIcon) {
       toggleIcon.className = 'fas fa-bars';
     }
+
+    // Update toggle button position for collapsed state
+    this.updateToggleButtonPosition(true);
   }
 
   expandSidebar() {
@@ -71,6 +77,23 @@ export class SidebarComponent {
     const toggleIcon = this.sidebarToggle.querySelector('i');
     if (toggleIcon) {
       toggleIcon.className = 'fas fa-times';
+    }
+
+    // Update toggle button position for expanded state
+    this.updateToggleButtonPosition(false);
+  }
+
+  updateToggleButtonPosition(isCollapsed) {
+    if (!this.sidebarToggle) return;
+
+    if (isCollapsed) {
+      // When sidebar is collapsed - position above facility list text
+      this.sidebarToggle.style.left = '45px';
+      this.sidebarToggle.style.top = '93px';
+    } else {
+      // When sidebar is expanded - position next to menu text
+      this.sidebarToggle.style.left = '200px';
+      this.sidebarToggle.style.top = '88px';
     }
   }
 
