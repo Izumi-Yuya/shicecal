@@ -56,7 +56,7 @@
     @endsection
 @else
     @push('styles')
-        @vite('resources/css/land-info.css')
+        @vite('resources/css/land-info-final.css')
     @endpush
     <x-facility.edit-layout
         title="土地情報編集 - {{ $facility->facility_name }}"
@@ -72,13 +72,11 @@
                         :error-fields="App\Helpers\FacilityFormHelper::getErrorFieldsForSection('basic_info')">
             <div class="row g-3">
                 <div class="col-12 col-sm-6 col-lg-4">
-                    <label for="ownership_type" class="form-label required">所有形態</label>
+                    <label for="ownership_type" class="form-label">所有形態</label>
                     <select name="ownership_type" id="ownership_type" 
                             class="form-select @error('ownership_type') is-invalid @enderror" 
                             data-initial-value="{{ old('ownership_type', $landInfo->ownership_type ?? '') }}"
-                            aria-describedby="ownership_type_help"
-                            aria-required="true"
-                            required>
+                            aria-describedby="ownership_type_help">
                         <option value="">選択してください</option>
                         <option value="owned" {{ old('ownership_type', $landInfo->ownership_type ?? '') === 'owned' ? 'selected' : '' }}>自社</option>
                         <option value="leased" {{ old('ownership_type', $landInfo->ownership_type ?? '') === 'leased' ? 'selected' : '' }}>賃借</option>
@@ -151,7 +149,7 @@
         </x-form.section>
 
         <!-- 自社物件情報セクション -->
-        <div id="owned_section" class="conditional-section collapse mb-4" aria-hidden="true" aria-expanded="false" role="region" aria-labelledby="owned_section_title">
+        <div id="owned_section" class="conditional-section mb-4" style="display: block;" aria-hidden="false" aria-expanded="true" role="region" aria-labelledby="owned_section_title">
             <x-form.section title="自社物件情報" icon="fas fa-building" icon-color="info"
                             :error-fields="App\Helpers\FacilityFormHelper::getErrorFieldsForSection('owned_property')">
                 <div class="row g-3">
@@ -188,7 +186,7 @@
         </div>
 
         <!-- 賃借物件情報セクション -->
-        <div id="leased_section" class="conditional-section collapse mb-4" aria-hidden="true" aria-expanded="false" role="region" aria-labelledby="leased_section_title">
+        <div id="leased_section" class="conditional-section mb-4" style="display: block;" aria-hidden="false" aria-expanded="true" role="region" aria-labelledby="leased_section_title">
             <x-form.section title="賃借物件情報" icon="fas fa-file-contract" icon-color="warning"
                             :error-fields="App\Helpers\FacilityFormHelper::getErrorFieldsForSection('leased_property')">
                 <div class="row g-3">
@@ -261,7 +259,7 @@
         </div>
 
         <!-- 管理会社情報セクション -->
-        <div id="management_section" class="conditional-section collapse mb-4" aria-hidden="true" aria-expanded="false" role="region" aria-labelledby="management_section_title">
+        <div id="management_section" class="conditional-section mb-4" style="display: block;" aria-hidden="false" aria-expanded="true" role="region" aria-labelledby="management_section_title">
             <x-form.section title="管理会社情報" icon="fas fa-building" icon-color="secondary"
                             :error-fields="App\Helpers\FacilityFormHelper::getErrorFieldsForSection('management_company')">
                 <div class="row g-3">
@@ -386,7 +384,7 @@
         </div>
 
         <!-- オーナー情報セクション -->
-        <div id="owner_section" class="conditional-section collapse mb-4" aria-hidden="true" aria-expanded="false" role="region" aria-labelledby="owner_section_title">
+        <div id="owner_section" class="conditional-section mb-4" style="display: block;" aria-hidden="false" aria-expanded="true" role="region" aria-labelledby="owner_section_title">
             <x-form.section title="オーナー情報" icon="fas fa-user-tie" icon-color="dark"
                             :error-fields="App\Helpers\FacilityFormHelper::getErrorFieldsForSection('owner_info')">
                 <div class="row g-3">
@@ -511,7 +509,7 @@
         </div>
 
         <!-- 関連書類セクション -->
-        <div id="file_section" class="conditional-section collapse mb-4" aria-hidden="true" aria-expanded="false" role="region" aria-labelledby="file_section_title">
+        <div id="file_section" class="conditional-section mb-4" style="display: block;" aria-hidden="false" aria-expanded="true" role="region" aria-labelledby="file_section_title">
             <x-form.section title="関連書類" icon="fas fa-file-pdf" icon-color="danger"
                             :error-fields="App\Helpers\FacilityFormHelper::getErrorFieldsForSection('documents')">
                 <div class="row g-3">
@@ -581,21 +579,6 @@
     </x-facility.edit-layout>
 
     @push('scripts')
-        @vite('resources/js/land-info.js')
-        <script>
-        // The modular LandInfoManager handles all functionality
-        // Legacy compatibility functions for debugging
-        window.testOwnershipChange = function(value) {
-            if (window.landInfoManager) {
-                window.landInfoManager.handleOwnershipTypeChange(value);
-            }
-        };
-        
-        window.debugSections = function() {
-            if (window.landInfoManager) {
-                console.table(window.landInfoManager.getMetrics());
-            }
-        };
-        </script>
+        @vite('resources/js/land-info-final.js')
     @endpush
 @endif

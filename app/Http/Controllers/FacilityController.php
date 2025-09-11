@@ -431,7 +431,8 @@ class FacilityController extends Controller
                 ]);
             }
 
-            return redirect()->route('facilities.show', $facility)
+            $redirectUrl = route('facilities.show', $facility) . '#land-info';
+            return redirect($redirectUrl)
                 ->with('success', '土地情報を更新しました。');
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             if ($request->expectsJson()) {
@@ -441,7 +442,8 @@ class FacilityController extends Controller
                 ], 403);
             }
 
-            return redirect()->route('facilities.show', $facility)
+            $redirectUrl = route('facilities.show', $facility) . '#land-info';
+            return redirect($redirectUrl)
                 ->with('error', 'この施設の土地情報を編集する権限がありません。');
         } catch (ValidationException $e) {
             if ($request->expectsJson()) {

@@ -4,7 +4,7 @@
  */
 
 // Import land-info module
-import './land-info.js';
+import './land-info-final.js';
 
 // Import facility form layout module
 import { initializeFacilityFormLayout, FacilityFormUtils } from './modules/facility-form-layout.js';

@@ -451,4 +451,33 @@
 <script>
 // Pass facility ID to the JavaScript module
 window.facilityId = {{ $facility->id }};
+
+// Handle active tab from session
+document.addEventListener('DOMContentLoaded', function() {
+    @if(session('activeTab'))
+        const activeTab = '{{ session('activeTab') }}';
+        const tabButton = document.getElementById(activeTab.replace('-info', '') + '-tab');
+        const tabPane = document.getElementById(activeTab);
+        
+        if (tabButton && tabPane) {
+            // Remove active class from current active tab
+            document.querySelectorAll('.nav-link.active').forEach(tab => {
+                tab.classList.remove('active');
+                tab.setAttribute('aria-selected', 'false');
+            });
+            document.querySelectorAll('.tab-pane.active').forEach(pane => {
+                pane.classList.remove('active', 'show');
+            });
+            
+            // Activate the target tab
+            tabButton.classList.add('active');
+            tabButton.setAttribute('aria-selected', 'true');
+            tabPane.classList.add('active', 'show');
+            
+            // Trigger Bootstrap tab event
+            const tabEvent = new bootstrap.Tab(tabButton);
+            tabEvent.show();
+        }
+    @endif
+});
 </script>

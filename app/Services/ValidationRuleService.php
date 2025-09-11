@@ -9,20 +9,40 @@ class ValidationRuleService
      */
     public static function getLandInfoRules(string $ownershipType): array
     {
-        $baseRules = [
-            'ownership_type' => ['required', 'in:owned,leased,owned_rental'],
+        // Return minimal validation rules - all fields are optional
+        return [
+            'ownership_type' => ['nullable', 'in:owned,leased,owned_rental'],
             'parking_spaces' => ['nullable', 'integer', 'min:0', 'max:9999999999'],
-            'notes' => ['nullable', 'string', 'max:1000'],
+            'notes' => ['nullable', 'string', 'max:2000'],
             'site_area_sqm' => ['nullable', 'numeric', 'min:0', 'max:99999999.99'],
             'site_area_tsubo' => ['nullable', 'numeric', 'min:0', 'max:99999999.99'],
+            // All other fields are optional with basic validation only
+            'purchase_price' => ['nullable', 'numeric', 'min:0', 'max:999999999999999'],
+            'monthly_rent' => ['nullable', 'numeric', 'min:0', 'max:999999999999999'],
+            'contract_start_date' => ['nullable', 'date'],
+            'contract_end_date' => ['nullable', 'date'],
+            'auto_renewal' => ['nullable', 'in:yes,no'],
+            // Management company fields
+            'management_company_name' => ['nullable', 'string', 'max:100'],
+            'management_company_postal_code' => ['nullable', 'string', 'max:20'],
+            'management_company_address' => ['nullable', 'string', 'max:100'],
+            'management_company_building' => ['nullable', 'string', 'max:100'],
+            'management_company_phone' => ['nullable', 'string', 'max:20'],
+            'management_company_fax' => ['nullable', 'string', 'max:20'],
+            'management_company_email' => ['nullable', 'email', 'max:100'],
+            'management_company_url' => ['nullable', 'url', 'max:200'],
+            'management_company_notes' => ['nullable', 'string', 'max:2000'],
+            // Owner fields
+            'owner_name' => ['nullable', 'string', 'max:100'],
+            'owner_postal_code' => ['nullable', 'string', 'max:20'],
+            'owner_address' => ['nullable', 'string', 'max:100'],
+            'owner_building' => ['nullable', 'string', 'max:100'],
+            'owner_phone' => ['nullable', 'string', 'max:20'],
+            'owner_fax' => ['nullable', 'string', 'max:20'],
+            'owner_email' => ['nullable', 'email', 'max:100'],
+            'owner_url' => ['nullable', 'url', 'max:200'],
+            'owner_notes' => ['nullable', 'string', 'max:2000'],
         ];
-
-        return match ($ownershipType) {
-            'owned' => array_merge($baseRules, self::getOwnedPropertyRules()),
-            'leased' => array_merge($baseRules, self::getLeasedPropertyRules(), self::getManagementRules(), self::getOwnerRules()),
-            'owned_rental' => array_merge($baseRules, self::getOwnedPropertyRules(), self::getLeasedPropertyRules()),
-            default => $baseRules
-        };
     }
 
     /**

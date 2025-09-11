@@ -109,6 +109,7 @@ Route::middleware(['auth'])->group(function () {
 
         // Facility-specific comment routes
         Route::prefix('comments')->name('comments.')->group(function () {
+            Route::get('/', [CommentController::class, 'allFacilityComments'])->name('all');
             Route::get('/{section}', [CommentController::class, 'facilityComments'])->name('index');
             Route::post('/', [CommentController::class, 'store'])->name('store');
             Route::delete('/{comment}', [CommentController::class, 'destroyFacilityComment'])->name('destroy');

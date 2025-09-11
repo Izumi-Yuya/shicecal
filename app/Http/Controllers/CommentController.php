@@ -27,11 +27,11 @@ class CommentController extends Controller
     /**
      * Store a newly created comment in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request, Facility $facility = null)
     {
         // Handle facility-specific section comments (JSON response)
-        if ($request->has('section') && $request->expectsJson()) {
-            return $this->storeFacilityComment($request);
+        if ($facility && $request->expectsJson()) {
+            return $this->storeFacilityComment($request, $facility);
         }
 
         // Handle general comments (redirect response)
@@ -78,15 +78,12 @@ class CommentController extends Controller
     /**
      * Store facility-specific section comment (from FacilityCommentController).
      */
-    protected function storeFacilityComment(Request $request): JsonResponse
+    protected function storeFacilityComment(Request $request, Facility $facility): JsonResponse
     {
         $request->validate([
-            'facility_id' => 'required|exists:facilities,id',
-            'section' => 'required|string|in:basic_info,contact_info,building_info,facility_info,services',
+            'section' => 'required|string|in:basic_info,contact_info,building_info,facility_info,services,land_info',
             'comment' => 'required|string|max:1000',
         ]);
-
-        $facility = Facility::find($request->facility_id);
 
         $comment = $facility->comments()->create([
             'user_id' => auth()->id(),
@@ -158,6 +155,35 @@ class CommentController extends Controller
                     'can_delete' => auth()->id() === $comment->user_id || auth()->user()->isAdmin(),
                 ];
             }),
+        ]);
+    }
+
+    /**
+     * Display all comments for a facility grouped by section.
+     */
+    public function allFacilityComments(Facility $facility): JsonResponse
+    {
+        $comments = $facility->comments()
+            ->with('user:id,name')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Group comments by section
+        $commentsBySection = $comments->groupBy('section')->map(function ($sectionComments) {
+            return $sectionComments->map(function ($comment) {
+                return [
+                    'id' => $comment->id,
+                    'comment' => $comment->comment,
+                    'user_name' => $comment->user->name,
+                    'created_at' => $comment->created_at->format('Y年m月d日 H:i'),
+                    'can_delete' => auth()->id() === $comment->user_id || auth()->user()->isAdmin(),
+                ];
+            });
+        });
+
+        return response()->json([
+            'success' => true,
+            'commentsBySection' => $commentsBySection,
         ]);
     }
 
