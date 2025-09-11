@@ -1,5 +1,12 @@
 /* Layout Components - Header, Sidebar, Main Content */
 
+/* Layout positioning variables */
+:root {
+  --sidebar-toggle-top: 88px;
+  --sidebar-toggle-left-expanded: 200px;
+  --sidebar-toggle-left-collapsed: 20px;
+}
+
 /* Navigation and Header */
 .navbar.navbar-fixed-top {
   box-shadow: var(--shadow-sm);
@@ -122,30 +129,23 @@
   font-size: 0.9rem;
   border-radius: 6px;
   
-  /* Positioning - Default to collapsed state */
+  /* Positioning - Use CSS custom properties for consistency */
   position: fixed;
   z-index: 1031;
-  left: 20px;
-  top: 91px;
+  top: var(--sidebar-toggle-top, 88px);
+  left: var(--sidebar-toggle-left-expanded, 200px);
   
   /* Appearance */
   background: var(--primary-color);
   border-color: var(--primary-color);
   
   /* Animation */
-  transition: left 0.3s ease-in-out, top 0.3s ease-in-out, background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+  transition: left 0.3s ease-in-out, background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
 }
 
 /* Sidebar Toggle Button - Collapsed State */
 #sidebarToggle.collapsed {
-  left: 20px;
-  top: 91px;
-}
-
-/* Sidebar Toggle Button - Expanded State (when sidebar is open) */
-#sidebarToggle:not(.collapsed) {
-  left: 200px;
-  top: 94px;
+  left: var(--sidebar-toggle-left-collapsed, 20px);
 }
 
 /* Sidebar Toggle Button - Hover State */
