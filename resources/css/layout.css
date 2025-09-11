@@ -1,44 +1,33 @@
 /* Layout Components - Header, Sidebar, Main Content */
 
 /* Navigation and Header */
-.navbar {
+.navbar.navbar-fixed-top {
   box-shadow: var(--shadow-sm);
   border: none;
-  background: linear-gradient(90deg, rgba(var(--primary-color-rgb), 0.3), rgba(var(--secondary-color-rgb), 0.3)) !important;
+  background: var(--header-gradient);
   backdrop-filter: blur(10px);
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  z-index: 1030 !important;
-  width: 100% !important;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1030;
+  width: 100%;
 }
 
 /* Figma Header Styles - Fixed position */
 .figma-header {
-  height: var(--header-height) !important;
-  min-height: var(--header-height) !important;
-  padding: 0 !important;
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  z-index: 1030 !important;
-  width: 100% !important;
-  background: linear-gradient(90deg, rgba(var(--primary-color-rgb), 0.3) 0%, rgba(var(--secondary-color-rgb), 0.3) 100%) !important;
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-}
-
-.figma-header::before {
-  content: '';
-  position: absolute;
+  height: var(--header-height);
+  min-height: var(--header-height);
+  padding: 0;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  background: linear-gradient(90deg, rgba(var(--primary-color-rgb), 0.3) 0%, rgba(var(--secondary-color-rgb), 0.3) 100%);
-  z-index: -1;
+  z-index: 1030;
+  width: 100%;
+  background: var(--header-gradient);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
 }
 
 .figma-header-container {
@@ -126,24 +115,54 @@
 
 /* Sidebar Toggle Button */
 #sidebarToggle {
+  /* Base styles */
   border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
-  transition: all 0.3s ease-in-out;
   padding: 0.375rem 0.75rem;
   font-size: 0.9rem;
   border-radius: 6px;
-  position: fixed !important;
-  z-index: 1031 !important;
-  background: var(--primary-color) !important;
-  border-color: var(--primary-color) !important;
-  left: 200px;
-  top: 88px;
+  
+  /* Positioning - Default to collapsed state */
+  position: fixed;
+  z-index: 1031;
+  left: 20px;
+  top: 91px;
+  
+  /* Appearance */
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  
+  /* Animation */
+  transition: left 0.3s ease-in-out, top 0.3s ease-in-out, background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
 }
 
+/* Sidebar Toggle Button - Collapsed State */
+#sidebarToggle.collapsed {
+  left: 20px;
+  top: 91px;
+}
+
+/* Sidebar Toggle Button - Expanded State (when sidebar is open) */
+#sidebarToggle:not(.collapsed) {
+  left: 200px;
+  top: 94px;
+}
+
+/* Sidebar Toggle Button - Hover State */
 #sidebarToggle:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(var(--primary-color-rgb), 0.8);
+  border-color: rgba(255, 255, 255, 0.8);
   color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Prevent hover styles from sticking after click */
+#sidebarToggle:focus:not(:hover) {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  transform: none;
+  box-shadow: none;
 }
 
 /* Sidebar Styles */
@@ -269,6 +288,10 @@
 
 .main-content.expanded {
   left: 0;
+}
+
+.main-content.expanded .container-fluid {
+  padding-left: var(--sidebar-collapsed-width, 80px);
 }
 
 .main-content .container-fluid {
