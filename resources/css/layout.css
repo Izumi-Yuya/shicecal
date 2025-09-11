@@ -164,9 +164,21 @@
 }
 
 .sidebar-header {
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-  color: white;
+  background: #00B4E3 !important;
+  color: white !important;
   font-weight: 600;
+}
+
+.sidebar-header h5 {
+  color: white !important;
+  font-weight: 700 !important;
+  margin-bottom: 0 !important;
+  text-shadow: none !important;
+}
+
+.sidebar-header i {
+  color: white !important;
+  opacity: 1 !important;
 }
 
 .sidebar-content {
