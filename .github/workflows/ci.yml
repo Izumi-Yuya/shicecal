@@ -1,0 +1,182 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ main, develop, production ]
+  pull_request:
+    branches: [ main, develop, production ]
+  workflow_dispatch:
+
+jobs:
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+        coverage: none
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install PHP dependencies
+      run: composer install --prefer-dist --no-interaction --no-progress --optimize-autoloader
+      
+    - name: Install Node.js dependencies
+      run: npm ci
+      
+    - name: Create environment file
+      run: |
+        cp .env.example .env
+        php artisan key:generate
+        
+    - name: Setup SQLite database
+      run: |
+        touch database/database.sqlite
+        php artisan migrate --force
+        
+    # PHP Code Quality
+    - name: Run PHP Linting (Laravel Pint)
+      run: vendor/bin/pint --test
+      
+    - name: Run PHP Static Analysis (if PHPStan is available)
+      run: |
+        if [ -f "vendor/bin/phpstan" ]; then
+          vendor/bin/phpstan analyse --memory-limit=2G
+        else
+          echo "PHPStan not installed, skipping static analysis"
+        fi
+      continue-on-error: true
+      
+    # JavaScript Code Quality
+    - name: Run JavaScript Linting (ESLint)
+      run: npm run lint:js
+      
+    - name: Run Blade Template Linting
+      run: npm run lint:blade
+      
+    - name: Run HTML Linting
+      run: npm run lint:html
+      continue-on-error: true # HTML linting may have false positives with Blade syntax
+      
+    # Build Verification
+    - name: Build Frontend Assets
+      run: npm run build
+      
+    - name: Verify Build Output
+      run: |
+        if [ ! -d "public/build" ]; then
+          echo "❌ Build directory not created"
+          exit 1
+        fi
+        
+        if [ ! -f "public/build/manifest.json" ]; then
+          echo "❌ Vite manifest file not generated"
+          exit 1
+        fi
+        
+        # Check if manifest is valid JSON
+        if ! node -e "JSON.parse(require('fs').readFileSync('public/build/manifest.json', 'utf8'))"; then
+          echo "❌ Vite manifest file is invalid JSON"
+          exit 1
+        fi
+        
+        echo "✅ Build verification passed"
+        echo "📊 Build files: $(find public/build -type f | wc -l)"
+        
+    # Testing
+    - name: Run PHP Tests
+      run: php artisan test --coverage --min=80
+      env:
+        DB_CONNECTION: sqlite
+        DB_DATABASE: database/testing.sqlite
+        
+    - name: Run JavaScript Tests
+      run: npm run test
+      
+    # Security Checks
+    - name: Run PHP Security Audit
+      run: |
+        if [ -f "composer.lock" ]; then
+          composer audit
+        fi
+      continue-on-error: true
+      
+    - name: Run Node.js Security Audit
+      run: npm audit --audit-level=moderate
+      continue-on-error: true
+      
+    # Performance Checks
+    - name: Check Bundle Size
+      run: |
+        if [ -f "public/build/manifest.json" ]; then
+          echo "📦 Bundle Analysis:"
+          find public/build -name "*.js" -exec ls -lh {} \; | awk '{print $5 " " $9}'
+          find public/build -name "*.css" -exec ls -lh {} \; | awk '{print $5 " " $9}'
+        fi
+        
+  deployment-readiness:
+    name: Deployment Readiness
+    runs-on: ubuntu-latest
+    needs: code-quality
+    if: github.ref == 'refs/heads/production'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        composer install --no-dev --optimize-autoloader
+        npm ci --production=false
+        
+    - name: Build production assets
+      run: npm run build
+      
+    - name: Verify production build
+      run: |
+        # Ensure all critical files exist
+        test -f public/build/manifest.json || exit 1
+        test -d public/build || exit 1
+        
+        # Check for common production issues
+        if grep -r "console.log\|debugger" public/build/*.js 2>/dev/null; then
+          echo "❌ Debug statements found in production build"
+          exit 1
+        fi
+        
+        echo "✅ Production build verification passed"
+        
+    - name: Cache optimization check
+      run: |
+        php artisan config:cache
+        php artisan route:cache
+        php artisan view:cache
+        
+        # Verify caches were created
+        test -f bootstrap/cache/config.php || exit 1
+        test -f bootstrap/cache/routes-v7.php || exit 1
+        
+        echo "✅ Cache optimization verified"
