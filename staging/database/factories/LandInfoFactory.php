@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\LandInfo;
 use App\Models\Facility;
+use App\Models\LandInfo;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -252,7 +252,7 @@ class LandInfoFactory extends Factory
      */
     private function calculateContractPeriod($startDate, $endDate): string
     {
-        if (!$startDate || !$endDate) {
+        if (! $startDate || ! $endDate) {
             return '';
         }
 
@@ -269,10 +269,10 @@ class LandInfoFactory extends Factory
 
         $result = '';
         if ($years > 0) {
-            $result .= $years . '年';
+            $result .= $years.'年';
         }
         if ($months > 0) {
-            $result .= $months . 'ヶ月';
+            $result .= $months.'ヶ月';
         }
 
         return $result ?: '0ヶ月';

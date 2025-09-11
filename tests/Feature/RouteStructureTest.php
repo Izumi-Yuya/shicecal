@@ -2,20 +2,21 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Facility;
-use App\Models\LandInfo;
 use App\Models\Comment;
+use App\Models\Facility;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
+use Tests\TestCase;
 
 class RouteStructureTest extends TestCase
 {
     use RefreshDatabase;
 
     protected $user;
+
     protected $adminUser;
+
     protected $facility;
 
     protected function setUp(): void
@@ -352,10 +353,10 @@ class RouteStructureTest extends TestCase
 
         foreach ($adminRoutes as $route) {
             $middleware = $route->middleware();
-            $this->assertContains('auth', $middleware, "Admin route should have auth middleware");
+            $this->assertContains('auth', $middleware, 'Admin route should have auth middleware');
             $this->assertTrue(
                 in_array('role:admin', $middleware) || in_array('role', $middleware),
-                "Admin route should have role middleware"
+                'Admin route should have role middleware'
             );
         }
 

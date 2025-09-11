@@ -221,7 +221,7 @@ class AdminUserSeeder extends Seeder
         $allUsers = array_merge($adminUsers, $editorUsers, $responderUsers, $approverUsers, $viewerUsers);
 
         foreach ($allUsers as $userData) {
-            if (!User::where('email', $userData['email'])->exists()) {
+            if (! User::where('email', $userData['email'])->exists()) {
                 User::create([
                     'name' => $userData['name'],
                     'email' => $userData['email'],
@@ -234,6 +234,6 @@ class AdminUserSeeder extends Seeder
             }
         }
 
-        $this->command->info('Created ' . count($allUsers) . ' test users across all roles.');
+        $this->command->info('Created '.count($allUsers).' test users across all roles.');
     }
 }

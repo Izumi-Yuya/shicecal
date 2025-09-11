@@ -3,8 +3,8 @@
 namespace Tests\Unit\Models;
 
 use App\Models\User;
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class UserLandPermissionTest extends TestCase
 {
@@ -15,7 +15,7 @@ class UserLandPermissionTest extends TestCase
     {
         $user = User::factory()->create([
             'role' => 'editor',
-            'department' => 'any_department'
+            'department' => 'any_department',
         ]);
 
         $this->assertTrue($user->canEditLandInfo());
@@ -30,7 +30,7 @@ class UserLandPermissionTest extends TestCase
     {
         $user = User::factory()->create([
             'role' => 'admin',
-            'department' => 'any_department'
+            'department' => 'any_department',
         ]);
 
         $this->assertTrue($user->canEditLandInfo());
@@ -48,7 +48,7 @@ class UserLandPermissionTest extends TestCase
         foreach ($roles as $role) {
             $user = User::factory()->create([
                 'role' => $role,
-                'department' => 'any_department'
+                'department' => 'any_department',
             ]);
 
             $this->assertFalse($user->canEditLandInfo(), "Role {$role} should not be able to edit land info");
@@ -63,7 +63,7 @@ class UserLandPermissionTest extends TestCase
     public function department_methods_still_work_for_backward_compatibility()
     {
         $user = User::factory()->create([
-            'department' => 'land_affairs,accounting'
+            'department' => 'land_affairs,accounting',
         ]);
 
         $this->assertTrue($user->hasMultipleDepartments());

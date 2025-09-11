@@ -2,29 +2,30 @@
 
 namespace Tests\Unit\Services;
 
-use Tests\TestCase;
-use App\Services\ExportService;
-use App\Models\File;
 use App\Models\Facility;
+use App\Models\File;
 use App\Models\User;
+use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Exception;
+use Tests\TestCase;
 
 class FileServiceTest extends TestCase
 {
     use RefreshDatabase;
 
     protected FileService $fileService;
+
     protected User $user;
+
     protected Facility $facility;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->fileService = new FileService();
+        $this->fileService = new FileService;
         $this->user = User::factory()->create();
         $this->facility = Facility::factory()->create();
 

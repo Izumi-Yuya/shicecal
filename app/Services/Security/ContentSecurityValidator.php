@@ -2,85 +2,86 @@
 
 namespace App\Services\Security;
 
-use InvalidArgumentException;
 use Illuminate\Support\Facades\Log;
+use InvalidArgumentException;
 
 /**
  * Content Security Validator
- * 
+ *
  * Provides comprehensive content validation to prevent XSS, injection attacks,
  * and other security vulnerabilities in user-generated content.
  */
 class ContentSecurityValidator
 {
     private array $config;
-    
+
     public function __construct(array $config = [])
     {
         $this->config = array_merge($this->getDefaultConfig(), $config);
     }
-    
+
     /**
      * Validate content for security issues
-     * 
-     * @param string $content Content to validate
-     * @param array $options Additional validation options
+     *
+     * @param  string  $content  Content to validate
+     * @param  array  $options  Additional validation options
+     *
      * @throws InvalidArgumentException When content fails validation
      */
     public function validate(string $content, array $options = []): void
     {
         $options = array_merge($this->config, $options);
-        
+
         // Basic length validation
         $this->validateLength($content, $options);
-        
+
         // Character validation
         $this->validateCharacters($content, $options);
-        
+
         // Pattern-based security validation
         $this->validateSecurityPatterns($content, $options);
-        
+
         // Additional custom validations
         if (isset($options['custom_validators'])) {
             $this->runCustomValidators($content, $options['custom_validators']);
         }
-        
+
         Log::debug('Content security validation passed', [
             'content_length' => strlen($content),
-            'validation_options' => array_keys($options)
+            'validation_options' => array_keys($options),
         ]);
     }
-    
+
     /**
      * Sanitize content while preserving safe formatting
-     * 
-     * @param string $content Content to sanitize
-     * @param array $options Sanitization options
+     *
+     * @param  string  $content  Content to sanitize
+     * @param  array  $options  Sanitization options
      * @return string Sanitized content
      */
     public function sanitize(string $content, array $options = []): string
     {
         $options = array_merge($this->config, $options);
-        
+
         // Remove null bytes and control characters
         $content = $this->removeControlCharacters($content);
-        
+
         // Normalize whitespace
         if ($options['normalize_whitespace'] ?? true) {
             $content = $this->normalizeWhitespace($content);
         }
-        
+
         // Remove dangerous patterns
         $content = $this->removeDangerousPatterns($content, $options);
-        
+
         // Apply additional sanitization
         if ($options['html_purify'] ?? false) {
             $content = $this->purifyHtml($content);
         }
-        
+
         return trim($content);
     }
-    
+
     /**
      * Validate content length
      */
@@ -88,18 +89,18 @@ class ContentSecurityValidator
     {
         $minLength = $options['min_length'] ?? 1;
         $maxLength = $options['max_length'] ?? 500;
-        
+
         $trimmedLength = strlen(trim($content));
-        
+
         if ($trimmedLength < $minLength) {
             throw new InvalidArgumentException("Content too short (minimum: {$minLength} characters)");
         }
-        
+
         if (strlen($content) > $maxLength) {
             throw new InvalidArgumentException("Content too long (maximum: {$maxLength} characters)");
         }
     }
-    
+
     /**
      * Validate character content
      */
@@ -107,40 +108,40 @@ class ContentSecurityValidator
     {
         // Check for control characters
         if (preg_match('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', $content)) {
-            throw new InvalidArgumentException("Invalid control characters detected");
+            throw new InvalidArgumentException('Invalid control characters detected');
         }
-        
+
         // Check for suspicious Unicode characters
         if ($options['check_unicode'] ?? true) {
             $this->validateUnicodeCharacters($content);
         }
-        
+
         // Check encoding
-        if (!mb_check_encoding($content, 'UTF-8')) {
-            throw new InvalidArgumentException("Invalid character encoding");
+        if (! mb_check_encoding($content, 'UTF-8')) {
+            throw new InvalidArgumentException('Invalid character encoding');
         }
     }
-    
+
     /**
      * Validate against security patterns
      */
     private function validateSecurityPatterns(string $content, array $options): void
     {
         $patterns = $this->getSecurityPatterns($options);
-        
+
         foreach ($patterns as $name => $pattern) {
             if (preg_match($pattern, $content)) {
                 Log::warning('Security pattern detected in content', [
                     'pattern_name' => $name,
                     'pattern' => $pattern,
-                    'content_preview' => substr($content, 0, 100)
+                    'content_preview' => substr($content, 0, 100),
                 ]);
-                
+
                 throw new InvalidArgumentException("Potentially dangerous content detected: {$name}");
             }
         }
     }
-    
+
     /**
      * Get security validation patterns
      */
@@ -156,7 +157,7 @@ class ContentSecurityValidator
             'style_expressions' => '/expression\s*\(/i',
             'import_statements' => '/@import/i',
         ];
-        
+
         // SQL injection patterns (defense in depth)
         if ($options['check_sql_injection'] ?? true) {
             $patterns = array_merge($patterns, [
@@ -165,20 +166,20 @@ class ContentSecurityValidator
                 'sql_comments' => '/(\/\*|\*\/|--|\#)/i',
             ]);
         }
-        
+
         // LDAP injection patterns
         if ($options['check_ldap_injection'] ?? true) {
             $patterns['ldap_injection'] = '/[()&|!*]/';
         }
-        
+
         // Command injection patterns
         if ($options['check_command_injection'] ?? true) {
             $patterns['command_injection'] = '/[;&|`$(){}[\]]/';
         }
-        
+
         return $patterns;
     }
-    
+
     /**
      * Validate Unicode characters for suspicious content
      */
@@ -186,15 +187,15 @@ class ContentSecurityValidator
     {
         // Check for right-to-left override characters (can be used for spoofing)
         if (preg_match('/[\x{202D}\x{202E}\x{2066}\x{2067}\x{2068}]/u', $content)) {
-            throw new InvalidArgumentException("Suspicious Unicode directional characters detected");
+            throw new InvalidArgumentException('Suspicious Unicode directional characters detected');
         }
-        
+
         // Check for zero-width characters (can be used for hiding content)
         if (preg_match('/[\x{200B}\x{200C}\x{200D}\x{FEFF}]/u', $content)) {
-            throw new InvalidArgumentException("Zero-width characters detected");
+            throw new InvalidArgumentException('Zero-width characters detected');
         }
     }
-    
+
     /**
      * Remove control characters
      */
@@ -202,7 +203,7 @@ class ContentSecurityValidator
     {
         return preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $content);
     }
-    
+
     /**
      * Normalize whitespace
      */
@@ -210,27 +211,27 @@ class ContentSecurityValidator
     {
         // Replace multiple whitespace with single space
         $content = preg_replace('/\s+/', ' ', $content);
-        
+
         // Normalize line endings
         $content = str_replace(["\r\n", "\r"], "\n", $content);
-        
+
         return $content;
     }
-    
+
     /**
      * Remove dangerous patterns
      */
     private function removeDangerousPatterns(string $content, array $options): string
     {
         $patterns = $this->getSecurityPatterns($options);
-        
+
         foreach ($patterns as $pattern) {
             $content = preg_replace($pattern, '', $content);
         }
-        
+
         return $content;
     }
-    
+
     /**
      * Purify HTML content (placeholder for HTML Purifier integration)
      */
@@ -240,7 +241,7 @@ class ContentSecurityValidator
         // For now, strip all HTML tags
         return strip_tags($content);
     }
-    
+
     /**
      * Run custom validators
      */
@@ -252,7 +253,7 @@ class ContentSecurityValidator
             }
         }
     }
-    
+
     /**
      * Get default configuration
      */

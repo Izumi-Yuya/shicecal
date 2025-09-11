@@ -5,16 +5,16 @@ namespace Tests\Unit\Services;
 use App\Http\Controllers\CsvExportController;
 use App\Models\Facility;
 use App\Models\LandInfo;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 use ReflectionClass;
+use Tests\TestCase;
 
 class CsvExportServiceTest extends TestCase
 {
     use RefreshDatabase;
 
     protected $controller;
+
     protected $reflection;
 
     protected function setUp(): void

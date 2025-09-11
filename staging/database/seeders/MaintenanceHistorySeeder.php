@@ -22,6 +22,7 @@ class MaintenanceHistorySeeder extends Seeder
 
         if ($facilities->isEmpty() || $editors->isEmpty()) {
             $this->command->info('No approved facilities or editor users found. Skipping maintenance history seeding.');
+
             return;
         }
 
@@ -29,7 +30,7 @@ class MaintenanceHistorySeeder extends Seeder
         foreach ($facilities as $facility) {
             // Create 2-5 maintenance histories per facility
             $historyCount = rand(2, 5);
-            
+
             for ($i = 0; $i < $historyCount; $i++) {
                 MaintenanceHistory::factory()->create([
                     'facility_id' => $facility->id,

@@ -4,7 +4,6 @@ namespace Tests\Unit\Services;
 
 use App\Models\Facility;
 use App\Models\User;
-use App\Services\ExportService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
@@ -15,12 +14,13 @@ class SecurePdfServiceTest extends TestCase
     use RefreshDatabase;
 
     private SecurePdfService $service;
+
     private User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new SecurePdfService();
+        $this->service = new SecurePdfService;
         $this->user = User::factory()->create();
         Auth::login($this->user);
     }

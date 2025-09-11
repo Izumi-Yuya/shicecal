@@ -163,7 +163,7 @@ class User extends Authenticatable
             return []; // Empty array means all facilities
         }
 
-        if ($this->role === 'viewer' && !empty($this->access_scope)) {
+        if ($this->role === 'viewer' && ! empty($this->access_scope)) {
             // Get facilities based on access scope
             $query = \App\Models\Facility::query();
 
@@ -187,6 +187,7 @@ class User extends Authenticatable
         }
 
         $accessibleIds = $this->getAccessibleFacilityIds();
+
         return empty($accessibleIds) || in_array($facilityId, $accessibleIds);
     }
 

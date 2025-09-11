@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('department')->nullable()->after('role');
             $table->json('access_scope')->nullable()->after('department');
             $table->boolean('is_active')->default(true)->after('access_scope');
-            
+
             // Add indexes
             $table->index('role');
             $table->index('is_active');

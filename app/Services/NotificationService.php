@@ -2,11 +2,10 @@
 
 namespace App\Services;
 
+use App\Models\Facility;
+use App\Models\FacilityComment;
 use App\Models\Notification;
 use App\Models\User;
-use App\Models\FacilityComment;
-use App\Models\Facility;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 
 class NotificationService
@@ -22,11 +21,12 @@ class NotificationService
         // Find primary responder to notify
         $primaryResponder = User::where('role', 'primary_responder')->first();
 
-        if (!$primaryResponder) {
+        if (! $primaryResponder) {
             Log::warning('No primary responder found for comment notification', [
                 'comment_id' => $comment->id,
                 'facility_id' => $facility->id,
             ]);
+
             return;
         }
 

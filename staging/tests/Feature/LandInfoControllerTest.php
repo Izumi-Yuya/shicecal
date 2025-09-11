@@ -14,8 +14,11 @@ class LandInfoControllerTest extends TestCase
     use RefreshDatabase, WithFaker;
 
     protected User $adminUser;
+
     protected User $editorUser;
+
     protected User $viewerUser;
+
     protected Facility $facility;
 
     protected function setUp(): void
@@ -25,17 +28,17 @@ class LandInfoControllerTest extends TestCase
         // Create test users
         $this->adminUser = User::factory()->create([
             'role' => 'admin',
-            'access_scope' => null
+            'access_scope' => null,
         ]);
 
         $this->editorUser = User::factory()->create([
             'role' => 'editor',
-            'access_scope' => null
+            'access_scope' => null,
         ]);
 
         $this->viewerUser = User::factory()->create([
             'role' => 'viewer',
-            'access_scope' => null
+            'access_scope' => null,
         ]);
 
         // Create test facility
@@ -62,8 +65,8 @@ class LandInfoControllerTest extends TestCase
                 'data' => [
                     'ownership_type' => 'owned',
                     'purchase_price' => 10000000,
-                    'site_area_tsubo' => 100.0
-                ]
+                    'site_area_tsubo' => 100.0,
+                ],
             ]);
     }
 
@@ -85,8 +88,8 @@ class LandInfoControllerTest extends TestCase
                 'success' => true,
                 'data' => [
                     'ownership_type' => 'leased',
-                    'monthly_rent' => 500000
-                ]
+                    'monthly_rent' => 500000,
+                ],
             ]);
     }
 
@@ -106,8 +109,8 @@ class LandInfoControllerTest extends TestCase
             ->assertJson([
                 'success' => true,
                 'data' => [
-                    'ownership_type' => 'owned_rental'
-                ]
+                    'ownership_type' => 'owned_rental',
+                ],
             ]);
     }
 
@@ -121,7 +124,7 @@ class LandInfoControllerTest extends TestCase
             ->assertJson([
                 'success' => true,
                 'data' => null,
-                'message' => '土地情報が登録されていません。'
+                'message' => '土地情報が登録されていません。',
             ]);
     }
 
@@ -149,8 +152,8 @@ class LandInfoControllerTest extends TestCase
             ->assertJson([
                 'success' => true,
                 'data' => [
-                    'facility_id' => $this->facility->id
-                ]
+                    'facility_id' => $this->facility->id,
+                ],
             ]);
     }
 
@@ -168,7 +171,7 @@ class LandInfoControllerTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJson([
-                'success' => true
+                'success' => true,
             ]);
     }
 
@@ -181,7 +184,7 @@ class LandInfoControllerTest extends TestCase
         $response->assertStatus(403)
             ->assertJson([
                 'success' => false,
-                'message' => 'この施設の土地情報を編集する権限がありません。'
+                'message' => 'この施設の土地情報を編集する権限がありません。',
             ]);
     }
 
@@ -194,7 +197,7 @@ class LandInfoControllerTest extends TestCase
             'site_area_sqm' => 300.50,
             'site_area_tsubo' => 90.91,
             'purchase_price' => 15000000,
-            'notes' => 'Test land information'
+            'notes' => 'Test land information',
         ];
 
         $response = $this->actingAs($this->adminUser)
@@ -203,14 +206,14 @@ class LandInfoControllerTest extends TestCase
         $response->assertStatus(200)
             ->assertJson([
                 'success' => true,
-                'message' => '土地情報を更新しました。'
+                'message' => '土地情報を更新しました。',
             ]);
 
         $this->assertDatabaseHas('land_info', [
             'facility_id' => $this->facility->id,
             'ownership_type' => 'owned',
             'parking_spaces' => 50,
-            'purchase_price' => 15000000
+            'purchase_price' => 15000000,
         ]);
     }
 
@@ -229,7 +232,7 @@ class LandInfoControllerTest extends TestCase
             'monthly_rent' => 800000,
             'contract_start_date' => '2024-01-01',
             'contract_end_date' => '2029-12-31',
-            'auto_renewal' => 'yes'
+            'auto_renewal' => 'yes',
         ];
 
         $response = $this->actingAs($this->editorUser)
@@ -238,14 +241,14 @@ class LandInfoControllerTest extends TestCase
         $response->assertStatus(200)
             ->assertJson([
                 'success' => true,
-                'message' => '土地情報を更新しました。'
+                'message' => '土地情報を更新しました。',
             ]);
 
         $this->assertDatabaseHas('land_info', [
             'facility_id' => $this->facility->id,
             'ownership_type' => 'leased',
             'monthly_rent' => 800000,
-            'auto_renewal' => 'yes'
+            'auto_renewal' => 'yes',
         ]);
     }
 
@@ -260,7 +263,7 @@ class LandInfoControllerTest extends TestCase
 
         $updateData = [
             'ownership_type' => 'owned',
-            'purchase_price' => 20000000
+            'purchase_price' => 20000000,
         ];
 
         $response = $this->actingAs($this->viewerUser)
@@ -269,7 +272,7 @@ class LandInfoControllerTest extends TestCase
         $response->assertStatus(403)
             ->assertJson([
                 'success' => false,
-                'message' => 'この施設の土地情報を編集する権限がありません。'
+                'message' => 'この施設の土地情報を編集する権限がありません。',
             ]);
     }
 
@@ -278,7 +281,7 @@ class LandInfoControllerTest extends TestCase
     {
         $landData = [
             'parking_spaces' => 50,
-            'site_area_sqm' => 300.50
+            'site_area_sqm' => 300.50,
         ];
 
         $response = $this->actingAs($this->adminUser)
@@ -293,7 +296,7 @@ class LandInfoControllerTest extends TestCase
     {
         $landData = [
             'ownership_type' => 'invalid_type',
-            'parking_spaces' => 50
+            'parking_spaces' => 50,
         ];
 
         $response = $this->actingAs($this->adminUser)
@@ -310,7 +313,7 @@ class LandInfoControllerTest extends TestCase
             'ownership_type' => 'owned',
             'parking_spaces' => 'not_a_number',
             'site_area_sqm' => 'invalid',
-            'purchase_price' => 'not_numeric'
+            'purchase_price' => 'not_numeric',
         ];
 
         $response = $this->actingAs($this->adminUser)
@@ -320,7 +323,7 @@ class LandInfoControllerTest extends TestCase
             ->assertJsonValidationErrors([
                 'parking_spaces',
                 'site_area_sqm',
-                'purchase_price'
+                'purchase_price',
             ]);
     }
 
@@ -330,7 +333,7 @@ class LandInfoControllerTest extends TestCase
         $landData = [
             'ownership_type' => 'leased',
             'contract_start_date' => 'invalid_date',
-            'contract_end_date' => '2024-01-01'
+            'contract_end_date' => '2024-01-01',
         ];
 
         $response = $this->actingAs($this->adminUser)
@@ -346,7 +349,7 @@ class LandInfoControllerTest extends TestCase
         $landData = [
             'ownership_type' => 'leased',
             'contract_start_date' => '2024-12-31',
-            'contract_end_date' => '2024-01-01'
+            'contract_end_date' => '2024-01-01',
         ];
 
         $response = $this->actingAs($this->adminUser)
@@ -362,7 +365,7 @@ class LandInfoControllerTest extends TestCase
         $landData = [
             'ownership_type' => 'leased',
             'management_company_email' => 'invalid_email',
-            'owner_email' => 'also_invalid'
+            'owner_email' => 'also_invalid',
         ];
 
         $response = $this->actingAs($this->adminUser)
@@ -371,7 +374,7 @@ class LandInfoControllerTest extends TestCase
         $response->assertStatus(422)
             ->assertJsonValidationErrors([
                 'management_company_email',
-                'owner_email'
+                'owner_email',
             ]);
     }
 
@@ -381,7 +384,7 @@ class LandInfoControllerTest extends TestCase
         $landData = [
             'ownership_type' => 'leased',
             'management_company_url' => 'not_a_url',
-            'owner_url' => 'invalid_url'
+            'owner_url' => 'invalid_url',
         ];
 
         $response = $this->actingAs($this->adminUser)
@@ -390,7 +393,7 @@ class LandInfoControllerTest extends TestCase
         $response->assertStatus(422)
             ->assertJsonValidationErrors([
                 'management_company_url',
-                'owner_url'
+                'owner_url',
             ]);
     }
 
@@ -401,7 +404,7 @@ class LandInfoControllerTest extends TestCase
             'ownership_type' => 'owned',
             'management_company_name' => str_repeat('a', 31), // Max 30
             'owner_name' => str_repeat('b', 31), // Max 30
-            'notes' => str_repeat('c', 2001) // Max 2000
+            'notes' => str_repeat('c', 2001), // Max 2000
         ];
 
         $response = $this->actingAs($this->adminUser)
@@ -411,7 +414,7 @@ class LandInfoControllerTest extends TestCase
             ->assertJsonValidationErrors([
                 'management_company_name',
                 'owner_name',
-                'notes'
+                'notes',
             ]);
     }
 
@@ -421,7 +424,7 @@ class LandInfoControllerTest extends TestCase
         $calculationData = [
             'calculation_type' => 'unit_price',
             'purchase_price' => 10000000,
-            'site_area_tsubo' => 100.0
+            'site_area_tsubo' => 100.0,
         ];
 
         $response = $this->actingAs($this->adminUser)
@@ -431,8 +434,8 @@ class LandInfoControllerTest extends TestCase
             ->assertJson([
                 'success' => true,
                 'data' => [
-                    'unit_price' => 100000.0
-                ]
+                    'unit_price' => 100000.0,
+                ],
             ]);
     }
 
@@ -442,7 +445,7 @@ class LandInfoControllerTest extends TestCase
         $calculationData = [
             'calculation_type' => 'contract_period',
             'contract_start_date' => '2020-01-01',
-            'contract_end_date' => '2025-06-01'
+            'contract_end_date' => '2025-06-01',
         ];
 
         $response = $this->actingAs($this->adminUser)
@@ -452,8 +455,8 @@ class LandInfoControllerTest extends TestCase
             ->assertJson([
                 'success' => true,
                 'data' => [
-                    'contract_period' => '5年5ヶ月'
-                ]
+                    'contract_period' => '5年5ヶ月',
+                ],
             ]);
     }
 
@@ -461,7 +464,7 @@ class LandInfoControllerTest extends TestCase
     public function validates_calculation_request()
     {
         $calculationData = [
-            'calculation_type' => 'invalid_type'
+            'calculation_type' => 'invalid_type',
         ];
 
         $response = $this->actingAs($this->adminUser)
@@ -490,8 +493,8 @@ class LandInfoControllerTest extends TestCase
                 'success' => true,
                 'data' => [
                     'status' => 'approved',
-                    'has_pending_changes' => false
-                ]
+                    'has_pending_changes' => false,
+                ],
             ]);
     }
 
@@ -510,13 +513,13 @@ class LandInfoControllerTest extends TestCase
         $response->assertStatus(200)
             ->assertJson([
                 'success' => true,
-                'message' => '土地情報を承認しました。'
+                'message' => '土地情報を承認しました。',
             ]);
 
         $this->assertDatabaseHas('land_info', [
             'id' => $landInfo->id,
             'status' => 'approved',
-            'approved_by' => $this->adminUser->id
+            'approved_by' => $this->adminUser->id,
         ]);
     }
 
@@ -535,7 +538,7 @@ class LandInfoControllerTest extends TestCase
         $response->assertStatus(403)
             ->assertJson([
                 'success' => false,
-                'message' => 'この施設の土地情報を承認する権限がありません。'
+                'message' => 'この施設の土地情報を承認する権限がありません。',
             ]);
     }
 
@@ -549,7 +552,7 @@ class LandInfoControllerTest extends TestCase
         ]);
 
         $rejectionData = [
-            'rejection_reason' => '入力内容に不備があります。'
+            'rejection_reason' => '入力内容に不備があります。',
         ];
 
         $response = $this->actingAs($this->adminUser)
@@ -558,14 +561,14 @@ class LandInfoControllerTest extends TestCase
         $response->assertStatus(200)
             ->assertJson([
                 'success' => true,
-                'message' => '土地情報を差戻ししました。'
+                'message' => '土地情報を差戻ししました。',
             ]);
 
         $this->assertDatabaseHas('land_info', [
             'id' => $landInfo->id,
             'status' => 'draft',
             'rejection_reason' => '入力内容に不備があります。',
-            'rejected_by' => $this->adminUser->id
+            'rejected_by' => $this->adminUser->id,
         ]);
     }
 
@@ -600,7 +603,7 @@ class LandInfoControllerTest extends TestCase
         $response->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'message' => '承認待ちの土地情報がありません。'
+                'message' => '承認待ちの土地情報がありません。',
             ]);
     }
 
@@ -610,7 +613,7 @@ class LandInfoControllerTest extends TestCase
         $landData = [
             'ownership_type' => 'owned',
             'parking_spaces' => '５０', // Full-width numbers
-            'purchase_price' => '１０００００００' // Full-width numbers
+            'purchase_price' => '１０００００００', // Full-width numbers
         ];
 
         $response = $this->actingAs($this->adminUser)
@@ -621,7 +624,7 @@ class LandInfoControllerTest extends TestCase
         $this->assertDatabaseHas('land_info', [
             'facility_id' => $this->facility->id,
             'parking_spaces' => 50,
-            'purchase_price' => 10000000
+            'purchase_price' => 10000000,
         ]);
     }
 }

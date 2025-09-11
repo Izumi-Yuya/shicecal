@@ -4,24 +4,25 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LandInfoRequest;
 use App\Models\Facility;
-use App\Models\FacilityService as FacilityServiceModel;
-use App\Models\LandInfo;
 use App\Models\File;
+use App\Models\LandInfo;
 use App\Services\ActivityLogService;
-use App\Services\FacilityService;
 use App\Services\ExportService;
-use Illuminate\Http\Request;
+use App\Services\FacilityService;
+use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
-use Exception;
 
 class FacilityController extends Controller
 {
     protected ActivityLogService $activityLogService;
+
     protected FacilityService $facilityService;
+
     protected ExportService $exportService;
 
     public function __construct(
@@ -33,6 +34,7 @@ class FacilityController extends Controller
         $this->facilityService = $facilityService;
         $this->exportService = $exportService;
     }
+
     /**
      * Display a listing of the resource.
      */
@@ -110,7 +112,7 @@ class FacilityController extends Controller
             'maintenanceHistories' => function ($query) {
                 $query->with('creator')->latest('maintenance_date');
             },
-            'landInfo'
+            'landInfo',
         ]);
 
         $landInfo = $facility->landInfo;
@@ -203,6 +205,7 @@ class FacilityController extends Controller
     public function editBasicInfo(Facility $facility)
     {
         $facility->load('services');
+
         return view('facilities.edit-basic-info', compact('facility'));
     }
 
@@ -267,7 +270,7 @@ class FacilityController extends Controller
 
         // 新しいサービス情報を保存（空でない行のみ）
         foreach ($services as $serviceData) {
-            if (!empty($serviceData['service_type'])) {
+            if (! empty($serviceData['service_type'])) {
                 $facility->services()->create([
                     'service_type' => $serviceData['service_type'],
                     'renewal_start_date' => $serviceData['renewal_start_date'] ?? null,
@@ -292,11 +295,11 @@ class FacilityController extends Controller
 
             $landInfo = $this->facilityService->getLandInfo($facility);
 
-            if (!$landInfo) {
+            if (! $landInfo) {
                 return response()->json([
                     'success' => true,
                     'data' => null,
-                    'message' => '土地情報が登録されていません。'
+                    'message' => '土地情報が登録されていません。',
                 ]);
             }
 
@@ -304,18 +307,18 @@ class FacilityController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $formattedData
+                'data' => $formattedData,
             ]);
         } catch (Exception $e) {
             Log::error('Land info show failed', [
                 'facility_id' => $facility->id,
                 'user_id' => auth()->id(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'システムエラーが発生しました。'
+                'message' => 'システムエラーが発生しました。',
             ], 500);
         }
     }
@@ -339,7 +342,7 @@ class FacilityController extends Controller
             Log::error('Land info edit failed', [
                 'facility_id' => $facility->id,
                 'user_id' => auth()->id(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return redirect()->route('facilities.show', $facility)
@@ -377,17 +380,18 @@ class FacilityController extends Controller
             // Log the activity
             $this->activityLogService->logFacilityUpdated(
                 $facility->id,
-                $facility->facility_name . ' - 土地情報',
+                $facility->facility_name.' - 土地情報',
                 $request
             );
 
             // Return appropriate response based on request type
             if ($request->expectsJson()) {
                 $formattedData = $this->facilityService->formatDisplayData($landInfo);
+
                 return response()->json([
                     'success' => true,
                     'message' => '土地情報を更新しました。',
-                    'data' => $formattedData
+                    'data' => $formattedData,
                 ]);
             }
 
@@ -397,9 +401,10 @@ class FacilityController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'この施設の土地情報を編集する権限がありません。'
+                    'message' => 'この施設の土地情報を編集する権限がありません。',
                 ], 403);
             }
+
             return redirect()->route('facilities.show', $facility)
                 ->with('error', 'この施設の土地情報を編集する権限がありません。');
         } catch (ValidationException $e) {
@@ -407,9 +412,10 @@ class FacilityController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => '入力内容に誤りがあります。',
-                    'errors' => $e->errors()
+                    'errors' => $e->errors(),
                 ], 422);
             }
+
             return redirect()->back()
                 ->withErrors($e->errors())
                 ->withInput();
@@ -418,15 +424,16 @@ class FacilityController extends Controller
                 'facility_id' => $facility->id,
                 'user_id' => auth()->id(),
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'システムエラーが発生しました。'
+                    'message' => 'システムエラーが発生しました。',
                 ], 500);
             }
+
             return redirect()->back()
                 ->with('error', 'システムエラーが発生しました。')
                 ->withInput();
@@ -477,24 +484,24 @@ class FacilityController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $result
+                'data' => $result,
             ]);
         } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
                 'message' => '入力内容に誤りがあります。',
-                'errors' => $e->errors()
+                'errors' => $e->errors(),
             ], 422);
         } catch (Exception $e) {
             Log::error('Land info calculation failed', [
                 'user_id' => auth()->id(),
                 'request_data' => $request->all(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => '計算処理でエラーが発生しました。'
+                'message' => '計算処理でエラーが発生しました。',
             ], 500);
         }
     }
@@ -510,11 +517,12 @@ class FacilityController extends Controller
 
             $landInfo = $this->facilityService->getLandInfo($facility);
 
-            if (!$landInfo || $landInfo->status !== 'pending_approval') {
-                $message = !$landInfo ? '承認待ちの土地情報がありません。' : 'この土地情報は既に承認済みです。';
+            if (! $landInfo || $landInfo->status !== 'pending_approval') {
+                $message = ! $landInfo ? '承認待ちの土地情報がありません。' : 'この土地情報は既に承認済みです。';
+
                 return response()->json([
                     'success' => false,
-                    'message' => $message
+                    'message' => $message,
                 ], 422);
             }
 
@@ -545,29 +553,29 @@ class FacilityController extends Controller
             // Log the approval
             $this->activityLogService->logFacilityUpdated(
                 $facility->id,
-                $facility->facility_name . ' - 土地情報承認',
+                $facility->facility_name.' - 土地情報承認',
                 request()
             );
 
             return response()->json([
                 'success' => true,
-                'message' => '土地情報を承認しました。'
+                'message' => '土地情報を承認しました。',
             ]);
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'この施設の土地情報を承認する権限がありません。'
+                'message' => 'この施設の土地情報を承認する権限がありません。',
             ], 403);
         } catch (Exception $e) {
             Log::error('Land info approval failed', [
                 'facility_id' => $facility->id,
                 'user_id' => auth()->id(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'システムエラーが発生しました。'
+                'message' => 'システムエラーが発生しました。',
             ], 500);
         }
     }
@@ -582,15 +590,15 @@ class FacilityController extends Controller
             $this->authorize('reject', [LandInfo::class, $facility]);
 
             $validated = $request->validate([
-                'rejection_reason' => 'required|string|max:1000'
+                'rejection_reason' => 'required|string|max:1000',
             ]);
 
             $landInfo = $this->facilityService->getLandInfo($facility);
 
-            if (!$landInfo || $landInfo->status !== 'pending_approval') {
+            if (! $landInfo || $landInfo->status !== 'pending_approval') {
                 return response()->json([
                     'success' => false,
-                    'message' => '承認待ちの土地情報がありません。'
+                    'message' => '承認待ちの土地情報がありません。',
                 ], 422);
             }
 
@@ -623,35 +631,35 @@ class FacilityController extends Controller
             // Log the rejection
             $this->activityLogService->logFacilityUpdated(
                 $facility->id,
-                $facility->facility_name . ' - 土地情報差戻し: ' . $validated['rejection_reason'],
+                $facility->facility_name.' - 土地情報差戻し: '.$validated['rejection_reason'],
                 $request
             );
 
             return response()->json([
                 'success' => true,
-                'message' => '土地情報を差戻ししました。'
+                'message' => '土地情報を差戻ししました。',
             ]);
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'この施設の土地情報を差戻しする権限がありません。'
+                'message' => 'この施設の土地情報を差戻しする権限がありません。',
             ], 403);
         } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
                 'message' => '入力内容に誤りがあります。',
-                'errors' => $e->errors()
+                'errors' => $e->errors(),
             ], 422);
         } catch (Exception $e) {
             Log::error('Land info rejection failed', [
                 'facility_id' => $facility->id,
                 'user_id' => auth()->id(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'システムエラーが発生しました。'
+                'message' => 'システムエラーが発生しました。',
             ], 500);
         }
     }
@@ -713,7 +721,7 @@ class FacilityController extends Controller
             }
 
             $message = count($uploadedFiles) > 0 ? 'ファイルをアップロードしました。' : '';
-            if (!empty($errors)) {
+            if (! empty($errors)) {
                 $message .= ' 一部のファイルでエラーが発生しました。';
             }
 
@@ -723,24 +731,24 @@ class FacilityController extends Controller
                 'data' => [
                     'uploaded_files' => $uploadedFiles,
                     'errors' => $errors,
-                ]
+                ],
             ]);
         } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'ファイル形式またはサイズが無効です。',
-                'errors' => $e->errors()
+                'errors' => $e->errors(),
             ], 422);
         } catch (Exception $e) {
             Log::error('Land document upload failed', [
                 'facility_id' => $facility->id,
                 'user_id' => auth()->id(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'ファイルのアップロードに失敗しました。'
+                'message' => 'ファイルのアップロードに失敗しました。',
             ], 500);
         }
     }
@@ -770,18 +778,18 @@ class FacilityController extends Controller
                         'uploaded_at' => $file->created_at->format('Y-m-d H:i:s'),
                         'uploader_name' => $file->uploader->name ?? '',
                     ];
-                })
+                }),
             ]);
         } catch (Exception $e) {
             Log::error('Failed to get land documents', [
                 'facility_id' => $facility->id,
                 'user_id' => auth()->id(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'ファイル一覧の取得に失敗しました。'
+                'message' => 'ファイル一覧の取得に失敗しました。',
             ], 500);
         }
     }
@@ -806,12 +814,12 @@ class FacilityController extends Controller
                 'facility_id' => $facility->id,
                 'file_id' => $fileId,
                 'user_id' => auth()->id(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'ファイルのダウンロードに失敗しました。'
+                'message' => 'ファイルのダウンロードに失敗しました。',
             ], 500);
         }
     }
@@ -841,19 +849,19 @@ class FacilityController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'ファイルを削除しました。'
+                'message' => 'ファイルを削除しました。',
             ]);
         } catch (Exception $e) {
             Log::error('Land document deletion failed', [
                 'facility_id' => $facility->id,
                 'file_id' => $fileId,
                 'user_id' => auth()->id(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'ファイルの削除に失敗しました。'
+                'message' => 'ファイルの削除に失敗しました。',
             ], 500);
         }
     }
@@ -869,13 +877,13 @@ class FacilityController extends Controller
 
             $landInfo = $this->facilityService->getLandInfo($facility);
 
-            if (!$landInfo) {
+            if (! $landInfo) {
                 return response()->json([
                     'success' => true,
                     'data' => [
                         'status' => null,
-                        'has_pending_changes' => false
-                    ]
+                        'has_pending_changes' => false,
+                    ],
                 ]);
             }
 
@@ -885,19 +893,19 @@ class FacilityController extends Controller
                     'status' => $landInfo->status,
                     'has_pending_changes' => $landInfo->status === 'pending_approval',
                     'approved_at' => $landInfo->approved_at?->format('Y-m-d H:i:s'),
-                    'approved_by' => $landInfo->approver?->name
-                ]
+                    'approved_by' => $landInfo->approver?->name,
+                ],
             ]);
         } catch (Exception $e) {
             Log::error('Land info status check failed', [
                 'facility_id' => $facility->id,
                 'user_id' => auth()->id(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'システムエラーが発生しました。'
+                'message' => 'システムエラーが発生しました。',
             ], 500);
         }
     }
@@ -931,7 +939,7 @@ class FacilityController extends Controller
                 \Storage::disk('public')->delete($landInfo->lease_contract_pdf_path);
                 $landInfo->update([
                     'lease_contract_pdf_path' => null,
-                    'lease_contract_pdf_name' => null
+                    'lease_contract_pdf_name' => null,
                 ]);
             }
         }
@@ -941,7 +949,7 @@ class FacilityController extends Controller
                 \Storage::disk('public')->delete($landInfo->registry_pdf_path);
                 $landInfo->update([
                     'registry_pdf_path' => null,
-                    'registry_pdf_name' => null
+                    'registry_pdf_name' => null,
                 ]);
             }
         }
@@ -958,7 +966,7 @@ class FacilityController extends Controller
 
             $landInfo->update([
                 'lease_contract_pdf_path' => $path,
-                'lease_contract_pdf_name' => $file->getClientOriginalName()
+                'lease_contract_pdf_name' => $file->getClientOriginalName(),
             ]);
         }
 
@@ -974,7 +982,7 @@ class FacilityController extends Controller
 
             $landInfo->update([
                 'registry_pdf_path' => $path,
-                'registry_pdf_name' => $file->getClientOriginalName()
+                'registry_pdf_name' => $file->getClientOriginalName(),
             ]);
         }
     }

@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Services;
 
-use App\Services\FacilityService;
 use PHPUnit\Framework\TestCase;
 
 class LandCalculationServiceTest extends TestCase
@@ -12,7 +11,7 @@ class LandCalculationServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new LandCalculationService();
+        $this->service = new LandCalculationService;
     }
 
     /** @test */

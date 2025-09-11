@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\FacilityComment;
 use App\Models\Facility;
+use App\Models\FacilityComment;
 use App\Models\User;
-use App\Services\NotificationService;
 use App\Services\ActivityLogService;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
+use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
     protected NotificationService $notificationService;
+
     protected ActivityLogService $activityLogService;
 
     public function __construct(NotificationService $notificationService, ActivityLogService $activityLogService)
@@ -39,13 +40,13 @@ class CommentController extends Controller
         $content = $request->input('content');
 
         // Validate required fields
-        if (!$facilityId || !$content) {
+        if (! $facilityId || ! $content) {
             return redirect()->back()->with('error', 'コメント内容は必須です。');
         }
 
         // Check if facility exists and user has access
         $facility = Facility::find($facilityId);
-        if (!$facility) {
+        if (! $facility) {
             return redirect()->back()->with('error', '施設が見つかりません。');
         }
 
@@ -115,12 +116,12 @@ class CommentController extends Controller
     {
         $facilityId = $request->input('facility_id');
 
-        if (!$facilityId) {
+        if (! $facilityId) {
             return response()->json(['error' => '施設IDが必要です。'], 400);
         }
 
         $facility = Facility::find($facilityId);
-        if (!$facility) {
+        if (! $facility) {
             return response()->json(['error' => '施設が見つかりません。'], 404);
         }
 
@@ -131,7 +132,7 @@ class CommentController extends Controller
 
         return response()->json([
             'success' => true,
-            'comments' => $comments
+            'comments' => $comments,
         ]);
     }
 
@@ -167,7 +168,7 @@ class CommentController extends Controller
     {
         return response()->json([
             'success' => true,
-            'comment' => $comment->load(['poster', 'assignee', 'facility'])
+            'comment' => $comment->load(['poster', 'assignee', 'facility']),
         ]);
     }
 
@@ -178,7 +179,7 @@ class CommentController extends Controller
     {
         $status = $request->input('status');
 
-        if (!in_array($status, ['pending', 'in_progress', 'resolved'])) {
+        if (! in_array($status, ['pending', 'in_progress', 'resolved'])) {
             return redirect()->back()->with('error', '無効なステータスです。');
         }
 
@@ -257,7 +258,7 @@ class CommentController extends Controller
         // Filter by facility name
         if ($request->filled('facility_name')) {
             $query->whereHas('facility', function ($q) use ($request) {
-                $q->where('facility_name', 'like', '%' . $request->input('facility_name') . '%');
+                $q->where('facility_name', 'like', '%'.$request->input('facility_name').'%');
             });
         }
 
@@ -291,7 +292,7 @@ class CommentController extends Controller
         $commentIds = $request->input('comment_ids', []);
         $status = $request->input('status');
 
-        if (empty($commentIds) || !in_array($status, ['pending', 'in_progress', 'resolved'])) {
+        if (empty($commentIds) || ! in_array($status, ['pending', 'in_progress', 'resolved'])) {
             return redirect()->back()->with('error', '無効な操作です。');
         }
 
@@ -325,7 +326,7 @@ class CommentController extends Controller
             }
         }
 
-        return redirect()->back()->with('success', count($commentIds) . '件のコメントステータスを更新しました。');
+        return redirect()->back()->with('success', count($commentIds).'件のコメントステータスを更新しました。');
     }
 
     /**
@@ -366,7 +367,7 @@ class CommentController extends Controller
     public function destroy(FacilityComment $comment)
     {
         // 権限チェック
-        if (auth()->id() !== $comment->user_id && !auth()->user()->isAdmin()) {
+        if (auth()->id() !== $comment->user_id && ! auth()->user()->isAdmin()) {
             return redirect()->back()->with('error', 'このコメントを削除する権限がありません。');
         }
 
@@ -381,7 +382,7 @@ class CommentController extends Controller
     public function destroyFacilityComment(Facility $facility, FacilityComment $comment): JsonResponse
     {
         // 権限チェック
-        if (auth()->id() !== $comment->user_id && !auth()->user()->isAdmin()) {
+        if (auth()->id() !== $comment->user_id && ! auth()->user()->isAdmin()) {
             return response()->json([
                 'success' => false,
                 'message' => 'このコメントを削除する権限がありません。',

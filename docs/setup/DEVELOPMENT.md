@@ -143,6 +143,19 @@ MAIL_PORT=1025
 
 # npm コマンドの実行
 ./scripts/dev-commands.sh npm install
+
+# コード品質チェック
+./scripts/dev-commands.sh npm run lint        # 全てのリンティング
+./scripts/dev-commands.sh npm run lint:js     # JavaScript ESLint
+./scripts/dev-commands.sh npm run lint:blade  # Blade テンプレート検証
+./scripts/dev-commands.sh npm run lint:html   # HTML 構文チェック
+
+# 自動修正
+./scripts/dev-commands.sh npm run lint:js:fix  # JavaScript 自動修正
+
+# 統合品質チェック
+./scripts/dev-commands.sh npm run quality     # lint + test + build
+./scripts/dev-commands.sh npm run ci          # CI パイプライン実行
 ```
 
 ## データベース
@@ -236,7 +249,7 @@ MAIL_PORT=1025
 ### テストの実行
 
 ```bash
-# 全テストの実行
+# PHP テストの実行
 ./scripts/dev-commands.sh test
 
 # 特定のテストスイート
@@ -244,6 +257,13 @@ MAIL_PORT=1025
 
 # カバレッジレポート
 ./scripts/dev-commands.sh test --coverage
+
+# JavaScript テストの実行
+./scripts/dev-commands.sh npm run test        # 一回実行
+./scripts/dev-commands.sh npm run test:watch  # ウォッチモード
+
+# 統合テスト（PHP + JavaScript）
+./scripts/dev-commands.sh npm run quality
 ```
 
 ### テストデータベース
@@ -312,8 +332,16 @@ git checkout -b feature/new-feature
 # 開発環境で作業
 ./scripts/dev-commands.sh start
 
-# テストを書いて実行
-./scripts/dev-commands.sh test
+# 開発中の継続的チェック
+./scripts/dev-commands.sh npm run test:watch  # テスト監視
+./scripts/dev-commands.sh dev                 # 開発サーバー
+
+# コード品質チェック
+./scripts/dev-commands.sh npm run lint        # リンティング
+./scripts/dev-commands.sh npm run quality     # 統合品質チェック
+
+# コミット前の最終チェック
+./scripts/dev-commands.sh npm run ci          # CI パイプライン
 
 # コミットとプッシュ
 git add .

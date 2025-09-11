@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\ExportFavorite;
 use App\Models\Facility;
-use App\Models\LandInfo;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -14,10 +13,12 @@ use Tests\Traits\CreatesTestUsers;
 
 class ExportControllerTest extends TestCase
 {
-    use RefreshDatabase, WithFaker, CreatesTestFacilities, CreatesTestUsers;
+    use CreatesTestFacilities, CreatesTestUsers, RefreshDatabase, WithFaker;
 
     protected User $adminUser;
+
     protected User $editorUser;
+
     protected User $viewerUser;
 
     protected function setUp(): void
@@ -30,8 +31,8 @@ class ExportControllerTest extends TestCase
         $this->viewerUser = $this->createUserWithRole('viewer', [
             'access_scope' => [
                 'type' => 'department',
-                'departments' => ['営業部']
-            ]
+                'departments' => ['営業部'],
+            ],
         ]);
     }
 
@@ -114,7 +115,7 @@ class ExportControllerTest extends TestCase
 
         $response = $this->actingAs($this->adminUser)
             ->post(route('export.pdf.batch'), [
-                'facility_ids' => $facilities->pluck('id')->toArray()
+                'facility_ids' => $facilities->pluck('id')->toArray(),
             ]);
 
         $response->assertStatus(200);
@@ -129,7 +130,7 @@ class ExportControllerTest extends TestCase
     {
         $response = $this->actingAs($this->adminUser)
             ->post(route('export.pdf.batch'), [
-                'facility_ids' => []
+                'facility_ids' => [],
             ]);
 
         $response->assertRedirect();
@@ -237,7 +238,7 @@ class ExportControllerTest extends TestCase
         $response = $this->actingAs($this->adminUser)
             ->postJson(route('export.csv.preview'), [
                 'facility_ids' => [$facility->id],
-                'export_fields' => ['company_name', 'facility_name', 'land_ownership_type']
+                'export_fields' => ['company_name', 'facility_name', 'land_ownership_type'],
             ]);
 
         $response->assertStatus(200);
@@ -245,8 +246,8 @@ class ExportControllerTest extends TestCase
             'success' => true,
             'data' => [
                 'total_facilities' => 1,
-                'preview_count' => 1
-            ]
+                'preview_count' => 1,
+            ],
         ]);
 
         $responseData = $response->json('data');
@@ -266,7 +267,7 @@ class ExportControllerTest extends TestCase
         $response = $this->actingAs($this->adminUser)
             ->postJson(route('export.csv.generate'), [
                 'facility_ids' => [$facility->id],
-                'export_fields' => ['company_name', 'facility_name']
+                'export_fields' => ['company_name', 'facility_name'],
             ]);
 
         $response->assertStatus(200);
@@ -279,13 +280,13 @@ class ExportControllerTest extends TestCase
         $response = $this->actingAs($this->adminUser)
             ->postJson(route('export.csv.generate'), [
                 'facility_ids' => [],
-                'export_fields' => ['company_name', 'facility_name']
+                'export_fields' => ['company_name', 'facility_name'],
             ]);
 
         $response->assertStatus(400);
         $response->assertJson([
             'success' => false,
-            'message' => '施設または項目が選択されていません。'
+            'message' => '施設または項目が選択されていません。',
         ]);
     }
 
@@ -296,13 +297,13 @@ class ExportControllerTest extends TestCase
         $response = $this->actingAs($this->adminUser)
             ->postJson(route('export.csv.generate'), [
                 'facility_ids' => [$facility->id],
-                'export_fields' => []
+                'export_fields' => [],
             ]);
 
         $response->assertStatus(400);
         $response->assertJson([
             'success' => false,
-            'message' => '施設または項目が選択されていません。'
+            'message' => '施設または項目が選択されていません。',
         ]);
     }
 
@@ -317,7 +318,7 @@ class ExportControllerTest extends TestCase
             'user_id' => $this->adminUser->id,
             'name' => 'テストお気に入り',
             'facility_ids' => [1, 2, 3],
-            'export_fields' => ['company_name', 'facility_name']
+            'export_fields' => ['company_name', 'facility_name'],
         ]);
 
         $response = $this->actingAs($this->adminUser)
@@ -325,7 +326,7 @@ class ExportControllerTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJson([
-            'success' => true
+            'success' => true,
         ]);
 
         $favorites = $response->json('data');
@@ -341,18 +342,18 @@ class ExportControllerTest extends TestCase
             ->postJson(route('export.csv.favorites.store'), [
                 'name' => '新しいお気に入り',
                 'facility_ids' => [$facility->id],
-                'export_fields' => ['company_name', 'facility_name']
+                'export_fields' => ['company_name', 'facility_name'],
             ]);
 
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
-            'message' => 'お気に入りを保存しました。'
+            'message' => 'お気に入りを保存しました。',
         ]);
 
         $this->assertDatabaseHas('export_favorites', [
             'user_id' => $this->adminUser->id,
-            'name' => '新しいお気に入り'
+            'name' => '新しいお気に入り',
         ]);
     }
 
@@ -365,20 +366,20 @@ class ExportControllerTest extends TestCase
             'user_id' => $this->adminUser->id,
             'name' => '重複名前',
             'facility_ids' => [$facility->id],
-            'export_fields' => ['company_name']
+            'export_fields' => ['company_name'],
         ]);
 
         $response = $this->actingAs($this->adminUser)
             ->postJson(route('export.csv.favorites.store'), [
                 'name' => '重複名前',
                 'facility_ids' => [$facility->id],
-                'export_fields' => ['facility_name']
+                'export_fields' => ['facility_name'],
             ]);
 
         $response->assertStatus(400);
         $response->assertJson([
             'success' => false,
-            'message' => 'この名前のお気に入りは既に存在します。'
+            'message' => 'この名前のお気に入りは既に存在します。',
         ]);
     }
 
@@ -390,7 +391,7 @@ class ExportControllerTest extends TestCase
             'user_id' => $this->adminUser->id,
             'name' => 'ロードテスト',
             'facility_ids' => [$facility->id],
-            'export_fields' => ['company_name', 'facility_name']
+            'export_fields' => ['company_name', 'facility_name'],
         ]);
 
         $response = $this->actingAs($this->adminUser)
@@ -402,8 +403,8 @@ class ExportControllerTest extends TestCase
             'data' => [
                 'name' => 'ロードテスト',
                 'facility_ids' => [$facility->id],
-                'export_fields' => ['company_name', 'facility_name']
-            ]
+                'export_fields' => ['company_name', 'facility_name'],
+            ],
         ]);
     }
 
@@ -413,23 +414,23 @@ class ExportControllerTest extends TestCase
             'user_id' => $this->adminUser->id,
             'name' => '古い名前',
             'facility_ids' => [1],
-            'export_fields' => ['company_name']
+            'export_fields' => ['company_name'],
         ]);
 
         $response = $this->actingAs($this->adminUser)
             ->putJson(route('export.csv.favorites.update', $favorite->id), [
-                'name' => '新しい名前'
+                'name' => '新しい名前',
             ]);
 
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
-            'message' => 'お気に入り名を更新しました。'
+            'message' => 'お気に入り名を更新しました。',
         ]);
 
         $this->assertDatabaseHas('export_favorites', [
             'id' => $favorite->id,
-            'name' => '新しい名前'
+            'name' => '新しい名前',
         ]);
     }
 
@@ -439,7 +440,7 @@ class ExportControllerTest extends TestCase
             'user_id' => $this->adminUser->id,
             'name' => '削除テスト',
             'facility_ids' => [1],
-            'export_fields' => ['company_name']
+            'export_fields' => ['company_name'],
         ]);
 
         $response = $this->actingAs($this->adminUser)
@@ -448,11 +449,11 @@ class ExportControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
-            'message' => 'お気に入りを削除しました。'
+            'message' => 'お気に入りを削除しました。',
         ]);
 
         $this->assertDatabaseMissing('export_favorites', [
-            'id' => $favorite->id
+            'id' => $favorite->id,
         ]);
     }
 
@@ -462,7 +463,7 @@ class ExportControllerTest extends TestCase
             'user_id' => $this->editorUser->id,
             'name' => '他のユーザーのお気に入り',
             'facility_ids' => [1],
-            'export_fields' => ['company_name']
+            'export_fields' => ['company_name'],
         ]);
 
         $response = $this->actingAs($this->adminUser)
@@ -471,7 +472,7 @@ class ExportControllerTest extends TestCase
         $response->assertStatus(404);
         $response->assertJson([
             'success' => false,
-            'message' => 'お気に入りが見つかりません。'
+            'message' => 'お気に入りが見つかりません。',
         ]);
     }
 
@@ -672,7 +673,7 @@ class ExportControllerTest extends TestCase
             'status',
             'processed_count',
             'total_count',
-            'percentage'
+            'percentage',
         ]);
 
         // Clean up
@@ -809,15 +810,15 @@ class ExportControllerTest extends TestCase
         $response = $this->actingAs($this->adminUser)
             ->postJson(route('export.csv.preview'), [
                 'facility_ids' => [99999], // Non-existent facility
-                'export_fields' => ['company_name']
+                'export_fields' => ['company_name'],
             ]);
 
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
             'data' => [
-                'preview_count' => 0
-            ]
+                'preview_count' => 0,
+            ],
         ]);
     }
 }

@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Facility;
 use App\Models\LandInfo;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -14,6 +14,7 @@ class LandInfoAuthorizationTest extends TestCase
     use RefreshDatabase, WithFaker;
 
     protected Facility $facility;
+
     protected LandInfo $landInfo;
 
     protected function setUp(): void
@@ -122,7 +123,7 @@ class LandInfoAuthorizationTest extends TestCase
         // Create viewer with limited access scope
         $viewer = User::factory()->create([
             'role' => 'viewer',
-            'access_scope' => ['departments' => ['Tokyo']]
+            'access_scope' => ['departments' => ['Tokyo']],
         ]);
 
         // Create facility in allowed department
@@ -172,7 +173,7 @@ class LandInfoAuthorizationTest extends TestCase
         $this->assertTrue($admin->can('downloadDocuments', [LandInfo::class, $this->facility]));
 
         // Test that unauthorized roles cannot download
-        $unauthorizedUser = new User();
+        $unauthorizedUser = new User;
         $unauthorizedUser->role = 'invalid_role';
         $unauthorizedUser->id = 999;
         $this->assertFalse($unauthorizedUser->can('downloadDocuments', [LandInfo::class, $this->facility]));

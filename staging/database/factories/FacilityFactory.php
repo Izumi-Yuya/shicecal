@@ -29,7 +29,7 @@ class FacilityFactory extends Factory
             'company_name' => $this->faker->company(),
             'office_code' => strtoupper($this->faker->bothify('??###')),
             'designation_number' => $this->faker->numerify('####-####-####'),
-            'facility_name' => $this->faker->company() . '施設',
+            'facility_name' => $this->faker->company().'施設',
             'postal_code' => $this->faker->postcode(),
             'address' => $this->faker->address(),
             'phone_number' => $this->faker->phoneNumber(),

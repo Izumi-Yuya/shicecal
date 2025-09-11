@@ -10,10 +10,6 @@ trait HandlesServiceErrors
 {
     /**
      * Log error with service context
-     *
-     * @param string $message
-     * @param array $context
-     * @return void
      */
     protected function logError(string $message, array $context = []): void
     {
@@ -26,10 +22,6 @@ trait HandlesServiceErrors
 
     /**
      * Log warning with service context
-     *
-     * @param string $message
-     * @param array $context
-     * @return void
      */
     protected function logWarning(string $message, array $context = []): void
     {
@@ -42,10 +34,6 @@ trait HandlesServiceErrors
 
     /**
      * Log info with service context
-     *
-     * @param string $message
-     * @param array $context
-     * @return void
      */
     protected function logInfo(string $message, array $context = []): void
     {
@@ -59,10 +47,6 @@ trait HandlesServiceErrors
     /**
      * Throw service-specific exception
      *
-     * @param string $message
-     * @param int $code
-     * @param array $context
-     * @return never
      * @throws ServiceException
      */
     protected function throwServiceException(string $message, int $code = 0, array $context = []): never
@@ -81,15 +65,11 @@ trait HandlesServiceErrors
     /**
      * Handle and re-throw exceptions with service context
      *
-     * @param Exception $e
-     * @param string $operation
-     * @param array $context
-     * @return never
      * @throws ServiceException
      */
     protected function handleAndRethrowException(Exception $e, string $operation, array $context = []): never
     {
-        $message = "Service operation failed [{$operation}]: " . $e->getMessage();
+        $message = "Service operation failed [{$operation}]: ".$e->getMessage();
 
         $this->logError($message, array_merge($context, [
             'original_exception' => get_class($e),
@@ -105,10 +85,6 @@ trait HandlesServiceErrors
     /**
      * Validate required parameters and throw exception if missing
      *
-     * @param array $params
-     * @param array $required
-     * @param string $operation
-     * @return void
      * @throws ServiceException
      */
     protected function validateRequiredParams(array $params, array $required, string $operation = ''): void
@@ -116,13 +92,13 @@ trait HandlesServiceErrors
         $missing = [];
 
         foreach ($required as $param) {
-            if (!array_key_exists($param, $params) || $params[$param] === null) {
+            if (! array_key_exists($param, $params) || $params[$param] === null) {
                 $missing[] = $param;
             }
         }
 
-        if (!empty($missing)) {
-            $message = "Missing required parameters: " . implode(', ', $missing);
+        if (! empty($missing)) {
+            $message = 'Missing required parameters: '.implode(', ', $missing);
             if ($operation) {
                 $message .= " for operation: {$operation}";
             }
@@ -138,10 +114,6 @@ trait HandlesServiceErrors
     /**
      * Execute operation with error handling
      *
-     * @param callable $operation
-     * @param string $operationName
-     * @param array $context
-     * @return mixed
      * @throws ServiceException
      */
     protected function executeWithErrorHandling(callable $operation, string $operationName, array $context = []): mixed
@@ -166,8 +138,6 @@ trait HandlesServiceErrors
     /**
      * Get the service-specific exception class
      * Must be implemented by each service using this trait
-     *
-     * @return string
      */
     abstract protected function getServiceExceptionClass(): string;
 }

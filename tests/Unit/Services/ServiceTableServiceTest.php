@@ -17,11 +17,12 @@ class ServiceTableServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new ServiceTableService();
+        $this->service = new ServiceTableService;
     }
 
     /**
      * Test service preparation with empty collection
+     *
      * @test
      */
     public function it_prepares_empty_services_correctly()
@@ -36,6 +37,7 @@ class ServiceTableServiceTest extends TestCase
 
     /**
      * Test service preparation with valid services
+     *
      * @test
      */
     public function it_prepares_valid_services_correctly()
@@ -54,6 +56,7 @@ class ServiceTableServiceTest extends TestCase
 
     /**
      * Test service data validation
+     *
      * @test
      */
     public function it_validates_service_data_correctly()
@@ -64,7 +67,7 @@ class ServiceTableServiceTest extends TestCase
 
         // Invalid services
         $this->assertFalse($this->service->hasValidServiceData(null));
-        $this->assertFalse($this->service->hasValidServiceData((object)[]));
+        $this->assertFalse($this->service->hasValidServiceData((object) []));
         $this->assertFalse($this->service->hasValidServiceData(
             FacilityService::factory()->make(['service_type' => ''])
         ));
@@ -75,6 +78,7 @@ class ServiceTableServiceTest extends TestCase
 
     /**
      * Test service formatting for display
+     *
      * @test
      */
     public function it_formats_service_for_display_correctly()
@@ -103,6 +107,7 @@ class ServiceTableServiceTest extends TestCase
 
     /**
      * Test service period formatting
+     *
      * @test
      */
     public function it_formats_service_periods_correctly()
@@ -142,6 +147,7 @@ class ServiceTableServiceTest extends TestCase
 
     /**
      * Test configuration access
+     *
      * @test
      */
     public function it_provides_configuration_access()
@@ -163,12 +169,13 @@ class ServiceTableServiceTest extends TestCase
 
     /**
      * Test CSS generation
+     *
      * @test
      */
     public function it_generates_css_correctly()
     {
         $css = $this->service->generateColumnCss();
-        
+
         $this->assertIsString($css);
         $this->assertStringContainsString('.service-info .col-service_type', $css);
         $this->assertStringContainsString('width:', $css);
@@ -177,6 +184,7 @@ class ServiceTableServiceTest extends TestCase
 
     /**
      * Test service limit enforcement
+     *
      * @test
      */
     public function it_enforces_service_limits()
@@ -185,7 +193,7 @@ class ServiceTableServiceTest extends TestCase
         $services = collect();
         for ($i = 0; $i < 15; $i++) {
             $services->push(FacilityService::factory()->make([
-                'service_type' => "Service {$i}"
+                'service_type' => "Service {$i}",
             ]));
         }
 

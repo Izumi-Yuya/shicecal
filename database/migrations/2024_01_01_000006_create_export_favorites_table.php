@@ -20,10 +20,10 @@ return new class extends Migration
             $table->json('facility_ids');
             $table->json('export_fields');
             $table->timestamps();
-            
+
             // Foreign key constraints
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            
+
             // Indexes
             $table->index('user_id');
         });

@@ -135,9 +135,9 @@ class LandInfoRequest extends FormRequest
         $numericFields = ['parking_spaces', 'purchase_price', 'monthly_rent'];
 
         foreach ($numericFields as $field) {
-            if ($this->has($field) && !is_null($this->input($field))) {
+            if ($this->has($field) && ! is_null($this->input($field))) {
                 $this->merge([
-                    $field => mb_convert_kana($this->input($field), 'n')
+                    $field => mb_convert_kana($this->input($field), 'n'),
                 ]);
             }
         }

@@ -2,11 +2,11 @@
 
 namespace App\Services\ServiceTable;
 
-use Illuminate\Support\Collection;
 use App\Services\ServiceTable\Contracts\ServiceFormatterInterface;
 use App\Services\ServiceTable\Contracts\ServiceTableConfigInterface;
-use InvalidArgumentException;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use InvalidArgumentException;
 
 /**
  * Handles service table rendering logic
@@ -21,16 +21,17 @@ class ServiceTableRenderer
 
     /**
      * Prepare services data for table display
-     * 
-     * @param Collection $services Collection of service objects
+     *
+     * @param  Collection  $services  Collection of service objects
      * @return array Formatted display data
+     *
      * @throws InvalidArgumentException When services collection is invalid
      */
     public function prepareServicesForDisplay(Collection $services): array
     {
         try {
             $this->validateServicesCollection($services);
-            
+
             $maxServices = $this->config->getMaxServices();
             $showEmptyRows = $this->config->shouldShowEmptyRows();
 
@@ -43,9 +44,9 @@ class ServiceTableRenderer
             Log::error('Service table rendering failed', [
                 'error' => $e->getMessage(),
                 'services_count' => $services->count(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
-            
+
             // Return safe fallback data
             return $this->createEmptyDisplayData(1, false);
         }
@@ -53,57 +54,56 @@ class ServiceTableRenderer
 
     /**
      * Format service for display
-     * 
-     * @param mixed $service Service object or null
+     *
+     * @param  mixed  $service  Service object or null
      * @return array Formatted service data
      */
     public function formatService($service): array
     {
-        if (!$this->hasValidServiceData($service)) {
+        if (! $this->hasValidServiceData($service)) {
             return $this->formatter->formatEmpty();
         }
-        
+
         try {
             return $this->formatter->format($service);
         } catch (\Exception $e) {
             Log::warning('Service formatting failed', [
                 'service_id' => $service->id ?? 'unknown',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            
+
             return $this->formatter->formatEmpty();
         }
     }
 
     /**
      * Check if service has valid data
-     * 
-     * @param mixed $service Service object to validate
+     *
+     * @param  mixed  $service  Service object to validate
      * @return bool True if service has valid data
      */
     public function hasValidServiceData($service): bool
     {
-        return $service !== null && 
+        return $service !== null &&
                is_object($service) &&
                property_exists($service, 'service_type') &&
-               !empty(trim($service->service_type ?? ''));
+               ! empty(trim($service->service_type ?? ''));
     }
 
     /**
      * Validate services collection
-     * 
-     * @param Collection $services
+     *
      * @throws InvalidArgumentException
      */
     private function validateServicesCollection(Collection $services): void
     {
-        if (!$services instanceof Collection) {
+        if (! $services instanceof Collection) {
             throw new InvalidArgumentException('Services must be a Collection instance');
         }
-        
+
         // Validate each service in the collection
         $services->each(function ($service, $index) {
-            if ($service !== null && !is_object($service)) {
+            if ($service !== null && ! is_object($service)) {
                 throw new InvalidArgumentException("Service at index {$index} must be an object or null");
             }
         });

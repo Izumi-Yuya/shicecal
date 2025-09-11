@@ -17,7 +17,7 @@ class ServiceTableViewHelper
     {
         $serviceCount = $services->count();
         $displayCount = max(1, $serviceCount);
-        
+
         return [
             'services' => $services,
             'serviceCount' => $serviceCount,
@@ -27,7 +27,7 @@ class ServiceTableViewHelper
             'hasServices' => $serviceCount > 0,
         ];
     }
-    
+
     /**
      * Format service date for display
      */
@@ -35,22 +35,22 @@ class ServiceTableViewHelper
     {
         return $date ? $date->format('Y年n月j日') : '';
     }
-    
+
     /**
      * Get CSS classes for service row
      */
     public function getServiceRowClasses(int $index, bool $isEmpty = false): string
     {
         $classes = [];
-        
+
         if ($isEmpty) {
             $classes[] = 'template-row';
         }
-        
+
         if ($index === 0) {
             $classes[] = 'first-service-row';
         }
-        
+
         return implode(' ', $classes);
     }
 }

@@ -23,10 +23,10 @@ return new class extends Migration
             $table->string('ip_address', 45);
             $table->text('user_agent');
             $table->timestamp('created_at');
-            
+
             // Foreign key constraints
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            
+
             // Indexes
             $table->index('user_id');
             $table->index('action');

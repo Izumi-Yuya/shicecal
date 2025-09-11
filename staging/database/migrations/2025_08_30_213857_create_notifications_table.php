@@ -25,10 +25,10 @@ return new class extends Migration
             $table->boolean('email_sent')->default(false); // メール送信フラグ
             $table->timestamp('email_sent_at')->nullable(); // メール送信日時
             $table->timestamps();
-            
+
             // Foreign key constraints
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            
+
             // Indexes
             $table->index('user_id');
             $table->index('type');

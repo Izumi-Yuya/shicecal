@@ -2,22 +2,24 @@
 
 namespace Tests\Unit\Services;
 
-use Tests\TestCase;
+use App\Models\Facility;
+use App\Models\LandInfo;
+use App\Models\User;
 use App\Services\FacilityService;
 use App\Services\NotificationService;
-use App\Models\LandInfo;
-use App\Models\Facility;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Tests\TestCase;
 
 class LandInfoServiceTest extends TestCase
 {
     use RefreshDatabase;
 
     protected FacilityService $service;
+
     protected LandCalculationService $calculationService;
+
     protected NotificationService $notificationService;
 
     protected function setUp(): void
@@ -28,7 +30,6 @@ class LandInfoServiceTest extends TestCase
         $this->notificationService = app(NotificationService::class);
 
         $this->service = app(FacilityService::class);
-        );
 
         // Create a test user for system settings
         $testUser = User::factory()->create();

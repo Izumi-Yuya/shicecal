@@ -2,11 +2,11 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
+use App\Models\Comment;
 use App\Models\Facility;
 use App\Models\LandInfo;
-use App\Models\Comment;
 use App\Models\Notification;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
@@ -15,7 +15,7 @@ use Tests\TestCase;
 
 /**
  * End-to-End Functionality Validation Tests
- * 
+ *
  * Tests all major features to ensure functionality is preserved after refactoring
  */
 class EndToEndFunctionalityTest extends TestCase
@@ -23,8 +23,11 @@ class EndToEndFunctionalityTest extends TestCase
     use RefreshDatabase, WithFaker;
 
     protected $admin;
+
     protected $editor;
+
     protected $viewer;
+
     protected $facility;
 
     protected function setUp(): void
@@ -40,7 +43,7 @@ class EndToEndFunctionalityTest extends TestCase
         $this->facility = Facility::factory()->create([
             'facility_name' => 'Test Facility',
             'office_code' => 'TEST001',
-            'status' => 'active'
+            'status' => 'active',
         ]);
     }
 
@@ -55,13 +58,13 @@ class EndToEndFunctionalityTest extends TestCase
             'facility_code' => 'NEW001',
             'address' => '123 Test Street',
             'status' => 'active',
-            'facility_type' => 'office'
+            'facility_type' => 'office',
         ]);
 
         $response->assertRedirect();
         $this->assertDatabaseHas('facilities', [
             'name' => 'New Test Facility',
-            'facility_code' => 'NEW001'
+            'facility_code' => 'NEW001',
         ]);
 
         $newFacility = Facility::where('facility_code', 'NEW001')->first();
@@ -77,14 +80,14 @@ class EndToEndFunctionalityTest extends TestCase
             'facility_code' => 'NEW001',
             'address' => '456 Updated Street',
             'status' => 'active',
-            'facility_type' => 'office'
+            'facility_type' => 'office',
         ]);
 
         $response->assertRedirect();
         $this->assertDatabaseHas('facilities', [
             'id' => $newFacility->id,
             'name' => 'Updated Test Facility',
-            'address' => '456 Updated Street'
+            'address' => '456 Updated Street',
         ]);
 
         // Test facility deletion
@@ -105,14 +108,14 @@ class EndToEndFunctionalityTest extends TestCase
             'acquisition_date' => '2023-01-15',
             'acquisition_cost' => 50000000,
             'current_value' => 55000000,
-            'notes' => 'Test land information'
+            'notes' => 'Test land information',
         ]);
 
         $response->assertRedirect();
         $this->assertDatabaseHas('land_infos', [
             'facility_id' => $this->facility->id,
             'land_type' => 'owned',
-            'area_sqm' => 1000.50
+            'area_sqm' => 1000.50,
         ]);
 
         $landInfo = LandInfo::where('facility_id', $this->facility->id)->first();
@@ -129,14 +132,14 @@ class EndToEndFunctionalityTest extends TestCase
             'acquisition_date' => '2023-01-15',
             'acquisition_cost' => 50000000,
             'current_value' => 60000000,
-            'notes' => 'Updated land information'
+            'notes' => 'Updated land information',
         ]);
 
         $response->assertRedirect();
         $this->assertDatabaseHas('land_infos', [
             'id' => $landInfo->id,
             'land_type' => 'leased',
-            'area_sqm' => 1200.75
+            'area_sqm' => 1200.75,
         ]);
     }
 
@@ -149,7 +152,7 @@ class EndToEndFunctionalityTest extends TestCase
         $response = $this->post("/facilities/{$this->facility->id}/comments", [
             'content' => 'This is a test comment',
             'assigned_to' => $this->admin->id,
-            'priority' => 'medium'
+            'priority' => 'medium',
         ]);
 
         $response->assertRedirect();
@@ -157,7 +160,7 @@ class EndToEndFunctionalityTest extends TestCase
             'facility_id' => $this->facility->id,
             'content' => 'This is a test comment',
             'user_id' => $this->editor->id,
-            'assigned_to' => $this->admin->id
+            'assigned_to' => $this->admin->id,
         ]);
 
         $comment = Comment::where('facility_id', $this->facility->id)->first();
@@ -169,14 +172,14 @@ class EndToEndFunctionalityTest extends TestCase
 
         // Test comment reply
         $response = $this->post("/comments/{$comment->id}/reply", [
-            'content' => 'This is a reply to the comment'
+            'content' => 'This is a reply to the comment',
         ]);
 
         $response->assertRedirect();
         $this->assertDatabaseHas('comments', [
             'parent_id' => $comment->id,
             'content' => 'This is a reply to the comment',
-            'user_id' => $this->editor->id
+            'user_id' => $this->editor->id,
         ]);
     }
 
@@ -192,19 +195,19 @@ class EndToEndFunctionalityTest extends TestCase
         // Test file upload
         $response = $this->post("/facilities/{$this->facility->id}/files", [
             'file' => $file,
-            'description' => 'Test document upload'
+            'description' => 'Test document upload',
         ]);
 
         $response->assertRedirect();
 
         // Verify file was stored
-        Storage::disk('local')->assertExists('facilities/' . $this->facility->id . '/' . $file->hashName());
+        Storage::disk('local')->assertExists('facilities/'.$this->facility->id.'/'.$file->hashName());
 
         // Verify database record
         $this->assertDatabaseHas('facility_files', [
             'facility_id' => $this->facility->id,
             'original_name' => 'test-document.pdf',
-            'description' => 'Test document upload'
+            'description' => 'Test document upload',
         ]);
     }
 
@@ -219,7 +222,7 @@ class EndToEndFunctionalityTest extends TestCase
             'title' => 'Test Notification',
             'message' => 'This is a test notification message',
             'type' => 'info',
-            'facility_id' => $this->facility->id
+            'facility_id' => $this->facility->id,
         ]);
 
         // Test notification viewing
@@ -234,7 +237,7 @@ class EndToEndFunctionalityTest extends TestCase
 
         $this->assertDatabaseHas('notifications', [
             'id' => $notification->id,
-            'read_at' => now()->format('Y-m-d H:i:s')
+            'read_at' => now()->format('Y-m-d H:i:s'),
         ]);
     }
 
@@ -249,7 +252,7 @@ class EndToEndFunctionalityTest extends TestCase
         // Test CSV export
         $response = $this->post('/export/facilities', [
             'format' => 'csv',
-            'fields' => ['name', 'facility_code', 'address', 'status']
+            'fields' => ['name', 'facility_code', 'address', 'status'],
         ]);
 
         $response->assertStatus(200);
@@ -258,7 +261,7 @@ class EndToEndFunctionalityTest extends TestCase
         // Test PDF export
         $response = $this->post('/export/facilities', [
             'format' => 'pdf',
-            'fields' => ['name', 'facility_code', 'address', 'status']
+            'fields' => ['name', 'facility_code', 'address', 'status'],
         ]);
 
         $response->assertStatus(200);
@@ -271,7 +274,7 @@ class EndToEndFunctionalityTest extends TestCase
         // Test login
         $response = $this->post('/login', [
             'email' => $this->editor->email,
-            'password' => 'password'
+            'password' => 'password',
         ]);
 
         $response->assertRedirect('/dashboard');
@@ -325,7 +328,7 @@ class EndToEndFunctionalityTest extends TestCase
         // Test validation errors
         $response = $this->post('/facilities', [
             'name' => '', // Required field missing
-            'facility_code' => 'INVALID CODE WITH SPACES' // Invalid format
+            'facility_code' => 'INVALID CODE WITH SPACES', // Invalid format
         ]);
 
         $response->assertSessionHasErrors(['name', 'facility_code']);
@@ -338,7 +341,7 @@ class EndToEndFunctionalityTest extends TestCase
         $this->actingAs($this->viewer);
         $response = $this->post('/facilities', [
             'name' => 'Test Facility',
-            'facility_code' => 'TEST001'
+            'facility_code' => 'TEST001',
         ]);
         $response->assertStatus(403);
     }
@@ -373,7 +376,7 @@ class EndToEndFunctionalityTest extends TestCase
             'facility_code' => $this->facility->facility_code,
             'address' => $this->facility->address,
             'status' => $this->facility->status,
-            'facility_type' => $this->facility->facility_type
+            'facility_type' => $this->facility->facility_type,
         ]);
 
         $response->assertRedirect();
@@ -383,7 +386,7 @@ class EndToEndFunctionalityTest extends TestCase
             'subject_type' => Facility::class,
             'subject_id' => $this->facility->id,
             'description' => 'updated',
-            'causer_id' => $this->admin->id
+            'causer_id' => $this->admin->id,
         ]);
     }
 }

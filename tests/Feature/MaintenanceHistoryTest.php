@@ -17,10 +17,10 @@ class MaintenanceHistoryTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create a test user and authenticate
         $this->user = User::factory()->create([
-            'role' => 'editor'
+            'role' => 'editor',
         ]);
         $this->actingAs($this->user);
     }
@@ -49,17 +49,17 @@ class MaintenanceHistoryTest extends TestCase
     {
         $facility1 = Facility::factory()->create(['status' => 'approved']);
         $facility2 = Facility::factory()->create(['status' => 'approved']);
-        
+
         $history1 = MaintenanceHistory::factory()->create([
             'facility_id' => $facility1->id,
             'created_by' => $this->user->id,
-            'content' => 'Facility 1 maintenance'
+            'content' => 'Facility 1 maintenance',
         ]);
-        
+
         $history2 = MaintenanceHistory::factory()->create([
             'facility_id' => $facility2->id,
             'created_by' => $this->user->id,
-            'content' => 'Facility 2 maintenance'
+            'content' => 'Facility 2 maintenance',
         ]);
 
         $response = $this->get(route('maintenance.index', ['facility_id' => $facility1->id]));
@@ -73,24 +73,24 @@ class MaintenanceHistoryTest extends TestCase
     public function it_can_filter_maintenance_histories_by_date_range()
     {
         $facility = Facility::factory()->create(['status' => 'approved']);
-        
+
         $oldHistory = MaintenanceHistory::factory()->create([
             'facility_id' => $facility->id,
             'created_by' => $this->user->id,
             'maintenance_date' => '2023-01-01',
-            'content' => 'Old maintenance'
+            'content' => 'Old maintenance',
         ]);
-        
+
         $newHistory = MaintenanceHistory::factory()->create([
             'facility_id' => $facility->id,
             'created_by' => $this->user->id,
             'maintenance_date' => '2024-01-01',
-            'content' => 'New maintenance'
+            'content' => 'New maintenance',
         ]);
 
         $response = $this->get(route('maintenance.index', [
             'start_date' => '2024-01-01',
-            'end_date' => '2024-12-31'
+            'end_date' => '2024-12-31',
         ]));
 
         $response->assertStatus(200);
@@ -102,17 +102,17 @@ class MaintenanceHistoryTest extends TestCase
     public function it_can_search_maintenance_histories_by_content()
     {
         $facility = Facility::factory()->create(['status' => 'approved']);
-        
+
         $history1 = MaintenanceHistory::factory()->create([
             'facility_id' => $facility->id,
             'created_by' => $this->user->id,
-            'content' => 'Air conditioning repair'
+            'content' => 'Air conditioning repair',
         ]);
-        
+
         $history2 = MaintenanceHistory::factory()->create([
             'facility_id' => $facility->id,
             'created_by' => $this->user->id,
-            'content' => 'Plumbing maintenance'
+            'content' => 'Plumbing maintenance',
         ]);
 
         $response = $this->get(route('maintenance.index', ['search' => 'air conditioning']));
@@ -160,7 +160,7 @@ class MaintenanceHistoryTest extends TestCase
             'contractor' => 'Test Contractor Co.',
             'created_by' => $this->user->id,
         ]);
-        
+
         $maintenanceHistory = MaintenanceHistory::where('content', 'Test maintenance work')->first();
         $this->assertEquals('2024-01-15', $maintenanceHistory->maintenance_date->format('Y-m-d'));
     }
@@ -180,7 +180,7 @@ class MaintenanceHistoryTest extends TestCase
         $response = $this->post(route('maintenance.store'), $maintenanceData);
 
         $response->assertRedirect(route('maintenance.index'));
-        
+
         $this->assertDatabaseHas('maintenance_histories', [
             'facility_id' => $facility->id,
             'content' => 'Test maintenance work',
@@ -188,7 +188,7 @@ class MaintenanceHistoryTest extends TestCase
             'contractor' => null,
             'created_by' => $this->user->id,
         ]);
-        
+
         $maintenanceHistory = MaintenanceHistory::where('content', 'Test maintenance work')->first();
         $this->assertEquals('2024-01-15', $maintenanceHistory->maintenance_date->format('Y-m-d'));
     }
@@ -280,7 +280,7 @@ class MaintenanceHistoryTest extends TestCase
             'cost' => 75000.00,
             'contractor' => 'Updated Contractor Co.',
         ]);
-        
+
         $maintenanceHistory->refresh();
         $this->assertEquals('2024-02-15', $maintenanceHistory->maintenance_date->format('Y-m-d'));
     }
@@ -321,15 +321,15 @@ class MaintenanceHistoryTest extends TestCase
 
         $response->assertStatus(200);
         $responseData = $response->json();
-        
+
         // Check that we have 2 histories
         $this->assertCount(2, $responseData);
-        
+
         // Check that both histories are present (order may vary based on maintenance_date)
         $historyIds = collect($responseData)->pluck('id')->toArray();
         $this->assertContains($history1->id, $historyIds);
         $this->assertContains($history2->id, $historyIds);
-        
+
         // Check that content is present
         $historyContents = collect($responseData)->pluck('content')->toArray();
         $this->assertContains($history1->content, $historyContents);
@@ -354,7 +354,7 @@ class MaintenanceHistoryTest extends TestCase
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
-            'message' => '検索条件を保存しました。'
+            'message' => '検索条件を保存しました。',
         ]);
 
         $this->assertDatabaseHas('maintenance_search_favorites', [
@@ -363,7 +363,7 @@ class MaintenanceHistoryTest extends TestCase
             'facility_id' => $facility->id,
             'search_content' => 'air conditioning',
         ]);
-        
+
         $favorite = MaintenanceSearchFavorite::where('name', 'My Search Favorite')->first();
         $this->assertEquals('2024-01-01', $favorite->start_date->format('Y-m-d'));
         $this->assertEquals('2024-12-31', $favorite->end_date->format('Y-m-d'));
@@ -385,7 +385,7 @@ class MaintenanceHistoryTest extends TestCase
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
-            'message' => '検索条件を保存しました。'
+            'message' => '検索条件を保存しました。',
         ]);
 
         $this->assertDatabaseHas('maintenance_search_favorites', [
@@ -440,7 +440,7 @@ class MaintenanceHistoryTest extends TestCase
                 'id' => $favorite->id,
                 'name' => $favorite->name,
                 'facility_id' => $facility->id,
-            ]
+            ],
         ]);
     }
 
@@ -457,7 +457,7 @@ class MaintenanceHistoryTest extends TestCase
         $response->assertStatus(403);
         $response->assertJson([
             'success' => false,
-            'message' => 'アクセス権限がありません。'
+            'message' => 'アクセス権限がありません。',
         ]);
     }
 
@@ -482,7 +482,7 @@ class MaintenanceHistoryTest extends TestCase
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
-            'message' => '検索条件を更新しました。'
+            'message' => '検索条件を更新しました。',
         ]);
 
         $this->assertDatabaseHas('maintenance_search_favorites', [
@@ -492,7 +492,7 @@ class MaintenanceHistoryTest extends TestCase
             'facility_id' => $facility->id,
             'search_content' => 'updated search',
         ]);
-        
+
         $favorite->refresh();
         $this->assertEquals('2024-06-01', $favorite->start_date->format('Y-m-d'));
         $this->assertEquals('2024-06-30', $favorite->end_date->format('Y-m-d'));
@@ -515,7 +515,7 @@ class MaintenanceHistoryTest extends TestCase
         $response->assertStatus(403);
         $response->assertJson([
             'success' => false,
-            'message' => 'アクセス権限がありません。'
+            'message' => 'アクセス権限がありません。',
         ]);
     }
 
@@ -531,7 +531,7 @@ class MaintenanceHistoryTest extends TestCase
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
-            'message' => '検索条件を削除しました。'
+            'message' => '検索条件を削除しました。',
         ]);
 
         $this->assertDatabaseMissing('maintenance_search_favorites', [
@@ -552,7 +552,7 @@ class MaintenanceHistoryTest extends TestCase
         $response->assertStatus(403);
         $response->assertJson([
             'success' => false,
-            'message' => 'アクセス権限がありません。'
+            'message' => 'アクセス権限がありません。',
         ]);
 
         $this->assertDatabaseHas('maintenance_search_favorites', [
@@ -564,7 +564,7 @@ class MaintenanceHistoryTest extends TestCase
     public function it_can_get_users_search_favorites()
     {
         $otherUser = User::factory()->create(['role' => 'editor']);
-        
+
         // Create favorites for current user
         $userFavorite1 = MaintenanceSearchFavorite::factory()->create([
             'user_id' => $this->user->id,
@@ -574,7 +574,7 @@ class MaintenanceHistoryTest extends TestCase
             'user_id' => $this->user->id,
             'name' => 'User Favorite 2',
         ]);
-        
+
         // Create favorite for other user (should not be returned)
         MaintenanceSearchFavorite::factory()->create([
             'user_id' => $otherUser->id,
@@ -590,7 +590,7 @@ class MaintenanceHistoryTest extends TestCase
 
         $favorites = $response->json('favorites');
         $this->assertCount(2, $favorites);
-        
+
         $favoriteNames = collect($favorites)->pluck('name')->toArray();
         $this->assertContains('User Favorite 1', $favoriteNames);
         $this->assertContains('User Favorite 2', $favoriteNames);
@@ -619,20 +619,20 @@ class MaintenanceHistoryTest extends TestCase
     {
         $facility1 = Facility::factory()->create(['status' => 'approved']);
         $facility2 = Facility::factory()->create(['status' => 'approved']);
-        
+
         // Create maintenance histories
         $history1 = MaintenanceHistory::factory()->create([
             'facility_id' => $facility1->id,
             'created_by' => $this->user->id,
             'maintenance_date' => '2024-01-15',
-            'content' => 'Air conditioning repair'
+            'content' => 'Air conditioning repair',
         ]);
-        
+
         $history2 = MaintenanceHistory::factory()->create([
             'facility_id' => $facility2->id,
             'created_by' => $this->user->id,
             'maintenance_date' => '2024-02-15',
-            'content' => 'Plumbing maintenance'
+            'content' => 'Plumbing maintenance',
         ]);
 
         // Create and load a favorite that should match only history1

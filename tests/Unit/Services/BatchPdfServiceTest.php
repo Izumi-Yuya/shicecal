@@ -4,21 +4,22 @@ namespace Tests\Unit\Services;
 
 use App\Models\Facility;
 use App\Models\User;
-use App\Services\ExportService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Tests\TestCase;
 use Mockery;
+use Tests\TestCase;
 
 class BatchPdfServiceTest extends TestCase
 {
     use RefreshDatabase;
 
     private BatchPdfService $service;
+
     private SecurePdfService $mockSecurePdfService;
+
     private User $user;
 
     protected function setUp(): void
@@ -124,13 +125,14 @@ class BatchPdfServiceTest extends TestCase
         Cache::shouldReceive('put')->andReturn(true);
 
         // Create a service that will fail during ZIP creation
-        $service = new class($this->mockSecurePdfService) extends BatchPdfService {
+        $service = new class($this->mockSecurePdfService) extends BatchPdfService
+        {
             public function generateBatchPdf(Collection $facilities, array $options = []): array
             {
                 return [
                     'success' => false,
                     'batch_id' => 'test_batch_123',
-                    'error' => 'ZIP creation failed'
+                    'error' => 'ZIP creation failed',
                 ];
             }
         };
@@ -176,7 +178,7 @@ class BatchPdfServiceTest extends TestCase
             ->with("batch_pdf_progress_{$batchId}", Mockery::any())
             ->andReturn([
                 'status' => 'not_found',
-                'message' => 'バッチが見つかりません'
+                'message' => 'バッチが見つかりません',
             ]);
 
         $result = $this->service->getBatchProgress($batchId);
@@ -207,7 +209,7 @@ class BatchPdfServiceTest extends TestCase
 
         $batchId = $method->invoke($this->service);
 
-        $this->assertStringStartsWith('batch_' . $this->user->id . '_', $batchId);
+        $this->assertStringStartsWith('batch_'.$this->user->id.'_', $batchId);
         $this->assertMatchesRegularExpression('/^batch_\d+_\d{8}\d{6}_[a-z0-9]{6}$/', $batchId);
     }
 

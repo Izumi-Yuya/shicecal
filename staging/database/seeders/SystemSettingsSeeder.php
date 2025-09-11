@@ -13,9 +13,10 @@ class SystemSettingsSeeder extends Seeder
     public function run(): void
     {
         $adminUser = \App\Models\User::where('role', 'admin')->first();
-        
-        if (!$adminUser) {
+
+        if (! $adminUser) {
             $this->command->warn('No admin user found. Please run AdminUserSeeder first.');
+
             return;
         }
 
@@ -293,6 +294,6 @@ class SystemSettingsSeeder extends Seeder
             );
         }
 
-        $this->command->info('Created ' . count($settings) . ' system settings.');
+        $this->command->info('Created '.count($settings).' system settings.');
     }
 }

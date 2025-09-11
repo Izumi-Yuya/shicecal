@@ -73,8 +73,11 @@ class LandInfo extends Model
 
     // Valid status values
     const STATUS_DRAFT = 'draft';
+
     const STATUS_PENDING_APPROVAL = 'pending_approval';
+
     const STATUS_APPROVED = 'approved';
+
     const STATUS_REJECTED = 'rejected';
 
     public static function getValidStatuses(): array
@@ -137,12 +140,12 @@ class LandInfo extends Model
 
     public function getFormattedSiteAreaSqmAttribute(): string
     {
-        return $this->site_area_sqm ? number_format($this->site_area_sqm, 2) . '㎡' : '';
+        return $this->site_area_sqm ? number_format($this->site_area_sqm, 2).'㎡' : '';
     }
 
     public function getFormattedSiteAreaTsuboAttribute(): string
     {
-        return $this->site_area_tsubo ? number_format($this->site_area_tsubo, 2) . '坪' : '';
+        return $this->site_area_tsubo ? number_format($this->site_area_tsubo, 2).'坪' : '';
     }
 
     public function getJapaneseContractStartDateAttribute(): string

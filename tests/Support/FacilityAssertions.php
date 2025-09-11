@@ -14,29 +14,29 @@ class FacilityAssertions
      * Assert that facility data appears in both views
      */
     public static function assertDataParityBetweenViews(
-        string $cardContent, 
-        string $tableContent, 
+        string $cardContent,
+        string $tableContent,
         Facility $facility
     ): void {
-        $extractor = new FacilityDataExtractor();
-        
+        $extractor = new FacilityDataExtractor;
+
         $cardData = $extractor->extractDisplayedData($cardContent);
         $tableData = $extractor->extractDisplayedData($tableContent);
-        
+
         // Essential fields must appear in both views
         $essentialFields = [
             $facility->company_name,
             $facility->facility_name,
             $facility->office_code,
         ];
-        
+
         foreach ($essentialFields as $field) {
             if ($field) {
                 Assert::assertContains($field, $cardData, "Essential field '{$field}' missing from card view");
                 Assert::assertContains($field, $tableData, "Essential field '{$field}' missing from table view");
             }
         }
-        
+
         // All card data should appear in table data
         foreach ($cardData as $dataPoint) {
             Assert::assertContains(
@@ -77,7 +77,7 @@ class FacilityAssertions
 
         foreach ($numberFields as $field => $unit) {
             if ($facility->{$field} !== null) {
-                $expectedFormat = number_format($facility->{$field}) . $unit;
+                $expectedFormat = number_format($facility->{$field}).$unit;
                 Assert::assertStringContainsString(
                     $expectedFormat,
                     $content,
@@ -95,18 +95,18 @@ class FacilityAssertions
         // Email links
         if ($facility->email) {
             Assert::assertStringContainsString(
-                'href="mailto:' . $facility->email . '"',
+                'href="mailto:'.$facility->email.'"',
                 $content,
-                "Email link not properly formatted"
+                'Email link not properly formatted'
             );
         }
 
         // Website links
         if ($facility->website_url) {
             Assert::assertStringContainsString(
-                'href="' . $facility->website_url . '"',
+                'href="'.$facility->website_url.'"',
                 $content,
-                "Website link not properly formatted"
+                'Website link not properly formatted'
             );
             Assert::assertStringContainsString(
                 'target="_blank"',
@@ -122,7 +122,7 @@ class FacilityAssertions
     public static function assertEmptyValueHandling(string $content, int $expectedMinCount = 1): void
     {
         $emptyValueCount = substr_count($content, TestConstants::EMPTY_VALUE_PLACEHOLDER);
-        
+
         Assert::assertGreaterThanOrEqual(
             $expectedMinCount,
             $emptyValueCount,
@@ -136,14 +136,14 @@ class FacilityAssertions
     public static function assertServiceInformationComplete(string $content, Facility $facility): void
     {
         $facility->load('services');
-        
+
         foreach ($facility->services as $service) {
             Assert::assertStringContainsString(
                 $service->service_type,
                 $content,
                 "Service type not found: {$service->service_type}"
             );
-            
+
             if ($service->renewal_start_date) {
                 $formattedDate = $service->renewal_start_date->format('Y年m月d日');
                 Assert::assertStringContainsString(
@@ -152,7 +152,7 @@ class FacilityAssertions
                     "Service start date not found: {$formattedDate}"
                 );
             }
-            
+
             if ($service->renewal_end_date) {
                 $formattedDate = $service->renewal_end_date->format('Y年m月d日');
                 Assert::assertStringContainsString(

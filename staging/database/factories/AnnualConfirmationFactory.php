@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\AnnualConfirmation;
 use App\Models\Facility;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -21,19 +20,19 @@ class AnnualConfirmationFactory extends Factory
     {
         $requestedAt = $this->faker->dateTimeBetween('-6 months', 'now');
         $status = $this->faker->randomElement(['pending', 'confirmed', 'discrepancy_reported', 'resolved']);
-        
+
         $respondedAt = null;
         $resolvedAt = null;
         $discrepancyDetails = null;
-        
+
         if (in_array($status, ['confirmed', 'discrepancy_reported', 'resolved'])) {
             $respondedAt = $this->faker->dateTimeBetween($requestedAt, 'now');
         }
-        
+
         if ($status === 'discrepancy_reported' || $status === 'resolved') {
             $discrepancyDetails = $this->faker->paragraph();
         }
-        
+
         if ($status === 'resolved') {
             $resolvedAt = $this->faker->dateTimeBetween($respondedAt, 'now');
         }
@@ -73,7 +72,7 @@ class AnnualConfirmationFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             $respondedAt = $this->faker->dateTimeBetween($attributes['requested_at'], 'now');
-            
+
             return [
                 'status' => 'confirmed',
                 'discrepancy_details' => null,
@@ -90,7 +89,7 @@ class AnnualConfirmationFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             $respondedAt = $this->faker->dateTimeBetween($attributes['requested_at'], 'now');
-            
+
             return [
                 'status' => 'discrepancy_reported',
                 'discrepancy_details' => $this->faker->paragraph(),
@@ -108,7 +107,7 @@ class AnnualConfirmationFactory extends Factory
         return $this->state(function (array $attributes) {
             $respondedAt = $this->faker->dateTimeBetween($attributes['requested_at'], 'now');
             $resolvedAt = $this->faker->dateTimeBetween($respondedAt, 'now');
-            
+
             return [
                 'status' => 'resolved',
                 'discrepancy_details' => $this->faker->paragraph(),

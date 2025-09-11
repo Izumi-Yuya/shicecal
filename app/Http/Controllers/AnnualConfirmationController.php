@@ -44,7 +44,7 @@ class AnnualConfirmationController extends Controller
     public function create()
     {
         // Only admins can create annual confirmation requests
-        if (!Auth::user()->isAdmin()) {
+        if (! Auth::user()->isAdmin()) {
             abort(403, 'Unauthorized access');
         }
 
@@ -61,7 +61,7 @@ class AnnualConfirmationController extends Controller
     public function store(Request $request)
     {
         // Only admins can create annual confirmation requests
-        if (!Auth::user()->isAdmin()) {
+        if (! Auth::user()->isAdmin()) {
             abort(403, 'Unauthorized access');
         }
 
@@ -122,7 +122,7 @@ class AnnualConfirmationController extends Controller
             $user->isEditor() ||
             $user->id === $annualConfirmation->facility_manager_id;
 
-        if (!$canView) {
+        if (! $canView) {
             abort(403, 'この確認依頼にアクセスする権限がありません。');
         }
 
@@ -178,7 +178,7 @@ class AnnualConfirmationController extends Controller
      */
     public function resolve(AnnualConfirmation $annualConfirmation)
     {
-        if (!Auth::user()->isEditor() && !Auth::user()->isAdmin()) {
+        if (! Auth::user()->isEditor() && ! Auth::user()->isAdmin()) {
             abort(403, '相違を解決する権限がありません。');
         }
 

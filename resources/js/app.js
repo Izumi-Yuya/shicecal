@@ -6,6 +6,9 @@
 // Import land-info module
 import './land-info.js';
 
+// Import facility form layout module
+import { initializeFacilityFormLayout, FacilityFormUtils } from './modules/facility-form-layout.js';
+
 // Import shared utilities and modules
 import {
   formatCurrency,
@@ -59,7 +62,8 @@ class ApplicationState {
       facility: null,
       notification: null,
       export: null,
-      sidebar: null
+      sidebar: null,
+      facilityFormLayout: null
     };
     this.components = {
       search: null,
@@ -129,6 +133,8 @@ function createLegacyAPI() {
             throw error;
           });
       },
+      // Facility form utilities
+      ...FacilityFormUtils,
       // Legacy confirm function
       confirm: function (message, callback) {
         if (window.confirm(message)) {
@@ -204,6 +210,16 @@ class Application {
 
   async initializeModules() {
     const currentPath = window.location.pathname;
+
+    // Initialize facility form layout on form pages
+    if (document.querySelector('.facility-edit-layout') || document.getElementById('landInfoForm')) {
+      appState.setModule('facilityFormLayout', initializeFacilityFormLayout({
+        enableAutoSave: true,
+        enableRealTimeValidation: true,
+        enableMobileOptimization: true,
+        enableAccessibility: true
+      }));
+    }
 
     // Initialize service table manager on pages with service tables
     if (document.querySelector('[data-service-table]')) {
@@ -341,5 +357,8 @@ export {
   initializeNotificationManager,
   initializeExportManager,
   initializeFacilityViewToggle,
-  initializeSidebar
+  initializeFacilityFormLayout,
+  initializeSidebar,
+  // Re-export facility form utilities
+  FacilityFormUtils
 };

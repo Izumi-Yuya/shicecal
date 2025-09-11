@@ -2,24 +2,26 @@
 
 namespace Tests\Unit\Services\ServiceTable;
 
-use Tests\TestCase;
-use App\Services\ServiceTable\ServiceTableRenderer;
+use App\Models\FacilityService;
 use App\Services\ServiceTable\Contracts\ServiceFormatterInterface;
 use App\Services\ServiceTable\Contracts\ServiceTableConfigInterface;
-use App\Models\FacilityService;
+use App\Services\ServiceTable\ServiceTableRenderer;
 use Illuminate\Support\Collection;
 use Mockery;
+use Tests\TestCase;
 
 class ServiceTableRendererTest extends TestCase
 {
     private ServiceTableRenderer $renderer;
+
     private ServiceTableConfigInterface $config;
+
     private ServiceFormatterInterface $formatter;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->config = Mockery::mock(ServiceTableConfigInterface::class);
         $this->formatter = Mockery::mock(ServiceFormatterInterface::class);
         $this->renderer = new ServiceTableRenderer($this->config, $this->formatter);

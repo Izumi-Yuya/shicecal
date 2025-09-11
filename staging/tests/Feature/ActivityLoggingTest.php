@@ -3,9 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\ActivityLog;
-use App\Models\User;
-use App\Models\Facility;
 use App\Models\Comment;
+use App\Models\Facility;
+use App\Models\User;
 use App\Services\ActivityLogService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
@@ -16,13 +16,14 @@ class ActivityLoggingTest extends TestCase
     use RefreshDatabase;
 
     protected $activityLogService;
+
     protected $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
-        $this->activityLogService = new ActivityLogService();
+
+        $this->activityLogService = new ActivityLogService;
         $this->user = User::factory()->create(['role' => 'editor']);
         $this->actingAs($this->user);
     }
@@ -31,7 +32,7 @@ class ActivityLoggingTest extends TestCase
     {
         $request = Request::create('/login', 'POST', [], [], [], [
             'REMOTE_ADDR' => '192.168.1.1',
-            'HTTP_USER_AGENT' => 'Test Browser'
+            'HTTP_USER_AGENT' => 'Test Browser',
         ]);
 
         $log = $this->activityLogService->logLogin($this->user->id, $request);
@@ -49,7 +50,7 @@ class ActivityLoggingTest extends TestCase
     {
         $request = Request::create('/logout', 'POST', [], [], [], [
             'REMOTE_ADDR' => '192.168.1.1',
-            'HTTP_USER_AGENT' => 'Test Browser'
+            'HTTP_USER_AGENT' => 'Test Browser',
         ]);
 
         $log = $this->activityLogService->logLogout($this->user->id, $request);
@@ -64,7 +65,7 @@ class ActivityLoggingTest extends TestCase
     public function test_can_log_facility_creation()
     {
         $facility = Facility::factory()->create(['facility_name' => 'テスト施設']);
-        
+
         $log = $this->activityLogService->logFacilityCreated(
             $facility->id,
             $facility->facility_name
@@ -81,7 +82,7 @@ class ActivityLoggingTest extends TestCase
     public function test_can_log_facility_update()
     {
         $facility = Facility::factory()->create(['facility_name' => 'テスト施設']);
-        
+
         $log = $this->activityLogService->logFacilityUpdated(
             $facility->id,
             $facility->facility_name
@@ -96,7 +97,7 @@ class ActivityLoggingTest extends TestCase
     public function test_can_log_facility_deletion()
     {
         $facility = Facility::factory()->create(['facility_name' => 'テスト施設']);
-        
+
         $log = $this->activityLogService->logFacilityDeleted(
             $facility->id,
             $facility->facility_name
@@ -112,7 +113,7 @@ class ActivityLoggingTest extends TestCase
     {
         $facilityIds = [1, 2, 3];
         $fields = ['facility_name', 'address', 'phone_number'];
-        
+
         $log = $this->activityLogService->logCsvExported($facilityIds, $fields);
 
         $this->assertEquals('export_csv', $log->action);
@@ -126,7 +127,7 @@ class ActivityLoggingTest extends TestCase
     public function test_can_log_pdf_export()
     {
         $facilityIds = [1, 2];
-        
+
         $log = $this->activityLogService->logPdfExported($facilityIds);
 
         $this->assertEquals('export_pdf', $log->action);
@@ -139,7 +140,7 @@ class ActivityLoggingTest extends TestCase
     public function test_can_log_comment_creation()
     {
         $comment = Comment::factory()->create();
-        
+
         $log = $this->activityLogService->logCommentCreated(
             $comment->id,
             $comment->facility_id,
@@ -155,7 +156,7 @@ class ActivityLoggingTest extends TestCase
     public function test_can_log_comment_status_update()
     {
         $comment = Comment::factory()->create();
-        
+
         $log = $this->activityLogService->logCommentStatusUpdated(
             $comment->id,
             'pending',
@@ -180,19 +181,19 @@ class ActivityLoggingTest extends TestCase
     public function test_activity_log_scopes()
     {
         ActivityLog::factory()->create([
-            'action' => 'create', 
+            'action' => 'create',
             'target_type' => 'user',
-            'user_id' => $this->user->id
+            'user_id' => $this->user->id,
         ]);
         ActivityLog::factory()->create([
-            'action' => 'update', 
+            'action' => 'update',
             'target_type' => 'user',
-            'user_id' => $this->user->id
+            'user_id' => $this->user->id,
         ]);
         ActivityLog::factory()->create([
             'action' => 'view',
-            'target_type' => 'facility', 
-            'user_id' => $this->user->id
+            'target_type' => 'facility',
+            'user_id' => $this->user->id,
         ]);
 
         $createLogs = ActivityLog::byAction('create')->get();
@@ -211,12 +212,12 @@ class ActivityLoggingTest extends TestCase
 
         ActivityLog::factory()->create([
             'user_id' => $this->user->id,
-            'created_at' => now()->subDays(5)
+            'created_at' => now()->subDays(5),
         ]);
-        
+
         ActivityLog::factory()->create([
             'user_id' => $this->user->id,
-            'created_at' => now()->subDays(10)
+            'created_at' => now()->subDays(10),
         ]);
 
         $logsInRange = ActivityLog::byDateRange($startDate, $endDate)->get();
@@ -227,14 +228,14 @@ class ActivityLoggingTest extends TestCase
     public function test_logs_are_created_with_correct_timestamps()
     {
         $beforeLog = now()->subSecond();
-        
+
         $log = $this->activityLogService->log(
             'test_action',
             'test_target',
             1,
             'Test description'
         );
-        
+
         $afterLog = now()->addSecond();
 
         $this->assertNotNull($log->created_at);
@@ -246,7 +247,7 @@ class ActivityLoggingTest extends TestCase
     {
         $request = Request::create('/test', 'POST', [], [], [], [
             'REMOTE_ADDR' => '10.0.0.1',
-            'HTTP_USER_AGENT' => 'Custom User Agent'
+            'HTTP_USER_AGENT' => 'Custom User Agent',
         ]);
 
         $log = $this->activityLogService->log(

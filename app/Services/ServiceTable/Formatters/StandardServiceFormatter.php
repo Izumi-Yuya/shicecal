@@ -21,7 +21,7 @@ class StandardServiceFormatter implements ServiceFormatterInterface
      */
     public function format($service): array
     {
-        if (!$this->canFormat($service)) {
+        if (! $this->canFormat($service)) {
             return $this->getEmptyFormat();
         }
 
@@ -38,9 +38,9 @@ class StandardServiceFormatter implements ServiceFormatterInterface
      */
     public function canFormat($service): bool
     {
-        return $service && 
-               isset($service->service_type) && 
-               !empty(trim($service->service_type));
+        return $service &&
+               isset($service->service_type) &&
+               ! empty(trim($service->service_type));
     }
 
     /**
@@ -48,18 +48,18 @@ class StandardServiceFormatter implements ServiceFormatterInterface
      */
     private function formatServicePeriod($service): string
     {
-        if (!$service->renewal_start_date && !$service->renewal_end_date) {
+        if (! $service->renewal_start_date && ! $service->renewal_end_date) {
             return $this->config['styling']['empty_value_text'];
         }
 
         $dateFormat = $this->config['display']['date_format'] ?? 'Y年m月d日';
-        
-        $startDate = $service->renewal_start_date 
-            ? $service->renewal_start_date->format($dateFormat) 
+
+        $startDate = $service->renewal_start_date
+            ? $service->renewal_start_date->format($dateFormat)
             : '';
-        
-        $endDate = $service->renewal_end_date 
-            ? $service->renewal_end_date->format($dateFormat) 
+
+        $endDate = $service->renewal_end_date
+            ? $service->renewal_end_date->format($dateFormat)
             : '';
 
         return $this->buildPeriodString($startDate, $endDate);
@@ -101,12 +101,12 @@ class StandardServiceFormatter implements ServiceFormatterInterface
     {
         // Remove potentially dangerous characters and trim whitespace
         $sanitized = trim(strip_tags($text));
-        
+
         // Limit length to prevent display issues
         $maxLength = $this->config['validation']['max_service_name_length'] ?? 100;
-        
-        return mb_strlen($sanitized) > $maxLength 
-            ? mb_substr($sanitized, 0, $maxLength) . '...' 
+
+        return mb_strlen($sanitized) > $maxLength
+            ? mb_substr($sanitized, 0, $maxLength).'...'
             : $sanitized;
     }
 }

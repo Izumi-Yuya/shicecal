@@ -57,7 +57,7 @@ trait FacilityTableViewTestTrait
 
         foreach ($numberFields as $field => $unit) {
             if ($facility->{$field} !== null) {
-                $expectedFormat = number_format($facility->{$field}) . $unit;
+                $expectedFormat = number_format($facility->{$field}).$unit;
                 $response->assertSee($expectedFormat);
             }
         }
@@ -69,11 +69,11 @@ trait FacilityTableViewTestTrait
     protected function assertLinkFormatting(TestResponse $response, Facility $facility): void
     {
         if ($facility->email) {
-            $response->assertSee('href="mailto:' . $facility->email . '"', false);
+            $response->assertSee('href="mailto:'.$facility->email.'"', false);
         }
 
         if ($facility->website_url) {
-            $response->assertSee('href="' . $facility->website_url . '"', false);
+            $response->assertSee('href="'.$facility->website_url.'"', false);
             $response->assertSee('target="_blank"', false);
         }
     }
@@ -107,7 +107,7 @@ trait FacilityTableViewTestTrait
     {
         $response->assertSee('table-responsive', false);
         $response->assertSee('table table-bordered', false);
-        
+
         // Check for proper column structure (4 columns for 2x2 layout)
         $content = $response->getContent();
         $this->assertMatchesRegularExpression(
@@ -126,12 +126,12 @@ trait FacilityTableViewTestTrait
 
         foreach ($facility->services as $service) {
             $response->assertSee($service->service_type);
-            
+
             if ($service->renewal_start_date) {
                 $expectedDate = $service->renewal_start_date->format('Y年m月d日');
                 $response->assertSee($expectedDate);
             }
-            
+
             if ($service->renewal_end_date) {
                 $expectedDate = $service->renewal_end_date->format('Y年m月d日');
                 $response->assertSee($expectedDate);
@@ -154,13 +154,13 @@ trait FacilityTableViewTestTrait
     protected function assertAccessibilityFeatures(TestResponse $response): void
     {
         $content = $response->getContent();
-        
+
         // Check for proper semantic structure
         $this->assertStringContainsString('<table', $content);
         $this->assertStringContainsString('<tbody>', $content);
         $this->assertStringContainsString('<th', $content);
         $this->assertStringContainsString('<td', $content);
-        
+
         // Check for proper table headers
         $this->assertMatchesRegularExpression('/<th[^>]*>.*?会社名.*?<\/th>/', $content);
         $this->assertMatchesRegularExpression('/<th[^>]*>.*?事業所コード.*?<\/th>/', $content);
@@ -172,10 +172,10 @@ trait FacilityTableViewTestTrait
     protected function getTableViewContent(Facility $facility): string
     {
         session(['facility_basic_info_view_mode' => 'table']);
-        
+
         $response = $this->get(route('facilities.show', $facility));
         $response->assertStatus(200);
-        
+
         return $response->getContent();
     }
 
@@ -185,10 +185,10 @@ trait FacilityTableViewTestTrait
     protected function getCardViewContent(Facility $facility): string
     {
         session(['facility_basic_info_view_mode' => 'card']);
-        
+
         $response = $this->get(route('facilities.show', $facility));
         $response->assertStatus(200);
-        
+
         return $response->getContent();
     }
 
@@ -197,37 +197,37 @@ trait FacilityTableViewTestTrait
      */
     protected function extractDisplayedData(string $content): array
     {
-        $dom = new \DOMDocument();
-        
+        $dom = new \DOMDocument;
+
         // Suppress warnings for malformed HTML
         $previousErrorReporting = error_reporting(0);
         $loaded = $dom->loadHTML($content, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOERROR | LIBXML_NOWARNING);
         error_reporting($previousErrorReporting);
-        
-        if (!$loaded) {
+
+        if (! $loaded) {
             return [];
         }
-        
+
         $xpath = new \DOMXPath($dom);
         $data = [];
-        
+
         // Extract data from various selectors
         $selectors = [
             '//td[not(contains(@class, "text-muted"))]',
             '//span[contains(@class, "detail-value")]',
             '//span[contains(@class, "svc-name")]',
         ];
-        
+
         foreach ($selectors as $selector) {
             $elements = $xpath->query($selector);
             foreach ($elements as $element) {
                 $text = trim($element->textContent);
-                if (!empty($text) && $text !== '未設定') {
+                if (! empty($text) && $text !== '未設定') {
                     $data[] = $text;
                 }
             }
         }
-        
+
         return array_unique($data);
     }
 
@@ -242,14 +242,14 @@ trait FacilityTableViewTestTrait
             $facility->facility_name,
             $facility->office_code,
         ];
-        
+
         foreach ($essentialFields as $field) {
             if ($field) {
                 $this->assertContains($field, $cardData, "Essential field '{$field}' missing from card view");
                 $this->assertContains($field, $tableData, "Essential field '{$field}' missing from table view");
             }
         }
-        
+
         // Check that all card data appears in table data
         foreach ($cardData as $dataPoint) {
             $this->assertContains(

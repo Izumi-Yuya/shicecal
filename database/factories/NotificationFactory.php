@@ -19,7 +19,7 @@ class NotificationFactory extends Factory
     public function definition()
     {
         $types = ['comment_posted', 'comment_status_changed', 'facility_updated', 'approval_required'];
-        
+
         return [
             'user_id' => User::factory(),
             'type' => $this->faker->randomElement($types),

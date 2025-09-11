@@ -39,18 +39,18 @@ class ActivityLogController extends Controller
 
         // Filter by date range
         if ($request->filled('start_date')) {
-            $startDate = $request->input('start_date') . ' 00:00:00';
+            $startDate = $request->input('start_date').' 00:00:00';
             $query->where('created_at', '>=', $startDate);
         }
 
         if ($request->filled('end_date')) {
-            $endDate = $request->input('end_date') . ' 23:59:59';
+            $endDate = $request->input('end_date').' 23:59:59';
             $query->where('created_at', '<=', $endDate);
         }
 
         // Filter by IP address
         if ($request->filled('ip_address')) {
-            $query->where('ip_address', 'like', '%' . $request->input('ip_address') . '%');
+            $query->where('ip_address', 'like', '%'.$request->input('ip_address').'%');
         }
 
         // Order by most recent first
@@ -146,17 +146,17 @@ class ActivityLogController extends Controller
         }
 
         if ($request->filled('start_date')) {
-            $startDate = $request->input('start_date') . ' 00:00:00';
+            $startDate = $request->input('start_date').' 00:00:00';
             $query->where('created_at', '>=', $startDate);
         }
 
         if ($request->filled('end_date')) {
-            $endDate = $request->input('end_date') . ' 23:59:59';
+            $endDate = $request->input('end_date').' 23:59:59';
             $query->where('created_at', '<=', $endDate);
         }
 
         if ($request->filled('ip_address')) {
-            $query->where('ip_address', 'like', '%' . $request->input('ip_address') . '%');
+            $query->where('ip_address', 'like', '%'.$request->input('ip_address').'%');
         }
 
         $totalLogs = $query->count();
@@ -180,7 +180,7 @@ class ActivityLogController extends Controller
             ->map(function ($item) {
                 return [
                     'user' => $item->user ? $item->user->name : 'Unknown User',
-                    'count' => $item->count
+                    'count' => $item->count,
                 ];
             })
             ->toArray();
@@ -221,7 +221,7 @@ class ActivityLogController extends Controller
 
         return response()->json([
             'success' => true,
-            'logs' => $logs
+            'logs' => $logs,
         ]);
     }
 
@@ -239,7 +239,7 @@ class ActivityLogController extends Controller
 
         return response()->json([
             'success' => true,
-            'statistics' => $stats
+            'statistics' => $stats,
         ]);
     }
 
@@ -270,17 +270,17 @@ class ActivityLogController extends Controller
         }
 
         if ($request->filled('start_date')) {
-            $startDate = $request->input('start_date') . ' 00:00:00';
+            $startDate = $request->input('start_date').' 00:00:00';
             $query->where('created_at', '>=', $startDate);
         }
 
         if ($request->filled('end_date')) {
-            $endDate = $request->input('end_date') . ' 23:59:59';
+            $endDate = $request->input('end_date').' 23:59:59';
             $query->where('created_at', '<=', $endDate);
         }
 
         if ($request->filled('ip_address')) {
-            $query->where('ip_address', 'like', '%' . $request->input('ip_address') . '%');
+            $query->where('ip_address', 'like', '%'.$request->input('ip_address').'%');
         }
 
         // Order by most recent first
@@ -299,7 +299,7 @@ class ActivityLogController extends Controller
         // Return CSV download response
         return response($csvContent)
             ->header('Content-Type', 'text/csv; charset=UTF-8')
-            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"')
+            ->header('Content-Disposition', 'attachment; filename="'.$filename.'"')
             ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
             ->header('Pragma', 'no-cache')
             ->header('Expires', '0');
@@ -326,11 +326,11 @@ class ActivityLogController extends Controller
             '対象ID',
             '操作内容',
             'IPアドレス',
-            'ユーザーエージェント'
+            'ユーザーエージェント',
         ];
 
         // Add headers to CSV
-        $csvContent .= implode(',', array_map([$this, 'escapeCsvField'], $headers)) . "\n";
+        $csvContent .= implode(',', array_map([$this, 'escapeCsvField'], $headers))."\n";
 
         // Add data rows
         foreach ($logs as $log) {
@@ -346,10 +346,10 @@ class ActivityLogController extends Controller
                 $log->target_id ?? '',
                 $log->description,
                 $log->ip_address,
-                $log->user_agent
+                $log->user_agent,
             ];
 
-            $csvContent .= implode(',', array_map([$this, 'escapeCsvField'], $row)) . "\n";
+            $csvContent .= implode(',', array_map([$this, 'escapeCsvField'], $row))."\n";
         }
 
         return $csvContent;
@@ -362,12 +362,12 @@ class ActivityLogController extends Controller
     {
         // Convert to string and handle null values
         $field = (string) $field;
-        
+
         // If field contains comma, quote, or newline, wrap in quotes and escape internal quotes
         if (strpos($field, ',') !== false || strpos($field, '"') !== false || strpos($field, "\n") !== false) {
-            $field = '"' . str_replace('"', '""', $field) . '"';
+            $field = '"'.str_replace('"', '""', $field).'"';
         }
-        
+
         return $field;
     }
 
@@ -387,8 +387,8 @@ class ActivityLogController extends Controller
 
         // Build query for the specified date range
         $query = ActivityLog::with('user')
-            ->where('created_at', '>=', $startDate . ' 00:00:00')
-            ->where('created_at', '<=', $endDate . ' 23:59:59')
+            ->where('created_at', '>=', $startDate.' 00:00:00')
+            ->where('created_at', '<=', $endDate.' 23:59:59')
             ->orderBy('created_at', 'desc');
 
         $logs = $query->get();
@@ -405,7 +405,7 @@ class ActivityLogController extends Controller
         // Return CSV download response
         return response($csvContent)
             ->header('Content-Type', 'text/csv; charset=UTF-8')
-            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"')
+            ->header('Content-Disposition', 'attachment; filename="'.$filename.'"')
             ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
             ->header('Pragma', 'no-cache')
             ->header('Expires', '0');
@@ -417,7 +417,7 @@ class ActivityLogController extends Controller
     private function generateAuditStatistics($logs, $startDate, $endDate): array
     {
         $stats = [
-            'period' => $startDate . ' から ' . $endDate,
+            'period' => $startDate.' から '.$endDate,
             'total_logs' => $logs->count(),
             'unique_users' => $logs->pluck('user_id')->unique()->count(),
             'action_breakdown' => $logs->groupBy('action')->map->count()->toArray(),
@@ -427,12 +427,13 @@ class ActivityLogController extends Controller
             })->map->count()->toArray(),
             'user_activity' => $logs->groupBy('user_id')->map(function ($userLogs) {
                 $user = $userLogs->first()->user;
+
                 return [
                     'name' => $user ? $user->name : 'Unknown User',
                     'email' => $user ? $user->email : '',
-                    'count' => $userLogs->count()
+                    'count' => $userLogs->count(),
                 ];
-            })->toArray()
+            })->toArray(),
         ];
 
         return $stats;
@@ -448,17 +449,17 @@ class ActivityLogController extends Controller
 
         // Report header
         $csvContent .= "監査レポート\n";
-        $csvContent .= "生成日時," . now()->format('Y-m-d H:i:s') . "\n";
-        $csvContent .= "対象期間," . $stats['period'] . "\n";
-        $csvContent .= "総ログ数," . $stats['total_logs'] . "\n";
-        $csvContent .= "アクティブユーザー数," . $stats['unique_users'] . "\n";
+        $csvContent .= '生成日時,'.now()->format('Y-m-d H:i:s')."\n";
+        $csvContent .= '対象期間,'.$stats['period']."\n";
+        $csvContent .= '総ログ数,'.$stats['total_logs']."\n";
+        $csvContent .= 'アクティブユーザー数,'.$stats['unique_users']."\n";
         $csvContent .= "\n";
 
         // Action breakdown
         $csvContent .= "操作種別別統計\n";
         $csvContent .= "操作種別,件数\n";
         foreach ($stats['action_breakdown'] as $action => $count) {
-            $csvContent .= $this->escapeCsvField($action) . "," . $count . "\n";
+            $csvContent .= $this->escapeCsvField($action).','.$count."\n";
         }
         $csvContent .= "\n";
 
@@ -466,7 +467,7 @@ class ActivityLogController extends Controller
         $csvContent .= "対象種別別統計\n";
         $csvContent .= "対象種別,件数\n";
         foreach ($stats['target_breakdown'] as $targetType => $count) {
-            $csvContent .= $this->escapeCsvField($targetType) . "," . $count . "\n";
+            $csvContent .= $this->escapeCsvField($targetType).','.$count."\n";
         }
         $csvContent .= "\n";
 
@@ -474,9 +475,9 @@ class ActivityLogController extends Controller
         $csvContent .= "ユーザー別活動統計\n";
         $csvContent .= "ユーザー名,メールアドレス,操作回数\n";
         foreach ($stats['user_activity'] as $userId => $userStats) {
-            $csvContent .= $this->escapeCsvField($userStats['name']) . ",";
-            $csvContent .= $this->escapeCsvField($userStats['email']) . ",";
-            $csvContent .= $userStats['count'] . "\n";
+            $csvContent .= $this->escapeCsvField($userStats['name']).',';
+            $csvContent .= $this->escapeCsvField($userStats['email']).',';
+            $csvContent .= $userStats['count']."\n";
         }
         $csvContent .= "\n";
 
@@ -485,7 +486,7 @@ class ActivityLogController extends Controller
         $csvContent .= "日付,操作回数\n";
         ksort($stats['daily_activity']);
         foreach ($stats['daily_activity'] as $date => $count) {
-            $csvContent .= $date . "," . $count . "\n";
+            $csvContent .= $date.','.$count."\n";
         }
         $csvContent .= "\n";
 
@@ -500,9 +501,9 @@ class ActivityLogController extends Controller
             '対象種別',
             '対象ID',
             '操作内容',
-            'IPアドレス'
+            'IPアドレス',
         ];
-        $csvContent .= implode(',', array_map([$this, 'escapeCsvField'], $headers)) . "\n";
+        $csvContent .= implode(',', array_map([$this, 'escapeCsvField'], $headers))."\n";
 
         foreach ($logs as $log) {
             $row = [
@@ -514,10 +515,10 @@ class ActivityLogController extends Controller
                 $log->target_type,
                 $log->target_id ?? '',
                 $log->description,
-                $log->ip_address
+                $log->ip_address,
             ];
 
-            $csvContent .= implode(',', array_map([$this, 'escapeCsvField'], $row)) . "\n";
+            $csvContent .= implode(',', array_map([$this, 'escapeCsvField'], $row))."\n";
         }
 
         return $csvContent;

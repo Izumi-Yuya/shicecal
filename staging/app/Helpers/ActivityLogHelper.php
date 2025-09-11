@@ -6,9 +6,6 @@ class ActivityLogHelper
 {
     /**
      * Get the Bootstrap badge color for an action.
-     *
-     * @param string $action
-     * @return string
      */
     public static function getActionBadgeColor(string $action): string
     {
@@ -28,15 +25,12 @@ class ActivityLogHelper
             'view' => 'light',
             'access' => 'secondary',
         ];
-        
+
         return $colors[$action] ?? 'secondary';
     }
 
     /**
      * Get the human-readable action name.
-     *
-     * @param string $action
-     * @return string
      */
     public static function getActionName(string $action): string
     {
@@ -62,9 +56,6 @@ class ActivityLogHelper
 
     /**
      * Get the human-readable target type name.
-     *
-     * @param string $targetType
-     * @return string
      */
     public static function getTargetTypeName(string $targetType): string
     {

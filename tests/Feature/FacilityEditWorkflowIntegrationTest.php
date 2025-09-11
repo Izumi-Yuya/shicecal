@@ -13,6 +13,7 @@ class FacilityEditWorkflowIntegrationTest extends TestCase
     use RefreshDatabase, WithFaker;
 
     protected $user;
+
     protected $facility;
 
     protected function setUp(): void
@@ -21,14 +22,14 @@ class FacilityEditWorkflowIntegrationTest extends TestCase
 
         // Create a user with editor permissions
         $this->user = User::factory()->create([
-            'role' => 'editor'
+            'role' => 'editor',
         ]);
 
         // Create a test facility
         $this->facility = Facility::factory()->create([
             'facility_name' => 'Test Facility',
             'company_name' => 'Test Company',
-            'office_code' => 'TEST001'
+            'office_code' => 'TEST001',
         ]);
     }
 
@@ -76,7 +77,7 @@ class FacilityEditWorkflowIntegrationTest extends TestCase
     {
         // Create a viewer user (no edit permissions)
         $viewerUser = User::factory()->create([
-            'role' => 'viewer'
+            'role' => 'viewer',
         ]);
 
         // Set view mode to table
@@ -97,7 +98,7 @@ class FacilityEditWorkflowIntegrationTest extends TestCase
         // Set initial view mode to table
         $this->actingAs($this->user)
             ->post(route('facilities.set-view-mode'), [
-                'view_mode' => 'table'
+                'view_mode' => 'table',
             ])
             ->assertJson(['success' => true]);
 
@@ -119,7 +120,7 @@ class FacilityEditWorkflowIntegrationTest extends TestCase
             'building_floors' => 3,
             'paid_rooms_count' => 50,
             'ss_rooms_count' => 10,
-            'capacity' => 60
+            'capacity' => 60,
         ];
 
         $response = $this->actingAs($this->user)
@@ -146,7 +147,7 @@ class FacilityEditWorkflowIntegrationTest extends TestCase
         // Test with card view mode
         $this->actingAs($this->user)
             ->post(route('facilities.set-view-mode'), [
-                'view_mode' => 'card'
+                'view_mode' => 'card',
             ]);
 
         // Access edit page
@@ -164,7 +165,7 @@ class FacilityEditWorkflowIntegrationTest extends TestCase
             'postal_code' => '200-0002',
             'address' => 'Card View Address',
             'phone_number' => '03-9876-5432',
-            'email' => 'cardview@example.com'
+            'email' => 'cardview@example.com',
         ];
 
         $updateResponse = $this->actingAs($this->user)
@@ -190,7 +191,7 @@ class FacilityEditWorkflowIntegrationTest extends TestCase
         // Set table view mode
         $this->actingAs($this->user)
             ->post(route('facilities.set-view-mode'), [
-                'view_mode' => 'table'
+                'view_mode' => 'table',
             ]);
 
         // Access facility show page in table view
@@ -225,7 +226,7 @@ class FacilityEditWorkflowIntegrationTest extends TestCase
             'building_floors' => 4,
             'paid_rooms_count' => 75,
             'ss_rooms_count' => 15,
-            'capacity' => 90
+            'capacity' => 90,
         ];
 
         $updateResponse = $this->actingAs($this->user)
@@ -260,14 +261,14 @@ class FacilityEditWorkflowIntegrationTest extends TestCase
         // Set table view mode
         $this->actingAs($this->user)
             ->post(route('facilities.set-view-mode'), [
-                'view_mode' => 'table'
+                'view_mode' => 'table',
             ]);
 
         // First edit operation
         $firstUpdateData = [
             'company_name' => 'First Update Company',
             'office_code' => 'FIRST001',
-            'facility_name' => 'First Update Facility'
+            'facility_name' => 'First Update Facility',
         ];
 
         $this->actingAs($this->user)
@@ -280,7 +281,7 @@ class FacilityEditWorkflowIntegrationTest extends TestCase
         $secondUpdateData = [
             'company_name' => 'Second Update Company',
             'office_code' => 'SECOND001',
-            'facility_name' => 'Second Update Facility'
+            'facility_name' => 'Second Update Facility',
         ];
 
         $this->actingAs($this->user)
@@ -329,7 +330,7 @@ class FacilityEditWorkflowIntegrationTest extends TestCase
     {
         // Create admin user
         $adminUser = User::factory()->create([
-            'role' => 'admin'
+            'role' => 'admin',
         ]);
 
         // Test table view for admin

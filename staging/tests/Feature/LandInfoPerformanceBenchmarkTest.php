@@ -4,11 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\Facility;
 use App\Models\LandInfo;
-use App\Models\User;
-use App\Services\FacilityService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class LandInfoPerformanceBenchmarkTest extends TestCase
@@ -16,6 +13,7 @@ class LandInfoPerformanceBenchmarkTest extends TestCase
     use RefreshDatabase;
 
     protected LandInfoService $landInfoService;
+
     protected LandCalculationService $calculationService;
 
     protected function setUp(): void
@@ -370,7 +368,7 @@ class LandInfoPerformanceBenchmarkTest extends TestCase
     {
         $formattedMetrics = [];
         foreach ($metrics as $operation => $time) {
-            $formattedMetrics[$operation] = number_format($time * 1000, 3) . 'ms';
+            $formattedMetrics[$operation] = number_format($time * 1000, 3).'ms';
         }
 
         $this->addToAssertionCount(1); // Prevent risky test warning
@@ -414,6 +412,6 @@ class LandInfoPerformanceBenchmarkTest extends TestCase
 
         $bytes /= (1 << (10 * $pow));
 
-        return round($bytes, 2) . ' ' . $units[$pow];
+        return round($bytes, 2).' '.$units[$pow];
     }
 }

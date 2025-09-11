@@ -64,7 +64,7 @@ class NotificationTest extends TestCase
     {
         $readAt = now();
         $emailSentAt = now()->addMinutes(5);
-        
+
         $notification = Notification::factory()->create([
             'data' => ['key1' => 'value1', 'key2' => 'value2'],
             'is_read' => true,

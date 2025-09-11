@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
+use App\Services\ServiceTable\ServiceFormatterFactory;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
-use App\Services\ServiceTable\ServiceFormatterFactory;
 
 /**
  * Service for managing service table display logic
@@ -14,12 +14,14 @@ class ServiceTableService
 {
     // Cache configuration
     private const CACHE_TTL_SECONDS = 300; // 5 minutes
+
     private const CACHE_KEY_PREFIX = 'service_table_data';
-    
+
     // Display configuration
     private const MIN_SERVICES_FOR_TEMPLATE_ROWS = 1;
-    
+
     private array $config;
+
     private ServiceFormatterFactory $formatterFactory;
 
     public function __construct()
@@ -62,11 +64,11 @@ class ServiceTableService
     public function prepareViewData(Collection $services): array
     {
         $cacheKey = $this->generateCacheKey($services);
-        
+
         return Cache::remember($cacheKey, self::CACHE_TTL_SECONDS, function () use ($services) {
             $displayData = $this->prepareServicesForDisplay($services);
             $configData = $this->prepareConfigData($services);
-            
+
             return array_merge($displayData, $configData);
         });
     }
@@ -95,7 +97,8 @@ class ServiceTableService
         // Handle empty collections
         if ($services->isEmpty()) {
             $configHash = $this->getConfigHash();
-            return self::CACHE_KEY_PREFIX . "_empty_{$configHash}";
+
+            return self::CACHE_KEY_PREFIX."_empty_{$configHash}";
         }
 
         // Use more efficient data extraction for cache key generation
@@ -109,12 +112,12 @@ class ServiceTableService
                 'renewal_end' => optional($service->renewal_end_date)->timestamp ?? 0,
             ];
         })->toArray();
-        
+
         // Use JSON encoding instead of serialize for better performance
         $serviceHash = hash('xxh64', json_encode($serviceData));
         $configHash = $this->getConfigHash();
-        
-        return self::CACHE_KEY_PREFIX . "_{$serviceHash}_{$configHash}";
+
+        return self::CACHE_KEY_PREFIX."_{$serviceHash}_{$configHash}";
     }
 
     /**
@@ -123,11 +126,11 @@ class ServiceTableService
     private function getConfigHash(): string
     {
         static $configHash = null;
-        
+
         if ($configHash === null) {
             $configHash = hash('xxh64', json_encode($this->config));
         }
-        
+
         return $configHash;
     }
 
@@ -136,7 +139,7 @@ class ServiceTableService
      */
     public function shouldShowTemplateRows(Collection $services): bool
     {
-        return $this->config['display']['show_empty_rows'] && 
+        return $this->config['display']['show_empty_rows'] &&
                $services->count() >= self::MIN_SERVICES_FOR_TEMPLATE_ROWS;
     }
 
@@ -169,9 +172,9 @@ class ServiceTableService
      */
     public function hasValidServiceData($service): bool
     {
-        return $service && 
-               isset($service->service_type) && 
-               !empty(trim($service->service_type));
+        return $service &&
+               isset($service->service_type) &&
+               ! empty(trim($service->service_type));
     }
 
     /**
@@ -180,10 +183,9 @@ class ServiceTableService
     public function formatServiceForDisplay($service): array
     {
         $formatter = $this->formatterFactory->createFormatter($service);
+
         return $formatter->format($service);
     }
-
-
 
     /**
      * Generate CSS classes for responsive column widths

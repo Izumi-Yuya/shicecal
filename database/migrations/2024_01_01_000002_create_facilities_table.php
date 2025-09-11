@@ -29,12 +29,12 @@ return new class extends Migration
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('updated_by');
             $table->timestamps();
-            
+
             // Foreign key constraints
             $table->foreign('approved_by')->references('id')->on('users')->onDelete('set null');
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('updated_by')->references('id')->on('users')->onDelete('cascade');
-            
+
             // Indexes
             $table->index('office_code');
             $table->index('facility_name');

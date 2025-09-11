@@ -19,7 +19,6 @@ class LogActivity
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
@@ -38,16 +37,14 @@ class LogActivity
     /**
      * Log the activity based on the request.
      *
-     * @param Request $request
-     * @param mixed $response
-     * @return void
+     * @param  mixed  $response
      */
     protected function logActivity(Request $request, $response): void
     {
         $method = $request->method();
         $route = $request->route();
-        
-        if (!$route) {
+
+        if (! $route) {
             return;
         }
 
@@ -77,21 +74,16 @@ class LogActivity
 
     /**
      * Determine if logging should be skipped for this request.
-     *
-     * @param string|null $routeName
-     * @param string $uri
-     * @param string $method
-     * @return bool
      */
     protected function shouldSkipLogging(?string $routeName, string $uri, string $method): bool
     {
         // Skip GET requests for index/show pages (read operations)
-        if ($method === 'GET' && !$this->isImportantGetRequest($routeName, $uri)) {
+        if ($method === 'GET' && ! $this->isImportantGetRequest($routeName, $uri)) {
             return true;
         }
 
         // Skip AJAX requests for UI updates
-        if (request()->ajax() && !$this->isImportantAjaxRequest($routeName, $uri)) {
+        if (request()->ajax() && ! $this->isImportantAjaxRequest($routeName, $uri)) {
             return true;
         }
 
@@ -110,10 +102,6 @@ class LogActivity
 
     /**
      * Check if this is an important GET request that should be logged.
-     *
-     * @param string|null $routeName
-     * @param string $uri
-     * @return bool
      */
     protected function isImportantGetRequest(?string $routeName, string $uri): bool
     {
@@ -132,10 +120,6 @@ class LogActivity
 
     /**
      * Check if this is an important AJAX request that should be logged.
-     *
-     * @param string|null $routeName
-     * @param string $uri
-     * @return bool
      */
     protected function isImportantAjaxRequest(?string $routeName, string $uri): bool
     {
@@ -154,11 +138,6 @@ class LogActivity
 
     /**
      * Determine the action based on HTTP method and route.
-     *
-     * @param string $method
-     * @param string|null $routeName
-     * @param string $uri
-     * @return string
      */
     protected function determineAction(string $method, ?string $routeName, string $uri): string
     {
@@ -166,7 +145,7 @@ class LogActivity
         if (str_contains($uri, '/download')) {
             return 'download';
         }
-        
+
         if (str_contains($uri, '/export')) {
             if (str_contains($uri, '/csv')) {
                 return 'export_csv';
@@ -174,6 +153,7 @@ class LogActivity
             if (str_contains($uri, '/pdf')) {
                 return 'export_pdf';
             }
+
             return 'export';
         }
 
@@ -207,10 +187,6 @@ class LogActivity
 
     /**
      * Determine the target type based on route and URI.
-     *
-     * @param string|null $routeName
-     * @param string $uri
-     * @return string
      */
     protected function determineTargetType(?string $routeName, string $uri): string
     {
@@ -251,10 +227,6 @@ class LogActivity
 
     /**
      * Extract target ID from request parameters.
-     *
-     * @param Request $request
-     * @param string|null $routeName
-     * @return int|null
      */
     protected function extractTargetId(Request $request, ?string $routeName): ?int
     {
@@ -262,10 +234,10 @@ class LogActivity
         $route = $request->route();
         if ($route) {
             $parameters = $route->parameters();
-            
+
             // Common ID parameter names
             $idParams = ['id', 'facility', 'user', 'file', 'comment', 'maintenance', 'notification'];
-            
+
             foreach ($idParams as $param) {
                 if (isset($parameters[$param]) && is_numeric($parameters[$param])) {
                     return (int) $parameters[$param];
@@ -278,12 +250,6 @@ class LogActivity
 
     /**
      * Generate a description for the activity.
-     *
-     * @param string $action
-     * @param string $targetType
-     * @param Request $request
-     * @param string|null $routeName
-     * @return string
      */
     protected function generateDescription(string $action, string $targetType, Request $request, ?string $routeName): string
     {

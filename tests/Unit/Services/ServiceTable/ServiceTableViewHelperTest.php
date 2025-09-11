@@ -14,11 +14,12 @@ class ServiceTableViewHelperTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->helper = new ServiceTableViewHelper();
+        $this->helper = new ServiceTableViewHelper;
     }
 
     /**
      * Test prepareServiceTableData with empty collection
+     *
      * @test
      */
     public function it_prepares_empty_service_data_correctly()
@@ -35,6 +36,7 @@ class ServiceTableViewHelperTest extends TestCase
 
     /**
      * Test prepareServiceTableData with services
+     *
      * @test
      */
     public function it_prepares_service_data_with_services_correctly()
@@ -55,6 +57,7 @@ class ServiceTableViewHelperTest extends TestCase
 
     /**
      * Test formatServiceDate with valid date
+     *
      * @test
      */
     public function it_formats_service_date_correctly()
@@ -67,6 +70,7 @@ class ServiceTableViewHelperTest extends TestCase
 
     /**
      * Test formatServiceDate with null date
+     *
      * @test
      */
     public function it_handles_null_service_date()
@@ -77,6 +81,7 @@ class ServiceTableViewHelperTest extends TestCase
 
     /**
      * Test getServiceRowClasses for first row
+     *
      * @test
      */
     public function it_generates_correct_css_classes_for_first_row()
@@ -87,6 +92,7 @@ class ServiceTableViewHelperTest extends TestCase
 
     /**
      * Test getServiceRowClasses for empty row
+     *
      * @test
      */
     public function it_generates_correct_css_classes_for_empty_row()
@@ -97,6 +103,7 @@ class ServiceTableViewHelperTest extends TestCase
 
     /**
      * Test getServiceRowClasses for regular row
+     *
      * @test
      */
     public function it_generates_correct_css_classes_for_regular_row()
@@ -109,6 +116,7 @@ class ServiceTableViewHelperTest extends TestCase
 
     /**
      * Test edge case with max services equal to service count
+     *
      * @test
      */
     public function it_handles_edge_case_when_services_equal_max()
@@ -127,6 +135,7 @@ class ServiceTableViewHelperTest extends TestCase
 
     /**
      * Test edge case with more services than max
+     *
      * @test
      */
     public function it_handles_edge_case_when_services_exceed_max()

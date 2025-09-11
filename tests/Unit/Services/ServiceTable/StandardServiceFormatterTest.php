@@ -9,29 +9,31 @@ use Tests\TestCase;
 class StandardServiceFormatterTest extends TestCase
 {
     private StandardServiceFormatter $formatter;
+
     private array $config;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->config = [
             'styling' => [
-                'empty_value_text' => '未設定'
+                'empty_value_text' => '未設定',
             ],
             'display' => [
-                'date_format' => 'Y年m月d日'
+                'date_format' => 'Y年m月d日',
             ],
             'validation' => [
-                'max_service_name_length' => 100
-            ]
+                'max_service_name_length' => 100,
+            ],
         ];
-        
+
         $this->formatter = new StandardServiceFormatter($this->config);
     }
 
     /**
      * Test formatting service with complete data
+     *
      * @test
      */
     public function it_formats_service_with_complete_data()
@@ -52,6 +54,7 @@ class StandardServiceFormatterTest extends TestCase
 
     /**
      * Test formatting service with only start date
+     *
      * @test
      */
     public function it_formats_service_with_only_start_date()
@@ -69,6 +72,7 @@ class StandardServiceFormatterTest extends TestCase
 
     /**
      * Test formatting service with only end date
+     *
      * @test
      */
     public function it_formats_service_with_only_end_date()
@@ -86,6 +90,7 @@ class StandardServiceFormatterTest extends TestCase
 
     /**
      * Test formatting service with no dates
+     *
      * @test
      */
     public function it_formats_service_with_no_dates()
@@ -103,6 +108,7 @@ class StandardServiceFormatterTest extends TestCase
 
     /**
      * Test formatting null service
+     *
      * @test
      */
     public function it_formats_null_service()
@@ -117,6 +123,7 @@ class StandardServiceFormatterTest extends TestCase
 
     /**
      * Test formatting service with empty service type
+     *
      * @test
      */
     public function it_formats_service_with_empty_service_type()
@@ -135,6 +142,7 @@ class StandardServiceFormatterTest extends TestCase
 
     /**
      * Test text sanitization
+     *
      * @test
      */
     public function it_sanitizes_service_type_text()
@@ -153,12 +161,13 @@ class StandardServiceFormatterTest extends TestCase
 
     /**
      * Test long text truncation
+     *
      * @test
      */
     public function it_truncates_long_service_type()
     {
         $longServiceType = str_repeat('あ', 150); // 150 characters
-        
+
         $service = (object) [
             'service_type' => $longServiceType,
             'renewal_start_date' => null,
@@ -173,6 +182,7 @@ class StandardServiceFormatterTest extends TestCase
 
     /**
      * Test canFormat method
+     *
      * @test
      */
     public function it_correctly_identifies_formattable_services()

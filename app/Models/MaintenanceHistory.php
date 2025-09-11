@@ -61,7 +61,7 @@ class MaintenanceHistory extends Model
      */
     public function scopeSearchContent($query, $search)
     {
-        return $query->where('content', 'like', '%' . $search . '%');
+        return $query->where('content', 'like', '%'.$search.'%');
     }
 
     /**

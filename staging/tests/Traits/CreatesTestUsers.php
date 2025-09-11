@@ -9,10 +9,6 @@ trait CreatesTestUsers
 {
     /**
      * Create a user with specific role
-     *
-     * @param string $role
-     * @param array $attributes
-     * @return User
      */
     protected function createUserWithRole(string $role, array $attributes = []): User
     {
@@ -24,9 +20,6 @@ trait CreatesTestUsers
 
     /**
      * Create an admin user
-     *
-     * @param array $attributes
-     * @return User
      */
     protected function createAdminUser(array $attributes = []): User
     {
@@ -35,9 +28,6 @@ trait CreatesTestUsers
 
     /**
      * Create an editor user
-     *
-     * @param array $attributes
-     * @return User
      */
     protected function createEditorUser(array $attributes = []): User
     {
@@ -46,9 +36,6 @@ trait CreatesTestUsers
 
     /**
      * Create a primary responder user
-     *
-     * @param array $attributes
-     * @return User
      */
     protected function createPrimaryResponderUser(array $attributes = []): User
     {
@@ -57,9 +44,6 @@ trait CreatesTestUsers
 
     /**
      * Create an approver user
-     *
-     * @param array $attributes
-     * @return User
      */
     protected function createApproverUser(array $attributes = []): User
     {
@@ -68,9 +52,6 @@ trait CreatesTestUsers
 
     /**
      * Create a viewer user
-     *
-     * @param array $attributes
-     * @return User
      */
     protected function createViewerUser(array $attributes = []): User
     {
@@ -79,10 +60,6 @@ trait CreatesTestUsers
 
     /**
      * Create a viewer user with access scope restrictions
-     *
-     * @param array $accessScope
-     * @param array $attributes
-     * @return User
      */
     protected function createRestrictedViewerUser(array $accessScope, array $attributes = []): User
     {
@@ -93,11 +70,6 @@ trait CreatesTestUsers
 
     /**
      * Create a user with specific department
-     *
-     * @param string $department
-     * @param string $role
-     * @param array $attributes
-     * @return User
      */
     protected function createUserWithDepartment(string $department, string $role = 'editor', array $attributes = []): User
     {
@@ -108,10 +80,6 @@ trait CreatesTestUsers
 
     /**
      * Create a land affairs user
-     *
-     * @param string $role
-     * @param array $attributes
-     * @return User
      */
     protected function createLandAffairsUser(string $role = 'editor', array $attributes = []): User
     {
@@ -120,10 +88,6 @@ trait CreatesTestUsers
 
     /**
      * Create an accounting user
-     *
-     * @param string $role
-     * @param array $attributes
-     * @return User
      */
     protected function createAccountingUser(string $role = 'editor', array $attributes = []): User
     {
@@ -132,10 +96,6 @@ trait CreatesTestUsers
 
     /**
      * Create a construction planning user
-     *
-     * @param string $role
-     * @param array $attributes
-     * @return User
      */
     protected function createConstructionPlanningUser(string $role = 'editor', array $attributes = []): User
     {
@@ -144,10 +104,6 @@ trait CreatesTestUsers
 
     /**
      * Create multiple users with different roles
-     *
-     * @param array $roles
-     * @param array $commonAttributes
-     * @return Collection
      */
     protected function createUsersWithRoles(array $roles, array $commonAttributes = []): Collection
     {
@@ -162,9 +118,6 @@ trait CreatesTestUsers
 
     /**
      * Create a complete set of users for testing (one of each role)
-     *
-     * @param array $commonAttributes
-     * @return array
      */
     protected function createCompleteUserSet(array $commonAttributes = []): array
     {
@@ -179,10 +132,6 @@ trait CreatesTestUsers
 
     /**
      * Create an inactive user
-     *
-     * @param string $role
-     * @param array $attributes
-     * @return User
      */
     protected function createInactiveUser(string $role = 'viewer', array $attributes = []): User
     {
@@ -193,11 +142,6 @@ trait CreatesTestUsers
 
     /**
      * Create a user with multiple departments
-     *
-     * @param array $departments
-     * @param string $role
-     * @param array $attributes
-     * @return User
      */
     protected function createUserWithMultipleDepartments(array $departments, string $role = 'editor', array $attributes = []): User
     {
@@ -208,13 +152,10 @@ trait CreatesTestUsers
 
     /**
      * Authenticate as a specific user
-     *
-     * @param User|null $user
-     * @return User
      */
     protected function actingAsUser(?User $user = null): User
     {
-        if (!$user) {
+        if (! $user) {
             $user = $this->createEditorUser();
         }
 
@@ -225,9 +166,6 @@ trait CreatesTestUsers
 
     /**
      * Authenticate as admin user
-     *
-     * @param array $attributes
-     * @return User
      */
     protected function actingAsAdmin(array $attributes = []): User
     {
@@ -239,9 +177,6 @@ trait CreatesTestUsers
 
     /**
      * Authenticate as editor user
-     *
-     * @param array $attributes
-     * @return User
      */
     protected function actingAsEditor(array $attributes = []): User
     {
@@ -253,9 +188,6 @@ trait CreatesTestUsers
 
     /**
      * Authenticate as viewer user
-     *
-     * @param array $attributes
-     * @return User
      */
     protected function actingAsViewer(array $attributes = []): User
     {

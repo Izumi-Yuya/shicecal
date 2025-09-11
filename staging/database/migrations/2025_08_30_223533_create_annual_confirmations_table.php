@@ -25,7 +25,7 @@ return new class extends Migration
             $table->timestamp('responded_at')->nullable();
             $table->timestamp('resolved_at')->nullable();
             $table->timestamps();
-            
+
             $table->unique(['confirmation_year', 'facility_id']);
             $table->index(['status', 'requested_at']);
         });

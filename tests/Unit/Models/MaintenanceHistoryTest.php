@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Models;
 
-use App\Models\MaintenanceHistory;
 use App\Models\Facility;
+use App\Models\MaintenanceHistory;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

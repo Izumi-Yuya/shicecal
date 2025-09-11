@@ -12,9 +12,10 @@ use Tests\Traits\CreatesTestUsers;
 
 class ServiceTableTest extends TestCase
 {
-    use RefreshDatabase, CreatesTestFacilities, CreatesTestUsers;
+    use CreatesTestFacilities, CreatesTestUsers, RefreshDatabase;
 
     protected User $user;
+
     protected Facility $facility;
 
     protected function setUp(): void

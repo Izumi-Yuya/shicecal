@@ -2,12 +2,12 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use App\Services\FacilityService;
-use App\Services\ExportService;
-use App\Services\NotificationService;
 use App\Services\ActivityLogService;
+use App\Services\ExportService;
+use App\Services\FacilityService;
+use App\Services\NotificationService;
 use App\Services\PerformanceMonitoringService;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {

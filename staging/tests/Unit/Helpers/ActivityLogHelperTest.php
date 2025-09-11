@@ -101,9 +101,9 @@ class ActivityLogHelperTest extends TestCase
     public function test_all_methods_are_static()
     {
         $reflection = new \ReflectionClass(ActivityLogHelper::class);
-        
+
         $methods = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC);
-        
+
         foreach ($methods as $method) {
             $this->assertTrue($method->isStatic(), "Method {$method->getName()} should be static");
         }

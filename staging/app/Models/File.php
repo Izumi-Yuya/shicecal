@@ -45,7 +45,7 @@ class File extends Model
      */
     public function isLandDocument(): bool
     {
-        return !empty($this->land_document_type);
+        return ! empty($this->land_document_type);
     }
 
     /**
@@ -60,7 +60,7 @@ class File extends Model
 
         $bytes /= (1 << (10 * $pow));
 
-        return round($bytes, 2) . ' ' . $units[$pow];
+        return round($bytes, 2).' '.$units[$pow];
     }
 
     /**

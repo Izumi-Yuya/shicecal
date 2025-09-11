@@ -13,9 +13,10 @@ class UserController extends Controller
     {
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
-            if (!auth()->user()->isAdmin()) {
+            if (! auth()->user()->isAdmin()) {
                 abort(403, 'Access denied');
             }
+
             return $next($request);
         });
     }
@@ -27,9 +28,9 @@ class UserController extends Controller
         // Search functionality
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -87,17 +88,17 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'ユーザーが正常に作成されました',
-            'user' => $user
+            'user' => $user,
         ]);
     }
 
     public function toggleStatus(User $user)
     {
-        $user->update(['is_active' => !$user->is_active]);
+        $user->update(['is_active' => ! $user->is_active]);
 
         return response()->json([
             'success' => true,
-            'message' => 'ユーザーステータスが更新されました'
+            'message' => 'ユーザーステータスが更新されました',
         ]);
     }
 
@@ -119,7 +120,7 @@ class UserController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'ユーザーロールが一括更新されました'
+            'message' => 'ユーザーロールが一括更新されました',
         ]);
     }
 }

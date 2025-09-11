@@ -3,19 +3,16 @@
 namespace Tests\Traits;
 
 use App\Models\Facility;
-use App\Models\LandInfo;
-use App\Models\User;
 use App\Models\FacilityComment;
+use App\Models\LandInfo;
 use App\Models\MaintenanceHistory;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 
 trait CreatesTestFacilities
 {
     /**
      * Create a basic facility
-     *
-     * @param array $attributes
-     * @return Facility
      */
     protected function createFacility(array $attributes = []): Facility
     {
@@ -24,9 +21,6 @@ trait CreatesTestFacilities
 
     /**
      * Create an approved facility
-     *
-     * @param array $attributes
-     * @return Facility
      */
     protected function createApprovedFacility(array $attributes = []): Facility
     {
@@ -35,9 +29,6 @@ trait CreatesTestFacilities
 
     /**
      * Create a draft facility
-     *
-     * @param array $attributes
-     * @return Facility
      */
     protected function createDraftFacility(array $attributes = []): Facility
     {
@@ -46,9 +37,6 @@ trait CreatesTestFacilities
 
     /**
      * Create a facility pending approval
-     *
-     * @param array $attributes
-     * @return Facility
      */
     protected function createPendingFacility(array $attributes = []): Facility
     {
@@ -58,8 +46,6 @@ trait CreatesTestFacilities
     /**
      * Create a facility with land information
      *
-     * @param array $facilityData
-     * @param array $landData
      * @return array [Facility, LandInfo]
      */
     protected function createFacilityWithLandInfo(array $facilityData = [], array $landData = []): array
@@ -73,8 +59,6 @@ trait CreatesTestFacilities
     /**
      * Create an approved facility with land information
      *
-     * @param array $facilityData
-     * @param array $landData
      * @return array [Facility, LandInfo]
      */
     protected function createApprovedFacilityWithLandInfo(array $facilityData = [], array $landData = []): array
@@ -88,8 +72,6 @@ trait CreatesTestFacilities
     /**
      * Create a facility with complete information
      *
-     * @param array $facilityData
-     * @param array $landData
      * @return array [Facility, LandInfo]
      */
     protected function createCompleteFacility(array $facilityData = [], array $landData = []): array
@@ -118,10 +100,6 @@ trait CreatesTestFacilities
 
     /**
      * Create multiple facilities
-     *
-     * @param int $count
-     * @param array $attributes
-     * @return Collection
      */
     protected function createFacilities(int $count, array $attributes = []): Collection
     {
@@ -130,10 +108,6 @@ trait CreatesTestFacilities
 
     /**
      * Create facilities with different statuses
-     *
-     * @param array $statuses
-     * @param array $commonAttributes
-     * @return Collection
      */
     protected function createFacilitiesWithStatuses(array $statuses, array $commonAttributes = []): Collection
     {
@@ -155,11 +129,6 @@ trait CreatesTestFacilities
 
     /**
      * Create a facility with comments
-     *
-     * @param array $facilityData
-     * @param int $commentCount
-     * @param array $commentData
-     * @return Facility
      */
     protected function createFacilityWithComments(array $facilityData = [], int $commentCount = 3, array $commentData = []): Facility
     {
@@ -175,11 +144,6 @@ trait CreatesTestFacilities
 
     /**
      * Create a facility with maintenance history
-     *
-     * @param array $facilityData
-     * @param int $historyCount
-     * @param array $historyData
-     * @return Facility
      */
     protected function createFacilityWithMaintenanceHistory(array $facilityData = [], int $historyCount = 2, array $historyData = []): Facility
     {
@@ -195,10 +159,6 @@ trait CreatesTestFacilities
 
     /**
      * Create a facility owned by specific user
-     *
-     * @param User $user
-     * @param array $attributes
-     * @return Facility
      */
     protected function createFacilityOwnedBy(User $user, array $attributes = []): Facility
     {
@@ -210,10 +170,6 @@ trait CreatesTestFacilities
 
     /**
      * Create a facility approved by specific user
-     *
-     * @param User $approver
-     * @param array $attributes
-     * @return Facility
      */
     protected function createFacilityApprovedBy(User $approver, array $attributes = []): Facility
     {
@@ -225,10 +181,6 @@ trait CreatesTestFacilities
 
     /**
      * Create facilities for testing pagination
-     *
-     * @param int $count
-     * @param array $attributes
-     * @return Collection
      */
     protected function createFacilitiesForPagination(int $count = 25, array $attributes = []): Collection
     {
@@ -237,10 +189,6 @@ trait CreatesTestFacilities
 
     /**
      * Create facilities with specific service types
-     *
-     * @param array $serviceTypes
-     * @param array $attributes
-     * @return Facility
      */
     protected function createFacilityWithServiceTypes(array $serviceTypes, array $attributes = []): Facility
     {
@@ -251,10 +199,6 @@ trait CreatesTestFacilities
 
     /**
      * Create a facility with all relationships
-     *
-     * @param array $facilityData
-     * @param array $options
-     * @return Facility
      */
     protected function createFacilityWithAllRelationships(array $facilityData = [], array $options = []): Facility
     {
@@ -289,8 +233,6 @@ trait CreatesTestFacilities
 
     /**
      * Create test data set for comprehensive testing
-     *
-     * @return array
      */
     protected function createTestDataSet(): array
     {

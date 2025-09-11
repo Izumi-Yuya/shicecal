@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Services\ActivityLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -37,10 +35,10 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            
+
             // Log successful login
             $this->activityLogService->logLogin(Auth::id(), $request);
-            
+
             return redirect()->intended('/facilities');
         }
 
@@ -55,17 +53,17 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $userId = Auth::id();
-        
+
         // Log logout before actually logging out
         if ($userId) {
             $this->activityLogService->logLogout($userId, $request);
         }
-        
+
         Auth::logout();
-        
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        
+
         return redirect('/login');
     }
 }

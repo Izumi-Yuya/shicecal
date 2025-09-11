@@ -29,7 +29,7 @@ class ExportFavoriteTest extends TestCase
     public function test_export_favorite_fillable_attributes()
     {
         $user = User::factory()->create();
-        
+
         $favoriteData = [
             'user_id' => $user->id,
             'name' => 'My Favorite Export',
@@ -76,7 +76,7 @@ class ExportFavoriteTest extends TestCase
 
         $this->assertIsArray($favorite->facility_ids);
         $this->assertEmpty($favorite->facility_ids);
-        
+
         $this->assertIsArray($favorite->export_fields);
         $this->assertEmpty($favorite->export_fields);
     }

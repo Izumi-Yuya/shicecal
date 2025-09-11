@@ -310,7 +310,7 @@ class AssetCompilationTest extends TestCase
             $this->assertTrue(File::isDirectory($buildDir), 'public/build should be a directory');
 
             // Check for manifest file
-            $manifestFile = $buildDir . '/manifest.json';
+            $manifestFile = $buildDir.'/manifest.json';
             if (File::exists($manifestFile)) {
                 $manifest = json_decode(File::get($manifestFile), true);
                 $this->assertIsArray($manifest, 'Build manifest should be valid JSON');

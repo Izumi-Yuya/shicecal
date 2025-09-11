@@ -11,7 +11,9 @@ use DOMXPath;
 class FacilityDataExtractor
 {
     private const TABLE_CELL_SELECTOR = '//td[contains(@class, "detail-value") or not(@class)]';
+
     private const CARD_VALUE_SELECTOR = '//span[contains(@class, "detail-value")]';
+
     private const SERVICE_ELEMENT_SELECTOR = '//*[contains(@class, "service-card-title") or contains(@class, "svc-name")]';
 
     /**
@@ -21,12 +23,12 @@ class FacilityDataExtractor
     {
         $dom = $this->createDomDocument($content);
         $xpath = new DOMXPath($dom);
-        
+
         $data = [];
         $data = array_merge($data, $this->extractBySelector($xpath, self::TABLE_CELL_SELECTOR));
         $data = array_merge($data, $this->extractBySelector($xpath, self::CARD_VALUE_SELECTOR));
         $data = array_merge($data, $this->extractBySelector($xpath, self::SERVICE_ELEMENT_SELECTOR));
-        
+
         return array_unique(array_filter($data, [$this, 'isValidDataPoint']));
     }
 
@@ -36,7 +38,7 @@ class FacilityDataExtractor
     public function extractFacilityFields(string $content, array $fieldNames): array
     {
         $allData = $this->extractDisplayedData($content);
-        
+
         return array_filter($allData, function ($item) use ($fieldNames) {
             return in_array($item, $fieldNames, true);
         });
@@ -55,19 +57,19 @@ class FacilityDataExtractor
      */
     private function createDomDocument(string $content): DOMDocument
     {
-        $dom = new DOMDocument();
-        
+        $dom = new DOMDocument;
+
         $previousErrorReporting = error_reporting(0);
         $loaded = $dom->loadHTML(
-            $content, 
+            $content,
             LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOERROR | LIBXML_NOWARNING
         );
         error_reporting($previousErrorReporting);
-        
-        if (!$loaded) {
+
+        if (! $loaded) {
             throw new \RuntimeException('Failed to parse HTML content for data extraction');
         }
-        
+
         return $dom;
     }
 
@@ -78,14 +80,14 @@ class FacilityDataExtractor
     {
         $data = [];
         $elements = $xpath->query($selector);
-        
+
         foreach ($elements as $element) {
             $text = trim($element->textContent);
-            if (!empty($text)) {
+            if (! empty($text)) {
                 $data[] = $text;
             }
         }
-        
+
         return $data;
     }
 
@@ -94,6 +96,6 @@ class FacilityDataExtractor
      */
     private function isValidDataPoint(string $text): bool
     {
-        return !empty($text) && $text !== TestConstants::EMPTY_VALUE_PLACEHOLDER;
+        return ! empty($text) && $text !== TestConstants::EMPTY_VALUE_PLACEHOLDER;
     }
 }

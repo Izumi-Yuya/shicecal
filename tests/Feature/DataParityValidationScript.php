@@ -5,13 +5,13 @@ namespace Tests\Feature;
 use App\Models\Facility;
 use App\Models\FacilityService;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Carbon\Carbon;
 
 /**
  * Comprehensive Data Parity Validation Script
- * 
+ *
  * This script validates that all facility data from card view appears correctly
  * in table view with proper formatting and no information loss.
  */
@@ -20,27 +20,29 @@ class DataParityValidationScript extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private array $validationResults = [];
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->user = User::factory()->create([
-            'role' => 'admin'
+            'role' => 'admin',
         ]);
-        
+
         $this->actingAs($this->user);
     }
 
     /**
      * Run comprehensive data parity validation
+     *
      * @test
      */
     public function it_validates_comprehensive_data_parity()
     {
         $this->info('Starting comprehensive data parity validation...');
-        
+
         // Test scenarios
         $scenarios = [
             'complete_data' => $this->createFacilityWithCompleteData(),
@@ -48,12 +50,12 @@ class DataParityValidationScript extends TestCase
             'with_services' => $this->createFacilityWithServices(),
             'mixed_data' => $this->createFacilityWithMixedData(),
         ];
-        
+
         foreach ($scenarios as $scenarioName => $facility) {
             $this->info("Validating scenario: {$scenarioName}");
             $this->validateScenario($scenarioName, $facility);
         }
-        
+
         $this->printValidationSummary();
         $this->assertTrue(true, 'All data parity validations completed successfully');
     }
@@ -64,28 +66,28 @@ class DataParityValidationScript extends TestCase
     private function validateScenario(string $scenarioName, Facility $facility): void
     {
         $results = [];
-        
+
         // Test basic field parity
         $results['basic_fields'] = $this->validateBasicFieldParity($facility);
-        
+
         // Test date formatting
         $results['date_formatting'] = $this->validateDateFormatting($facility);
-        
+
         // Test number formatting
         $results['number_formatting'] = $this->validateNumberFormatting($facility);
-        
+
         // Test link formatting
         $results['link_formatting'] = $this->validateLinkFormatting($facility);
-        
+
         // Test empty value handling
         $results['empty_values'] = $this->validateEmptyValueHandling($facility);
-        
+
         // Test service information
         $results['service_information'] = $this->validateServiceInformation($facility);
-        
+
         // Test badge formatting
         $results['badge_formatting'] = $this->validateBadgeFormatting($facility);
-        
+
         $this->validationResults[$scenarioName] = $results;
     }
 
@@ -95,7 +97,7 @@ class DataParityValidationScript extends TestCase
     private function validateBasicFieldParity(Facility $facility): array
     {
         $results = ['passed' => 0, 'failed' => 0, 'details' => []];
-        
+
         $basicFields = [
             'company_name' => $facility->company_name,
             'facility_name' => $facility->facility_name,
@@ -110,12 +112,12 @@ class DataParityValidationScript extends TestCase
             'website_url' => $facility->website_url,
             'building_structure' => $facility->building_structure,
         ];
-        
+
         foreach ($basicFields as $fieldName => $fieldValue) {
             if ($fieldValue) {
                 $cardPresent = $this->isFieldPresentInView($facility, 'card', $fieldValue);
                 $tablePresent = $this->isFieldPresentInView($facility, 'table', $fieldValue);
-                
+
                 if ($cardPresent && $tablePresent) {
                     $results['passed']++;
                     $results['details'][$fieldName] = 'PASS';
@@ -129,7 +131,7 @@ class DataParityValidationScript extends TestCase
                 }
             }
         }
-        
+
         return $results;
     }
 
@@ -139,18 +141,18 @@ class DataParityValidationScript extends TestCase
     private function validateDateFormatting(Facility $facility): array
     {
         $results = ['passed' => 0, 'failed' => 0, 'details' => []];
-        
+
         $dateFields = [
             'opening_date' => $facility->opening_date,
         ];
-        
+
         foreach ($dateFields as $fieldName => $dateValue) {
             if ($dateValue) {
                 $expectedFormat = $dateValue->format('Y年m月d日');
-                
+
                 $cardPresent = $this->isFieldPresentInView($facility, 'card', $expectedFormat);
                 $tablePresent = $this->isFieldPresentInView($facility, 'table', $expectedFormat);
-                
+
                 if ($cardPresent && $tablePresent) {
                     $results['passed']++;
                     $results['details'][$fieldName] = 'PASS - Japanese format';
@@ -165,7 +167,7 @@ class DataParityValidationScript extends TestCase
                 }
             }
         }
-        
+
         return $results;
     }
 
@@ -175,7 +177,7 @@ class DataParityValidationScript extends TestCase
     private function validateNumberFormatting(Facility $facility): array
     {
         $results = ['passed' => 0, 'failed' => 0, 'details' => []];
-        
+
         $numberFields = [
             'building_floors' => ['value' => $facility->building_floors, 'unit' => '階'],
             'paid_rooms_count' => ['value' => $facility->paid_rooms_count, 'unit' => '室'],
@@ -183,14 +185,14 @@ class DataParityValidationScript extends TestCase
             'capacity' => ['value' => $facility->capacity, 'unit' => '名'],
             'years_in_operation' => ['value' => $facility->years_in_operation, 'unit' => '年'],
         ];
-        
+
         foreach ($numberFields as $fieldName => $fieldData) {
             if ($fieldData['value'] !== null) {
-                $expectedFormat = number_format($fieldData['value']) . $fieldData['unit'];
-                
+                $expectedFormat = number_format($fieldData['value']).$fieldData['unit'];
+
                 $cardPresent = $this->isFieldPresentInView($facility, 'card', $expectedFormat);
                 $tablePresent = $this->isFieldPresentInView($facility, 'table', $expectedFormat);
-                
+
                 if ($cardPresent && $tablePresent) {
                     $results['passed']++;
                     $results['details'][$fieldName] = 'PASS - With unit';
@@ -205,7 +207,7 @@ class DataParityValidationScript extends TestCase
                 }
             }
         }
-        
+
         return $results;
     }
 
@@ -215,14 +217,14 @@ class DataParityValidationScript extends TestCase
     private function validateLinkFormatting(Facility $facility): array
     {
         $results = ['passed' => 0, 'failed' => 0, 'details' => []];
-        
+
         // Test email link
         if ($facility->email) {
-            $emailLinkPattern = 'href="mailto:' . $facility->email . '"';
-            
+            $emailLinkPattern = 'href="mailto:'.$facility->email.'"';
+
             $cardHasEmailLink = $this->isFieldPresentInView($facility, 'card', $emailLinkPattern);
             $tableHasEmailLink = $this->isFieldPresentInView($facility, 'table', $emailLinkPattern);
-            
+
             if ($cardHasEmailLink && $tableHasEmailLink) {
                 $results['passed']++;
                 $results['details']['email_link'] = 'PASS - Mailto link';
@@ -235,17 +237,17 @@ class DataParityValidationScript extends TestCase
                 );
             }
         }
-        
+
         // Test website URL link
         if ($facility->website_url) {
-            $urlLinkPattern = 'href="' . $facility->website_url . '"';
+            $urlLinkPattern = 'href="'.$facility->website_url.'"';
             $targetBlankPattern = 'target="_blank"';
-            
+
             $cardHasUrlLink = $this->isFieldPresentInView($facility, 'card', $urlLinkPattern);
             $tableHasUrlLink = $this->isFieldPresentInView($facility, 'table', $urlLinkPattern);
             $cardHasTargetBlank = $this->isFieldPresentInView($facility, 'card', $targetBlankPattern);
             $tableHasTargetBlank = $this->isFieldPresentInView($facility, 'table', $targetBlankPattern);
-            
+
             if ($cardHasUrlLink && $tableHasUrlLink && $cardHasTargetBlank && $tableHasTargetBlank) {
                 $results['passed']++;
                 $results['details']['website_link'] = 'PASS - External link with target="_blank"';
@@ -260,7 +262,7 @@ class DataParityValidationScript extends TestCase
                 );
             }
         }
-        
+
         return $results;
     }
 
@@ -270,14 +272,14 @@ class DataParityValidationScript extends TestCase
     private function validateEmptyValueHandling(Facility $facility): array
     {
         $results = ['passed' => 0, 'failed' => 0, 'details' => []];
-        
+
         // Count "未設定" occurrences in both views
         $cardContent = $this->getViewContent($facility, 'card');
         $tableContent = $this->getViewContent($facility, 'table');
-        
+
         $cardEmptyCount = substr_count($cardContent, '未設定');
         $tableEmptyCount = substr_count($tableContent, '未設定');
-        
+
         if ($cardEmptyCount > 0 && $tableEmptyCount > 0) {
             $results['passed']++;
             $results['details']['empty_value_display'] = sprintf(
@@ -293,7 +295,7 @@ class DataParityValidationScript extends TestCase
                 $tableEmptyCount
             );
         }
-        
+
         return $results;
     }
 
@@ -303,16 +305,16 @@ class DataParityValidationScript extends TestCase
     private function validateServiceInformation(Facility $facility): array
     {
         $results = ['passed' => 0, 'failed' => 0, 'details' => []];
-        
+
         $facility->load('services');
-        
+
         foreach ($facility->services as $index => $service) {
             $serviceResults = [];
-            
+
             // Check service type
             $cardHasType = $this->isFieldPresentInView($facility, 'card', $service->service_type);
             $tableHasType = $this->isFieldPresentInView($facility, 'table', $service->service_type);
-            
+
             if ($cardHasType && $tableHasType) {
                 $serviceResults['type'] = 'PASS';
             } else {
@@ -322,13 +324,13 @@ class DataParityValidationScript extends TestCase
                     $tableHasType ? 'Present' : 'Missing'
                 );
             }
-            
+
             // Check service dates
             if ($service->renewal_start_date) {
                 $expectedDate = $service->renewal_start_date->format('Y年m月d日');
                 $cardHasDate = $this->isFieldPresentInView($facility, 'card', $expectedDate);
                 $tableHasDate = $this->isFieldPresentInView($facility, 'table', $expectedDate);
-                
+
                 if ($cardHasDate && $tableHasDate) {
                     $serviceResults['start_date'] = 'PASS';
                 } else {
@@ -340,12 +342,12 @@ class DataParityValidationScript extends TestCase
                     );
                 }
             }
-            
+
             if ($service->renewal_end_date) {
                 $expectedDate = $service->renewal_end_date->format('Y年m月d日');
                 $cardHasDate = $this->isFieldPresentInView($facility, 'card', $expectedDate);
                 $tableHasDate = $this->isFieldPresentInView($facility, 'table', $expectedDate);
-                
+
                 if ($cardHasDate && $tableHasDate) {
                     $serviceResults['end_date'] = 'PASS';
                 } else {
@@ -357,9 +359,9 @@ class DataParityValidationScript extends TestCase
                     );
                 }
             }
-            
-            $results['details']['service_' . $index] = $serviceResults;
-            
+
+            $results['details']['service_'.$index] = $serviceResults;
+
             // Count passes and fails
             foreach ($serviceResults as $result) {
                 if (strpos($result, 'PASS') === 0) {
@@ -369,7 +371,7 @@ class DataParityValidationScript extends TestCase
                 }
             }
         }
-        
+
         return $results;
     }
 
@@ -379,13 +381,13 @@ class DataParityValidationScript extends TestCase
     private function validateBadgeFormatting(Facility $facility): array
     {
         $results = ['passed' => 0, 'failed' => 0, 'details' => []];
-        
+
         // Test office code badge
         $badgePattern = 'badge bg-primary';
-        
+
         $cardHasBadge = $this->isFieldPresentInView($facility, 'card', $badgePattern);
         $tableHasBadge = $this->isFieldPresentInView($facility, 'table', $badgePattern);
-        
+
         if ($cardHasBadge && $tableHasBadge) {
             $results['passed']++;
             $results['details']['office_code_badge'] = 'PASS - Bootstrap badge';
@@ -397,7 +399,7 @@ class DataParityValidationScript extends TestCase
                 $tableHasBadge ? 'Present' : 'Missing'
             );
         }
-        
+
         return $results;
     }
 
@@ -407,6 +409,7 @@ class DataParityValidationScript extends TestCase
     private function isFieldPresentInView(Facility $facility, string $viewMode, string $searchValue): bool
     {
         $content = $this->getViewContent($facility, $viewMode);
+
         return strpos($content, $searchValue) !== false;
     }
 
@@ -417,6 +420,7 @@ class DataParityValidationScript extends TestCase
     {
         session(['facility_basic_info_view_mode' => $viewMode]);
         $response = $this->get(route('facilities.show', $facility));
+
         return $response->getContent();
     }
 
@@ -425,25 +429,25 @@ class DataParityValidationScript extends TestCase
      */
     private function printValidationSummary(): void
     {
-        $this->info("\n" . str_repeat('=', 80));
+        $this->info("\n".str_repeat('=', 80));
         $this->info('DATA PARITY VALIDATION SUMMARY');
         $this->info(str_repeat('=', 80));
-        
+
         $totalPassed = 0;
         $totalFailed = 0;
-        
+
         foreach ($this->validationResults as $scenarioName => $scenarioResults) {
-            $this->info("\nScenario: " . strtoupper($scenarioName));
+            $this->info("\nScenario: ".strtoupper($scenarioName));
             $this->info(str_repeat('-', 40));
-            
+
             foreach ($scenarioResults as $testType => $results) {
                 $passed = $results['passed'];
                 $failed = $results['failed'];
                 $total = $passed + $failed;
-                
+
                 $totalPassed += $passed;
                 $totalFailed += $failed;
-                
+
                 $status = $failed === 0 ? '✓ PASS' : '✗ FAIL';
                 $this->info(sprintf(
                     '%s: %s (%d/%d passed)',
@@ -452,7 +456,7 @@ class DataParityValidationScript extends TestCase
                     $passed,
                     $total
                 ));
-                
+
                 // Show failed details
                 if ($failed > 0) {
                     foreach ($results['details'] as $field => $detail) {
@@ -463,20 +467,20 @@ class DataParityValidationScript extends TestCase
                 }
             }
         }
-        
-        $this->info("\n" . str_repeat('=', 80));
+
+        $this->info("\n".str_repeat('=', 80));
         $this->info(sprintf(
             'OVERALL RESULT: %d PASSED, %d FAILED',
             $totalPassed,
             $totalFailed
         ));
-        
+
         if ($totalFailed === 0) {
             $this->info('🎉 ALL DATA PARITY VALIDATIONS PASSED!');
         } else {
             $this->info('⚠️  SOME VALIDATIONS FAILED - REVIEW DETAILS ABOVE');
         }
-        
+
         $this->info(str_repeat('=', 80));
     }
 
@@ -543,21 +547,21 @@ class DataParityValidationScript extends TestCase
     private function createFacilityWithServices(): Facility
     {
         $facility = $this->createFacilityWithCompleteData();
-        
+
         FacilityService::factory()->create([
             'facility_id' => $facility->id,
             'service_type' => '介護保険サービス',
             'renewal_start_date' => Carbon::parse('2023-04-01'),
             'renewal_end_date' => Carbon::parse('2029-03-31'),
         ]);
-        
+
         FacilityService::factory()->create([
             'facility_id' => $facility->id,
             'service_type' => '障害福祉サービス',
             'renewal_start_date' => Carbon::parse('2022-10-01'),
             'renewal_end_date' => Carbon::parse('2028-09-30'),
         ]);
-        
+
         return $facility->fresh(['services']);
     }
 
@@ -598,7 +602,7 @@ class DataParityValidationScript extends TestCase
         if (method_exists($this, 'output')) {
             $this->output->writeln($message);
         } else {
-            echo $message . "\n";
+            echo $message."\n";
         }
     }
 }

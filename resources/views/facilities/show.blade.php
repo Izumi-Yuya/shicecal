@@ -83,13 +83,13 @@
                         </div>
                         
                         <!-- View Toggle Component -->
-                        @include('facilities.partials.view-toggle', ['viewMode' => $viewMode])
+                        @include('facilities.shared.view-toggle', ['viewMode' => $viewMode])
                         
                         <!-- Conditional rendering based on view mode -->
                         @if($viewMode === 'table')
-                            @include('facilities.partials.basic-info-table', ['facility' => $facility])
+                            @include('facilities.basic-info.partials.table', ['facility' => $facility])
                         @else
-                            @include('facilities.partials.basic-info', ['facility' => $facility])
+                            @include('facilities.basic-info.partials.display-card', ['facility' => $facility])
                         @endif
                     </div>
                     <div class="tab-pane fade" id="land-info" role="tabpanel" aria-labelledby="land-tab" data-lazy-load="true">

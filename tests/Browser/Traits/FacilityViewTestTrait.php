@@ -2,8 +2,8 @@
 
 namespace Tests\Browser\Traits;
 
-use Laravel\Dusk\Browser;
 use App\Models\Facility;
+use Laravel\Dusk\Browser;
 
 trait FacilityViewTestTrait
 {
@@ -13,8 +13,8 @@ trait FacilityViewTestTrait
     protected function navigateToFacilityWithToggle(Browser $browser, Facility $facility): Browser
     {
         return $browser->loginAs($this->user)
-                      ->visit(route('facilities.show', $facility))
-                      ->waitFor('.view-toggle-container', 10);
+            ->visit(route('facilities.show', $facility))
+            ->waitFor('.view-toggle-container', 10);
     }
 
     /**
@@ -23,9 +23,9 @@ trait FacilityViewTestTrait
     protected function switchViewMode(Browser $browser, string $mode): Browser
     {
         return $browser->click("label[for=\"{$mode}View\"]")
-                      ->waitFor('.view-toggle-loading-indicator', 5)
-                      ->waitUntilMissing('.view-toggle-loading-indicator', 15)
-                      ->waitFor($mode === 'table' ? '.facility-table-view' : '.facility-info-card', 10);
+            ->waitFor('.view-toggle-loading-indicator', 5)
+            ->waitUntilMissing('.view-toggle-loading-indicator', 15)
+            ->waitFor($mode === 'table' ? '.facility-table-view' : '.facility-info-card', 10);
     }
 
     /**
@@ -34,13 +34,13 @@ trait FacilityViewTestTrait
     protected function assertViewModeActive(Browser $browser, string $mode): void
     {
         $browser->assertChecked("#{$mode}View");
-        
+
         if ($mode === 'table') {
             $browser->assertPresent('.facility-table-view')
-                   ->assertMissing('.facility-info-card');
+                ->assertMissing('.facility-info-card');
         } else {
             $browser->assertPresent('.facility-info-card')
-                   ->assertMissing('.facility-table-view');
+                ->assertMissing('.facility-table-view');
         }
     }
 }

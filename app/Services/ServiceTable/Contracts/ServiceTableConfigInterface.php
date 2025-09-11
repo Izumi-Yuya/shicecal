@@ -8,9 +8,14 @@ namespace App\Services\ServiceTable\Contracts;
 interface ServiceTableConfigInterface
 {
     public function getMaxServices(): int;
+
     public function shouldShowEmptyRows(): bool;
+
     public function getEmptyValueText(): string;
+
     public function getColumnConfig(): array;
+
     public function getStylingConfig(): array;
+
     public function getCacheTtl(): int;
 }

@@ -15,10 +15,10 @@ class PdfExportTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create a test user
         $this->user = User::factory()->create([
-            'role' => 'admin'
+            'role' => 'admin',
         ]);
     }
 
@@ -72,7 +72,7 @@ class PdfExportTest extends TestCase
 
         $response = $this->actingAs($this->user)
             ->post(route('pdf.export.batch'), [
-                'facility_ids' => $facilities->pluck('id')->toArray()
+                'facility_ids' => $facilities->pluck('id')->toArray(),
             ]);
 
         $response->assertStatus(200);
@@ -87,7 +87,7 @@ class PdfExportTest extends TestCase
     {
         $response = $this->actingAs($this->user)
             ->post(route('pdf.export.batch'), [
-                'facility_ids' => []
+                'facility_ids' => [],
             ]);
 
         $response->assertRedirect();
@@ -97,7 +97,7 @@ class PdfExportTest extends TestCase
     public function test_unauthenticated_user_cannot_access_pdf_export()
     {
         $response = $this->get(route('pdf.export.index'));
-        
+
         $response->assertStatus(302); // Redirect to login
     }
 }

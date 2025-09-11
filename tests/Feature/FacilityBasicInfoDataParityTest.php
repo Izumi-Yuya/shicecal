@@ -13,12 +13,13 @@ class FacilityBasicInfoDataParityTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Facility $facility;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->user = User::factory()->create(['role' => 'admin']);
         $this->facility = Facility::factory()->create([
             'company_name' => 'テスト会社',
@@ -202,7 +203,7 @@ class FacilityBasicInfoDataParityTest extends TestCase
         $tableEmptyCount = substr_count($tableContent, '未設定');
 
         // Both views should show the same number of "未設定" entries
-        $this->assertEquals($cardEmptyCount, $tableEmptyCount, 
+        $this->assertEquals($cardEmptyCount, $tableEmptyCount,
             'Both views should display the same number of empty field indicators');
 
         // Verify specific empty fields are handled consistently
@@ -232,7 +233,7 @@ class FacilityBasicInfoDataParityTest extends TestCase
         // Check service dates are also formatted consistently
         $expectedServiceDate1 = '2023年01月01日';
         $expectedServiceDate2 = '2026年12月31日';
-        
+
         $cardResponse->assertSee($expectedServiceDate1);
         $cardResponse->assertSee($expectedServiceDate2);
         $tableResponse->assertSee($expectedServiceDate1);
@@ -289,7 +290,7 @@ class FacilityBasicInfoDataParityTest extends TestCase
         // Check website links
         $cardResponse->assertSee('https://example.com');
         $tableResponse->assertSee('https://example.com');
-        
+
         // Check that external links have target="_blank"
         $cardResponse->assertSee('target="_blank"');
         $tableResponse->assertSee('target="_blank"');
@@ -319,7 +320,7 @@ class FacilityBasicInfoDataParityTest extends TestCase
 
         // Office code should be displayed as badge in card view
         $this->assertStringContainsString('badge bg-primary', $cardContent);
-        
+
         // In table view, office code might not be in a badge but should still be present
         $this->assertStringContainsString('TEST001', $tableContent);
     }
@@ -331,7 +332,7 @@ class FacilityBasicInfoDataParityTest extends TestCase
 
         // Get all facility data
         $facility = $this->facility->fresh(['services']);
-        
+
         // Test switching from card to table view
         $this->withSession(['facility_basic_info_view_mode' => 'card']);
         $cardResponse = $this->get(route('facilities.show', $facility));
@@ -360,9 +361,9 @@ class FacilityBasicInfoDataParityTest extends TestCase
         ];
 
         foreach ($criticalData as $data) {
-            $this->assertStringContainsString($data, $cardContent, 
+            $this->assertStringContainsString($data, $cardContent,
                 "Card view should contain: {$data}");
-            $this->assertStringContainsString($data, $tableContent, 
+            $this->assertStringContainsString($data, $tableContent,
                 "Table view should contain: {$data}");
         }
 
@@ -406,15 +407,15 @@ class FacilityBasicInfoDataParityTest extends TestCase
             '介護付有料老人ホーム',
             'デイサービス',
             'ショートステイ',
-            '訪問介護'
+            '訪問介護',
         ];
 
         foreach ($serviceTypes as $index => $serviceType) {
             FacilityService::factory()->create([
                 'facility_id' => $comprehensiveFacility->id,
                 'service_type' => $serviceType,
-                'renewal_start_date' => '2023-' . sprintf('%02d', $index + 1) . '-01',
-                'renewal_end_date' => '2026-' . sprintf('%02d', $index + 1) . '-28',
+                'renewal_start_date' => '2023-'.sprintf('%02d', $index + 1).'-01',
+                'renewal_end_date' => '2026-'.sprintf('%02d', $index + 1).'-28',
             ]);
         }
 
@@ -459,9 +460,9 @@ class FacilityBasicInfoDataParityTest extends TestCase
         ];
 
         foreach ($allFacilityData as $data) {
-            $this->assertStringContainsString($data, $cardContent, 
+            $this->assertStringContainsString($data, $cardContent,
                 "Card view missing: {$data}");
-            $this->assertStringContainsString($data, $tableContent, 
+            $this->assertStringContainsString($data, $tableContent,
                 "Table view missing: {$data}");
         }
     }

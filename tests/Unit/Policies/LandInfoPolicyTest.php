@@ -2,9 +2,8 @@
 
 namespace Tests\Unit\Policies;
 
-use App\Models\User;
 use App\Models\Facility;
-use App\Models\LandInfo;
+use App\Models\User;
 use App\Policies\LandInfoPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -14,13 +13,14 @@ class LandInfoPolicyTest extends TestCase
     use RefreshDatabase;
 
     protected LandInfoPolicy $policy;
+
     protected Facility $facility;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->policy = new LandInfoPolicy();
+        $this->policy = new LandInfoPolicy;
         $this->facility = Facility::factory()->create();
     }
 
@@ -54,7 +54,7 @@ class LandInfoPolicyTest extends TestCase
     {
         $editor = User::factory()->create([
             'role' => 'editor',
-            'department' => 'land_affairs'
+            'department' => 'land_affairs',
         ]);
 
         $this->assertTrue($this->policy->viewAny($editor));
@@ -79,7 +79,7 @@ class LandInfoPolicyTest extends TestCase
     {
         $primaryResponder = User::factory()->create([
             'role' => 'primary_responder',
-            'department' => 'land_affairs'
+            'department' => 'land_affairs',
         ]);
 
         $this->assertTrue($this->policy->viewAny($primaryResponder));
@@ -163,7 +163,7 @@ class LandInfoPolicyTest extends TestCase
     public function test_invalid_role_permissions()
     {
         // Create a user with a role that's not in the allowed list
-        $invalidUser = new User();
+        $invalidUser = new User;
         $invalidUser->role = 'invalid_role';
         $invalidUser->id = 999;
 
@@ -189,7 +189,7 @@ class LandInfoPolicyTest extends TestCase
     {
         $editor = User::factory()->create([
             'role' => 'editor',
-            'department' => 'land_affairs'
+            'department' => 'land_affairs',
         ]);
 
         // Test that the policy calls canAccessFacility method

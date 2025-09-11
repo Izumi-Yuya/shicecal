@@ -41,7 +41,7 @@ class MaintenanceHistoryFactory extends Factory
             '換気扇清掃',
             '配管工事',
             '内装修繕',
-            '外構工事'
+            '外構工事',
         ];
 
         $contractors = [
@@ -54,13 +54,13 @@ class MaintenanceHistoryFactory extends Factory
             '伊藤工業',
             '中村建築',
             '小林電設',
-            '加藤住宅設備'
+            '加藤住宅設備',
         ];
 
         return [
             'facility_id' => Facility::factory(),
             'maintenance_date' => $this->faker->dateTimeBetween('-2 years', 'now')->format('Y-m-d'),
-            'content' => $this->faker->randomElement($maintenanceTypes) . 'を実施。' . $this->faker->sentence(10),
+            'content' => $this->faker->randomElement($maintenanceTypes).'を実施。'.$this->faker->sentence(10),
             'cost' => $this->faker->optional(0.8)->randomFloat(2, 5000, 500000),
             'contractor' => $this->faker->optional(0.7)->randomElement($contractors),
             'created_by' => User::factory(),

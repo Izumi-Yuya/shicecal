@@ -27,8 +27,8 @@ class ViewModeRequest extends FormRequest
             'view_mode' => [
                 'required',
                 'string',
-                'in:card,table'
-            ]
+                'in:card,table',
+            ],
         ];
     }
 
@@ -61,7 +61,7 @@ class ViewModeRequest extends FormRequest
         // Trim whitespace and convert to lowercase for consistent validation
         if ($this->has('view_mode')) {
             $this->merge([
-                'view_mode' => trim(strtolower($this->input('view_mode')))
+                'view_mode' => trim(strtolower($this->input('view_mode'))),
             ]);
         }
     }

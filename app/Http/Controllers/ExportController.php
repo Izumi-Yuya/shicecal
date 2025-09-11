@@ -8,7 +8,6 @@ use App\Models\Facility;
 use App\Models\User;
 use App\Services\ExportService;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
 class ExportController extends Controller
@@ -48,12 +47,12 @@ class ExportController extends Controller
     {
         try {
             // Check if user has permission to view this facility
-            if (!$this->canViewFacility($facility)) {
+            if (! $this->canViewFacility($facility)) {
                 abort(403, 'この施設の情報を閲覧する権限がありません。');
             }
 
             // Only export approved information
-            if (!$facility->isApproved()) {
+            if (! $facility->isApproved()) {
                 abort(403, '承認済みの施設情報のみPDF出力可能です。');
             }
 
@@ -72,7 +71,7 @@ class ExportController extends Controller
 
             return response($pdfContent)
                 ->header('Content-Type', 'application/pdf')
-                ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+                ->header('Content-Disposition', 'attachment; filename="'.$filename.'"');
         } catch (\Exception $e) {
             return $this->handleException($e, 'Single PDF generation');
         }
@@ -85,12 +84,12 @@ class ExportController extends Controller
     {
         try {
             // Check if user has permission to view this facility
-            if (!$this->canViewFacility($facility)) {
+            if (! $this->canViewFacility($facility)) {
                 abort(403, 'この施設の情報を閲覧する権限がありません。');
             }
 
             // Only export approved information
-            if (!$facility->isApproved()) {
+            if (! $facility->isApproved()) {
                 abort(403, '承認済みの施設情報のみPDF出力可能です。');
             }
 
@@ -103,7 +102,7 @@ class ExportController extends Controller
 
             return response($pdfContent)
                 ->header('Content-Type', 'application/pdf')
-                ->header('Content-Disposition', 'attachment; filename="' . $filename . '"')
+                ->header('Content-Disposition', 'attachment; filename="'.$filename.'"')
                 ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
                 ->header('Pragma', 'no-cache')
                 ->header('Expires', '0');
@@ -155,7 +154,7 @@ class ExportController extends Controller
 
                 return response($pdfContent)
                     ->header('Content-Type', 'application/pdf')
-                    ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+                    ->header('Content-Disposition', 'attachment; filename="'.$filename.'"');
             }
 
             // Multiple facilities - use ExportService for batch generation
@@ -165,7 +164,7 @@ class ExportController extends Controller
             if ($result['success']) {
                 return response()->download($result['zip_path'], $result['zip_filename'])->deleteFileAfterSend(true);
             } else {
-                return back()->with('error', 'バッチPDF生成に失敗しました: ' . $result['error']);
+                return back()->with('error', 'バッチPDF生成に失敗しました: '.$result['error']);
             }
         } catch (\Exception $e) {
             return $this->handleException($e, 'Batch PDF generation');
@@ -182,12 +181,12 @@ class ExportController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $progress
+                'data' => $progress,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'バッチ進捗の取得に失敗しました。'
+                'message' => 'バッチ進捗の取得に失敗しました。',
             ], 500);
         }
     }
@@ -228,7 +227,7 @@ class ExportController extends Controller
             if (empty($facilityIds) || empty($exportFields)) {
                 return response()->json([
                     'success' => false,
-                    'message' => '施設または項目が選択されていません。'
+                    'message' => '施設または項目が選択されていません。',
                 ]);
             }
 
@@ -245,12 +244,12 @@ class ExportController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $previewData
+                'data' => $previewData,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'プレビューデータの取得に失敗しました。'
+                'message' => 'プレビューデータの取得に失敗しました。',
             ], 500);
         }
     }
@@ -267,7 +266,7 @@ class ExportController extends Controller
             if (empty($facilityIds) || empty($exportFields)) {
                 return response()->json([
                     'success' => false,
-                    'message' => '施設または項目が選択されていません。'
+                    'message' => '施設または項目が選択されていません。',
                 ], 400);
             }
 
@@ -282,7 +281,7 @@ class ExportController extends Controller
             if (empty($accessibleFacilityIds)) {
                 return response()->json([
                     'success' => false,
-                    'message' => '出力可能な施設がありません。'
+                    'message' => '出力可能な施設がありません。',
                 ], 400);
             }
 
@@ -304,7 +303,7 @@ class ExportController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'CSV生成に失敗しました。'
+                'message' => 'CSV生成に失敗しました。',
             ], 500);
         }
     }
@@ -327,12 +326,12 @@ class ExportController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $favorites
+                'data' => $favorites,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'お気に入りの取得に失敗しました。'
+                'message' => 'お気に入りの取得に失敗しました。',
             ], 500);
         }
     }
@@ -351,7 +350,7 @@ class ExportController extends Controller
             if (empty($name) || empty($facilityIds) || empty($exportFields)) {
                 return response()->json([
                     'success' => false,
-                    'message' => '名前、施設、出力項目を指定してください。'
+                    'message' => '名前、施設、出力項目を指定してください。',
                 ], 400);
             }
 
@@ -363,7 +362,7 @@ class ExportController extends Controller
             if ($existingFavorite) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'この名前のお気に入りは既に存在します。'
+                    'message' => 'この名前のお気に入りは既に存在します。',
                 ], 400);
             }
 
@@ -376,7 +375,7 @@ class ExportController extends Controller
             if (count($accessibleFacilities) !== count($facilityIds)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'アクセス権限のない施設が含まれています。'
+                    'message' => 'アクセス権限のない施設が含まれています。',
                 ], 400);
             }
 
@@ -390,12 +389,12 @@ class ExportController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $favorite,
-                'message' => 'お気に入りを保存しました。'
+                'message' => 'お気に入りを保存しました。',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'お気に入りの保存に失敗しました。'
+                'message' => 'お気に入りの保存に失敗しました。',
             ], 500);
         }
     }
@@ -412,10 +411,10 @@ class ExportController extends Controller
                 ->where('id', $id)
                 ->first();
 
-            if (!$favorite) {
+            if (! $favorite) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'お気に入りが見つかりません。'
+                    'message' => 'お気に入りが見つかりません。',
                 ], 404);
             }
 
@@ -436,13 +435,13 @@ class ExportController extends Controller
                     'facility_ids' => $validFacilityIds,
                     'export_fields' => $favorite->export_fields,
                     'original_facility_count' => count($favorite->facility_ids),
-                    'accessible_facility_count' => count($validFacilityIds)
-                ]
+                    'accessible_facility_count' => count($validFacilityIds),
+                ],
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'お気に入りの読み込みに失敗しました。'
+                'message' => 'お気に入りの読み込みに失敗しました。',
             ], 500);
         }
     }
@@ -459,7 +458,7 @@ class ExportController extends Controller
             if (empty($name)) {
                 return response()->json([
                     'success' => false,
-                    'message' => '名前を入力してください。'
+                    'message' => '名前を入力してください。',
                 ], 400);
             }
 
@@ -467,10 +466,10 @@ class ExportController extends Controller
                 ->where('id', $id)
                 ->first();
 
-            if (!$favorite) {
+            if (! $favorite) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'お気に入りが見つかりません。'
+                    'message' => 'お気に入りが見つかりません。',
                 ], 404);
             }
 
@@ -483,7 +482,7 @@ class ExportController extends Controller
             if ($existingFavorite) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'この名前のお気に入りは既に存在します。'
+                    'message' => 'この名前のお気に入りは既に存在します。',
                 ], 400);
             }
 
@@ -492,12 +491,12 @@ class ExportController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $favorite,
-                'message' => 'お気に入り名を更新しました。'
+                'message' => 'お気に入り名を更新しました。',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'お気に入りの更新に失敗しました。'
+                'message' => 'お気に入りの更新に失敗しました。',
             ], 500);
         }
     }
@@ -514,10 +513,10 @@ class ExportController extends Controller
                 ->where('id', $id)
                 ->first();
 
-            if (!$favorite) {
+            if (! $favorite) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'お気に入りが見つかりません。'
+                    'message' => 'お気に入りが見つかりません。',
                 ], 404);
             }
 
@@ -525,12 +524,12 @@ class ExportController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'お気に入りを削除しました。'
+                'message' => 'お気に入りを削除しました。',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'お気に入りの削除に失敗しました。'
+                'message' => 'お気に入りの削除に失敗しました。',
             ], 500);
         }
     }
@@ -538,8 +537,6 @@ class ExportController extends Controller
     // ========================================
     // Private Helper Methods
     // ========================================
-
-
 
     /**
      * Get facilities query based on user role and access scope
@@ -602,6 +599,7 @@ class ExportController extends Controller
     private function getFacilitiesForUser(?User $user = null)
     {
         $user = $user ?? Auth::user();
+
         return $this->getFacilitiesQuery($user)->get();
     }
 

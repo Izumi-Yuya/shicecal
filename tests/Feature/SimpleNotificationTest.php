@@ -3,9 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use App\Models\Notification;
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class SimpleNotificationTest extends TestCase
 {
@@ -19,8 +18,8 @@ class SimpleNotificationTest extends TestCase
         // Test direct URL access
         $response = $this->actingAs($user)->get('/notifications/unread-count');
 
-        dump('Status: ' . $response->status());
-        dump('Content: ' . $response->getContent());
+        dump('Status: '.$response->status());
+        dump('Content: '.$response->getContent());
 
         $this->assertTrue(true); // Just to make the test pass for now
     }

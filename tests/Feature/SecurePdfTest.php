@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Facility;
 use App\Models\User;
-use App\Services\ExportService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -19,7 +18,7 @@ class SecurePdfTest extends TestCase
 
         // Create a test user
         $this->user = User::factory()->create([
-            'role' => 'admin'
+            'role' => 'admin',
         ]);
     }
 
@@ -54,7 +53,7 @@ class SecurePdfTest extends TestCase
 
         $this->actingAs($this->user);
 
-        $service = new SecurePdfService();
+        $service = new SecurePdfService;
         $pdfContent = $service->generateSecureFacilityPdf($facility);
 
         $this->assertNotEmpty($pdfContent);
@@ -73,7 +72,7 @@ class SecurePdfTest extends TestCase
 
         $this->actingAs($this->user);
 
-        $service = new SecurePdfService();
+        $service = new SecurePdfService;
         $filename = $service->generateSecureFilename($facility);
 
         $this->assertStringStartsWith('secure_facility_report_', $filename);
@@ -93,7 +92,7 @@ class SecurePdfTest extends TestCase
 
         $this->actingAs($this->user);
 
-        $service = new SecurePdfService();
+        $service = new SecurePdfService;
         $metadata = $service->getPdfMetadata($facility);
 
         $this->assertArrayHasKey('document_type', $metadata);
@@ -116,7 +115,7 @@ class SecurePdfTest extends TestCase
         $response = $this->actingAs($this->user)
             ->post(route('pdf.export.batch'), [
                 'facility_ids' => $facilities->pluck('id')->toArray(),
-                'secure' => '1'
+                'secure' => '1',
             ]);
 
         $response->assertStatus(200);

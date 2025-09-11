@@ -1,5 +1,8 @@
 /* Reusable Components */
 
+/* Import facility form components */
+@import 'components/facility-form.css';
+
 /* Button Styles */
 .btn {
   border-radius: 8px;

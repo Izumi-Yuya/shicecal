@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -42,18 +42,18 @@ return new class extends Migration
                     $table->dropForeign(['rejected_by']);
                 }
             }
-            
+
             // Only drop columns that exist
             $columnsToCheck = ['rejection_reason', 'rejected_at', 'rejected_by'];
             $columnsToDrop = [];
-            
+
             foreach ($columnsToCheck as $column) {
                 if (Schema::hasColumn('land_info', $column)) {
                     $columnsToDrop[] = $column;
                 }
             }
-            
-            if (!empty($columnsToDrop)) {
+
+            if (! empty($columnsToDrop)) {
                 $table->dropColumn($columnsToDrop);
             }
         });

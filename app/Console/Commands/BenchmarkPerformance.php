@@ -2,9 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Services\PerformanceBenchmarkService;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Console\Command;
 
 class BenchmarkPerformance extends Command
 {
@@ -80,7 +79,7 @@ class BenchmarkPerformance extends Command
                     $metrics['execution_time_ms'],
                     $metrics['memory_usage_mb'],
                     $metrics['query_count'],
-                    $status
+                    $status,
                 ];
             }
 
@@ -99,7 +98,7 @@ class BenchmarkPerformance extends Command
                     $name,
                     $metrics['memory_used_mb'],
                     $metrics['peak_memory_mb'],
-                    $status
+                    $status,
                 ];
             }
 
@@ -136,7 +135,7 @@ class BenchmarkPerformance extends Command
             }
         }
 
-        if (!empty($warnings)) {
+        if (! empty($warnings)) {
             $this->warn("\n⚠️  Performance Warnings:");
             foreach ($warnings as $warning) {
                 $this->warn("  • {$warning}");
@@ -155,7 +154,7 @@ class BenchmarkPerformance extends Command
 
         if (isset($results['operations'])) {
             foreach ($results['operations'] as $name => $metrics) {
-                if (!$metrics['success'] && $metrics['error']) {
+                if (! $metrics['success'] && $metrics['error']) {
                     $errors[] = "{$name}: {$metrics['error']}";
                 }
             }
@@ -163,13 +162,13 @@ class BenchmarkPerformance extends Command
 
         if (isset($results['memory'])) {
             foreach ($results['memory'] as $name => $metrics) {
-                if (!$metrics['success'] && $metrics['error']) {
+                if (! $metrics['success'] && $metrics['error']) {
                     $errors[] = "{$name}: {$metrics['error']}";
                 }
             }
         }
 
-        if (!empty($errors)) {
+        if (! empty($errors)) {
             $this->error("\n❌ Error Details:");
             foreach ($errors as $error) {
                 $this->error("  • {$error}");
@@ -188,15 +187,15 @@ class BenchmarkPerformance extends Command
         try {
             if ($format === 'markdown') {
                 $content = $benchmarkService->generateReport($results);
-                $outputPath = str_ends_with($outputPath, '.md') ? $outputPath : $outputPath . '.md';
+                $outputPath = str_ends_with($outputPath, '.md') ? $outputPath : $outputPath.'.md';
             } else {
                 $content = json_encode($results, JSON_PRETTY_PRINT);
-                $outputPath = str_ends_with($outputPath, '.json') ? $outputPath : $outputPath . '.json';
+                $outputPath = str_ends_with($outputPath, '.json') ? $outputPath : $outputPath.'.json';
             }
 
             // Ensure directory exists
             $directory = dirname($outputPath);
-            if (!is_dir($directory)) {
+            if (! is_dir($directory)) {
                 mkdir($directory, 0755, true);
             }
 
@@ -214,16 +213,18 @@ class BenchmarkPerformance extends Command
     {
         $compareFile = $this->option('compare');
 
-        if (!file_exists($compareFile)) {
+        if (! file_exists($compareFile)) {
             $this->error("Comparison file not found: {$compareFile}");
+
             return;
         }
 
         try {
             $previousResults = json_decode(file_get_contents($compareFile), true);
 
-            if (!$previousResults) {
-                $this->error("Invalid comparison file format");
+            if (! $previousResults) {
+                $this->error('Invalid comparison file format');
+
                 return;
             }
 
@@ -245,7 +246,7 @@ class BenchmarkPerformance extends Command
 
                         $status = $change < 0 ? '<info>⬇️ Improved</info>' : ($change > 0 ? '<comment>⬆️ Slower</comment>' : '<info>➡️ Same</info>');
 
-                        $changeText = $change >= 0 ? "+{$change}" : (string)$change;
+                        $changeText = $change >= 0 ? "+{$change}" : (string) $change;
                         $changeText .= "ms ({$changePercent}%)";
 
                         $rows[] = [
@@ -253,15 +254,15 @@ class BenchmarkPerformance extends Command
                             $previous['execution_time_ms'],
                             $current['execution_time_ms'],
                             $changeText,
-                            $status
+                            $status,
                         ];
                     }
                 }
 
-                if (!empty($rows)) {
+                if (! empty($rows)) {
                     $this->table($headers, $rows);
                 } else {
-                    $this->info("No comparable operations found");
+                    $this->info('No comparable operations found');
                 }
             }
         } catch (\Exception $e) {

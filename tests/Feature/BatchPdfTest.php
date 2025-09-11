@@ -4,10 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\Facility;
 use App\Models\User;
-use App\Services\ExportService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 
 class BatchPdfTest extends TestCase
@@ -20,7 +18,7 @@ class BatchPdfTest extends TestCase
 
         // Create a test user
         $this->user = User::factory()->create([
-            'role' => 'admin'
+            'role' => 'admin',
         ]);
     }
 
@@ -128,7 +126,7 @@ class BatchPdfTest extends TestCase
             'status',
             'processed_count',
             'total_count',
-            'percentage'
+            'percentage',
         ]);
 
         // Clean up

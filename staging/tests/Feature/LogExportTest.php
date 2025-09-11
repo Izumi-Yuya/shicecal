@@ -12,12 +12,13 @@ class LogExportTest extends TestCase
     use RefreshDatabase;
 
     protected $adminUser;
+
     protected $regularUser;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->adminUser = User::factory()->create(['role' => 'admin']);
         $this->regularUser = User::factory()->create(['role' => 'editor']);
     }
@@ -30,7 +31,7 @@ class LogExportTest extends TestCase
         ActivityLog::factory()->count(3)->create([
             'user_id' => $this->adminUser->id,
             'action' => 'create',
-            'target_type' => 'facility'
+            'target_type' => 'facility',
         ]);
 
         $response = $this->get(route('admin.logs.export.csv'));
@@ -38,7 +39,7 @@ class LogExportTest extends TestCase
         $response->assertStatus(200);
         $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
         $response->assertHeader('Content-Disposition');
-        
+
         // Check CSV content
         $content = $response->getContent();
         $this->assertStringContainsString('ログID', $content);
@@ -67,20 +68,20 @@ class LogExportTest extends TestCase
         ActivityLog::factory()->create([
             'user_id' => $this->adminUser->id,
             'action' => 'create',
-            'target_type' => 'facility'
+            'target_type' => 'facility',
         ]);
-        
+
         ActivityLog::factory()->create([
             'user_id' => $this->adminUser->id,
             'action' => 'update',
-            'target_type' => 'user'
+            'target_type' => 'user',
         ]);
 
         // Export with action filter
         $response = $this->get(route('admin.logs.export.csv', ['action' => 'create']));
 
         $response->assertStatus(200);
-        
+
         $content = $response->getContent();
         $this->assertStringContainsString('create', $content);
         $this->assertStringNotContainsString('update', $content);
@@ -94,13 +95,13 @@ class LogExportTest extends TestCase
         ActivityLog::factory()->create([
             'user_id' => $this->adminUser->id,
             'created_at' => now()->subDays(5),
-            'description' => 'Old log entry'
+            'description' => 'Old log entry',
         ]);
-        
+
         ActivityLog::factory()->create([
             'user_id' => $this->adminUser->id,
             'created_at' => now()->subDays(1),
-            'description' => 'Recent log entry'
+            'description' => 'Recent log entry',
         ]);
 
         $startDate = now()->subDays(2)->format('Y-m-d');
@@ -108,11 +109,11 @@ class LogExportTest extends TestCase
 
         $response = $this->get(route('admin.logs.export.csv', [
             'start_date' => $startDate,
-            'end_date' => $endDate
+            'end_date' => $endDate,
         ]));
 
         $response->assertStatus(200);
-        
+
         $content = $response->getContent();
         $this->assertStringContainsString('Recent log entry', $content);
         $this->assertStringNotContainsString('Old log entry', $content);
@@ -125,13 +126,13 @@ class LogExportTest extends TestCase
         // Create log with special characters
         ActivityLog::factory()->create([
             'user_id' => $this->adminUser->id,
-            'description' => 'Test with "quotes", commas, and 改行\ncharacters'
+            'description' => 'Test with "quotes", commas, and 改行\ncharacters',
         ]);
 
         $response = $this->get(route('admin.logs.export.csv'));
 
         $response->assertStatus(200);
-        
+
         $content = $response->getContent();
         // Should contain the description properly escaped
         $this->assertStringContainsString('Test with', $content);
@@ -146,13 +147,13 @@ class LogExportTest extends TestCase
         ActivityLog::factory()->count(5)->create([
             'user_id' => $this->adminUser->id,
             'action' => 'create',
-            'created_at' => now()->subDays(1)
+            'created_at' => now()->subDays(1),
         ]);
 
         ActivityLog::factory()->count(3)->create([
             'user_id' => $this->regularUser->id,
             'action' => 'update',
-            'created_at' => now()->subDays(1)
+            'created_at' => now()->subDays(1),
         ]);
 
         $startDate = now()->subDays(7)->format('Y-m-d');
@@ -160,12 +161,12 @@ class LogExportTest extends TestCase
 
         $response = $this->get(route('admin.logs.export.audit-report', [
             'start_date' => $startDate,
-            'end_date' => $endDate
+            'end_date' => $endDate,
         ]));
 
         $response->assertStatus(200);
         $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
-        
+
         $content = $response->getContent();
         $this->assertStringContainsString('監査レポート', $content);
         $this->assertStringContainsString('総ログ数', $content);
@@ -192,19 +193,19 @@ class LogExportTest extends TestCase
         // Create logs within default range (last 30 days)
         ActivityLog::factory()->create([
             'user_id' => $this->adminUser->id,
-            'created_at' => now()->subDays(15)
+            'created_at' => now()->subDays(15),
         ]);
 
         // Create logs outside default range
         ActivityLog::factory()->create([
             'user_id' => $this->adminUser->id,
-            'created_at' => now()->subDays(45)
+            'created_at' => now()->subDays(45),
         ]);
 
         $response = $this->get(route('admin.logs.export.audit-report'));
 
         $response->assertStatus(200);
-        
+
         $content = $response->getContent();
         // Should only include logs from the last 30 days
         $lines = explode("\n", $content);
@@ -214,7 +215,7 @@ class LogExportTest extends TestCase
                 $logCount++;
             }
         }
-        
+
         // Should find the user name in the statistics and detailed logs sections
         $this->assertGreaterThan(0, $logCount);
     }
@@ -228,7 +229,7 @@ class LogExportTest extends TestCase
         $response = $this->get(route('admin.logs.export.csv'));
 
         $response->assertStatus(200);
-        
+
         $content = $response->getContent();
         // Check for UTF-8 BOM
         $this->assertStringStartsWith("\xEF\xBB\xBF", $content);
@@ -243,7 +244,7 @@ class LogExportTest extends TestCase
         $response = $this->get(route('admin.logs.export.csv'));
 
         $response->assertStatus(200);
-        
+
         $contentDisposition = $response->headers->get('Content-Disposition');
         $this->assertStringContainsString('activity_logs_', $contentDisposition);
         $this->assertStringContainsString('.csv', $contentDisposition);
@@ -260,11 +261,11 @@ class LogExportTest extends TestCase
 
         $response = $this->get(route('admin.logs.export.audit-report', [
             'start_date' => $startDate,
-            'end_date' => $endDate
+            'end_date' => $endDate,
         ]));
 
         $response->assertStatus(200);
-        
+
         $contentDisposition = $response->headers->get('Content-Disposition');
         $this->assertStringContainsString('audit_report_2024-01-01_to_2024-01-31.csv', $contentDisposition);
     }

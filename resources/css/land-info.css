@@ -262,30 +262,35 @@
   }
 }
 
-/* Land Info Edit Form Styles */
+/* Land Info Edit Form Styles - Integrated with Facility Form Layout */
 .land-info-edit-form {
-  background: #f8f9fa;
+  background: var(--facility-form-bg-light, #f8f9fa);
   min-height: 100vh;
   padding: 2rem 0;
+
+  /* Integration with facility-form layout */
+  &.facility-edit-layout {
+    /* Inherit all facility-form styles when using the layout */
+  }
 }
 
 .land-info-edit-form .card {
   border: none;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  margin-bottom: 1.5rem;
-  border-radius: 15px;
+  box-shadow: var(--facility-form-card-shadow, 0 2px 10px rgba(0, 0, 0, 0.1));
+  margin-bottom: var(--facility-form-spacing, 1.5rem);
+  border-radius: var(--facility-form-border-radius-lg, 15px);
   overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: var(--facility-form-transition, transform 0.2s ease, box-shadow 0.2s ease);
 }
 
 .land-info-edit-form .card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--facility-form-card-shadow-hover, 0 4px 20px rgba(0, 0, 0, 0.15));
 }
 
 .land-info-edit-form .card-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: var(--facility-form-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+  color: var(--facility-form-bg-white, white);
   border: none;
   padding: 1rem 1.5rem;
   font-weight: 600;
@@ -293,7 +298,7 @@
 
 .land-info-edit-form .card-body {
   padding: 1.5rem;
-  background: white;
+  background: var(--facility-form-bg-white, white);
 }
 
 .land-info-edit-form .form-label {
@@ -311,14 +316,14 @@
 .land-info-edit-form .form-control,
 .land-info-edit-form .form-select {
   border: 1px solid #dee2e6;
-  border-radius: 0.375rem;
+  border-radius: var(--facility-form-border-radius, 0.375rem);
   padding: 0.75rem;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  transition: var(--facility-form-transition, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out);
 }
 
 .land-info-edit-form .form-control:focus,
 .land-info-edit-form .form-select:focus {
-  border-color: #667eea;
+  border-color: var(--facility-form-primary, #667eea);
   box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
 }
 
@@ -354,17 +359,37 @@
   }
 }
 
-/* Conditional Sections */
+/* Bootstrap Collapse Integration for Conditional Sections */
 .conditional-section {
-  transition: all 0.3s ease;
+  /* Use Bootstrap's collapse transition */
+  transition: height 0.35s ease, opacity 0.35s ease;
+  overflow: hidden;
+}
+
+.conditional-section.collapse:not(.show) {
+  height: 0 !important;
+  opacity: 0;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.conditional-section.collapse.show {
+  height: auto !important;
   opacity: 1;
 }
 
-.conditional-section.fade-in {
-  animation: fadeIn 0.3s ease-in-out;
+.conditional-section.collapsing {
+  opacity: 0.5;
+  transition: height 0.35s ease, opacity 0.35s ease;
 }
 
-@keyframes fadeIn {
+/* Smooth fade-in animation for newly shown sections */
+.conditional-section.show {
+  animation: fadeInSlide 0.35s ease-out;
+}
+
+@keyframes fadeInSlide {
   from {
     opacity: 0;
     transform: translateY(-10px);
@@ -378,15 +403,15 @@
 
 /* Button Styles */
 .land-info-edit-form .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--facility-form-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
   border: none;
   padding: 0.75rem 1.5rem;
   font-weight: 600;
-  transition: all 0.2s ease;
+  transition: var(--facility-form-transition, all 0.2s ease);
 }
 
 .land-info-edit-form .btn-primary:hover {
-  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+  background: var(--facility-form-gradient-hover, linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%));
   transform: translateY(-1px);
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
@@ -575,13 +600,87 @@
   }
 }
 
-/* Reduced Motion Support */
+/* Accessibility Compliance - Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
 
   .land-info-edit-form .card,
   .conditional-section,
+  .conditional-section.collapse,
+  .conditional-section.collapsing,
   .land-info-edit-form .btn {
     transition: none !important;
     animation: none !important;
+  }
+
+  .conditional-section.collapse {
+    transition: none !important;
+  }
+
+  .conditional-section.collapse:not(.show) {
+    display: none !important;
+  }
+
+  .conditional-section.collapse.show {
+    display: block !important;
+  }
+}
+
+/* Enhanced Section Transitions with Bootstrap Collapse */
+.conditional-section.collapse {
+  /* Bootstrap handles the height transition */
+  transition: height 0.35s ease, opacity 0.35s ease, margin 0.35s ease, padding 0.35s ease;
+}
+
+.conditional-section.collapse.show {
+  animation: sectionFadeIn 0.35s ease-out;
+}
+
+@keyframes sectionFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* セクション表示時のハイライト効果 */
+.conditional-section.show-highlight {
+  border-left: 4px solid #0d6efd;
+  background-color: #f8f9ff;
+  animation: highlightPulse 1s ease-in-out;
+}
+
+@keyframes highlightPulse {
+
+  0%,
+  100% {
+    background-color: #f8f9ff;
+  }
+
+  50% {
+    background-color: #e7f1ff;
+  }
+}
+
+/* 計算結果フィールドのハイライト */
+.calculated {
+  background-color: #d4edda !important;
+  border-color: #28a745 !important;
+  animation: calculatedPulse 1s ease-in-out;
+}
+
+@keyframes calculatedPulse {
+
+  0%,
+  100% {
+    background-color: #d4edda;
+  }
+
+  50% {
+    background-color: #c3e6cb;
   }
 }

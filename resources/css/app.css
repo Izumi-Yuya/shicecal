@@ -8,6 +8,7 @@
 @import 'utilities.css';
 @import 'animations.css';
 @import 'land-info.css';
+@import 'components/facility-form.css';
 @import 'pages/facility-table-view.css';
 @import 'components/table-view-comments.css';
 

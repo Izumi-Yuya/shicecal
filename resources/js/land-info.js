@@ -4,6 +4,43 @@
  */
 
 class LandInfoManager {
+  // Constants for ownership types - matches database enum values
+  static OWNERSHIP_TYPES = {
+    OWNED: 'owned',
+    LEASED: 'leased',
+    OWNED_RENTAL: 'owned_rental'
+  };
+
+  // Section visibility rules based on ownership type
+  static SECTION_VISIBILITY_RULES = {
+    owned_section: [LandInfoManager.OWNERSHIP_TYPES.OWNED, LandInfoManager.OWNERSHIP_TYPES.OWNED_RENTAL],
+    leased_section: [LandInfoManager.OWNERSHIP_TYPES.LEASED, LandInfoManager.OWNERSHIP_TYPES.OWNED_RENTAL],
+    management_section: [LandInfoManager.OWNERSHIP_TYPES.LEASED],
+    owner_section: [LandInfoManager.OWNERSHIP_TYPES.LEASED],
+    file_section: [LandInfoManager.OWNERSHIP_TYPES.LEASED, LandInfoManager.OWNERSHIP_TYPES.OWNED_RENTAL]
+  };
+
+  // Field groups that should be cleared based on ownership type
+  static FIELD_GROUPS = {
+    owned: ['purchase_price', 'unit_price_display'],
+    leased: [
+      'monthly_rent', 'contract_start_date', 'contract_end_date',
+      'auto_renewal', 'contract_period_display'
+    ],
+    management: [
+      'management_company_name', 'management_company_postal_code',
+      'management_company_address', 'management_company_building',
+      'management_company_phone', 'management_company_fax',
+      'management_company_email', 'management_company_url',
+      'management_company_notes'
+    ],
+    owner: [
+      'owner_name', 'owner_postal_code', 'owner_address',
+      'owner_building', 'owner_phone', 'owner_fax',
+      'owner_email', 'owner_url', 'owner_notes'
+    ]
+  };
+
   constructor() {
     this.debounceTimers = new Map();
     this.calculationCache = new Map();
@@ -13,23 +50,108 @@ class LandInfoManager {
       startTime: performance.now()
     };
 
+    // Check if we're on the land info edit page
+    const landInfoForm = document.getElementById('landInfoForm');
+    if (!landInfoForm) {
+      console.log('LandInfoManager: Not on land info edit page, skipping initialization');
+      return;
+    }
+
     this.initializeEventListeners();
-    this.updateConditionalSections();
+    // 初期化時に条件付きセクションを更新（少し遅延させてDOMが完全に読み込まれるのを待つ）
+    setTimeout(() => {
+      this.debugDOMElements();
+      this.updateConditionalSections();
+      // 初期計算も実行
+      this.calculateUnitPrice();
+      this.calculateContractPeriod();
+    }, 100);
     this.initializeCharacterCount();
     this.initializePerformanceOptimizations();
+  }
+
+  /**
+   * Debug DOM elements to check if they exist
+   */
+  debugDOMElements() {
+    console.log('🔍 Debugging DOM elements...');
+
+    // Check ownership type element
+    const ownershipType = document.getElementById('ownership_type');
+    console.log('ownership_type element:', ownershipType, 'value:', ownershipType?.value);
+
+    // Check all section elements
+    const sectionIds = Object.keys(LandInfoManager.SECTION_VISIBILITY_RULES);
+    sectionIds.forEach(sectionId => {
+      const element = document.getElementById(sectionId);
+      console.log(`${sectionId} element:`, !!element, element ? `display: ${element.style.display}` : 'NOT FOUND');
+    });
+
+    // Check if we're in the right page
+    const debugForm = document.getElementById('landInfoForm');
+    console.log('landInfoForm element:', !!debugForm);
+  }
+
+  /**
+   * Get current ownership type value from select or radio group
+   * @returns {string} The ownership type value or empty string if not found
+   */
+  getOwnershipTypeValue() {
+    try {
+      // Try select element first (more common)
+      const select = document.getElementById('ownership_type');
+      if (select && typeof select.value !== 'undefined') {
+        return select.value;
+      }
+
+      // Fallback to radio buttons
+      const radios = document.querySelectorAll('input[name="ownership_type"]');
+      for (const radio of radios) {
+        if (radio.checked) {
+          return radio.value;
+        }
+      }
+
+      return '';
+    } catch (error) {
+      console.error('Error getting ownership type value:', error);
+      return '';
+    }
   }
 
   /**
    * Initialize all event listeners
    */
   initializeEventListeners() {
-    // 所有形態変更時の表示制御
-    const ownershipType = document.getElementById('ownership_type');
-    if (ownershipType) {
-      ownershipType.addEventListener('change', () => {
-        this.updateConditionalSections();
-        this.clearConditionalFields();
-        this.clearValidationErrors();
+    // 所有形態変更時の表示制御（select または radio 両対応）
+    const ownershipTypeSelect = document.getElementById('ownership_type');
+    if (ownershipTypeSelect) {
+      // changeイベントとinputイベント両方を監視
+      ['change', 'input'].forEach(eventType => {
+        ownershipTypeSelect.addEventListener(eventType, () => {
+          console.log('Ownership type event triggered:', eventType, ownershipTypeSelect.value);
+          this.updateConditionalSections();
+          // フィールドクリアは少し遅延させる
+          setTimeout(() => {
+            this.clearConditionalFields();
+            this.clearValidationErrors();
+          }, 50);
+        });
+      });
+    }
+    const ownershipTypeRadios = document.querySelectorAll('input[name="ownership_type"]');
+    if (ownershipTypeRadios && ownershipTypeRadios.length > 0) {
+      ownershipTypeRadios.forEach(r => {
+        ['change', 'input'].forEach(eventType => {
+          r.addEventListener(eventType, () => {
+            console.log('Ownership type radio event triggered:', eventType, r.value);
+            this.updateConditionalSections();
+            setTimeout(() => {
+              this.clearConditionalFields();
+              this.clearValidationErrors();
+            }, 50);
+          });
+        });
       });
     }
 
@@ -133,9 +255,9 @@ class LandInfoManager {
    * Initialize form validation
    */
   initializeFormValidation() {
-    const form = document.getElementById('landInfoForm');
-    if (form) {
-      form.addEventListener('submit', (e) => {
+    const validationForm = document.getElementById('landInfoForm');
+    if (validationForm) {
+      validationForm.addEventListener('submit', (e) => {
         if (!this.validateForm()) {
           e.preventDefault();
         }
@@ -350,29 +472,78 @@ class LandInfoManager {
    * Update conditional sections based on ownership type
    */
   updateConditionalSections() {
-    const ownershipType = document.getElementById('ownership_type').value;
+    const ownershipType = this.getOwnershipTypeValue();
+    if (!ownershipType) return;
 
-    // セクションの表示/非表示制御
-    const sections = {
-      owned_section: ownershipType === 'owned',
-      leased_section: ['leased', 'owned_rental'].includes(ownershipType),
-      management_section: ownershipType === 'leased',
-      owner_section: ownershipType === 'leased',
-      file_section: ['leased', 'owned_rental'].includes(ownershipType)
-    };
+    // Calculate section visibility using predefined rules
+    const sectionVisibility = this.calculateSectionVisibility(ownershipType);
 
-    Object.entries(sections).forEach(([sectionId, shouldShow]) => {
+    // Apply visibility changes with animation
+    this.applySectionVisibility(sectionVisibility);
+
+    // Debug logging in development mode only
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Ownership type:', ownershipType, 'Sections visibility:', sectionVisibility);
+    }
+  }
+
+  /**
+   * Calculate which sections should be visible for given ownership type
+   * @param {string} ownershipType - The ownership type value
+   * @returns {Object} Object mapping section IDs to visibility boolean
+   */
+  calculateSectionVisibility(ownershipType) {
+    const visibility = {};
+
+    Object.entries(LandInfoManager.SECTION_VISIBILITY_RULES).forEach(([sectionId, allowedTypes]) => {
+      visibility[sectionId] = allowedTypes.includes(ownershipType);
+    });
+
+    return visibility;
+  }
+
+  /**
+   * Apply section visibility changes with smooth animations
+   * @param {Object} sectionVisibility - Object mapping section IDs to visibility
+   */
+  applySectionVisibility(sectionVisibility) {
+    console.log('🔄 Applying section visibility:', sectionVisibility);
+
+    Object.entries(sectionVisibility).forEach(([sectionId, shouldShow]) => {
       const section = document.getElementById(sectionId);
-      if (section) {
-        section.style.display = shouldShow ? 'block' : 'none';
 
-        // アニメーション効果
-        if (shouldShow) {
-          section.classList.add('fade-in');
-        } else {
-          section.classList.remove('fade-in');
-        }
+      if (!section) {
+        console.warn(`⚠️ Section element not found: ${sectionId}`);
+        return;
       }
+
+      console.log(`Processing section ${sectionId}: shouldShow=${shouldShow}, current display=${section.style.display}`);
+
+      // Use requestAnimationFrame for smooth transitions
+      requestAnimationFrame(() => {
+        if (shouldShow) {
+          section.style.display = 'block';
+          section.style.visibility = 'visible';
+          section.classList.remove('d-none', 'hide');
+          section.classList.add('d-block', 'fade-in', 'show-highlight');
+
+          // ハイライト効果を一定時間後に削除
+          setTimeout(() => {
+            section.classList.remove('show-highlight');
+          }, 1000);
+
+          console.log(`✅ Showing section: ${sectionId}`);
+        } else {
+          section.style.display = 'none';
+          section.style.visibility = 'hidden';
+          section.classList.remove('d-block', 'fade-in', 'show-highlight', 'show');
+          section.classList.add('d-none', 'hide');
+          console.log(`❌ Hiding section: ${sectionId}`);
+        }
+
+        // Set accessibility attributes
+        section.setAttribute('aria-hidden', shouldShow ? 'false' : 'true');
+      });
     });
   }
 
@@ -380,50 +551,55 @@ class LandInfoManager {
    * Clear fields in conditional sections when ownership type changes
    */
   clearConditionalFields() {
-    const ownershipType = document.getElementById('ownership_type').value;
+    const ownershipType = this.getOwnershipTypeValue();
+    const fieldsToClear = this.determineFieldsToClear(ownershipType);
 
-    // 自社以外の場合、購入関連フィールドをクリア
-    if (ownershipType !== 'owned') {
-      const ownedFields = ['purchase_price', 'unit_price_display'];
-      ownedFields.forEach(fieldId => {
-        const field = document.getElementById(fieldId);
-        if (field) field.value = '';
-      });
+    // Clear fields efficiently using cached DOM elements or batch queries
+    this.clearFieldsBatch(fieldsToClear);
+  }
+
+  /**
+   * Determine which fields should be cleared based on ownership type
+   * @param {string} ownershipType - Current ownership type
+   * @returns {string[]} Array of field IDs to clear
+   */
+  determineFieldsToClear(ownershipType) {
+    const fieldsToClear = [];
+
+    // Clear owned fields if not owned or owned_rental type
+    if (![LandInfoManager.OWNERSHIP_TYPES.OWNED, LandInfoManager.OWNERSHIP_TYPES.OWNED_RENTAL].includes(ownershipType)) {
+      fieldsToClear.push(...LandInfoManager.FIELD_GROUPS.owned);
     }
 
-    // 賃借以外の場合、賃借関連フィールドをクリア
-    if (!['leased', 'owned_rental'].includes(ownershipType)) {
-      const leasedFields = [
-        'monthly_rent', 'contract_start_date', 'contract_end_date',
-        'auto_renewal', 'contract_period_display'
-      ];
-      leasedFields.forEach(fieldId => {
-        const field = document.getElementById(fieldId);
-        if (field) field.value = '';
-      });
+    // Clear leased fields if not leased or owned_rental
+    if (![LandInfoManager.OWNERSHIP_TYPES.LEASED, LandInfoManager.OWNERSHIP_TYPES.OWNED_RENTAL].includes(ownershipType)) {
+      fieldsToClear.push(...LandInfoManager.FIELD_GROUPS.leased);
     }
 
-    // 賃借以外の場合、管理会社・オーナー情報をクリア
-    if (ownershipType !== 'leased') {
-      const managementFields = [
-        'management_company_name', 'management_company_postal_code',
-        'management_company_address', 'management_company_building',
-        'management_company_phone', 'management_company_fax',
-        'management_company_email', 'management_company_url',
-        'management_company_notes'
-      ];
-
-      const ownerFields = [
-        'owner_name', 'owner_postal_code', 'owner_address',
-        'owner_building', 'owner_phone', 'owner_fax',
-        'owner_email', 'owner_url', 'owner_notes'
-      ];
-
-      [...managementFields, ...ownerFields].forEach(fieldId => {
-        const field = document.getElementById(fieldId);
-        if (field) field.value = '';
-      });
+    // Clear management and owner fields if not leased
+    if (ownershipType !== LandInfoManager.OWNERSHIP_TYPES.LEASED) {
+      fieldsToClear.push(...LandInfoManager.FIELD_GROUPS.management);
+      fieldsToClear.push(...LandInfoManager.FIELD_GROUPS.owner);
     }
+
+    return fieldsToClear;
+  }
+
+  /**
+   * Clear multiple fields efficiently in a single batch operation
+   * @param {string[]} fieldIds - Array of field IDs to clear
+   */
+  clearFieldsBatch(fieldIds) {
+    fieldIds.forEach(fieldId => {
+      const field = this.domCache?.[fieldId] || document.getElementById(fieldId);
+      if (field && field.value) {
+        field.value = '';
+        field.classList.remove('is-invalid', 'calculated');
+
+        // Trigger change event for any listeners
+        field.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
   }
 
   /**
@@ -593,12 +769,28 @@ class LandInfoManager {
   }
 
   /**
-   * Convert full-width numbers to half-width
+   * Convert full-width numbers to half-width and sanitize input
    */
   convertToHalfWidth(input) {
-    input.value = input.value.replace(/[０-９]/g, function (s) {
+    if (!input || !input.value) return;
+
+    // Convert full-width to half-width numbers
+    let sanitizedValue = input.value.replace(/[０-９]/g, function (s) {
       return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
     });
+
+    // Additional sanitization based on input type
+    if (input.type === 'number' || input.classList.contains('currency-input')) {
+      // Remove non-numeric characters except decimal point and comma
+      sanitizedValue = sanitizedValue.replace(/[^\d.,\-]/g, '');
+    }
+
+    // Prevent XSS by limiting input length and characters
+    if (sanitizedValue.length > 50) {
+      sanitizedValue = sanitizedValue.substring(0, 50);
+    }
+
+    input.value = sanitizedValue;
   }
 
   /**
@@ -860,9 +1052,9 @@ class LandInfoManager {
    */
   enableAutoSave() {
     let autoSaveTimeout;
-    const form = document.getElementById('landInfoForm');
+    const autoSaveForm = document.getElementById('landInfoForm');
 
-    if (!form) return;
+    if (!autoSaveForm) return;
 
     const triggerAutoSave = () => {
       clearTimeout(autoSaveTimeout);
@@ -872,7 +1064,7 @@ class LandInfoManager {
     };
 
     // Add listeners to all form inputs
-    form.querySelectorAll('input, select, textarea').forEach(input => {
+    autoSaveForm.querySelectorAll('input, select, textarea').forEach(input => {
       input.addEventListener('input', triggerAutoSave);
       input.addEventListener('change', triggerAutoSave);
     });
@@ -882,10 +1074,10 @@ class LandInfoManager {
    * Save form data as draft
    */
   saveDraft() {
-    const form = document.getElementById('landInfoForm');
-    if (!form) return;
+    const draftForm = document.getElementById('landInfoForm');
+    if (!draftForm) return;
 
-    const formData = new FormData(form);
+    const formData = new FormData(draftForm);
     const draftData = {};
 
     for (let [key, value] of formData.entries()) {
@@ -912,6 +1104,10 @@ class LandInfoManager {
       Object.entries(data).forEach(([key, value]) => {
         const field = document.querySelector(`[name="${key}"]`);
         if (field) {
+          // Skip file inputs as they cannot be programmatically set for security reasons
+          if (field.type === 'file') {
+            return;
+          }
           field.value = value;
         }
       });
@@ -1004,7 +1200,44 @@ function calculateFieldsRealtime() {
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function () {
+  console.log('🚀 DOMContentLoaded - Initializing LandInfoManager');
+
+  // Check if we're on the correct page
+  const form = document.getElementById('landInfoForm');
+  if (!form) {
+    console.log('❌ landInfoForm not found, skipping LandInfoManager initialization');
+    return;
+  }
+
   const landInfoManager = new LandInfoManager();
+
+  // 初期状態のセクション表示を同期（select/radio 両対応）
+  landInfoManager.updateConditionalSections();
+
+  // Make landInfoManager globally accessible
+  window.landInfoManager = landInfoManager;
+
+  // Additional event listener setup as fallback
+  setTimeout(() => {
+    console.log('🔄 Setting up fallback event listeners');
+    const ownershipSelect = document.getElementById('ownership_type');
+    if (ownershipSelect) {
+      // Remove existing listeners and add new ones
+      const newSelect = ownershipSelect.cloneNode(true);
+      ownershipSelect.parentNode.replaceChild(newSelect, ownershipSelect);
+
+      newSelect.addEventListener('change', function (e) {
+        console.log('🎯 Fallback change event triggered:', e.target.value);
+        landInfoManager.updateConditionalSections();
+        setTimeout(() => {
+          landInfoManager.clearConditionalFields();
+          landInfoManager.clearValidationErrors();
+        }, 50);
+      });
+
+      console.log('✅ Fallback event listener added');
+    }
+  }, 500);
 
   // Enable auto-save functionality
   landInfoManager.enableAutoSave();
@@ -1013,7 +1246,6 @@ document.addEventListener('DOMContentLoaded', function () {
   landInfoManager.loadDraft();
 
   // Clear draft on successful form submission
-  const form = document.getElementById('landInfoForm');
   if (form) {
     form.addEventListener('submit', function (e) {
       if (landInfoManager.validateForm()) {
@@ -1025,8 +1257,8 @@ document.addEventListener('DOMContentLoaded', function () {
   // Preview functionality
   document.getElementById('previewBtn')?.addEventListener('click', function () {
     // Open preview in new window/modal
-    const form = document.getElementById('landInfoForm');
-    const formData = new FormData(form);
+    const previewForm = document.getElementById('landInfoForm');
+    const formData = new FormData(previewForm);
 
     // Create preview content
     const previewWindow = window.open('', '_blank', 'width=800,height=600');
@@ -1062,3 +1294,32 @@ document.addEventListener('DOMContentLoaded', function () {
 window.LandInfoManager = LandInfoManager;
 window.deleteFile = deleteFile;
 window.calculateFieldsRealtime = calculateFieldsRealtime;
+
+// Test functions for debugging
+window.testOwnershipChange = function (value) {
+  console.log('🧪 Testing ownership change to:', value);
+  const select = document.getElementById('ownership_type');
+  if (select) {
+    select.value = value;
+    if (window.landInfoManager) {
+      window.landInfoManager.updateConditionalSections();
+    } else {
+      console.error('❌ landInfoManager not found');
+    }
+  } else {
+    console.error('❌ ownership_type select not found');
+  }
+};
+
+window.debugSections = function () {
+  console.log('🔍 Current section states:');
+  const sections = ['owned_section', 'leased_section', 'management_section', 'owner_section', 'file_section'];
+  sections.forEach(id => {
+    const element = document.getElementById(id);
+    if (element) {
+      console.log(`${id}: display=${element.style.display}, visible=${element.style.visibility}, classes=${element.className}`);
+    } else {
+      console.log(`${id}: NOT FOUND`);
+    }
+  });
+};

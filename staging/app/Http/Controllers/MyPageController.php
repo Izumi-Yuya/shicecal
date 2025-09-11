@@ -15,7 +15,7 @@ class MyPageController extends Controller
     public function index()
     {
         $user = Auth::user();
-        
+
         // Get user's comments with status counts
         $myComments = Comment::where('posted_by', $user->id)
             ->with(['facility', 'assignee'])
@@ -42,7 +42,7 @@ class MyPageController extends Controller
         // Get assigned comments if user is a primary responder
         $assignedComments = collect();
         $assignedStatusCounts = [];
-        
+
         if ($user->isPrimaryResponder() || $user->isAdmin()) {
             $assignedComments = Comment::where('assigned_to', $user->id)
                 ->with(['facility', 'poster'])
@@ -73,7 +73,7 @@ class MyPageController extends Controller
     public function myComments(Request $request)
     {
         $user = Auth::user();
-        
+
         $query = Comment::where('posted_by', $user->id)
             ->with(['facility', 'assignee']);
 
@@ -85,7 +85,7 @@ class MyPageController extends Controller
         // Filter by facility
         if ($request->filled('facility_name')) {
             $query->whereHas('facility', function ($q) use ($request) {
-                $q->where('facility_name', 'like', '%' . $request->input('facility_name') . '%');
+                $q->where('facility_name', 'like', '%'.$request->input('facility_name').'%');
             });
         }
 
@@ -106,7 +106,7 @@ class MyPageController extends Controller
     public function activitySummary()
     {
         $user = Auth::user();
-        
+
         // Comments posted by month (last 6 months)
         $commentsByMonth = Comment::where('posted_by', $user->id)
             ->selectRaw('strftime("%Y-%m", created_at) as month, COUNT(*) as count')

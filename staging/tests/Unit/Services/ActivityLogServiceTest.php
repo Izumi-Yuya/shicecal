@@ -15,12 +15,13 @@ class ActivityLogServiceTest extends TestCase
     use RefreshDatabase;
 
     private ActivityLogService $service;
+
     private User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new ActivityLogService();
+        $this->service = new ActivityLogService;
         $this->user = User::factory()->create();
         Auth::login($this->user);
     }
@@ -59,7 +60,7 @@ class ActivityLogServiceTest extends TestCase
     public function test_log_login()
     {
         $request = Request::create('/login', 'POST');
-        
+
         $log = $this->service->logLogin($this->user->id, $request);
 
         $this->assertEquals($this->user->id, $log->user_id);
@@ -75,7 +76,7 @@ class ActivityLogServiceTest extends TestCase
     public function test_log_logout()
     {
         $request = Request::create('/logout', 'POST');
-        
+
         $log = $this->service->logLogout($this->user->id, $request);
 
         $this->assertEquals($this->user->id, $log->user_id);
@@ -92,7 +93,7 @@ class ActivityLogServiceTest extends TestCase
     {
         $facilityId = 123;
         $facilityName = 'Test Facility';
-        
+
         $log = $this->service->logFacilityCreated($facilityId, $facilityName);
 
         $this->assertEquals('create', $log->action);
@@ -108,7 +109,7 @@ class ActivityLogServiceTest extends TestCase
     {
         $facilityId = 123;
         $facilityName = 'Test Facility';
-        
+
         $log = $this->service->logFacilityUpdated($facilityId, $facilityName);
 
         $this->assertEquals('update', $log->action);
@@ -124,7 +125,7 @@ class ActivityLogServiceTest extends TestCase
     {
         $facilityId = 123;
         $facilityName = 'Test Facility';
-        
+
         $log = $this->service->logFacilityDeleted($facilityId, $facilityName);
 
         $this->assertEquals('delete', $log->action);
@@ -140,7 +141,7 @@ class ActivityLogServiceTest extends TestCase
     {
         $facilityId = 123;
         $facilityName = 'Test Facility';
-        
+
         $log = $this->service->logFacilityApproved($facilityId, $facilityName);
 
         $this->assertEquals('approve', $log->action);
@@ -157,7 +158,7 @@ class ActivityLogServiceTest extends TestCase
         $facilityId = 123;
         $facilityName = 'Test Facility';
         $reason = 'Incomplete information';
-        
+
         $log = $this->service->logFacilityRejected($facilityId, $facilityName, $reason);
 
         $this->assertEquals('reject', $log->action);
@@ -174,7 +175,7 @@ class ActivityLogServiceTest extends TestCase
         $fileId = 456;
         $fileName = 'test.pdf';
         $facilityId = 123;
-        
+
         $log = $this->service->logFileUploaded($fileId, $fileName, $facilityId);
 
         $this->assertEquals('upload', $log->action);
@@ -190,7 +191,7 @@ class ActivityLogServiceTest extends TestCase
     {
         $fileId = 456;
         $fileName = 'test.pdf';
-        
+
         $log = $this->service->logFileDownloaded($fileId, $fileName);
 
         $this->assertEquals('download', $log->action);
@@ -206,7 +207,7 @@ class ActivityLogServiceTest extends TestCase
     {
         $facilityIds = [1, 2, 3];
         $fields = ['name', 'address', 'phone'];
-        
+
         $log = $this->service->logCsvExported($facilityIds, $fields);
 
         $this->assertEquals('export_csv', $log->action);
@@ -221,7 +222,7 @@ class ActivityLogServiceTest extends TestCase
     public function test_log_pdf_exported()
     {
         $facilityIds = [1, 2];
-        
+
         $log = $this->service->logPdfExported($facilityIds);
 
         $this->assertEquals('export_pdf', $log->action);
@@ -238,7 +239,7 @@ class ActivityLogServiceTest extends TestCase
         $commentId = 789;
         $facilityId = 123;
         $fieldName = 'facility_name';
-        
+
         $log = $this->service->logCommentCreated($commentId, $facilityId, $fieldName);
 
         $this->assertEquals('create', $log->action);
@@ -255,7 +256,7 @@ class ActivityLogServiceTest extends TestCase
         $commentId = 789;
         $oldStatus = 'pending';
         $newStatus = 'in_progress';
-        
+
         $log = $this->service->logCommentStatusUpdated($commentId, $oldStatus, $newStatus);
 
         $this->assertEquals('update_status', $log->action);
@@ -272,7 +273,7 @@ class ActivityLogServiceTest extends TestCase
         $userId = 999;
         $email = 'test@example.com';
         $role = 'editor';
-        
+
         $log = $this->service->logUserCreated($userId, $email, $role);
 
         $this->assertEquals('create', $log->action);
@@ -289,7 +290,7 @@ class ActivityLogServiceTest extends TestCase
         $key = 'approval_enabled';
         $oldValue = 'false';
         $newValue = 'true';
-        
+
         $log = $this->service->logSystemSettingUpdated($key, $oldValue, $newValue);
 
         $this->assertEquals('update', $log->action);

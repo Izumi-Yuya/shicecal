@@ -13,12 +13,13 @@ class FacilityDataParityValidationTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Facility $facility;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->user = User::factory()->create(['role' => 'admin']);
         $this->facility = Facility::factory()->create([
             'company_name' => 'テスト会社株式会社',
@@ -115,7 +116,7 @@ class FacilityDataParityValidationTest extends TestCase
 
         // Service types should be present in both views
         $serviceTypes = ['介護付有料老人ホーム', 'デイサービス'];
-        
+
         foreach ($serviceTypes as $serviceType) {
             $cardResponse->assertSee($serviceType, false);
             $tableResponse->assertSee($serviceType, false);
@@ -171,7 +172,7 @@ class FacilityDataParityValidationTest extends TestCase
 
         // Get facility with services
         $facility = $this->facility->fresh(['services']);
-        
+
         // Test card view first
         $cardResponse = $this->get(route('facilities.show', $facility));
         $cardResponse->assertStatus(200);

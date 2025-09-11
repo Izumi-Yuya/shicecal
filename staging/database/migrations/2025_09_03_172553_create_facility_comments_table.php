@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('section'); // 'basic_info', 'contact_info', 'building_info', 'facility_info', 'services'
             $table->text('comment');
             $table->timestamps();
-            
+
             $table->index(['facility_id', 'section']);
         });
     }

@@ -1,14 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ExportController;
-use App\Http\Controllers\CommentController;
-use App\Http\Controllers\FacilityController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\MyPageController;
-use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\AnnualConfirmationController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\ExportController;
+use App\Http\Controllers\FacilityController;
+use App\Http\Controllers\MaintenanceController;
+use App\Http\Controllers\MyPageController;
+use App\Http\Controllers\NotificationController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -334,7 +334,7 @@ Route::middleware(['auth'])->group(function () {
 */
 if (app()->environment(['local', 'testing'])) {
     Route::get('/test-notifications', function () {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return response()->json(['error' => 'Not authenticated', 'user' => null]);
         }
 
@@ -346,7 +346,7 @@ if (app()->environment(['local', 'testing'])) {
             'user_id' => $user->id,
             'user_name' => $user->name,
             'unread_count' => $count,
-            'route_exists' => route('notifications.unread-count')
+            'route_exists' => route('notifications.unread-count'),
         ]);
     })->middleware('auth');
 }

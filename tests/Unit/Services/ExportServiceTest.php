@@ -6,35 +6,36 @@ use App\Models\Facility;
 use App\Models\File;
 use App\Models\User;
 use App\Services\ExportService;
+use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\View;
 use Tests\TestCase;
-use Exception;
 
 class ExportServiceTest extends TestCase
 {
     use RefreshDatabase;
 
     private ExportService $service;
+
     private User $user;
+
     private Facility $facility;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->service = new ExportService();
+        $this->service = new ExportService;
         $this->user = User::factory()->create();
         $this->facility = Facility::factory()->create([
             'office_code' => 'TEST001',
             'facility_name' => 'Test Facility',
-            'status' => 'approved'
+            'status' => 'approved',
         ]);
 
         Auth::login($this->user);
@@ -152,7 +153,7 @@ class ExportServiceTest extends TestCase
             ->with("batch_pdf_progress_{$batchId}", \Mockery::any())
             ->andReturn([
                 'status' => 'not_found',
-                'message' => 'バッチが見つかりません'
+                'message' => 'バッチが見つかりません',
             ]);
 
         $result = $this->service->getBatchProgress($batchId);
@@ -189,13 +190,13 @@ class ExportServiceTest extends TestCase
         $facility1 = Facility::factory()->create([
             'company_name' => 'Test Company 1',
             'facility_name' => 'Test Facility 1',
-            'status' => 'approved'
+            'status' => 'approved',
         ]);
 
         $facility2 = Facility::factory()->create([
             'company_name' => 'Test Company 2',
             'facility_name' => 'Test Facility 2',
-            'status' => 'approved'
+            'status' => 'approved',
         ]);
 
         $facilityIds = [$facility1->id, $facility2->id];
@@ -224,7 +225,7 @@ class ExportServiceTest extends TestCase
     public function test_preview_field_data()
     {
         $facilities = Facility::factory()->count(5)->create([
-            'status' => 'approved'
+            'status' => 'approved',
         ]);
 
         $facilityIds = $facilities->pluck('id')->toArray();

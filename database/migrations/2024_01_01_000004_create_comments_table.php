@@ -23,12 +23,12 @@ return new class extends Migration
             $table->unsignedBigInteger('assigned_to')->nullable();
             $table->timestamp('resolved_at')->nullable();
             $table->timestamps();
-            
+
             // Foreign key constraints
             $table->foreign('facility_id')->references('id')->on('facilities')->onDelete('cascade');
             $table->foreign('posted_by')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('assigned_to')->references('id')->on('users')->onDelete('set null');
-            
+
             // Indexes
             $table->index('facility_id');
             $table->index('status');

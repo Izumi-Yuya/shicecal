@@ -16,8 +16,9 @@ class FacilitySeeder extends Seeder
         $editor = User::where('role', 'editor')->first();
         $approver = User::where('role', 'approver')->first();
 
-        if (!$editor) {
+        if (! $editor) {
             $this->command->warn('No editor user found. Please run AdminUserSeeder first.');
+
             return;
         }
 
@@ -289,7 +290,7 @@ class FacilitySeeder extends Seeder
         ];
 
         foreach ($facilities as $facilityData) {
-            if (!Facility::where('office_code', $facilityData['office_code'])->exists()) {
+            if (! Facility::where('office_code', $facilityData['office_code'])->exists()) {
                 Facility::create(array_merge($facilityData, [
                     'created_by' => $editor->id,
                     'updated_by' => $editor->id,
@@ -297,6 +298,6 @@ class FacilitySeeder extends Seeder
             }
         }
 
-        $this->command->info('Created ' . count($facilities) . ' test facilities.');
+        $this->command->info('Created '.count($facilities).' test facilities.');
     }
 }
