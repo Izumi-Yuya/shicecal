@@ -188,6 +188,8 @@
   height: calc(100vh - var(--header-height));
   overflow-y: auto;
   overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 transparent;
 }
 
 .sidebar .nav-link {
@@ -230,10 +232,6 @@
 }
 
 /* Sidebar Scrollbar - Only show when needed */
-.sidebar-content {
-  scrollbar-width: thin;
-  scrollbar-color: #c1c1c1 transparent;
-}
 
 .sidebar-content::-webkit-scrollbar {
   width: 6px;
@@ -265,6 +263,8 @@
   transition: var(--transition-smooth);
   background-color: var(--light-color);
   z-index: 1000;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color) transparent;
 }
 
 .main-content.expanded {
@@ -277,11 +277,6 @@
 }
 
 /* Main Content Scrollbar - Only show when needed */
-.main-content {
-  scrollbar-width: thin;
-  scrollbar-color: var(--primary-color) transparent;
-}
-
 .main-content::-webkit-scrollbar {
   width: 8px;
   display: block;
