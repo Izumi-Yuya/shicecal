@@ -37,13 +37,12 @@
             <div class="figma-header-container">
                 <!-- Left side: Logo (prominent) -->
                 <div class="d-flex align-items-center header-left">
-                    <a class="navbar-brand d-flex align-items-center me-4" href="{{ url('/') }}">
+                    <div class="navbar-brand d-flex align-items-center me-4">
                         <img src="{{ asset('images/shicecal-logo.png') }}" 
                              alt="Shise-Cal Logo" 
                              class="navbar-logo me-3"
                              onerror="this.style.display='none';">
-                        <span class="navbar-brand-text">{{ config('app.name', 'Shise-Cal') }}</span>
-                    </a>
+                    </div>
                     <button class="btn btn-outline-light" type="button" id="sidebarToggle">
                         <i class="fas fa-bars"></i>
                     </button>
