@@ -65,6 +65,11 @@
                                 <i class="fas fa-map me-2"></i>土地
                             </button>
                         </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="building-tab" data-bs-toggle="tab" data-bs-target="#building-info" type="button" role="tab" aria-controls="building-info" aria-selected="false">
+                                <i class="fas fa-building me-2"></i>建物
+                            </button>
+                        </li>
                     </ul>
                 </div>
                 
@@ -177,6 +182,28 @@
                             @endif
                         </div>
                     </div>
+                    
+                    <div class="tab-pane fade" id="building-info" role="tabpanel" aria-labelledby="building-tab">
+                        <!-- 建物情報タブヘッダー -->
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="mb-0">
+                                <i class="fas fa-building text-primary me-2"></i>建物情報
+                            </h4>
+                            @if(auth()->user()->isEditor() || auth()->user()->isAdmin())
+                                <a href="{{ route('facilities.building-info.edit', $facility) }}" class="btn btn-primary">
+                                    <i class="fas fa-edit me-2"></i>
+                                    @if(isset($buildingInfo) && $buildingInfo)
+                                        編集
+                                    @else
+                                        登録
+                                    @endif
+                                </a>
+                            @endif
+                        </div>
+                        
+                        <!-- Building Info Display Card -->
+                        @include('facilities.building-info.partials.display-card', ['facility' => $facility, 'buildingInfo' => $buildingInfo])
+                    </div>
                 </div>
             </div>
         </div>
@@ -190,8 +217,23 @@
 // Pass facility ID to the JavaScript module
 window.facilityId = {{ $facility->id }};
 
-// Handle active tab from session
+// Handle active tab from session and building tab functionality
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize building tab animations
+    const buildingTab = document.getElementById('building-tab');
+    const buildingPane = document.getElementById('building-info');
+    
+    if (buildingTab && buildingPane) {
+        buildingTab.addEventListener('shown.bs.tab', function() {
+            // Trigger animation for building info cards
+            const buildingCards = buildingPane.querySelectorAll('.card');
+            buildingCards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.classList.add('animate-in');
+            });
+        });
+    }
+    
     @if(session('activeTab'))
         const activeTab = '{{ session('activeTab') }}';
         const tabButton = document.getElementById(activeTab.replace('-info', '') + '-tab');

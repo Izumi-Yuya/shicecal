@@ -106,6 +106,12 @@ Route::middleware(['auth'])->group(function () {
             });
         });
 
+        // Building Information nested routes
+        Route::prefix('building-info')->name('building-info.')->group(function () {
+            Route::get('/edit', [FacilityController::class, 'editBuildingInfo'])->name('edit');
+            Route::put('/', [FacilityController::class, 'updateBuildingInfo'])->name('update');
+        });
+
         // Facility-specific comment routes
         Route::prefix('comments')->name('comments.')->group(function () {
             Route::get('/', [CommentController::class, 'allFacilityComments'])->name('all');

@@ -110,6 +110,14 @@ class Facility extends Model
     }
 
     /**
+     * Get the building information associated with this facility
+     */
+    public function buildingInfo(): HasOne
+    {
+        return $this->hasOne(BuildingInfo::class);
+    }
+
+    /**
      * Get the land documents associated with this facility
      */
     public function landDocuments(): HasMany

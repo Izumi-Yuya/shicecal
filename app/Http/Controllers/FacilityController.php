@@ -173,12 +173,14 @@ class FacilityController extends Controller
                 $query->with('creator')->latest('maintenance_date');
             },
             'landInfo',
+            'buildingInfo',
         ]);
 
         $landInfo = $facility->landInfo;
+        $buildingInfo = $facility->buildingInfo;
         $viewMode = $this->getViewMode();
 
-        return view('facilities.show', compact('facility', 'landInfo', 'viewMode'));
+        return view('facilities.show', compact('facility', 'landInfo', 'buildingInfo', 'viewMode'));
     }
 
     /**
@@ -1180,6 +1182,127 @@ class FacilityController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
             throw $e;
+        }
+    }
+
+    // ========================================
+    // Building Information Methods
+    // ========================================
+
+    /**
+     * Show the form for editing building information.
+     */
+    public function editBuildingInfo(Facility $facility)
+    {
+        // Check authorization - same as basic info edit
+        if (!auth()->user()->isEditor() && !auth()->user()->isAdmin()) {
+            return redirect()->route('facilities.show', $facility)
+                ->with('error', 'この施設の建物情報を編集する権限がありません。');
+        }
+
+        try {
+            $buildingInfo = $facility->buildingInfo;
+
+            return view('facilities.building-info.edit', compact('facility', 'buildingInfo'));
+        } catch (Exception $e) {
+            Log::error('Building info edit failed', [
+                'facility_id' => $facility->id,
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()->route('facilities.show', $facility)
+                ->with('error', 'システムエラーが発生しました。');
+        }
+    }
+
+    /**
+     * Update the building information for the specified facility.
+     */
+    public function updateBuildingInfo(Request $request, Facility $facility)
+    {
+        // Check authorization - same as basic info edit
+        if (!auth()->user()->isEditor() && !auth()->user()->isAdmin()) {
+            return redirect()->route('facilities.show', $facility)
+                ->with('error', 'この施設の建物情報を編集する権限がありません。');
+        }
+
+        try {
+
+            $validated = $request->validate([
+                'ownership_type' => 'required|in:自社,賃借,賃貸',
+                'building_area_sqm' => 'nullable|numeric|min:0',
+                'building_area_tsubo' => 'nullable|numeric|min:0',
+                'total_floor_area_sqm' => 'nullable|numeric|min:0',
+                'total_floor_area_tsubo' => 'nullable|numeric|min:0',
+                'construction_cost' => 'nullable|integer|min:0',
+                'construction_cooperation_fee' => 'nullable|integer|min:0',
+                'monthly_rent' => 'nullable|integer|min:0',
+                'contract_start_date' => 'nullable|date',
+                'contract_end_date' => 'nullable|date|after_or_equal:contract_start_date',
+                'auto_renewal' => 'nullable|boolean',
+                'management_company_name' => 'nullable|string|max:255',
+                'management_company_postal_code' => 'nullable|string|max:10',
+                'management_company_address' => 'nullable|string|max:500',
+                'management_company_building_name' => 'nullable|string|max:255',
+                'management_company_phone' => 'nullable|string|max:20',
+                'management_company_fax' => 'nullable|string|max:20',
+                'management_company_email' => 'nullable|email|max:255',
+                'management_company_url' => 'nullable|url|max:500',
+                'owner_name' => 'nullable|string|max:255',
+                'owner_postal_code' => 'nullable|string|max:10',
+                'owner_address' => 'nullable|string|max:500',
+                'owner_building_name' => 'nullable|string|max:255',
+                'owner_phone' => 'nullable|string|max:20',
+                'owner_fax' => 'nullable|string|max:20',
+                'owner_email' => 'nullable|email|max:255',
+                'owner_url' => 'nullable|url|max:500',
+                'construction_company_name' => 'nullable|string|max:255',
+                'construction_company_phone' => 'nullable|string|max:20',
+                'construction_company_notes' => 'nullable|string|max:1000',
+                'completion_date' => 'nullable|date',
+                'useful_life' => 'nullable|integer|min:0',
+                'periodic_inspection_type' => 'nullable|in:自社,他社',
+                'periodic_inspection_date' => 'nullable|date',
+                'periodic_inspection_notes' => 'nullable|string|max:1000',
+                'notes' => 'nullable|string|max:2000',
+            ]);
+
+            // Create or update building info
+            $buildingInfo = $facility->buildingInfo;
+            if (!$buildingInfo) {
+                $buildingInfo = $facility->buildingInfo()->create($validated);
+            } else {
+                $buildingInfo->update($validated);
+            }
+
+            // Update calculated fields
+            $buildingInfo->updateCalculatedFields();
+
+            // Log the activity
+            $this->activityLogService->logFacilityUpdated(
+                $facility->id,
+                $facility->facility_name . ' - 建物情報',
+                $request
+            );
+
+            return redirect()->route('facilities.show', $facility)
+                ->with('success', '建物情報を更新しました。')
+                ->with('activeTab', 'building-info');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (Exception $e) {
+            Log::error('Building info update failed', [
+                'facility_id' => $facility->id,
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()->back()
+                ->with('error', 'システムエラーが発生しました。')
+                ->withInput();
         }
     }
 }
