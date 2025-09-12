@@ -230,13 +230,17 @@
             <div id="services-container">
                 @php
                     $existingServices = old('services', $facility->services ?? collect());
+                    // Ensure it's a collection for consistent access
+                    if (is_array($existingServices)) {
+                        $existingServices = collect($existingServices);
+                    }
                     $maxServices = 10;
                 @endphp
                 
                 @for($i = 0; $i < $maxServices; $i++)
                     @php
                         $service = $existingServices->get($i);
-                        $hasData = $service && !empty($service->service_type);
+                        $hasData = $service && (is_object($service) ? !empty($service->service_type) : !empty($service['service_type'] ?? ''));
                     @endphp
                     <div class="service-row mb-3 p-3 border rounded {{ !$hasData && $i >= 3 ? 'd-none' : '' }}" data-index="{{ $i }}">
                         <div class="row align-items-end">
@@ -246,7 +250,7 @@
                                        class="form-control @error('services.'.$i.'.service_type') is-invalid @enderror" 
                                        id="service_type_{{ $i }}" 
                                        name="services[{{ $i }}][service_type]" 
-                                       value="{{ old('services.'.$i.'.service_type', $service ? $service->service_type : '') }}"
+                                       value="{{ old('services.'.$i.'.service_type', $service ? (is_object($service) ? $service->service_type : ($service['service_type'] ?? '')) : '') }}"
                                        placeholder="例: 介護付有料老人ホーム">
                                 <x-form.field-error field="services.{{ $i }}.service_type" />
                             </div>
@@ -258,7 +262,7 @@
                                                class="form-control @error('services.'.$i.'.renewal_start_date') is-invalid @enderror" 
                                                id="renewal_start_{{ $i }}" 
                                                name="services[{{ $i }}][renewal_start_date]" 
-                                               value="{{ old('services.'.$i.'.renewal_start_date', $service && $service->renewal_start_date ? $service->renewal_start_date->format('Y-m-d') : '') }}"
+                                               value="{{ old('services.'.$i.'.renewal_start_date', $service ? (is_object($service) && $service->renewal_start_date ? $service->renewal_start_date->format('Y-m-d') : (is_array($service) && isset($service['renewal_start_date']) ? $service['renewal_start_date'] : '')) : '') }}"
                                                placeholder="開始日">
                                         <x-form.field-error field="services.{{ $i }}.renewal_start_date" />
                                     </div>
@@ -270,7 +274,7 @@
                                                class="form-control @error('services.'.$i.'.renewal_end_date') is-invalid @enderror" 
                                                id="renewal_end_{{ $i }}" 
                                                name="services[{{ $i }}][renewal_end_date]" 
-                                               value="{{ old('services.'.$i.'.renewal_end_date', $service && $service->renewal_end_date ? $service->renewal_end_date->format('Y-m-d') : '') }}"
+                                               value="{{ old('services.'.$i.'.renewal_end_date', $service ? (is_object($service) && $service->renewal_end_date ? $service->renewal_end_date->format('Y-m-d') : (is_array($service) && isset($service['renewal_end_date']) ? $service['renewal_end_date'] : '')) : '') }}"
                                                placeholder="終了日">
                                         <x-form.field-error field="services.{{ $i }}.renewal_end_date" />
                                     </div>
@@ -288,9 +292,10 @@
             </div>
             
             <div class="mt-2">
-                <button type="button" class="btn btn-outline-primary btn-sm" id="add-service-btn">
+                <button type="button" class="btn btn-outline-primary btn-sm" id="add-service-btn" onclick="testAddRow()">
                     <i class="fas fa-plus"></i> サービス行を追加
                 </button>
+
                 <small class="text-muted ms-2">
                     <span id="service-count">0</span>/10 件
                 </small>
@@ -300,68 +305,70 @@
 
 </x-facility.edit-layout>
 
-@push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // 開設日が変更されたら開設年数を自動計算
-    const openingDateInput = document.getElementById('opening_date');
-    const yearsInOperationInput = document.getElementById('years_in_operation');
+// グローバル関数として定義（デバッグ用）
+function testAddRow() {
+    console.log('=== テスト追加ボタンがクリックされました ===');
     
-    if (openingDateInput && yearsInOperationInput) {
-        openingDateInput.addEventListener('change', function() {
-            if (this.value) {
-                const openingDate = new Date(this.value);
-                const today = new Date();
-                const years = Math.floor((today - openingDate) / (365.25 * 24 * 60 * 60 * 1000));
-                yearsInOperationInput.value = Math.max(0, years);
-            }
-        });
-    }
-
-    // サービス行の管理
-    const addServiceBtn = document.getElementById('add-service-btn');
-    const serviceCountSpan = document.getElementById('service-count');
+    const hiddenRows = document.querySelectorAll('.service-row.d-none');
+    const visibleRows = document.querySelectorAll('.service-row:not(.d-none)');
     
-    function updateServiceCount() {
-        const visibleRows = document.querySelectorAll('.service-row:not(.d-none)').length;
-        if (serviceCountSpan) {
-            serviceCountSpan.textContent = visibleRows;
+    console.log('非表示行数:', hiddenRows.length);
+    console.log('表示行数:', visibleRows.length);
+    console.log('非表示行:', hiddenRows);
+    
+    if (hiddenRows.length > 0) {
+        const newRow = hiddenRows[0];
+        console.log('表示する行:', newRow);
+        newRow.classList.remove('d-none');
+        console.log('d-noneクラスを削除しました');
+        
+        // フォーカス設定
+        const firstInput = newRow.querySelector('input[name*="service_type"]');
+        if (firstInput) {
+            setTimeout(() => {
+                firstInput.focus();
+                console.log('フォーカスを設定しました');
+            }, 100);
         }
         
-        // 10行に達したら追加ボタンを無効化
-        if (addServiceBtn) {
-            addServiceBtn.disabled = visibleRows >= 10;
-        }
+        // カウント更新
+        updateServiceCountGlobal();
+    } else {
+        console.log('追加できる行がありません');
     }
+}
+
+function updateServiceCountGlobal() {
+    const serviceCountSpan = document.getElementById('service-count');
+    const addServiceBtn = document.getElementById('add-service-btn');
     
-    function showNextServiceRow() {
-        const hiddenRows = document.querySelectorAll('.service-row.d-none');
-        if (hiddenRows.length > 0) {
-            hiddenRows[0].classList.remove('d-none');
-            updateServiceCount();
-        }
-    }
+    const filledRows = document.querySelectorAll('.service-row input[name*="service_type"]');
+    let filledCount = 0;
     
-    // サービス行追加ボタン
-    if (addServiceBtn) {
-        addServiceBtn.addEventListener('click', function() {
-            showNextServiceRow();
-        });
-    }
-    
-    // 初期表示時のカウント更新
-    updateServiceCount();
-    
-    // 入力値の変更を監視してカウントを更新
-    document.addEventListener('input', function(e) {
-        if (e.target.matches('input[name*="service_type"]')) {
-            updateServiceCount();
+    filledRows.forEach(input => {
+        if (input.value.trim() !== '') {
+            filledCount++;
         }
     });
-});
+    
+    const visibleRows = document.querySelectorAll('.service-row:not(.d-none)').length;
+    
+    if (serviceCountSpan) {
+        serviceCountSpan.textContent = filledCount;
+    }
+    
+    if (addServiceBtn) {
+        addServiceBtn.disabled = visibleRows >= 10;
+    }
+    
+    console.log('カウント更新:', filledCount, '/', visibleRows);
+}
 
 // サービス行をクリアする関数
 function clearServiceRow(index) {
+    console.log('サービス行をクリア:', index);
+    
     const row = document.querySelector(`.service-row[data-index="${index}"]`);
     if (row) {
         // 入力値をクリア
@@ -374,17 +381,87 @@ function clearServiceRow(index) {
             row.classList.add('d-none');
         }
         
-        // カウント更新
-        const serviceCountSpan = document.getElementById('service-count');
-        const addServiceBtn = document.getElementById('add-service-btn');
-        const visibleRows = document.querySelectorAll('.service-row:not(.d-none)').length;
-        if (serviceCountSpan) {
-            serviceCountSpan.textContent = visibleRows;
-        }
-        if (addServiceBtn) {
-            addServiceBtn.disabled = false;
-        }
+        updateServiceCountGlobal();
     }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== 基本情報編集ページ - 初期化開始 ===');
+    
+    // 要素の存在確認
+    const addServiceBtn = document.getElementById('add-service-btn');
+    const serviceCountSpan = document.getElementById('service-count');
+    const allServiceRows = document.querySelectorAll('.service-row');
+    const hiddenRows = document.querySelectorAll('.service-row.d-none');
+    const visibleRows = document.querySelectorAll('.service-row:not(.d-none)');
+    
+    console.log('追加ボタン:', addServiceBtn);
+    console.log('カウント表示:', serviceCountSpan);
+    console.log('全サービス行数:', allServiceRows.length);
+    console.log('非表示行数:', hiddenRows.length);
+    console.log('表示行数:', visibleRows.length);
+    
+    // 開設年数自動計算
+    const openingDateInput = document.getElementById('opening_date');
+    const yearsInOperationInput = document.getElementById('years_in_operation');
+    
+    if (openingDateInput && yearsInOperationInput) {
+        openingDateInput.addEventListener('change', function() {
+            if (this.value) {
+                const openingDate = new Date(this.value);
+                const today = new Date();
+                const years = Math.floor((today - openingDate) / (365.25 * 24 * 60 * 60 * 1000));
+                yearsInOperationInput.value = Math.max(0, years);
+            }
+        });
+        console.log('開設年数自動計算を設定しました');
+    }
+    
+    // サービス行追加ボタンのイベントリスナー
+    if (addServiceBtn) {
+        // シンプルにイベントリスナーを追加
+        addServiceBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('=== メインの追加ボタンがクリックされました ===');
+            testAddRow(); // テスト関数を呼び出し
+        });
+        
+        console.log('サービス行追加ボタンのイベントリスナーを設定しました');
+    } else {
+        console.error('サービス行追加ボタンが見つかりません');
+    }
+    
+    // 入力値の変更を監視
+    document.addEventListener('input', function(e) {
+        if (e.target.matches('input[name*="service_type"]')) {
+            updateServiceCountGlobal();
+        }
+    });
+    
+    // 初期カウント更新
+    updateServiceCountGlobal();
+    
+    console.log('=== 初期化完了 ===');
+});
+
+// ページ読み込み完了後にも再確認
+window.addEventListener('load', function() {
+    console.log('=== ページ読み込み完了 - 再確認 ===');
+    
+    const addServiceBtn = document.getElementById('add-service-btn');
+    if (addServiceBtn) {
+        console.log('追加ボタンが存在します');
+        console.log('ボタンのクラス:', addServiceBtn.className);
+        console.log('ボタンが無効化されているか:', addServiceBtn.disabled);
+    } else {
+        console.error('追加ボタンが見つかりません');
+    }
+    
+    const allRows = document.querySelectorAll('.service-row');
+    console.log('全サービス行:', allRows.length);
+    allRows.forEach((row, index) => {
+        console.log(`行${index}:`, row.classList.contains('d-none') ? '非表示' : '表示');
+    });
+});
 </script>
-@endpush
