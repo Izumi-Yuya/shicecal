@@ -32,6 +32,7 @@ import { initializeNotificationManager } from './modules/notifications.js';
 import { initializeExportManager } from './modules/export.js';
 
 import { initializeFacilityViewToggle } from './modules/facility-view-toggle.js';
+import { initializeDetailCardController } from './modules/detail-card-controller.js';
 
 
 // Import component modules
@@ -63,7 +64,8 @@ class ApplicationState {
       notification: null,
       export: null,
       sidebar: null,
-      facilityFormLayout: null
+      facilityFormLayout: null,
+      detailCardController: null
     };
     this.components = {
       search: null,
@@ -158,7 +160,47 @@ function createLegacyAPI() {
       FormValidator,
       Modal: ModalComponent
     },
-    modules: appState.modules
+    modules: appState.modules,
+    // Detail card controller utilities
+    detailCard: {
+      refresh: function () {
+        try {
+          const controller = appState.getModule('detailCardController');
+          if (controller && typeof controller.refresh === 'function') {
+            return controller.refresh();
+          }
+          return false;
+        } catch (error) {
+          console.error('Error refreshing detail card controller:', error);
+          return false;
+        }
+      },
+      getStatistics: function () {
+        try {
+          const controller = appState.getModule('detailCardController');
+          if (controller && typeof controller.getStatistics === 'function') {
+            return controller.getStatistics();
+          }
+          return null;
+        } catch (error) {
+          console.error('Error getting detail card statistics:', error);
+          return null;
+        }
+      },
+      clearPreferences: function () {
+        try {
+          const controller = appState.getModule('detailCardController');
+          if (controller && typeof controller.clearUserPreferences === 'function') {
+            controller.clearUserPreferences();
+            return true;
+          }
+          return false;
+        } catch (error) {
+          console.error('Error clearing detail card preferences:', error);
+          return false;
+        }
+      }
+    }
   };
 }
 
@@ -168,6 +210,7 @@ function createLegacyAPI() {
 class Application {
   constructor() {
     this.initialized = false;
+    this.detailCardObserver = null;
   }
 
   async init() {
@@ -195,6 +238,29 @@ class Application {
 
     this.initialized = true;
     console.log('Shise-Cal application initialized successfully');
+  }
+
+  /**
+   * Cleanup application resources
+   */
+  cleanup() {
+    try {
+      // Cleanup detail card observer
+      if (this.detailCardObserver) {
+        this.detailCardObserver.disconnect();
+        this.detailCardObserver = null;
+      }
+
+      // Cleanup detail card controller
+      const controller = appState.getModule('detailCardController');
+      if (controller && typeof controller.destroy === 'function') {
+        controller.destroy();
+      }
+
+      console.log('Application cleanup completed');
+    } catch (error) {
+      console.error('Error during application cleanup:', error);
+    }
   }
 
   initializeComponents() {
@@ -249,6 +315,23 @@ class Application {
       appState.setModule('export', initializeExportManager());
     }
 
+    // Initialize detail card controller on pages with detail cards - Optimized
+    try {
+      if (document.querySelector('.detail-card-improved, .facility-info-card, .card')) {
+        const detailCardController = await initializeDetailCardController();
+        if (detailCardController) {
+          appState.setModule('detailCardController', detailCardController);
+          console.log('Detail card controller initialized successfully');
+        } else {
+          console.warn('Detail card controller initialization returned null - no detail cards found or initialization failed');
+        }
+      }
+    } catch (error) {
+      console.error('Failed to initialize detail card controller:', error);
+      // Fallback: Continue without detail card functionality
+      showToast('詳細カード機能の初期化に失敗しました。基本機能は利用できます。', 'warning');
+    }
+
 
   }
 
@@ -294,6 +377,93 @@ class Application {
     popoverTriggerList.map((popoverTriggerEl) => {
       return new bootstrap.Popover(popoverTriggerEl);
     });
+
+    // Setup detail card refresh on dynamic content changes
+    this.setupDetailCardRefresh();
+  }
+
+  /**
+   * Setup detail card controller refresh for dynamic content - Performance Optimized
+   */
+  setupDetailCardRefresh() {
+    try {
+      let refreshTimeout = null;
+      const REFRESH_DEBOUNCE_DELAY = 250; // ms
+
+      // Create a MutationObserver with optimized configuration
+      const observer = new MutationObserver((mutations) => {
+        let shouldRefresh = false;
+
+        // Use more efficient checking
+        for (const mutation of mutations) {
+          if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+            for (const node of mutation.addedNodes) {
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                // More specific and efficient selector checking
+                if (node.matches?.('.detail-card-improved, .facility-info-card, .card') ||
+                  node.querySelector?.('.detail-card-improved, .facility-info-card, .card')) {
+                  shouldRefresh = true;
+                  break;
+                }
+              }
+            }
+            if (shouldRefresh) break;
+          }
+        }
+
+        if (shouldRefresh) {
+          // Debounce refresh calls to avoid excessive updates
+          if (refreshTimeout) {
+            clearTimeout(refreshTimeout);
+          }
+
+          refreshTimeout = setTimeout(() => {
+            this.refreshDetailCardController();
+            refreshTimeout = null;
+          }, REFRESH_DEBOUNCE_DELAY);
+        }
+      });
+
+      // Optimized observer configuration
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+        // Only observe what we need
+        attributes: false,
+        attributeOldValue: false,
+        characterData: false,
+        characterDataOldValue: false
+      });
+
+      // Store observer reference for cleanup
+      this.detailCardObserver = observer;
+    } catch (error) {
+      console.warn('Failed to setup detail card refresh observer:', error);
+      // Continue without dynamic refresh capability
+    }
+  }
+
+  /**
+   * Refresh detail card controller when new content is added - Optimized
+   */
+  async refreshDetailCardController() {
+    try {
+      const controller = appState.getModule('detailCardController');
+      if (controller && typeof controller.refresh === 'function') {
+        // Use the optimized async refresh method
+        await controller.refresh();
+      } else {
+        // Try to initialize if not already done
+        const newController = await initializeDetailCardController();
+        if (newController) {
+          appState.setModule('detailCardController', newController);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to refresh detail card controller:', error);
+      // Fallback: Show warning but continue
+      showToast('詳細カード機能の更新に失敗しました。', 'warning');
+    }
   }
 }
 
@@ -309,6 +479,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   } catch (error) {
     console.error('Failed to initialize application:', error);
     showToast('アプリケーションの初期化に失敗しました。', 'error');
+
+    // Try to initialize critical components individually as fallback
+    try {
+      // Initialize detail card controller as fallback if main init failed
+      if (document.querySelector('.detail-card-improved, .facility-info-card, .card')) {
+        const fallbackController = initializeDetailCardController();
+        if (fallbackController) {
+          appState.setModule('detailCardController', fallbackController);
+          console.log('Detail card controller initialized as fallback');
+        }
+      }
+    } catch (fallbackError) {
+      console.error('Fallback initialization also failed:', fallbackError);
+    }
   }
 });
 
@@ -317,6 +501,17 @@ document.addEventListener('DOMContentLoaded', async () => {
  * This allows existing code to continue working while we transition to ES6 modules
  */
 window.ShiseCal = createLegacyAPI();
+
+/**
+ * Cleanup on page unload
+ */
+window.addEventListener('beforeunload', () => {
+  try {
+    app.cleanup();
+  } catch (error) {
+    console.error('Error during page unload cleanup:', error);
+  }
+});
 
 /**
  * Export main application components and utilities for ES6 module usage
@@ -359,6 +554,7 @@ export {
   initializeFacilityViewToggle,
   initializeFacilityFormLayout,
   initializeSidebar,
+  initializeDetailCardController,
   // Re-export facility form utilities
   FacilityFormUtils
 };

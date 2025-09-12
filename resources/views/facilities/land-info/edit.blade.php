@@ -170,15 +170,22 @@
                     </div>
                     
                     <div class="col-12 col-sm-6 col-lg-4">
-                        <label for="unit_price_display" class="form-label">坪単価（自動計算）</label>
+                        <label for="unit_price_display" class="form-label">
+                            坪単価
+                            <span class="auto-calc-indicator" title="購入金額と坪数から自動計算されます">
+                                <i class="fas fa-calculator text-info"></i>
+                                <small class="text-muted">自動計算</small>
+                            </span>
+                        </label>
                         <div class="input-group">
-                            <input type="text" id="unit_price_display" class="form-control" readonly 
+                            <input type="text" id="unit_price_display" class="form-control auto-calc-field" readonly 
                                    placeholder="自動計算されます"
-                                   aria-describedby="unit_price_help">
+                                   aria-describedby="unit_price_help"
+                                   title="このフィールドは購入金額と坪数から自動計算されます">
                             <span class="input-group-text">円/坪</span>
                         </div>
                         <small id="unit_price_help" class="form-text text-muted">
-                            購入金額と坪数から自動計算されます
+                            <i class="fas fa-info-circle"></i> 購入金額と坪数を入力すると自動で計算されます
                         </small>
                     </div>
                 </div>
@@ -246,12 +253,19 @@
                     </div>
                     
                     <div class="col-12 col-sm-6 col-lg-4">
-                        <label for="contract_period_display" class="form-label">契約年数（自動計算）</label>
-                        <input type="text" id="contract_period_display" class="form-control" readonly 
+                        <label for="contract_period_display" class="form-label">
+                            契約年数
+                            <span class="auto-calc-indicator" title="契約開始日と終了日から自動計算されます">
+                                <i class="fas fa-calculator text-info"></i>
+                                <small class="text-muted">自動計算</small>
+                            </span>
+                        </label>
+                        <input type="text" id="contract_period_display" class="form-control auto-calc-field" readonly 
                                placeholder="自動計算されます"
-                               aria-describedby="contract_period_help">
+                               aria-describedby="contract_period_help"
+                               title="このフィールドは契約開始日と終了日から自動計算されます">
                         <small id="contract_period_help" class="form-text text-muted">
-                            契約開始日と終了日から自動計算されます
+                            <i class="fas fa-info-circle"></i> 契約開始日と終了日を入力すると自動で計算されます
                         </small>
                     </div>
                 </div>

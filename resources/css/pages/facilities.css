@@ -1,28 +1,60 @@
 /* Facility Detail Page Styles */
 
-/* CSS Variables for Table Layout */
+/* Optimized CSS Variables for Performance */
 :root {
-  /* Responsive width variables based on Japanese character measurements */
+  /* Core color palette - reduced redundancy */
+  --primary-blue: #0d6efd;
+  --primary-blue-dark: #0a58ca;
+  --border-light: #dee2e6;
+  --border-lighter: #e9ecef;
+  --border-lightest: #f0f0f0;
+  --bg-light: #f8f9fa;
+  --bg-hover: #f5f5f5;
+  --bg-stripe: #fbfbfb;
+  --text-primary: #212529;
+  --text-secondary: #495057;
+  --text-muted: #6c757d;
+
+  /* Responsive width variables - optimized for Japanese text */
   --label-width-desktop: 8.5em;
-  /* 7 Japanese chars + padding */
   --label-width-tablet: 7.5em;
   --label-width-mobile: 6.5em;
 
-  /* Typography variables */
-  --table-font-size-base: 0.9rem;
-  --table-font-size-tablet: 0.875rem;
-  --table-font-size-mobile: 0.8rem;
-  --table-font-size-small: 0.75rem;
+  /* Typography scale - consolidated */
+  --font-size-base: 0.9rem;
+  --font-size-sm: 0.875rem;
+  --font-size-xs: 0.8rem;
+  --font-size-xxs: 0.75rem;
 
-  /* Table styling variables */
-  --table-border-color: #dee2e6;
-  --table-header-bg: #f8f9fa;
-  --table-hover-bg: #f5f5f5;
-  --table-stripe-bg: #fbfbfb;
-  --table-header-gradient: linear-gradient(135deg, #00B4E3);
+  /* Spacing scale - consistent system */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 0.75rem;
+  --spacing-lg: 1rem;
+  --spacing-xl: 1.5rem;
+
+  /* Detail Card Optimized Variables */
+  --detail-row-padding: var(--spacing-sm) 0;
+  --detail-row-gap: var(--spacing-md);
+  --detail-label-width: 140px;
+  --detail-label-border-color: var(--border-lighter);
+  --detail-value-padding-left: var(--spacing-lg);
+  --detail-min-height: 2.5rem;
+
+  /* Table styling - consolidated */
+  --table-border-color: var(--border-light);
+  --table-header-bg: var(--bg-light);
+  --table-hover-bg: var(--bg-hover);
+  --table-stripe-bg: var(--bg-stripe);
+  --table-header-gradient: linear-gradient(135deg, var(--primary-blue), var(--primary-blue-dark));
   --table-header-border: 1px solid rgba(255, 255, 255, 0.2);
   --table-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   --table-border-radius: 0.5rem;
+
+  /* Animation timing - performance optimized */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
 }
 
 /* タブナビゲーションのスタイル */
@@ -101,6 +133,512 @@
   flex: 1;
   color: #212529;
   word-break: break-word;
+}
+
+/* ========================================
+   詳細カード改善スタイル（PC最適化）
+   ======================================== */
+
+/* PC環境（1024px以上）に最適化された詳細カードレイアウト */
+@media (min-width: 1024px) {
+  .detail-card-improved {
+    /* 行間最適化 - 33%削減 */
+    --improved-row-padding: var(--detail-row-padding);
+    --improved-row-gap: var(--detail-row-gap);
+
+    /* ラベル・値境界明確化 */
+    --improved-label-width: var(--detail-label-width);
+    --improved-border-color: var(--detail-label-border-color);
+    --improved-value-padding: var(--detail-value-padding-left);
+    --improved-min-height: var(--detail-min-height);
+  }
+
+  /* Optimized detail row styles - reduced redundancy */
+  .detail-card-improved .mb-3,
+  .detail-card-improved .detail-row {
+    margin-bottom: var(--detail-row-gap) !important;
+    padding: var(--detail-row-padding);
+    border-bottom: 1px solid var(--detail-label-border-color);
+    display: flex;
+    align-items: flex-start;
+    min-height: var(--detail-min-height);
+  }
+
+  .detail-card-improved .mb-3:last-child,
+  .detail-card-improved .detail-row:last-child {
+    border-bottom: none;
+    margin-bottom: 0 !important;
+  }
+
+  /* Optimized label styles - consolidated selectors */
+  .detail-card-improved .form-label,
+  .detail-card-improved .detail-label {
+    min-width: var(--detail-label-width);
+    max-width: var(--detail-label-width);
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding-right: var(--detail-value-padding-left);
+    border-right: 2px solid var(--detail-label-border-color);
+    margin-right: var(--detail-value-padding-left);
+    flex-shrink: 0;
+    line-height: 1.4;
+  }
+
+  .detail-card-improved .form-label {
+    margin-bottom: 0 !important;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Optimized value styles - consolidated */
+  .detail-card-improved .form-control-plaintext,
+  .detail-card-improved .detail-value {
+    flex: 1;
+    color: var(--text-primary);
+    word-break: break-word;
+    line-height: 1.4;
+  }
+
+  .detail-card-improved .form-control-plaintext {
+    margin-bottom: 0 !important;
+    padding: 0;
+    border: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    min-height: 1.5rem;
+  }
+
+  /* ========================================
+     未設定項目表示制御スタイル
+     ======================================== */
+
+  /* 未設定項目の初期非表示スタイル */
+  .detail-card-improved .empty-field {
+    display: none;
+    /* デフォルト非表示 */
+  }
+
+  /* 表示切り替え時のスタイル */
+  .detail-card-improved.show-empty-fields .empty-field {
+    display: flex;
+    /* 表示時 */
+  }
+
+  /* Optimized empty field styles - consolidated */
+  .detail-card-improved .empty-field .form-control-plaintext,
+  .detail-card-improved .empty-field .detail-value {
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .detail-card-improved .empty-field .form-control-plaintext::before {
+    content: "未設定";
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .detail-card-improved .empty-field .detail-label,
+  .detail-card-improved .empty-field .form-label {
+    color: var(--text-muted);
+    opacity: 0.8;
+  }
+
+  /* ========================================
+     トグルボタンスタイル
+     ======================================== */
+
+  /* Optimized toggle button styles - performance focused */
+  .empty-fields-toggle {
+    font-size: var(--font-size-sm);
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: 20px;
+    transition: all var(--transition-fast);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    cursor: pointer;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    will-change: transform, background-color, border-color;
+  }
+
+  /* Optimized hover and active states */
+  .empty-fields-toggle:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .empty-fields-toggle.active,
+  .empty-fields-toggle[aria-pressed="true"] {
+    background-color: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.6);
+    color: white;
+  }
+
+  .empty-fields-toggle:focus,
+  .empty-fields-toggle:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.8);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2);
+  }
+
+  /* ボタン内のアイコン */
+  .empty-fields-toggle i {
+    font-size: 0.75rem;
+    transition: transform 0.3s ease;
+  }
+
+  /* アクティブ時のアイコン回転 */
+  .empty-fields-toggle.active i {
+    transform: rotate(180deg);
+  }
+
+  /* ボタンテキストのスタイル */
+  .empty-fields-toggle .toggle-text {
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  /* 未設定項目数のバッジ */
+  .empty-fields-toggle .empty-count-badge {
+    background-color: rgba(255, 255, 255, 0.3);
+    color: white;
+    font-size: 0.7rem;
+    padding: 0.125rem 0.375rem;
+    border-radius: 10px;
+    margin-left: 0.25rem;
+    font-weight: 600;
+  }
+
+  /* ========================================
+     未設定項目制御 - 状態別スタイル
+     ======================================== */
+
+  /* 未設定項目が存在しない場合のボタン */
+  .empty-fields-toggle.no-empty-fields {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  /* Optimized state styles - consolidated animations */
+  .empty-fields-toggle.loading {
+    opacity: 0.7;
+    cursor: wait;
+  }
+
+  .empty-fields-toggle.loading i {
+    animation: spin 1s linear infinite;
+  }
+
+  .empty-fields-toggle.error {
+    background-color: rgba(220, 53, 69, 0.2);
+    border-color: rgba(220, 53, 69, 0.5);
+    color: #dc3545;
+  }
+
+  /* Optimized keyframe - use transform3d for hardware acceleration */
+  @keyframes spin {
+    from {
+      transform: rotate3d(0, 0, 1, 0deg);
+    }
+
+    to {
+      transform: rotate3d(0, 0, 1, 360deg);
+    }
+  }
+
+  /* ========================================
+     可読性とアクセシビリティの確保
+     ======================================== */
+
+  /* Optimized typography - use CSS variables for consistency */
+  .detail-card-improved .detail-label {
+    font-size: var(--font-size-base);
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+
+  .detail-card-improved .detail-value {
+    font-size: var(--font-size-base);
+    color: var(--text-primary);
+    line-height: 1.5;
+  }
+
+  /* 長いテキストの適切な改行処理 */
+  .detail-card-improved .detail-value {
+    word-break: break-word;
+    /* 長い単語の適切な改行 */
+    overflow-wrap: break-word;
+    /* ブラウザ互換性 */
+    hyphens: auto;
+    /* 日本語では無効だが、英数字混在時に有効 */
+    white-space: normal;
+    /* 通常の改行処理 */
+  }
+
+  /* 長いURLやメールアドレスの処理 */
+  .detail-card-improved .detail-value a {
+    word-break: break-all;
+    /* URLの強制改行 */
+    display: inline-block;
+    max-width: 100%;
+  }
+
+  /* 重要情報の視覚的強調表示を維持 */
+  .detail-card-improved .detail-value .fw-bold {
+    font-weight: 700 !important;
+    /* 重要情報の強調維持 */
+  }
+
+  .detail-card-improved .detail-value .badge {
+    font-weight: 600;
+    /* バッジの可読性確保 */
+    padding: 0.375em 0.75em;
+    /* 適切なパディング */
+    font-size: 0.8em;
+    /* 相対的なサイズ */
+  }
+
+  /* キーボードナビゲーション対応 */
+  .detail-card-improved .detail-row {
+    position: relative;
+  }
+
+  .detail-card-improved .detail-row:focus-within {
+    background-color: rgba(13, 110, 253, 0.05);
+    outline: 2px solid rgba(13, 110, 253, 0.25);
+    outline-offset: -2px;
+    border-radius: 4px;
+  }
+
+  /* リンクのキーボードナビゲーション強化 */
+  .detail-card-improved .detail-value a:focus {
+    outline: 2px solid #0d6efd;
+    outline-offset: 2px;
+    border-radius: 3px;
+    background-color: rgba(13, 110, 253, 0.1);
+  }
+
+  /* ボタンのキーボードナビゲーション */
+  .detail-card-improved .btn:focus {
+    outline: 2px solid #0d6efd;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.25);
+  }
+
+  /* ========================================
+     未設定項目制御 - アクセシビリティ強化
+     ======================================== */
+
+  /* スクリーンリーダー用テキスト */
+  .sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+  }
+
+  /* キーボードナビゲーション強化 */
+  .empty-fields-toggle:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.8);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2);
+  }
+
+  .empty-fields-toggle:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.9);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.3);
+  }
+
+  /* ARIA状態の視覚的表現 */
+  .empty-fields-toggle[aria-pressed="true"] {
+    background-color: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.6);
+  }
+
+  .empty-fields-toggle[aria-pressed="false"] {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  /* ハイコントラストモード対応 */
+  @media (prefers-contrast: high) {
+    .detail-card-improved .detail-label {
+      color: #000000;
+      font-weight: 700;
+    }
+
+    .detail-card-improved .detail-value {
+      color: #000000;
+      background-color: #ffffff;
+    }
+
+    .detail-card-improved .empty-field .detail-value {
+      color: #000000;
+      background-color: #f0f0f0;
+      border: 1px solid #000000;
+      padding: 0.25rem;
+    }
+
+    .empty-fields-toggle {
+      border: 2px solid white;
+      background-color: rgba(0, 0, 0, 0.9);
+      color: white;
+    }
+
+    .detail-card-improved .detail-row {
+      border-bottom: 2px solid #000000;
+    }
+
+    .detail-card-improved .detail-label {
+      border-right: 3px solid #000000;
+    }
+  }
+
+  /* 動きを減らす設定への対応 */
+  @media (prefers-reduced-motion: reduce) {
+
+    .empty-fields-toggle,
+    .empty-fields-toggle i,
+    .detail-card-improved .mb-3,
+    .detail-card-improved .detail-row {
+      transition: none !important;
+      animation: none !important;
+    }
+
+    .empty-fields-toggle.active i {
+      transform: none !important;
+    }
+
+    .detail-card-improved .mb-3:hover,
+    .detail-card-improved .detail-row:hover {
+      transform: none !important;
+    }
+  }
+
+  /* 大きなフォントサイズ設定への対応 */
+  @media (min-resolution: 192dpi) {
+
+    .detail-card-improved .detail-label,
+    .detail-card-improved .detail-value {
+      font-size: 1rem;
+      /* 高解像度での可読性向上 */
+    }
+  }
+
+  /* カラーブラインドネス対応 */
+  .detail-card-improved .badge.bg-primary {
+    background-color: #0d6efd !important;
+    border: 1px solid #0a58ca;
+    /* 境界線で識別性向上 */
+  }
+
+  .detail-card-improved .badge.bg-success {
+    background-color: #198754 !important;
+    border: 1px solid #146c43;
+  }
+
+  .detail-card-improved .badge.bg-warning {
+    background-color: #ffc107 !important;
+    color: #000000 !important;
+    /* 黄色背景での可読性確保 */
+    border: 1px solid #ffca2c;
+  }
+
+  /* テキスト選択の改善 */
+  .detail-card-improved .detail-value {
+    user-select: text;
+    /* テキスト選択可能 */
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+  }
+
+  .detail-card-improved .detail-label {
+    user-select: none;
+    /* ラベルは選択不可 */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
+
+  /* バッジとリンクの調整 */
+  .detail-card-improved .badge {
+    margin-right: 0.25rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .detail-card-improved a {
+    color: #0d6efd;
+    text-decoration: none;
+  }
+
+  .detail-card-improved a:hover {
+    text-decoration: underline;
+  }
+
+  /* カードヘッダーとの統合 */
+  .detail-card-improved .card-header {
+    background: linear-gradient(135deg, #0d6efd, #0a58ca);
+    color: white;
+    border-bottom: none;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .detail-card-improved .card-header h5 {
+    margin: 0;
+    font-size: 1rem;
+    color: white;
+  }
+
+  .detail-card-improved .card-header i {
+    color: white !important;
+  }
+
+  /* カードボディの調整 */
+  .detail-card-improved .card-body {
+    padding: 1.5rem;
+  }
+
+  /* 行の境界線の最適化 */
+  .detail-card-improved .mb-3+.mb-3 {
+    border-top: none;
+  }
+
+  /* 最大幅制限による可読性向上 */
+  .detail-card-improved {
+    max-width: none;
+    /* PC環境では制限なし */
+  }
+
+  /* ホバー効果 */
+  .detail-card-improved .mb-3:hover {
+    background-color: rgba(0, 123, 255, 0.02);
+    transition: background-color 0.2s ease;
+  }
+
+  /* フォーカス状態の改善 */
+  .detail-card-improved .mb-3:focus-within {
+    background-color: rgba(0, 123, 255, 0.05);
+    outline: 2px solid rgba(0, 123, 255, 0.25);
+    outline-offset: -2px;
+  }
 }
 
 .facility-info-card {
@@ -195,6 +733,382 @@
     margin-right: 0;
     font-weight: 700;
     color: #6c757d;
+  }
+}
+
+/* ========================================
+   詳細カード改善 - フォールバック対応
+   ======================================== */
+
+/* CSS変数未対応ブラウザ用フォールバック */
+.no-css-variables .detail-card-improved .mb-3 {
+  margin-bottom: 0.75rem !important;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: flex-start;
+  min-height: 2.5rem;
+}
+
+.no-css-variables .detail-card-improved .form-label {
+  min-width: 140px;
+  max-width: 140px;
+  padding-right: 1rem;
+  border-right: 2px solid #e9ecef;
+  margin-right: 1rem;
+}
+
+/* Flexbox未対応ブラウザ用フォールバック */
+.no-flexbox .detail-card-improved .mb-3 {
+  display: block;
+  overflow: hidden;
+}
+
+.no-flexbox .detail-card-improved .form-label {
+  float: left;
+  width: 140px;
+}
+
+.no-flexbox .detail-card-improved .form-control-plaintext {
+  margin-left: 160px;
+}
+
+/* 古いブラウザ対応 */
+.detail-card-improved .mb-3 {
+  display: flex;
+  display: -webkit-flex;
+  /* Safari対応 */
+  display: -ms-flexbox;
+  /* IE10対応 */
+}
+
+.detail-card-improved .form-label {
+  -webkit-flex-shrink: 0;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+}
+
+.detail-card-improved .form-control-plaintext {
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+/* ========================================
+   未設定項目制御 - レスポンシブ対応
+   ======================================== */
+
+/* タブレット対応 */
+@media (max-width: 992px) {
+  .empty-fields-toggle {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.6rem;
+  }
+
+  .empty-fields-toggle .toggle-text {
+    display: none;
+    /* テキストを非表示にしてアイコンのみ */
+  }
+
+  .empty-fields-toggle i {
+    font-size: 0.8rem;
+  }
+}
+
+/* モバイル対応 */
+@media (max-width: 768px) {
+  .empty-fields-toggle {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 15px;
+  }
+
+  .empty-fields-toggle .empty-count-badge {
+    font-size: 0.65rem;
+    padding: 0.1rem 0.3rem;
+  }
+}
+
+/* ========================================
+   未設定項目制御 - フォールバック対応
+   ======================================== */
+
+/* JavaScript無効時のフォールバック */
+.no-js .detail-card-improved .empty-field {
+  display: flex !important;
+  /* JS無効時は全項目表示 */
+}
+
+.no-js .empty-fields-toggle {
+  display: none !important;
+  /* JS無効時はボタン非表示 */
+}
+
+/* CSS変数未対応ブラウザ用フォールバック */
+.no-css-variables .detail-card-improved .empty-field .form-control-plaintext {
+  color: #6c757d;
+  font-style: italic;
+}
+
+.no-css-variables .empty-fields-toggle {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* 古いブラウザ対応 */
+.detail-card-improved .empty-field {
+  display: none;
+  display: -webkit-none;
+  /* Safari対応 */
+  display: -ms-none;
+  /* IE対応 */
+}
+
+.detail-card-improved.show-empty-fields .empty-field {
+  display: flex;
+  display: -webkit-flex;
+  /* Safari対応 */
+  display: -ms-flexbox;
+  /* IE10対応 */
+}
+
+/* プリント時の最適化とアクセシビリティ */
+@media print {
+
+  .detail-card-improved .mb-3,
+  .detail-card-improved .detail-row {
+    border-bottom: 1px solid #000 !important;
+    padding: 0.25rem 0 !important;
+    page-break-inside: avoid;
+    background: white !important;
+  }
+
+  .detail-card-improved .form-label,
+  .detail-card-improved .detail-label {
+    border-right: 1px solid #000 !important;
+    font-weight: bold !important;
+    color: #000 !important;
+  }
+
+  .detail-card-improved .form-control-plaintext,
+  .detail-card-improved .detail-value {
+    color: #000 !important;
+    background: white !important;
+  }
+
+  .detail-card-improved .empty-fields-toggle {
+    display: none !important;
+  }
+
+  .detail-card-improved .empty-field {
+    display: flex !important;
+    /* プリント時は全項目表示 */
+  }
+
+  .detail-card-improved .empty-field .form-control-plaintext::before,
+  .detail-card-improved .empty-field .detail-value::before {
+    content: "未設定" !important;
+    color: #666 !important;
+  }
+
+  /* リンクの印刷時表示改善 */
+  .detail-card-improved a {
+    color: #000 !important;
+    text-decoration: underline !important;
+  }
+
+  .detail-card-improved a[href^="mailto:"]:after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #666;
+  }
+
+  .detail-card-improved a[href^="http"]:after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #666;
+  }
+}
+
+/* ========================================
+   自動計算フィールドスタイル
+   ======================================== */
+
+/* 自動計算インジケーター */
+.auto-calc-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: 0.5rem;
+  padding: 0.125rem 0.375rem;
+  background-color: rgba(13, 202, 240, 0.1);
+  border: 1px solid rgba(13, 202, 240, 0.3);
+  border-radius: 12px;
+  font-size: 0.75rem;
+  color: #0dcaf0;
+}
+
+.auto-calc-indicator i {
+  font-size: 0.7rem;
+  color: #0dcaf0 !important;
+}
+
+.auto-calc-indicator small {
+  font-weight: 500;
+  color: #0dcaf0 !important;
+}
+
+/* 自動計算フィールドのスタイル */
+.auto-calc-field {
+  background-color: #f8f9fa !important;
+  background-image: linear-gradient(45deg, transparent 25%, rgba(13, 202, 240, 0.05) 25%, rgba(13, 202, 240, 0.05) 50%, transparent 50%, transparent 75%, rgba(13, 202, 240, 0.05) 75%);
+  background-size: 20px 20px;
+  border: 2px solid #0dcaf0 !important;
+  color: #495057 !important;
+  cursor: not-allowed;
+  position: relative;
+}
+
+/* 入力グループ内の自動計算フィールド */
+.input-group .auto-calc-field {
+  border-right: none !important;
+}
+
+.input-group .auto-calc-field+.input-group-text {
+  border: 2px solid #0dcaf0 !important;
+  border-left: none !important;
+  background-color: rgba(13, 202, 240, 0.1) !important;
+  color: #0dcaf0 !important;
+  font-weight: 600;
+}
+
+.auto-calc-field:focus {
+  background-color: #f8f9fa !important;
+  border-color: #0dcaf0 !important;
+  box-shadow: 0 0 0 0.2rem rgba(13, 202, 240, 0.25) !important;
+}
+
+.auto-calc-field::placeholder {
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* 自動計算フィールドのヘルプテキスト */
+.auto-calc-field+.form-text {
+  color: #0dcaf0 !important;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.auto-calc-field+.form-text i {
+  color: #0dcaf0 !important;
+}
+
+/* ホバー効果 */
+.auto-calc-indicator:hover {
+  background-color: rgba(13, 202, 240, 0.15);
+  border-color: rgba(13, 202, 240, 0.5);
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+.auto-calc-field:hover {
+  border-color: #0bb5d8 !important;
+  box-shadow: 0 2px 4px rgba(13, 202, 240, 0.15);
+  transition: all 0.2s ease;
+}
+
+/* 入力グループのホバー効果 */
+.input-group:hover .auto-calc-field {
+  border-color: #0bb5d8 !important;
+}
+
+.input-group:hover .auto-calc-field+.input-group-text {
+  border-color: #0bb5d8 !important;
+  background-color: rgba(13, 202, 240, 0.15) !important;
+}
+
+/* アニメーション効果 */
+@keyframes auto-calc-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(13, 202, 240, 0.4);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(13, 202, 240, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(13, 202, 240, 0);
+  }
+}
+
+.auto-calc-field.calculating {
+  animation: auto-calc-pulse 1.5s infinite;
+}
+
+/* 入力グループの計算中アニメーション */
+.input-group .auto-calc-field.calculating+.input-group-text {
+  animation: auto-calc-pulse 1.5s infinite;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .auto-calc-indicator {
+    font-size: 0.7rem;
+    padding: 0.1rem 0.3rem;
+    gap: 0.2rem;
+  }
+
+  .auto-calc-indicator i {
+    font-size: 0.65rem;
+  }
+
+  .auto-calc-field+.form-text {
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .auto-calc-indicator {
+    display: block;
+    margin-left: 0;
+    margin-top: 0.25rem;
+    text-align: center;
+  }
+}
+
+/* アクセシビリティ対応 */
+@media (prefers-reduced-motion: reduce) {
+  .auto-calc-field.calculating {
+    animation: none;
+  }
+
+  .auto-calc-indicator:hover {
+    transform: none;
+  }
+}
+
+/* ハイコントラストモード対応 */
+@media (prefers-contrast: high) {
+  .auto-calc-indicator {
+    background-color: #ffffff;
+    border: 2px solid #000000;
+    color: #000000;
+  }
+
+  .auto-calc-indicator i,
+  .auto-calc-indicator small {
+    color: #000000 !important;
+  }
+
+  .auto-calc-field {
+    background-color: #ffffff !important;
+    border: 3px solid #000000 !important;
+    color: #000000 !important;
   }
 }
 

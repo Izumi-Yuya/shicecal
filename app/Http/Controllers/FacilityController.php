@@ -253,14 +253,6 @@ class FacilityController extends Controller
     }
 
     /**
-     * Display the basic information of the facility.
-     */
-    public function basicInfo(Facility $facility)
-    {
-        return view('facilities.basic-info.show', compact('facility'));
-    }
-
-    /**
      * Show the form for editing basic information.
      */
     public function editBasicInfo(Facility $facility)

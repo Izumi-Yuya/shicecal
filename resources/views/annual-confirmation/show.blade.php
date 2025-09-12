@@ -27,38 +27,24 @@
                 </div>
             @endif
 
-            <!-- Confirmation Details -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">確認依頼情報</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <table class="table table-borderless">
-                                <tr>
-                                    <th width="150">確認年度:</th>
-                                    <td>{{ $annualConfirmation->confirmation_year }}年度</td>
-                                </tr>
-                                <tr>
-                                    <th>施設名:</th>
-                                    <td>{{ $annualConfirmation->facility->facility_name }}</td>
-                                </tr>
-                                <tr>
-                                    <th>事業所コード:</th>
-                                    <td>{{ $annualConfirmation->facility->office_code }}</td>
-                                </tr>
-                                <tr>
-                                    <th>会社名:</th>
-                                    <td>{{ $annualConfirmation->facility->company_name }}</td>
-                                </tr>
-                            </table>
+            <!-- 年次確認詳細情報 -->
+            <div class="row">
+                <!-- 確認依頼情報 -->
+                <div class="col-md-6">
+                    <div class="facility-info-card detail-card-improved mb-4" data-section="annual_confirmation_basic">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5><i class="fas fa-calendar-check me-2"></i>確認依頼情報</h5>
                         </div>
-                        <div class="col-md-6">
-                            <table class="table table-borderless">
-                                <tr>
-                                    <th width="150">ステータス:</th>
-                                    <td>
+                        <div class="card-body">
+                            <div class="facility-detail-table">
+                                <div class="detail-row">
+                                    <span class="detail-label">確認年度</span>
+                                    <span class="detail-value">{{ $annualConfirmation->confirmation_year }}年度</span>
+                                </div>
+                                
+                                <div class="detail-row">
+                                    <span class="detail-label">ステータス</span>
+                                    <span class="detail-value">
                                         @switch($annualConfirmation->status)
                                             @case('pending')
                                                 <span class="badge bg-warning">確認待ち</span>
@@ -73,76 +59,88 @@
                                                 <span class="badge bg-info">解決済み</span>
                                                 @break
                                         @endswitch
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>依頼者:</th>
-                                    <td>{{ $annualConfirmation->requestedBy->name }}</td>
-                                </tr>
-                                <tr>
-                                    <th>施設責任者:</th>
-                                    <td>
-                                        @if($annualConfirmation->facilityManager)
-                                            {{ $annualConfirmation->facilityManager->name }}
-                                        @else
-                                            <span class="text-muted">未設定</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>依頼日時:</th>
-                                    <td>{{ $annualConfirmation->requested_at->format('Y年m月d日 H:i') }}</td>
-                                </tr>
+                                    </span>
+                                </div>
+                                
+                                <div class="detail-row">
+                                    <span class="detail-label">依頼者</span>
+                                    <span class="detail-value">{{ $annualConfirmation->requestedBy->name }}</span>
+                                </div>
+                                
+                                <div class="detail-row {{ empty($annualConfirmation->facilityManager) ? 'empty-field' : '' }}">
+                                    <span class="detail-label">施設責任者</span>
+                                    <span class="detail-value">{{ $annualConfirmation->facilityManager->name ?? '未設定' }}</span>
+                                </div>
+                                
+                                <div class="detail-row">
+                                    <span class="detail-label">依頼日時</span>
+                                    <span class="detail-value">{{ $annualConfirmation->requested_at->format('Y年m月d日 H:i') }}</span>
+                                </div>
+                                
                                 @if($annualConfirmation->responded_at)
-                                    <tr>
-                                        <th>回答日時:</th>
-                                        <td>{{ $annualConfirmation->responded_at->format('Y年m月d日 H:i') }}</td>
-                                    </tr>
+                                <div class="detail-row">
+                                    <span class="detail-label">回答日時</span>
+                                    <span class="detail-value">{{ $annualConfirmation->responded_at->format('Y年m月d日 H:i') }}</span>
+                                </div>
                                 @endif
-                            </table>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Facility Information -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">施設情報</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <table class="table table-borderless">
-                                <tr>
-                                    <th width="150">指定番号:</th>
-                                    <td>{{ $annualConfirmation->facility->designation_number ?: '未設定' }}</td>
-                                </tr>
-                                <tr>
-                                    <th>郵便番号:</th>
-                                    <td>{{ $annualConfirmation->facility->postal_code ?: '未設定' }}</td>
-                                </tr>
-                                <tr>
-                                    <th>住所:</th>
-                                    <td>{{ $annualConfirmation->facility->address ?: '未設定' }}</td>
-                                </tr>
-                            </table>
+                <!-- 施設情報 -->
+                <div class="col-md-6">
+                    <div class="facility-info-card detail-card-improved mb-4" data-section="annual_confirmation_facility">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5><i class="fas fa-building me-2"></i>施設情報</h5>
                         </div>
-                        <div class="col-md-6">
-                            <table class="table table-borderless">
-                                <tr>
-                                    <th width="150">電話番号:</th>
-                                    <td>{{ $annualConfirmation->facility->phone_number ?: '未設定' }}</td>
-                                </tr>
-                                <tr>
-                                    <th>FAX番号:</th>
-                                    <td>{{ $annualConfirmation->facility->fax_number ?: '未設定' }}</td>
-                                </tr>
-                                <tr>
-                                    <th>最終更新:</th>
-                                    <td>{{ $annualConfirmation->facility->updated_at->format('Y年m月d日 H:i') }}</td>
-                                </tr>
-                            </table>
+                        <div class="card-body">
+                            <div class="facility-detail-table">
+                                <div class="detail-row">
+                                    <span class="detail-label">施設名</span>
+                                    <span class="detail-value">{{ $annualConfirmation->facility->facility_name }}</span>
+                                </div>
+                                
+                                <div class="detail-row">
+                                    <span class="detail-label">事業所コード</span>
+                                    <span class="detail-value">{{ $annualConfirmation->facility->office_code }}</span>
+                                </div>
+                                
+                                <div class="detail-row">
+                                    <span class="detail-label">会社名</span>
+                                    <span class="detail-value">{{ $annualConfirmation->facility->company_name }}</span>
+                                </div>
+                                
+                                <div class="detail-row {{ empty($annualConfirmation->facility->designation_number) ? 'empty-field' : '' }}">
+                                    <span class="detail-label">指定番号</span>
+                                    <span class="detail-value">{{ $annualConfirmation->facility->designation_number ?? '未設定' }}</span>
+                                </div>
+                                
+                                <div class="detail-row {{ empty($annualConfirmation->facility->postal_code) ? 'empty-field' : '' }}">
+                                    <span class="detail-label">郵便番号</span>
+                                    <span class="detail-value">{{ $annualConfirmation->facility->postal_code ?? '未設定' }}</span>
+                                </div>
+                                
+                                <div class="detail-row {{ empty($annualConfirmation->facility->address) ? 'empty-field' : '' }}">
+                                    <span class="detail-label">住所</span>
+                                    <span class="detail-value">{{ $annualConfirmation->facility->address ?? '未設定' }}</span>
+                                </div>
+                                
+                                <div class="detail-row {{ empty($annualConfirmation->facility->phone_number) ? 'empty-field' : '' }}">
+                                    <span class="detail-label">電話番号</span>
+                                    <span class="detail-value">{{ $annualConfirmation->facility->phone_number ?? '未設定' }}</span>
+                                </div>
+                                
+                                <div class="detail-row {{ empty($annualConfirmation->facility->fax_number) ? 'empty-field' : '' }}">
+                                    <span class="detail-label">FAX番号</span>
+                                    <span class="detail-value">{{ $annualConfirmation->facility->fax_number ?? '未設定' }}</span>
+                                </div>
+                                
+                                <div class="detail-row">
+                                    <span class="detail-label">最終更新</span>
+                                    <span class="detail-value">{{ $annualConfirmation->facility->updated_at->format('Y年m月d日 H:i') }}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

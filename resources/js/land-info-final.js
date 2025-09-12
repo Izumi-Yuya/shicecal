@@ -208,16 +208,32 @@ class LandInfoManager {
     const siteAreaTsubo = parseFloat(siteAreaTsuboInput.value) || 0;
 
     if (purchasePrice > 0 && siteAreaTsubo > 0) {
-      const unitPrice = Math.round(purchasePrice / siteAreaTsubo);
-      unitPriceDisplay.value = unitPrice.toLocaleString();
-      this.addCalculationFeedback(unitPriceDisplay);
+      // 計算中のアニメーション開始
+      unitPriceDisplay.classList.add('calculating');
 
-      // Validation warning for extremely high unit prices
-      if (unitPrice > 10000000) {
-        this.showWarning('坪単価が非常に高額です。入力内容をご確認ください。');
-      }
+      // 少し遅延を入れて計算感を演出
+      setTimeout(() => {
+        const unitPrice = Math.round(purchasePrice / siteAreaTsubo);
+        unitPriceDisplay.value = unitPrice.toLocaleString();
+
+        // アニメーション終了
+        unitPriceDisplay.classList.remove('calculating');
+        this.addCalculationFeedback(unitPriceDisplay);
+
+        // 成功のフィードバック
+        unitPriceDisplay.style.borderColor = '#198754';
+        setTimeout(() => {
+          unitPriceDisplay.style.borderColor = '#0dcaf0';
+        }, 1000);
+
+        // Validation warning for extremely high unit prices
+        if (unitPrice > 10000000) {
+          this.showWarning('坪単価が非常に高額です。入力内容をご確認ください。');
+        }
+      }, 300);
     } else {
       unitPriceDisplay.value = '';
+      unitPriceDisplay.classList.remove('calculating');
     }
   }
 
@@ -232,30 +248,46 @@ class LandInfoManager {
     const endDate = new Date(endDateInput.value);
 
     if (startDate && endDate && endDate > startDate) {
-      const years = endDate.getFullYear() - startDate.getFullYear();
-      const months = endDate.getMonth() - startDate.getMonth();
-      let totalMonths = years * 12 + months;
+      // 計算中のアニメーション開始
+      periodDisplay.classList.add('calculating');
 
-      if (endDate.getDate() < startDate.getDate()) {
-        totalMonths--;
-      }
+      // 少し遅延を入れて計算感を演出
+      setTimeout(() => {
+        const years = endDate.getFullYear() - startDate.getFullYear();
+        const months = endDate.getMonth() - startDate.getMonth();
+        let totalMonths = years * 12 + months;
 
-      const displayYears = Math.floor(totalMonths / 12);
-      const displayMonths = totalMonths % 12;
+        if (endDate.getDate() < startDate.getDate()) {
+          totalMonths--;
+        }
 
-      let periodText = '';
-      if (displayYears > 0) periodText += `${displayYears}年`;
-      if (displayMonths > 0) periodText += `${displayMonths}ヶ月`;
+        const displayYears = Math.floor(totalMonths / 12);
+        const displayMonths = totalMonths % 12;
 
-      periodDisplay.value = periodText || '0ヶ月';
-      this.addCalculationFeedback(periodDisplay);
+        let periodText = '';
+        if (displayYears > 0) periodText += `${displayYears}年`;
+        if (displayMonths > 0) periodText += `${displayMonths}ヶ月`;
 
-      // Validation warning for extremely long contracts
-      if (totalMonths > 600) { // 50 years
-        this.showWarning('契約期間が非常に長期です。入力内容をご確認ください。');
-      }
+        periodDisplay.value = periodText || '0ヶ月';
+
+        // アニメーション終了
+        periodDisplay.classList.remove('calculating');
+        this.addCalculationFeedback(periodDisplay);
+
+        // 成功のフィードバック
+        periodDisplay.style.borderColor = '#198754';
+        setTimeout(() => {
+          periodDisplay.style.borderColor = '#0dcaf0';
+        }, 1000);
+
+        // Validation warning for extremely long contracts
+        if (totalMonths > 600) { // 50 years
+          this.showWarning('契約期間が非常に長期です。入力内容をご確認ください。');
+        }
+      }, 300);
     } else {
       periodDisplay.value = '';
+      periodDisplay.classList.remove('calculating');
     }
   }
 

@@ -83,7 +83,6 @@ Route::middleware(['auth'])->group(function () {
 
     // Facility basic information routes
     Route::prefix('facilities/{facility}')->name('facilities.')->group(function () {
-        Route::get('/basic-info', [FacilityController::class, 'basicInfo'])->name('basic-info');
         Route::get('/edit-basic-info', [FacilityController::class, 'editBasicInfo'])->name('edit-basic-info');
         Route::put('/basic-info', [FacilityController::class, 'updateBasicInfo'])->name('update-basic-info');
 

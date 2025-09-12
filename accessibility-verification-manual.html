@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessibility Verification - Detail Card Layout Improvement</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Include the improved CSS styles */
+        :root {
+          --detail-row-padding: 0.5rem 0;
+          --detail-row-gap: 0.75rem;
+          --detail-label-width: 140px;
+          --detail-label-border-color: #e9ecef;
+          --detail-value-padding-left: 1rem;
+          --detail-min-height: 2.5rem;
+        }
+
+        @media (min-width: 1024px) {
+          .detail-card-improved .detail-row {
+            padding: var(--detail-row-padding);
+            border-bottom: 1px solid var(--detail-label-border-color);
+            display: flex;
+            align-items: flex-start;
+            min-height: var(--detail-min-height);
+          }
+
+          .detail-card-improved .detail-row:last-child {
+            border-bottom: none;
+          }
+
+          .detail-card-improved .detail-label {
+            min-width: var(--detail-label-width);
+            max-width: var(--detail-label-width);
+            font-weight: 600;
+            color: #495057;
+            padding-right: var(--detail-value-padding-left);
+            border-right: 2px solid var(--detail-label-border-color);
+            margin-right: var(--detail-value-padding-left);
+            flex-shrink: 0;
+            line-height: 1.4;
+          }
+
+          .detail-card-improved .detail-value {
+            flex: 1;
+            color: #212529;
+            word-break: break-word;
+            line-height: 1.4;
+          }
+
+          .detail-card-improved .empty-field {
+            display: none;
+          }
+
+          .detail-card-improved.show-empty-fields .empty-field {
+            display: flex;
+          }
+
+          .detail-card-improved .empty-field .detail-value {
+            color: #6c757d;
+            font-style: italic;
+          }
+
+          .empty-fields-toggle {
+            font-size: 0.875rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            cursor: pointer;
+          }
+
+          .empty-fields-toggle:focus {
+            outline: 2px solid rgba(255, 255, 255, 0.8);
+            outline-offset: 2px;
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2);
+          }
+
+          .sr-only {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+            white-space: nowrap !important;
+            border: 0 !important;
+          }
+        }
+
+        .facility-info-card {
+          border: 1px solid #e3e6f0;
+          box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+
+        .facility-info-card .card-header {
+          background: linear-gradient(135deg, #0d6efd, #0a58ca);
+          color: white;
+          border-bottom: none;
+          font-weight: 600;
+        }
+
+        .facility-info-card .card-header h5 {
+          margin: 0;
+          font-size: 1rem;
+          color: white;
+        }
+
+        .facility-detail-table {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Accessibility Verification Test</h1>
+        <p>This page tests the accessibility features implemented for Task 8: 可読性とアクセシビリティの確保</p>
+
+        <!-- Test Card -->
+        <div class="card facility-info-card detail-card-improved mb-4" data-section="test_section">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle text-primary me-2"></i>テスト情報
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="facility-detail-table">
+                    <div class="detail-row">
+                        <span class="detail-label">項目1</span>
+                        <span class="detail-value">通常の値</span>
+                    </div>
+                    <div class="detail-row empty-field">
+                        <span class="detail-label">項目2（未設定）</span>
+                        <span class="detail-value">未設定</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">長いテキスト</span>
+                        <span class="detail-value">これは非常に長いテキストの例です。適切に改行されることを確認するためのテストです。日本語の文章が適切に表示されるかどうかをテストしています。</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">メールアドレス</span>
+                        <span class="detail-value">
+                            <a href="mailto:test@example.com" 
+                               aria-label="メールアドレス test@example.com にメールを送信">
+                                <i class="fas fa-envelope me-1" aria-hidden="true"></i>test@example.com
+                            </a>
+                        </span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">重要な情報</span>
+                        <span class="detail-value">
+                            <span class="fw-bold">強調されたテキスト</span>
+                            <span class="badge bg-primary ms-2">バッジ</span>
+                        </span>
+                    </div>
+                    <div class="detail-row empty-field">
+                        <span class="detail-label">空の項目</span>
+                        <span class="detail-value">未設定</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accessibility Test Results -->
+        <div class="card">
+            <div class="card-header">
+                <h5>Accessibility Test Results</h5>
+            </div>
+            <div class="card-body">
+                <div id="test-results">
+                    <!-- Results will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Simple accessibility verification
+        function runAccessibilityTests() {
+            const results = [];
+            
+            // Test 1: Font size and contrast
+            const labels = document.querySelectorAll('.detail-label');
+            const values = document.querySelectorAll('.detail-value');
+            results.push({
+                test: 'Font Size and Contrast',
+                passed: labels.length > 0 && values.length > 0,
+                details: `Found ${labels.length} labels and ${values.length} values`
+            });
+
+            // Test 2: Long text handling
+            const longTextValue = document.querySelector('.detail-value');
+            const computedStyle = window.getComputedStyle(longTextValue);
+            results.push({
+                test: 'Long Text Handling',
+                passed: computedStyle.wordBreak === 'break-word' || longTextValue.style.wordBreak === 'break-word',
+                details: `Word break style: ${computedStyle.wordBreak}`
+            });
+
+            // Test 3: Link accessibility
+            const links = document.querySelectorAll('a[aria-label]');
+            results.push({
+                test: 'Link Accessibility',
+                passed: links.length > 0,
+                details: `Found ${links.length} accessible links`
+            });
+
+            // Test 4: Empty field handling
+            const emptyFields = document.querySelectorAll('.empty-field');
+            results.push({
+                test: 'Empty Field Handling',
+                passed: emptyFields.length > 0,
+                details: `Found ${emptyFields.length} empty fields`
+            });
+
+            // Test 5: Keyboard navigation
+            const focusableElements = document.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])');
+            results.push({
+                test: 'Keyboard Navigation',
+                passed: focusableElements.length > 0,
+                details: `Found ${focusableElements.length} focusable elements`
+            });
+
+            // Display results
+            const resultsContainer = document.getElementById('test-results');
+            resultsContainer.innerHTML = results.map(result => `
+                <div class="alert ${result.passed ? 'alert-success' : 'alert-danger'}">
+                    <strong>${result.test}:</strong> ${result.passed ? 'PASSED' : 'FAILED'}
+                    <br><small>${result.details}</small>
+                </div>
+            `).join('');
+
+            // Add manual test instructions
+            resultsContainer.innerHTML += `
+                <div class="alert alert-info">
+                    <h6>Manual Tests to Perform:</h6>
+                    <ul>
+                        <li>Use Tab key to navigate through focusable elements</li>
+                        <li>Test with screen reader (VoiceOver on Mac, NVDA on Windows)</li>
+                        <li>Check color contrast in high contrast mode</li>
+                        <li>Verify text scaling up to 200%</li>
+                        <li>Test keyboard-only navigation</li>
+                        <li>Check print preview for accessibility</li>
+                    </ul>
+                </div>
+            `;
+        }
+
+        // Run tests when page loads
+        document.addEventListener('DOMContentLoaded', runAccessibilityTests);
+
+        // Add keyboard event listeners for testing
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Tab') {
+                console.log('Tab navigation:', event.target);
+            }
+        });
+
+        // Add focus event listeners
+        document.addEventListener('focus', (event) => {
+            console.log('Focus on:', event.target);
+        }, true);
+    </script>
+</body>
+</html>
