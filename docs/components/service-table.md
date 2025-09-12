@@ -1,95 +1,142 @@
-# Service Table Component Documentation
+# Standardized Service Table Component Documentation
 
 ## Overview
 
-The Service Table component displays facility service information in a structured table format with support for comments, responsive design, and dynamic content management.
+The Standardized Service Table component is part of the unified table system that displays facility service information using the universal table component architecture. It provides consistent styling, responsive design, and integrated comment functionality across all facility tables.
 
 ## Architecture
 
 ### Components
 
-1. **Main Template**: `resources/views/facilities/partials/service-table.blade.php`
-   - Primary component entry point
+1. **Standardized Template**: `resources/views/facilities/services/partials/standardized-table.blade.php`
+   - Uses the universal table component system
    - Handles service collection and configuration
-   - Includes comment functionality
+   - Integrates with comment functionality
 
-2. **Row Template**: `resources/views/facilities/partials/service-table-row.blade.php`
-   - Individual table row rendering
-   - Handles first row headers and subsequent data rows
-   - Implements security measures (XSS protection)
+2. **Universal Table Component**: `resources/views/components/universal-table.blade.php`
+   - Core table rendering engine
+   - Supports multiple layout types including service tables
+   - Provides performance optimizations and error handling
 
-3. **Service Class**: `app/Services/ServiceTableService.php`
-   - Business logic for service table operations
-   - Data formatting and validation
-   - Configuration management
+3. **Service Table Layout**: `resources/views/components/universal-table/service-table.blade.php`
+   - Service-specific table layout implementation
+   - Handles rowspan grouping for service types
+   - Implements period date formatting
 
-4. **Configuration**: `config/service-table.php`
-   - Centralized configuration for display options
-   - Column definitions and styling
-   - Validation rules
+4. **Configuration**: `config/table-config.php`
+   - Centralized configuration for all table types
+   - Service table specific settings under 'service_info' key
+   - Column definitions and styling rules
 
-5. **Styles**: `resources/css/components/service-table.css`
-   - Component-specific styling
-   - Responsive design rules
-   - Bootstrap integration
+5. **Services**: 
+   - `app/Services/TableConfigService.php` - Configuration management
+   - `app/Services/TableDataFormatter.php` - Data formatting
+   - `app/Services/TableViewHelper.php` - View preparation
 
 ## Usage
 
-### Basic Usage
+### Basic Usage (Recommended)
 
 ```blade
-@include('facilities.partials.service-table', [
+@include('facilities.services.partials.standardized-table', [
     'services' => $facility->services
 ])
 ```
 
-### With Custom Configuration
+### Direct Universal Table Usage
 
 ```blade
 @php
-    $serviceTableService = app(\App\Services\ServiceTableService::class);
-    $preparedData = $serviceTableService->prepareServicesForDisplay($facility->services);
+    $tableConfig = app('App\Services\TableConfigService')->getTableConfig('service_info');
+    $serviceData = $services->map(function($service) {
+        return [
+            'service_type' => $service->service_type ?? '',
+            'renewal_start_date' => $service->renewal_start_date,
+            'period_separator' => '〜',
+            'renewal_end_date' => $service->renewal_end_date,
+        ];
+    })->toArray();
 @endphp
 
-@include('facilities.partials.service-table', [
-    'services' => $preparedData['services']
-])
+<x-universal-table 
+    :table-id="'service-info-table'"
+    :config="$tableConfig"
+    :data="$serviceData"
+    :section="'service_info'"
+    :comment-enabled="true"
+    :responsive="true"
+/>
 ```
 
 ## Configuration Options
 
-### Display Settings
-
-```php
-'display' => [
-    'max_services' => 10,           // Maximum services to display
-    'show_empty_rows' => true,      // Show template rows for empty services
-    'enable_comments' => true,      // Enable comment functionality
-],
-```
+The service table configuration is defined in `config/table-config.php` under the `service_info` key:
 
 ### Column Configuration
 
 ```php
-'columns' => [
-    'service_type' => [
-        'label' => 'サービス種類',
-        'width_percentage' => 15,
-        'mobile_width_percentage' => 20,
+'service_info' => [
+    'columns' => [
+        [
+            'key' => 'service_type',
+            'label' => 'サービス種類',
+            'type' => 'text',
+            'rowspan_group' => true
+        ],
+        [
+            'key' => 'renewal_start_date',
+            'label' => '有効期限開始',
+            'type' => 'date',
+            'format' => 'Y年n月j日'
+        ],
+        [
+            'key' => 'period_separator',
+            'label' => '',
+            'type' => 'text',
+            'value' => '〜'
+        ],
+        [
+            'key' => 'renewal_end_date',
+            'label' => '有効期限終了',
+            'type' => 'date',
+            'format' => 'Y年n月j日'
+        ]
     ],
-    // ... other columns
-],
+    'layout' => [
+        'type' => 'service_table',
+        'group_by' => 'service_type',
+        'service_header_rowspan' => true
+    ],
+    'styling' => [
+        'table_class' => 'service-info',
+        'header_class' => 'bg-info text-white',
+        'empty_value_class' => 'text-muted'
+    ],
+    'features' => [
+        'comments' => true,
+        'sorting' => false,
+        'filtering' => false
+    ]
+]
 ```
 
-### Styling Options
+### Global Settings
 
 ```php
-'styling' => [
-    'header_bg_class' => 'bg-info',
-    'header_text_class' => 'text-white',
-    'empty_value_class' => 'text-muted',
-    'empty_value_text' => '未設定',
-],
+'global_settings' => [
+    'responsive' => [
+        'enabled' => true,
+        'pc_only' => true,
+        'breakpoints' => [
+            'lg' => '992px',
+            'md' => '768px'
+        ]
+    ],
+    'performance' => [
+        'cache_enabled' => true,
+        'cache_ttl' => 300
+    ]
+]
 ```
 
 ## Features

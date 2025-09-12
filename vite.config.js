@@ -43,7 +43,6 @@ export default defineConfig({
         'resources/css/pages/facilities.css',
         'resources/css/pages/notifications.css',
         'resources/css/pages/export.css',
-        'resources/css/pages/facility-table-view.css',
         // Component CSS files
         'resources/css/components/service-table.css',
         // JavaScript files
@@ -167,7 +166,6 @@ export default defineConfig({
         'resources/css/pages/facilities.css',
         'resources/css/pages/notifications.css',
         'resources/css/pages/export.css',
-        'resources/css/pages/facility-table-view.css',
         // Component CSS files
         'resources/css/components/service-table.css',
         // JavaScript files

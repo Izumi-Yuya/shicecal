@@ -33,6 +33,7 @@ import { initializeExportManager } from './modules/export.js';
 import { initialize as initializeServiceTableManager } from './modules/service-table-manager.js';
 import { initializeFacilityViewToggle } from './modules/facility-view-toggle.js';
 import { initializeTableViewComments } from './modules/table-view-comments.js';
+import { initializeTablePerformance } from './modules/table-performance.js';
 
 // Import component modules
 import {
@@ -63,7 +64,8 @@ class ApplicationState {
       notification: null,
       export: null,
       sidebar: null,
-      facilityFormLayout: null
+      facilityFormLayout: null,
+      tablePerformance: null
     };
     this.components = {
       search: null,
@@ -236,7 +238,11 @@ class Application {
         // Initialize view toggle on facility show pages
         if (currentPath.match(/\/facilities\/\d+$/)) {
           appState.setModule('viewToggle', initializeFacilityViewToggle());
-          appState.setModule('tableComments', initializeTableViewComments(facilityId));
+
+          // Only initialize table comments if table view container exists
+          if (document.querySelector('.facility-table-view')) {
+            appState.setModule('tableComments', initializeTableViewComments(facilityId));
+          }
         }
       }
     }
@@ -249,6 +255,11 @@ class Application {
     // Initialize export module on export pages
     if (currentPath.includes('/export')) {
       appState.setModule('export', initializeExportManager());
+    }
+
+    // Initialize table performance optimization for all pages with performance-optimized tables
+    if (document.querySelector('.performance-optimized')) {
+      appState.setModule('tablePerformance', initializeTablePerformance());
     }
   }
 

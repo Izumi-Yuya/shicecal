@@ -7,6 +7,7 @@ use App\Services\ExportService;
 use App\Services\FacilityService;
 use App\Services\NotificationService;
 use App\Services\PerformanceMonitoringService;
+use App\Services\TableConfigService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -24,6 +25,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(NotificationService::class);
         $this->app->singleton(ActivityLogService::class);
         $this->app->singleton(PerformanceMonitoringService::class);
+        $this->app->singleton(TableConfigService::class);
     }
 
     /**

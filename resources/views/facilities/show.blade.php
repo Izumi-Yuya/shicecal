@@ -87,7 +87,7 @@
                         
                         <!-- Conditional rendering based on view mode -->
                         @if($viewMode === 'table')
-                            @include('facilities.basic-info.partials.table', ['facility' => $facility])
+                            @include('facilities.basic-info.partials.standardized-table', ['facility' => $facility])
                         @else
                             @include('facilities.basic-info.partials.display-card', ['facility' => $facility])
                         @endif

@@ -278,12 +278,12 @@
 </div>
 
 <!-- サービス種類カード -->
-<div class="card-section mb-4">
-    <div class="card-section-header">
-        <div>
+<div class="card facility-info-card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
             <i class="fas fa-clipboard-list me-2"></i>サービス種類・指定更新
-        </div>
-        <button class="btn btn-outline-light btn-sm comment-toggle" 
+        </h5>
+        <button class="btn btn-outline-secondary btn-sm comment-toggle" 
                 data-section="services" 
                 data-bs-toggle="tooltip" 
                 title="コメントを表示/非表示">
@@ -291,7 +291,7 @@
             <span class="comment-count" data-section="services">0</span>
         </button>
     </div>
-    <div class="card-section-content">
+    <div class="card-body">
         @php
             $services = $facility->services ?? collect();
         @endphp

@@ -3,6 +3,12 @@
 /* Import facility form components */
 @import 'components/facility-form.css';
 
+/* Import advanced table components */
+@import 'components/advanced-tables.css';
+
+/* Import memory-optimized table components */
+@import 'components/memory-optimized-tables.css';
+
 /* Button Styles */
 .btn {
   border-radius: 8px;

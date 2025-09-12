@@ -501,10 +501,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (facilityIdMatch) {
       const facilityId = facilityIdMatch[1];
 
-      // Check if table view is active
+      // Check if table view is active and container exists
       const tableView = document.querySelector('.facility-table-view');
       if (tableView) {
         window.tableViewComments = initializeTableViewComments(facilityId);
+      } else {
+        console.log('Table view not found, skipping table comments auto-initialization');
       }
     }
   }

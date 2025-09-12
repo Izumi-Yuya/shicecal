@@ -164,7 +164,7 @@
 
 .service-table-header h6 {
   font-weight: 600;
-  color: var(--bs-info, #17a2b8);
+  color: white
 }
 
 /* Responsive adjustments */
