@@ -44,7 +44,6 @@ export default defineConfig({
         'resources/css/pages/notifications.css',
         'resources/css/pages/export.css',
         // Component CSS files
-        'resources/css/components/service-table.css',
         // JavaScript files
         'resources/js/app.js',
         'resources/js/admin.js',
@@ -53,9 +52,7 @@ export default defineConfig({
         'resources/js/modules/facilities.js',
         'resources/js/modules/notifications.js',
         'resources/js/modules/export.js',
-        'resources/js/modules/service-table-manager.js',
         'resources/js/modules/facility-view-toggle.js',
-        'resources/js/modules/table-view-comments.js',
         'resources/js/modules/comment-manager.js',
         'resources/js/modules/comment-ui.js',
         'resources/js/shared/utils.js',
@@ -167,7 +164,6 @@ export default defineConfig({
         'resources/css/pages/notifications.css',
         'resources/css/pages/export.css',
         // Component CSS files
-        'resources/css/components/service-table.css',
         // JavaScript files
         'resources/js/app.js',
         'resources/js/admin.js',
@@ -176,9 +172,7 @@ export default defineConfig({
         'resources/js/modules/facilities.js',
         'resources/js/modules/notifications.js',
         'resources/js/modules/export.js',
-        'resources/js/modules/service-table-manager.js',
         'resources/js/modules/facility-view-toggle.js',
-        'resources/js/modules/table-view-comments.js',
         'resources/js/modules/comment-manager.js',
         'resources/js/modules/comment-ui.js',
         'resources/js/shared/utils.js',
@@ -201,9 +195,7 @@ export default defineConfig({
             'resources/js/modules/facilities.js',
             'resources/js/modules/notifications.js',
             'resources/js/modules/export.js',
-            'resources/js/modules/service-table-manager.js',
             'resources/js/modules/facility-view-toggle.js',
-            'resources/js/modules/table-view-comments.js',
             'resources/js/modules/comment-manager.js',
             'resources/js/modules/comment-ui.js'
           ]

@@ -35,39 +35,16 @@ class FacilityController extends Controller
         $this->exportService = $exportService;
     }
 
-    // View mode session management constants
+    // View mode session management constants (deprecated - use FacilityViewModeController)
     const VIEW_PREFERENCE_KEY = 'facility_basic_info_view_mode';
-
-    const VIEW_MODES = [
-        'card' => 'カード形式',
-        'table' => 'テーブル形式',
-    ];
-
-    /**
-     * Set view mode preference via AJAX
-     */
-    public function setViewMode(Request $request): JsonResponse
-    {
-        $validated = $request->validate([
-            'view_mode' => 'required|in:card,table',
-        ]);
-
-        // Store view preference in session
-        session([self::VIEW_PREFERENCE_KEY => $validated['view_mode']]);
-
-        return response()->json([
-            'success' => true,
-            'view_mode' => $validated['view_mode'],
-            'message' => '表示形式を変更しました。',
-        ]);
-    }
 
     /**
      * Get current view mode preference with 'card' as default
+     * Note: Table view mode has been discontinued, always returns 'card'
      */
     public function getViewMode(): string
     {
-        return session(self::VIEW_PREFERENCE_KEY, 'card');
+        return 'card';
     }
 
     /**

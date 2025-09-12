@@ -16,16 +16,16 @@ class FacilityViewModeController extends Controller
 
     const VIEW_MODES = [
         'card' => 'カード形式',
-        'table' => 'テーブル形式',
     ];
 
     /**
      * Set view mode preference via AJAX
+     * Note: Table view mode has been discontinued, only 'card' mode is supported
      */
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'view_mode' => 'required|in:card,table',
+            'view_mode' => 'required|in:card',
         ]);
 
         session([self::VIEW_PREFERENCE_KEY => $validated['view_mode']]);
@@ -39,9 +39,10 @@ class FacilityViewModeController extends Controller
 
     /**
      * Get current view mode preference with 'card' as default
+     * Note: Table view mode has been discontinued, always returns 'card'
      */
     public function show(): string
     {
-        return session(self::VIEW_PREFERENCE_KEY, 'card');
+        return 'card';
     }
 }

@@ -3,12 +3,6 @@
 /* Import facility form components */
 @import 'components/facility-form.css';
 
-/* Import advanced table components */
-@import 'components/advanced-tables.css';
-
-/* Import memory-optimized table components */
-@import 'components/memory-optimized-tables.css';
-
 /* Button Styles */
 .btn {
   border-radius: 8px;
@@ -333,38 +327,6 @@
 }
 
 
-
-/* Table Styles */
-.table {
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: var(--shadow-md);
-  margin-bottom: 0;
-}
-
-.table thead th {
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-  color: white;
-  border: none;
-  font-weight: 600;
-  padding: 1rem;
-  text-align: center;
-}
-
-.table tbody tr {
-  transition: var(--transition-fast);
-}
-
-.table tbody tr:hover {
-  background-color: rgba(var(--primary-color-rgb), 0.05);
-  transform: scale(1.01);
-}
-
-.table tbody td {
-  padding: 1rem;
-  vertical-align: middle;
-  border-color: var(--border-color);
-}
 
 /* Form Styles */
 .form-control {

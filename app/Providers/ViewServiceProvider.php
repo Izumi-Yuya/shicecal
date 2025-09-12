@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Http\View\Composers\ServiceTableComposer;
+
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -26,14 +26,7 @@ class ViewServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Register Service Table View Composer
-        View::composer(
-            [
-                'facilities.services.partials.table',
-                'facilities.services.partials.improved-table',
-            ],
-            ServiceTableComposer::class
-        );
+
 
         // Register Facility Form Blade Directives
         $this->registerFacilityFormDirectives();

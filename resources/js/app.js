@@ -30,10 +30,9 @@ import { validateForm, displayFormErrors, clearFormErrors } from './shared/valid
 import { initializeFacilityManager } from './modules/facilities.js';
 import { initializeNotificationManager } from './modules/notifications.js';
 import { initializeExportManager } from './modules/export.js';
-import { initialize as initializeServiceTableManager } from './modules/service-table-manager.js';
+
 import { initializeFacilityViewToggle } from './modules/facility-view-toggle.js';
-import { initializeTableViewComments } from './modules/table-view-comments.js';
-import { initializeTablePerformance } from './modules/table-performance.js';
+
 
 // Import component modules
 import {
@@ -64,8 +63,7 @@ class ApplicationState {
       notification: null,
       export: null,
       sidebar: null,
-      facilityFormLayout: null,
-      tablePerformance: null
+      facilityFormLayout: null
     };
     this.components = {
       search: null,
@@ -223,10 +221,7 @@ class Application {
       }));
     }
 
-    // Initialize service table manager on pages with service tables
-    if (document.querySelector('[data-service-table]')) {
-      initializeServiceTableManager();
-    }
+
 
     // Initialize facility module on facility pages
     if (currentPath.includes('/facilities/')) {
@@ -239,10 +234,7 @@ class Application {
         if (currentPath.match(/\/facilities\/\d+$/)) {
           appState.setModule('viewToggle', initializeFacilityViewToggle());
 
-          // Only initialize table comments if table view container exists
-          if (document.querySelector('.facility-table-view')) {
-            appState.setModule('tableComments', initializeTableViewComments(facilityId));
-          }
+
         }
       }
     }
@@ -257,10 +249,7 @@ class Application {
       appState.setModule('export', initializeExportManager());
     }
 
-    // Initialize table performance optimization for all pages with performance-optimized tables
-    if (document.querySelector('.performance-optimized')) {
-      appState.setModule('tablePerformance', initializeTablePerformance());
-    }
+
   }
 
   setupGlobalEventHandlers() {

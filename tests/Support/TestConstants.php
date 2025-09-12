@@ -12,8 +12,6 @@ class TestConstants
 
     const CARD_VIEW_MODE = 'card';
 
-    const TABLE_VIEW_MODE = 'table';
-
     const EMPTY_VALUE_PLACEHOLDER = '未設定';
 
     // Test Data Constants
@@ -46,8 +44,6 @@ class TestConstants
     const MAX_MEMORY_USAGE_MB = 128;
 
     // XPath Selectors
-    const TABLE_CELL_SELECTOR = '//td[contains(@class, "detail-value") or not(@class)]';
-
     const CARD_VALUE_SELECTOR = '//span[contains(@class, "detail-value")]';
 
     const SERVICE_ELEMENT_SELECTOR = '//*[contains(@class, "service-card-title") or contains(@class, "svc-name")]';

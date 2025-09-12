@@ -10,42 +10,7 @@ use PHPUnit\Framework\Assert;
  */
 class FacilityAssertions
 {
-    /**
-     * Assert that facility data appears in both views
-     */
-    public static function assertDataParityBetweenViews(
-        string $cardContent,
-        string $tableContent,
-        Facility $facility
-    ): void {
-        $extractor = new FacilityDataExtractor;
 
-        $cardData = $extractor->extractDisplayedData($cardContent);
-        $tableData = $extractor->extractDisplayedData($tableContent);
-
-        // Essential fields must appear in both views
-        $essentialFields = [
-            $facility->company_name,
-            $facility->facility_name,
-            $facility->office_code,
-        ];
-
-        foreach ($essentialFields as $field) {
-            if ($field) {
-                Assert::assertContains($field, $cardData, "Essential field '{$field}' missing from card view");
-                Assert::assertContains($field, $tableData, "Essential field '{$field}' missing from table view");
-            }
-        }
-
-        // All card data should appear in table data
-        foreach ($cardData as $dataPoint) {
-            Assert::assertContains(
-                $dataPoint,
-                $tableData,
-                "Data point '{$dataPoint}' from card view missing in table view"
-            );
-        }
-    }
 
     /**
      * Assert proper date formatting in content
@@ -169,24 +134,11 @@ class FacilityAssertions
      */
     public static function assertViewModeElements(string $content, string $viewMode): void
     {
-        if ($viewMode === 'table') {
-            Assert::assertStringContainsString(
-                'facility-table-view',
-                $content,
-                'Table view class not found'
-            );
-            Assert::assertStringContainsString(
-                'table-responsive',
-                $content,
-                'Responsive table wrapper not found'
-            );
-        } else {
-            Assert::assertStringContainsString(
-                'facility-info-card',
-                $content,
-                'Card view class not found'
-            );
-        }
+        Assert::assertStringContainsString(
+            'facility-info-card',
+            $content,
+            'Card view class not found'
+        );
     }
 
     /**

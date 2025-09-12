@@ -82,15 +82,8 @@
                             @endif
                         </div>
                         
-                        <!-- View Toggle Component -->
-                        @include('facilities.shared.view-toggle', ['viewMode' => $viewMode])
-                        
-                        <!-- Conditional rendering based on view mode -->
-                        @if($viewMode === 'table')
-                            @include('facilities.basic-info.partials.standardized-table', ['facility' => $facility])
-                        @else
-                            @include('facilities.basic-info.partials.display-card', ['facility' => $facility])
-                        @endif
+                        <!-- Basic Info Display Card -->
+                        @include('facilities.basic-info.partials.display-card', ['facility' => $facility])
                     </div>
                     <div class="tab-pane fade" id="land-info" role="tabpanel" aria-labelledby="land-tab" data-lazy-load="true">
                         <!-- 土地情報タブヘッダー -->

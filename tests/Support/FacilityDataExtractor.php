@@ -10,8 +10,6 @@ use DOMXPath;
  */
 class FacilityDataExtractor
 {
-    private const TABLE_CELL_SELECTOR = '//td[contains(@class, "detail-value") or not(@class)]';
-
     private const CARD_VALUE_SELECTOR = '//span[contains(@class, "detail-value")]';
 
     private const SERVICE_ELEMENT_SELECTOR = '//*[contains(@class, "service-card-title") or contains(@class, "svc-name")]';
@@ -25,7 +23,6 @@ class FacilityDataExtractor
         $xpath = new DOMXPath($dom);
 
         $data = [];
-        $data = array_merge($data, $this->extractBySelector($xpath, self::TABLE_CELL_SELECTOR));
         $data = array_merge($data, $this->extractBySelector($xpath, self::CARD_VALUE_SELECTOR));
         $data = array_merge($data, $this->extractBySelector($xpath, self::SERVICE_ELEMENT_SELECTOR));
 
