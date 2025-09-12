@@ -13,6 +13,7 @@ class FacilityService extends Model
     protected $fillable = [
         'facility_id',
         'service_type',
+        'section',
         'renewal_start_date',
         'renewal_end_date',
     ];

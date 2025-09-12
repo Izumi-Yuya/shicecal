@@ -138,7 +138,8 @@
                         </li>
                         @endif
                         
-                        <!-- Maintenance Section -->
+                        {{-- Maintenance Section - Hidden --}}
+                        {{--
                         <li class="nav-item">
                             <div class="nav-section-header">
                                 <i class="fas fa-tools me-2"></i>
@@ -160,6 +161,7 @@
                             </a>
                         </li>
                         @endif
+                        --}}
                         
                         <!-- Export Section -->
                         <li class="nav-item">
@@ -168,6 +170,8 @@
                                 出力機能
                             </div>
                         </li>
+                        {{-- PDF Export - Hidden --}}
+                        {{--
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('export.pdf.*') ? 'active' : '' }}" 
                                href="{{ route('export.pdf.index') }}">
@@ -175,6 +179,7 @@
                                 PDF出力
                             </a>
                         </li>
+                        --}}
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('export.csv.*') ? 'active' : '' }}" 
                                href="{{ route('export.csv.index') }}">

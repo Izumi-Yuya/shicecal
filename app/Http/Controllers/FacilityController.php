@@ -73,13 +73,61 @@ class FacilityController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $facilities = Facility::with(['creator', 'updater'])
-            ->orderBy('updated_at', 'desc')
-            ->paginate(20);
+        $query = Facility::query();
 
-        return view('facilities.index', compact('facilities'));
+        // Service type filter
+        if ($request->filled('service_type')) {
+            $query->whereHas('services', function ($q) use ($request) {
+                $q->where('service_type', $request->service_type);
+            });
+        }
+
+        // Prefecture filter (based on facility code)
+        if ($request->filled('prefecture')) {
+            $prefectureCode = array_search($request->prefecture, config('prefectures.codes'));
+            if ($prefectureCode !== false) {
+                $query->where('office_code', 'like', $prefectureCode . '%');
+            }
+        }
+
+        // Keyword search
+        if ($request->filled('keyword')) {
+            $keyword = $request->keyword;
+            $query->where(function ($q) use ($keyword) {
+                $q->where('facility_name', 'like', "%{$keyword}%")
+                  ->orWhere('company_name', 'like', "%{$keyword}%")
+                  ->orWhere('office_code', 'like', "%{$keyword}%")
+                  ->orWhere('address', 'like', "%{$keyword}%");
+            });
+        }
+
+        // Default sorting by facility name
+        $query->orderBy('facility_name', 'asc');
+
+        $facilities = $query->get();
+
+        // Get unique service types for filter dropdown
+        $serviceTypes = \DB::table('facility_services')
+            ->select('service_type')
+            ->distinct()
+            ->orderBy('service_type')
+            ->pluck('service_type');
+
+        // Get prefectures that have facilities (standard 47 prefectures only)
+        $allPrefectures = config('prefectures.codes');
+        $prefectures = collect($allPrefectures)
+            ->filter(function ($prefecture, $code) {
+                // Only include standard prefecture codes (01-47) that have facilities
+                return strlen($code) === 2 && 
+                       intval($code) >= 1 && 
+                       intval($code) <= 47 &&
+                       Facility::where('office_code', 'like', $code . '%')->exists();
+            })
+            ->sort(); // Sort by prefecture name
+
+        return view('facilities.index', compact('facilities', 'serviceTypes', 'prefectures'));
     }
 
     /**

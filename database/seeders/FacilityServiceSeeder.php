@@ -30,7 +30,13 @@ class FacilityServiceSeeder extends Seeder
      */
     public function run(): void
     {
-        $facilities = Facility::all();
+        // Only process facilities that don't already have services (skip CSV imported facilities)
+        $facilities = Facility::whereDoesntHave('services')->get();
+
+        if ($facilities->isEmpty()) {
+            $this->command->info('All facilities already have services assigned. Skipping FacilityServiceSeeder.');
+            return;
+        }
 
         foreach ($facilities as $facility) {
             // 各施設に応じたサービス情報を設定

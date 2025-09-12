@@ -17,9 +17,10 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AdminUserSeeder::class,
             SystemSettingsSeeder::class,
-            FacilitySeeder::class,
+            FacilityMasterImportSeeder::class, // Import real facility data from CSV
+            // FacilitySeeder::class, // Disabled - using real data from CSV instead
             LandInfoSeeder::class,
-            FacilityServiceSeeder::class,
+            // FacilityServiceSeeder::class, // Disabled - services are created by FacilityMasterImportSeeder
             FacilityBasicInfoSeeder::class,
             MaintenanceHistorySeeder::class,
             TestDataSeeder::class,
