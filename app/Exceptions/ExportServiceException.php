@@ -7,8 +7,8 @@ namespace App\Exceptions;
  */
 class ExportServiceException extends ServiceException
 {
-    public function __construct(string $message = '', int $code = 0, ?\Exception $previous = null, array $context = [])
+    public function __construct(string $message = '', int $code = 0, ?\Exception $previous = null, string $errorCode = 'EXPORT_SERVICE_ERROR', array $context = [])
     {
-        parent::__construct($message, $code, $previous, 'EXPORT_SERVICE_ERROR', $context);
+        parent::__construct($message, $code, $previous, $errorCode, $context);
     }
 }

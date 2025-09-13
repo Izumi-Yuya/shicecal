@@ -70,6 +70,13 @@
                         <h5 class="mb-0">
                             <i class="fas fa-yen-sign text-success me-2"></i>金額・契約情報
                         </h5>
+                        <button class="btn btn-outline-secondary btn-sm comment-toggle" 
+                                data-section="land_financial" 
+                                data-bs-toggle="tooltip" 
+                                title="コメントを表示/非表示">
+                            <i class="fas fa-comment"></i>
+                            <span class="comment-count" data-section="land_financial">0</span>
+                        </button>
                     </div>
                     <div class="card-body">
                         <div class="facility-detail-table">
@@ -109,8 +116,8 @@
                                     <span class="detail-label">契約期間</span>
                                     <span class="detail-value">
                                         @if($landInfo->contract_start_date && $landInfo->contract_end_date)
-                                            {{ $landInfo->contract_start_date->format('Y/m/d') }} ～ 
-                                            {{ $landInfo->contract_end_date->format('Y/m/d') }}
+                                            {{ $landInfo->contract_start_date->format('Y年m月d日') }} ～ 
+                                            {{ $landInfo->contract_end_date->format('Y年m月d日') }}
                                             @if($landInfo->contract_period_text)
                                                 <br><small class="text-muted">({{ $landInfo->contract_period_text }})</small>
                                             @endif
@@ -143,6 +150,13 @@
                                         </span>
                                     </div>
                                 @endif
+                            @else
+                                <div class="detail-row empty-field">
+                                    <span class="detail-label">所有形態</span>
+                                    <span class="detail-value">
+                                        <span class="text-muted">所有形態が設定されていないため、金額・契約情報を表示できません</span>
+                                    </span>
+                                </div>
                             @endif
                         </div>
                     </div>
@@ -156,6 +170,13 @@
                         <h5 class="mb-0">
                             <i class="fas fa-building text-secondary me-2"></i>管理会社情報
                         </h5>
+                        <button class="btn btn-outline-secondary btn-sm comment-toggle" 
+                                data-section="land_management" 
+                                data-bs-toggle="tooltip" 
+                                title="コメントを表示/非表示">
+                            <i class="fas fa-comment"></i>
+                            <span class="comment-count" data-section="land_management">0</span>
+                        </button>
                     </div>
                     <div class="card-body">
                         <div class="facility-detail-table">
@@ -169,16 +190,7 @@
                             </div>
                             <div class="detail-row {{ empty($landInfo->management_company_address) ? 'empty-field' : '' }}">
                                 <span class="detail-label">住所</span>
-                                <span class="detail-value">
-                                    @if($landInfo->management_company_address)
-                                        {{ $landInfo->management_company_address }}
-                                        @if($landInfo->management_company_building)
-                                            <br>{{ $landInfo->management_company_building }}
-                                        @endif
-                                    @else
-                                        未設定
-                                    @endif
-                                </span>
+                                <span class="detail-value">{{ $landInfo->management_company_address ?? '未設定' }}</span>
                             </div>
                             <div class="detail-row {{ empty($landInfo->management_company_building) ? 'empty-field' : '' }}">
                                 <span class="detail-label">建物名</span>
@@ -233,6 +245,13 @@
                                 オーナー情報
                             @endif
                         </h5>
+                        <button class="btn btn-outline-secondary btn-sm comment-toggle" 
+                                data-section="land_owner" 
+                                data-bs-toggle="tooltip" 
+                                title="コメントを表示/非表示">
+                            <i class="fas fa-comment"></i>
+                            <span class="comment-count" data-section="land_owner">0</span>
+                        </button>
                     </div>
                     <div class="card-body">
                         <div class="facility-detail-table">
@@ -252,16 +271,7 @@
                             </div>
                             <div class="detail-row {{ empty($landInfo->owner_address) ? 'empty-field' : '' }}">
                                 <span class="detail-label">住所</span>
-                                <span class="detail-value">
-                                    @if($landInfo->owner_address)
-                                        {{ $landInfo->owner_address }}
-                                        @if($landInfo->owner_building)
-                                            <br>{{ $landInfo->owner_building }}
-                                        @endif
-                                    @else
-                                        未設定
-                                    @endif
-                                </span>
+                                <span class="detail-value">{{ $landInfo->owner_address ?? '未設定' }}</span>
                             </div>
                             <div class="detail-row {{ empty($landInfo->owner_building) ? 'empty-field' : '' }}">
                                 <span class="detail-label">建物名</span>
@@ -371,4 +381,4 @@
                     </div>
                 </div>
             </div>
-        </div>
+</div>

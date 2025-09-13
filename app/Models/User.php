@@ -263,11 +263,11 @@ class User extends Authenticatable
 
     /**
      * Check if user can edit land information (simplified).
-     * Only admins and editors can edit land information.
+     * Admins, editors, and primary responders can edit land information.
      */
     public function canEditLandInfo(): bool
     {
-        return $this->isAdmin() || $this->isEditor();
+        return $this->isAdmin() || $this->isEditor() || $this->isPrimaryResponder();
     }
 
     /**

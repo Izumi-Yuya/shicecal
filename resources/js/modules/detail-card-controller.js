@@ -7,18 +7,18 @@
 import { showToast } from '../shared/utils.js';
 
 /**
- * Detail Card Controller Class - Performance Optimized
+ * Detail Card Controller Class - Refactored for better maintainability
  */
 class DetailCardController {
   constructor() {
-    this.detailCards = null;
+    this.detailCards = [];
     this.toggleButtons = new Map();
     this.isInitialized = false;
-    this.eventListeners = new Map(); // Track event listeners for cleanup
-    this.preferences = null; // Cache preferences to reduce localStorage access
-    this.debounceTimer = null; // For debounced operations
+    this.eventListeners = new Map();
+    this.preferences = null;
+    this.debounceTimer = null;
 
-    // Optimized configuration - frozen for performance
+    // Configuration object - frozen for immutability
     this.config = Object.freeze({
       cardSelector: '.detail-card-improved',
       emptyFieldSelector: '.empty-field',
@@ -26,7 +26,7 @@ class DetailCardController {
       showEmptyClass: 'show-empty-fields',
       storageKey: 'detailCardPreferences',
       defaultShowEmpty: false,
-      debounceDelay: 100, // ms for debounced operations
+      debounceDelay: 100,
       buttonText: Object.freeze({
         show: '未設定項目を表示',
         hide: '未設定項目を非表示'
@@ -39,80 +39,90 @@ class DetailCardController {
   }
 
   /**
- * Initialize the detail card controller - Performance Optimized
- */
-  init() {
+   * Initialize the detail card controller
+   * @returns {Promise<boolean>} Success status
+   */
+  async init() {
+    if (this.isInitialized) {
+      return true;
+    }
+
     try {
-      // Use requestAnimationFrame for non-blocking initialization
-      return new Promise((resolve) => {
-        requestAnimationFrame(() => {
-          this.findDetailCards();
-
-          if (!this.detailCards || this.detailCards.length === 0) {
-            console.log('No detail cards found - skipping initialization');
-            resolve(false);
-            return;
-          }
-
-          // Batch DOM operations for better performance
-          this.batchInitialization();
-
-          this.isInitialized = true;
-          console.log('Detail card controller initialized successfully');
-          resolve(true);
-        });
-      });
+      await this._performInitialization();
+      this.isInitialized = true;
+      console.log('Detail card controller initialized successfully');
+      return true;
     } catch (error) {
       console.error('Failed to initialize detail card controller:', error);
-      return Promise.resolve(false);
+      return false;
     }
   }
 
   /**
- * Batch initialization operations for better performance
- */
-  batchInitialization() {
-    // Load preferences once and cache
-    this.loadUserPreferences();
+   * Perform the actual initialization work
+   * @private
+   */
+  async _performInitialization() {
+    return new Promise((resolve) => {
+      requestAnimationFrame(() => {
+        this._findDetailCards();
 
-    // Initialize all components in a single DOM pass
-    this.initializeToggleButtons();
-    this.setupEventListeners();
-    this.addAriaLandmarks();
+        if (this.detailCards.length === 0) {
+          console.log('No detail cards found - skipping initialization');
+          resolve();
+          return;
+        }
+
+        this._batchInitialization();
+        resolve();
+      });
+    });
   }
 
   /**
- * Find all detail cards on the page - Optimized with Caching
- */
-  findDetailCards() {
-    // Use more specific selector to reduce search scope
+   * Batch initialization operations for better performance
+   * @private
+   */
+  _batchInitialization() {
+    this._loadUserPreferences();
+    this._initializeToggleButtons();
+    this._setupEventListeners();
+    this._addAriaLandmarks();
+  }
+
+  /**
+   * Find all detail cards on the page
+   * @private
+   */
+  _findDetailCards() {
     const containers = document.querySelectorAll('.card-body, .tab-content, main');
     const cards = [];
 
-    // Search within specific containers to improve performance
     for (const container of containers) {
       const containerCards = container.querySelectorAll(this.config.cardSelector);
       cards.push(...containerCards);
     }
 
-    // Remove duplicates and convert to NodeList-like array
+    // Remove duplicates
     this.detailCards = [...new Set(cards)];
   }
 
   /**
- * Initialize toggle buttons for all detail cards
- */
-  initializeToggleButtons() {
+   * Initialize toggle buttons for all detail cards
+   * @private
+   */
+  _initializeToggleButtons() {
     this.detailCards.forEach(card => {
-      this.addToggleButton(card);
+      this._addToggleButton(card);
     });
   }
 
   /**
- * Add toggle button to a specific detail card
- * @param {HTMLElement} card - The detail card element
- */
-  addToggleButton(card) {
+   * Add toggle button to a specific detail card
+   * @param {HTMLElement} card - The detail card element
+   * @private
+   */
+  _addToggleButton(card) {
     const header = card.querySelector('.card-header');
     if (!header) {
       console.warn('Card header not found for detail card:', card);
@@ -124,32 +134,23 @@ class DetailCardController {
       return;
     }
 
-    // Get section identifier
     const section = card.dataset.section || 'default';
-
-    // Count empty fields
     const emptyFields = card.querySelectorAll(this.config.emptyFieldSelector);
+
     if (emptyFields.length === 0) {
       console.log(`No empty fields found in section: ${section}`);
       return;
     }
 
-    // Create toggle button
-    const button = this.createToggleButton(section, emptyFields.length);
+    const button = this._createToggleButton(section, emptyFields.length);
+    const buttonContainer = this._createButtonContainer();
 
-    // Add button to header
-    const buttonContainer = this.createButtonContainer();
     buttonContainer.appendChild(button);
 
-    // Add screen reader description after button is in DOM
-    try {
-      const description = this.addScreenReaderDescription(button, section, emptyFields.length);
-      if (description) {
-        buttonContainer.appendChild(description);
-      }
-    } catch (error) {
-      console.error('Error adding screen reader description:', error);
-      // Continue without description - functionality still works
+    // Add screen reader description
+    const description = this._createScreenReaderDescription(section, emptyFields.length);
+    if (description) {
+      buttonContainer.appendChild(description);
     }
 
     header.appendChild(buttonContainer);
@@ -163,130 +164,117 @@ class DetailCardController {
   }
 
   /**
- * Create toggle button element
- * @param {string} section - Section identifier
- * @param {number} emptyCount - Number of empty fields
- * @returns {HTMLElement} The toggle button element
- */
-  createToggleButton(section, emptyCount) {
+   * Create toggle button element
+   * @param {string} section - Section identifier
+   * @param {number} emptyCount - Number of empty fields
+   * @returns {HTMLElement} The toggle button element
+   * @private
+   */
+  _createToggleButton(section, emptyCount) {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = `btn btn-outline-secondary btn-sm ${this.config.toggleButtonClass}`;
     button.dataset.section = section;
 
-    // アクセシビリティ属性の設定
-    button.setAttribute('aria-label', `未設定項目 ${emptyCount}件の表示を切り替え`);
-    button.setAttribute('aria-describedby', `empty-fields-desc-${section}`);
-    button.setAttribute('role', 'switch');
-    button.title = `未設定項目 ${emptyCount}件の表示を切り替え`;
+    // Set accessibility attributes
+    this._setButtonAccessibilityAttributes(button, section, emptyCount);
 
     // Set initial state
-    const isShowing = this.getPreference(section);
-    this.updateButtonState(button, isShowing);
+    const isShowing = this._getPreference(section);
+    this._updateButtonState(button, isShowing);
 
     return button;
   }
 
   /**
- * Create button container
- * @returns {HTMLElement} The button container element
- */
-  createButtonContainer() {
+   * Set accessibility attributes for button
+   * @param {HTMLElement} button - The button element
+   * @param {string} section - Section identifier
+   * @param {number} emptyCount - Number of empty fields
+   * @private
+   */
+  _setButtonAccessibilityAttributes(button, section, emptyCount) {
+    button.setAttribute('aria-label', `未設定項目 ${emptyCount}件の表示を切り替え`);
+    button.setAttribute('aria-describedby', `empty-fields-desc-${section}`);
+    button.setAttribute('role', 'switch');
+    button.title = `未設定項目 ${emptyCount}件の表示を切り替え`;
+  }
+
+  /**
+   * Create button container
+   * @returns {HTMLElement} The button container element
+   * @private
+   */
+  _createButtonContainer() {
     const container = document.createElement('div');
     container.className = 'detail-card-controls ms-auto';
     return container;
   }
 
   /**
- * Add screen reader description for the toggle button
- * @param {HTMLElement} button - The toggle button
- * @param {string} section - Section identifier
- * @param {number} emptyCount - Number of empty fields
- * @returns {HTMLElement} The description element
- */
-  addScreenReaderDescription(button, section, emptyCount) {
+   * Create screen reader description for the toggle button
+   * @param {string} section - Section identifier
+   * @param {number} emptyCount - Number of empty fields
+   * @returns {HTMLElement|null} The description element or null if error
+   * @private
+   */
+  _createScreenReaderDescription(section, emptyCount) {
     try {
       const description = document.createElement('div');
       description.id = `empty-fields-desc-${section}`;
       description.className = 'sr-only';
       description.textContent = `このセクションには${emptyCount}件の未設定項目があります。ボタンを押すと表示・非表示を切り替えできます。`;
-
-      // Return the description element to be added by the caller
-      // This avoids the parentNode null error
       return description;
     } catch (error) {
       console.error('Error creating screen reader description:', error);
-      // Return empty div as fallback
-      return document.createElement('div');
+      return null;
     }
   }
 
   /**
- * Update button state and appearance
- * @param {HTMLElement} button - The toggle button
- * @param {boolean} isShowing - Whether empty fields are showing
- */
-  updateButtonState(button, isShowing) {
+   * Update button state and appearance
+   * @param {HTMLElement} button - The toggle button
+   * @param {boolean} isShowing - Whether empty fields are showing
+   * @private
+   */
+  _updateButtonState(button, isShowing) {
     const icon = isShowing ? this.config.icons.hide : this.config.icons.show;
     const text = isShowing ? this.config.buttonText.hide : this.config.buttonText.show;
     const section = button.dataset.section;
 
-    // ボタンの内容を更新
+    // Update button content
     button.innerHTML = `
       <i class="${icon} me-1" aria-hidden="true"></i>
       <span class="toggle-text">${text}</span>
       <span class="sr-only">（現在の状態: ${isShowing ? '表示中' : '非表示中'}）</span>
     `;
 
-    // ARIA属性の更新
+    // Update ARIA attributes
     button.setAttribute('aria-pressed', isShowing.toString());
     button.setAttribute('aria-expanded', isShowing.toString());
 
-    // タイトルの更新
+    // Update title and aria-label
     const buttonData = this.toggleButtons.get(section);
     if (buttonData) {
       const emptyCount = buttonData.emptyFields.length;
-      button.title = `未設定項目 ${emptyCount}件を${isShowing ? '非表示' : '表示'}にする`;
-      button.setAttribute('aria-label', `未設定項目 ${emptyCount}件を${isShowing ? '非表示' : '表示'}にする`);
+      const actionText = isShowing ? '非表示' : '表示';
+      const titleText = `未設定項目 ${emptyCount}件を${actionText}にする`;
+
+      button.title = titleText;
+      button.setAttribute('aria-label', titleText);
     }
   }
 
   /**
- * Setup event listeners - Performance Optimized with Event Delegation
- */
-  setupEventListeners() {
-    // Use single event delegation for better performance
-    const clickHandler = (event) => {
-      const button = event.target.closest(`.${this.config.toggleButtonClass}`);
-      if (button) {
-        event.preventDefault();
-        this.handleToggleClick(button);
-      }
-    };
+   * Setup event listeners using event delegation
+   * @private
+   */
+  _setupEventListeners() {
+    const clickHandler = this._createClickHandler();
+    const keydownHandler = this._createKeydownHandler();
+    const focusHandler = this._createFocusHandler();
 
-    const keydownHandler = (event) => {
-      const button = event.target.closest(`.${this.config.toggleButtonClass}`);
-      if (button && (event.key === 'Enter' || event.key === ' ')) {
-        event.preventDefault();
-        this.handleToggleClick(button);
-        return;
-      }
-
-      // Handle detail row focus management
-      const detailRow = event.target.closest('.detail-row');
-      if (detailRow && event.key === 'Tab') {
-        this.handleDetailRowFocus(detailRow, event);
-      }
-    };
-
-    const focusHandler = (event) => {
-      const detailValue = event.target.closest('.detail-value');
-      if (detailValue) {
-        this.announceDetailValue(detailValue);
-      }
-    };
-
-    // Add listeners with passive option where appropriate
+    // Add listeners
     document.addEventListener('click', clickHandler);
     document.addEventListener('keydown', keydownHandler);
     document.addEventListener('focus', focusHandler, { passive: true });
@@ -298,10 +286,62 @@ class DetailCardController {
   }
 
   /**
- * Handle toggle button click
- * @param {HTMLElement} button - The clicked toggle button
- */
-  handleToggleClick(button) {
+   * Create click event handler
+   * @returns {Function} Click handler function
+   * @private
+   */
+  _createClickHandler() {
+    return (event) => {
+      const button = event.target.closest(`.${this.config.toggleButtonClass}`);
+      if (button) {
+        event.preventDefault();
+        this._handleToggleClick(button);
+      }
+    };
+  }
+
+  /**
+   * Create keydown event handler
+   * @returns {Function} Keydown handler function
+   * @private
+   */
+  _createKeydownHandler() {
+    return (event) => {
+      const button = event.target.closest(`.${this.config.toggleButtonClass}`);
+      if (button && (event.key === 'Enter' || event.key === ' ')) {
+        event.preventDefault();
+        this._handleToggleClick(button);
+        return;
+      }
+
+      // Handle detail row focus management
+      const detailRow = event.target.closest('.detail-row');
+      if (detailRow && event.key === 'Tab') {
+        this._handleDetailRowFocus(detailRow, event);
+      }
+    };
+  }
+
+  /**
+   * Create focus event handler
+   * @returns {Function} Focus handler function
+   * @private
+   */
+  _createFocusHandler() {
+    return (event) => {
+      const detailValue = event.target.closest('.detail-value');
+      if (detailValue) {
+        this._announceDetailValue(detailValue);
+      }
+    };
+  }
+
+  /**
+   * Handle toggle button click
+   * @param {HTMLElement} button - The clicked toggle button
+   * @private
+   */
+  _handleToggleClick(button) {
     const section = button.dataset.section;
     const buttonData = this.toggleButtons.get(section);
 
@@ -311,7 +351,7 @@ class DetailCardController {
     }
 
     try {
-      this.toggleEmptyFields(buttonData.card, section);
+      this._toggleEmptyFields(buttonData.card, section);
     } catch (error) {
       console.error('Error toggling empty fields:', error);
       showToast('表示切り替えに失敗しました。', 'error');
@@ -319,146 +359,171 @@ class DetailCardController {
   }
 
   /**
- * Toggle empty fields visibility for a card
- * @param {HTMLElement} card - The detail card
- * @param {string} section - Section identifier
- */
-  toggleEmptyFields(card, section) {
+   * Toggle empty fields visibility for a card
+   * @param {HTMLElement} card - The detail card
+   * @param {string} section - Section identifier
+   * @private
+   */
+  _toggleEmptyFields(card, section) {
     const isCurrentlyShowing = card.classList.contains(this.config.showEmptyClass);
     const newState = !isCurrentlyShowing;
 
     // Update card class
-    if (newState) {
-      card.classList.add(this.config.showEmptyClass);
-    } else {
-      card.classList.remove(this.config.showEmptyClass);
-    }
+    card.classList.toggle(this.config.showEmptyClass, newState);
 
     // Update button state
     const buttonData = this.toggleButtons.get(section);
     if (buttonData) {
-      this.updateButtonState(buttonData.button, newState);
+      this._updateButtonState(buttonData.button, newState);
     }
 
     // Save preference
-    this.saveUserPreference(section, newState);
+    this._saveUserPreference(section, newState);
 
     // Show feedback
+    this._showToggleFeedback(newState, buttonData.emptyFields.length);
+  }
+
+  /**
+   * Show feedback message for toggle action
+   * @param {boolean} newState - New visibility state
+   * @param {number} emptyCount - Number of empty fields
+   * @private
+   */
+  _showToggleFeedback(newState, emptyCount) {
     const actionText = newState ? '表示' : '非表示';
-    const emptyCount = buttonData.emptyFields.length;
     showToast(`未設定項目 ${emptyCount}件を${actionText}にしました。`, 'success');
   }
 
   /**
- * Load user preferences from localStorage - Optimized with Caching
- */
-  loadUserPreferences() {
+   * Load user preferences from localStorage
+   * @private
+   */
+  _loadUserPreferences() {
     try {
-      // Cache preferences to avoid repeated localStorage access
       if (!this.preferences) {
-        this.preferences = this.getUserPreferences();
+        this.preferences = this._getUserPreferences();
       }
 
-      // Batch DOM updates for better performance
-      const updates = [];
-
-      this.toggleButtons.forEach((buttonData, section) => {
-        const shouldShow = this.preferences[section]?.showEmptyFields ?? this.config.defaultShowEmpty;
-
-        updates.push({
-          card: buttonData.card,
-          button: buttonData.button,
-          shouldShow
-        });
-      });
-
-      // Apply all updates in a single batch
-      this.batchUpdateCardStates(updates);
+      const updates = this._preparePreferenceUpdates();
+      this._batchUpdateCardStates(updates);
     } catch (error) {
       console.error('Error loading user preferences:', error);
     }
   }
 
   /**
- * Batch update card states for better performance
- */
-  batchUpdateCardStates(updates) {
-    // Use requestAnimationFrame to batch DOM updates
+   * Prepare preference updates for batch processing
+   * @returns {Array} Array of update objects
+   * @private
+   */
+  _preparePreferenceUpdates() {
+    const updates = [];
+
+    this.toggleButtons.forEach((buttonData, section) => {
+      const shouldShow = this.preferences[section]?.showEmptyFields ?? this.config.defaultShowEmpty;
+      updates.push({
+        card: buttonData.card,
+        button: buttonData.button,
+        shouldShow
+      });
+    });
+
+    return updates;
+  }
+
+  /**
+   * Batch update card states for better performance
+   * @param {Array} updates - Array of update objects
+   * @private
+   */
+  _batchUpdateCardStates(updates) {
     requestAnimationFrame(() => {
       updates.forEach(({ card, button, shouldShow }) => {
-        if (shouldShow) {
-          card.classList.add(this.config.showEmptyClass);
-        } else {
-          card.classList.remove(this.config.showEmptyClass);
-        }
-        this.updateButtonState(button, shouldShow);
+        card.classList.toggle(this.config.showEmptyClass, shouldShow);
+        this._updateButtonState(button, shouldShow);
       });
     });
   }
 
   /**
- * Save user preference for a section - Optimized with Debouncing and Caching
- * @param {string} section - Section identifier
- * @param {boolean} showEmptyFields - Whether to show empty fields
- */
-  saveUserPreference(section, showEmptyFields) {
+   * Save user preference for a section
+   * @param {string} section - Section identifier
+   * @param {boolean} showEmptyFields - Whether to show empty fields
+   * @private
+   */
+  _saveUserPreference(section, showEmptyFields) {
     try {
-      // Update cached preferences immediately
-      if (!this.preferences) {
-        this.preferences = this.getUserPreferences();
-      }
-
-      if (!this.preferences[section]) {
-        this.preferences[section] = {};
-      }
-
-      this.preferences[section].showEmptyFields = showEmptyFields;
-
-      // Debounce localStorage writes to improve performance
-      this.debouncedSaveToStorage();
+      this._updateCachedPreference(section, showEmptyFields);
+      this._debouncedSaveToStorage();
     } catch (error) {
       console.error('Error saving user preference:', error);
     }
   }
 
   /**
- * Debounced localStorage save to reduce I/O operations - Enhanced with Compression
- */
-  debouncedSaveToStorage() {
+   * Update cached preference
+   * @param {string} section - Section identifier
+   * @param {boolean} showEmptyFields - Whether to show empty fields
+   * @private
+   */
+  _updateCachedPreference(section, showEmptyFields) {
+    if (!this.preferences) {
+      this.preferences = this._getUserPreferences();
+    }
+
+    if (!this.preferences[section]) {
+      this.preferences[section] = {};
+    }
+
+    this.preferences[section].showEmptyFields = showEmptyFields;
+  }
+
+  /**
+   * Debounced localStorage save to reduce I/O operations
+   * @private
+   */
+  _debouncedSaveToStorage() {
     if (this.debounceTimer) {
       clearTimeout(this.debounceTimer);
     }
 
     this.debounceTimer = setTimeout(() => {
-      try {
-        // Optimize storage by only saving changed preferences
-        const optimizedPreferences = this.optimizePreferencesForStorage();
-        const serialized = JSON.stringify(optimizedPreferences);
-
-        // Check if we're approaching localStorage limits
-        if (this.checkStorageQuota(serialized)) {
-          localStorage.setItem(this.config.storageKey, serialized);
-        } else {
-          console.warn('localStorage quota exceeded, cleaning up old data');
-          this.cleanupOldStorageData();
-          localStorage.setItem(this.config.storageKey, serialized);
-        }
-      } catch (error) {
-        console.error('Error writing to localStorage:', error);
-        // Fallback: try to save minimal data
-        this.saveMinimalPreferences();
-      }
+      this._performStorageSave();
     }, this.config.debounceDelay);
   }
 
   /**
- * Optimize preferences for storage by removing default values
- */
-  optimizePreferencesForStorage() {
+   * Perform the actual storage save operation
+   * @private
+   */
+  _performStorageSave() {
+    try {
+      const optimizedPreferences = this._optimizePreferencesForStorage();
+      const serialized = JSON.stringify(optimizedPreferences);
+
+      if (this._checkStorageQuota(serialized)) {
+        localStorage.setItem(this.config.storageKey, serialized);
+      } else {
+        console.warn('localStorage quota exceeded, cleaning up old data');
+        this._cleanupOldStorageData();
+        localStorage.setItem(this.config.storageKey, serialized);
+      }
+    } catch (error) {
+      console.error('Error writing to localStorage:', error);
+      this._saveMinimalPreferences();
+    }
+  }
+
+  /**
+   * Optimize preferences for storage by removing default values
+   * @returns {Object} Optimized preferences object
+   * @private
+   */
+  _optimizePreferencesForStorage() {
     const optimized = {};
 
     for (const [section, prefs] of Object.entries(this.preferences || {})) {
-      // Only store non-default values to save space
       if (prefs.showEmptyFields !== this.config.defaultShowEmpty) {
         optimized[section] = { showEmptyFields: prefs.showEmptyFields };
       }
@@ -468,9 +533,12 @@ class DetailCardController {
   }
 
   /**
- * Check if storage operation will exceed quota
- */
-  checkStorageQuota(data) {
+   * Check if storage operation will exceed quota
+   * @param {string} data - Data to test
+   * @returns {boolean} Whether storage is available
+   * @private
+   */
+  _checkStorageQuota(data) {
     try {
       const testKey = `${this.config.storageKey}_test`;
       localStorage.setItem(testKey, data);
@@ -482,11 +550,11 @@ class DetailCardController {
   }
 
   /**
- * Clean up old storage data to free space
- */
-  cleanupOldStorageData() {
+   * Clean up old storage data to free space
+   * @private
+   */
+  _cleanupOldStorageData() {
     try {
-      // Remove old or corrupted entries
       const keysToRemove = [];
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
@@ -502,13 +570,14 @@ class DetailCardController {
   }
 
   /**
- * Save minimal preferences as fallback
- */
-  saveMinimalPreferences() {
+   * Save minimal preferences as fallback
+   * @private
+   */
+  _saveMinimalPreferences() {
     try {
-      // Save only the most recently changed preference
       const minimal = {};
       const sections = Object.keys(this.preferences || {});
+
       if (sections.length > 0) {
         const lastSection = sections[sections.length - 1];
         minimal[lastSection] = this.preferences[lastSection];
@@ -521,15 +590,15 @@ class DetailCardController {
   }
 
   /**
- * Get user preference for a section - Optimized with Caching
- * @param {string} section - Section identifier
- * @returns {boolean} Whether to show empty fields
- */
-  getPreference(section) {
+   * Get user preference for a section
+   * @param {string} section - Section identifier
+   * @returns {boolean} Whether to show empty fields
+   * @private
+   */
+  _getPreference(section) {
     try {
-      // Use cached preferences if available
       if (!this.preferences) {
-        this.preferences = this.getUserPreferences();
+        this.preferences = this._getUserPreferences();
       }
       return this.preferences[section]?.showEmptyFields ?? this.config.defaultShowEmpty;
     } catch (error) {
@@ -539,10 +608,11 @@ class DetailCardController {
   }
 
   /**
- * Get all user preferences from localStorage - Optimized with Error Handling
- * @returns {Object} User preferences object
- */
-  getUserPreferences() {
+   * Get all user preferences from localStorage
+   * @returns {Object} User preferences object
+   * @private
+   */
+  _getUserPreferences() {
     try {
       const stored = localStorage.getItem(this.config.storageKey);
       if (!stored) {
@@ -551,53 +621,49 @@ class DetailCardController {
 
       const parsed = JSON.parse(stored);
 
-      // Validate structure to prevent corruption issues
-      if (typeof parsed !== 'object' || parsed === null) {
+      if (!this._isValidPreferencesStructure(parsed)) {
         console.warn('Invalid preferences structure, resetting');
-        this.clearUserPreferences();
+        this._clearStoredPreferences();
         return {};
       }
 
       return parsed;
     } catch (error) {
       console.error('Error parsing user preferences:', error);
-      // Clear corrupted data
-      try {
-        localStorage.removeItem(this.config.storageKey);
-      } catch (clearError) {
-        console.error('Error clearing corrupted preferences:', clearError);
-      }
+      this._clearStoredPreferences();
       return {};
     }
   }
 
   /**
- * Clear all user preferences - Optimized with Batch Updates
- */
+   * Validate preferences structure
+   * @param {*} parsed - Parsed preferences object
+   * @returns {boolean} Whether structure is valid
+   * @private
+   */
+  _isValidPreferencesStructure(parsed) {
+    return typeof parsed === 'object' && parsed !== null;
+  }
+
+  /**
+   * Clear stored preferences from localStorage
+   * @private
+   */
+  _clearStoredPreferences() {
+    try {
+      localStorage.removeItem(this.config.storageKey);
+    } catch (error) {
+      console.error('Error clearing corrupted preferences:', error);
+    }
+  }
+
+  /**
+   * Clear all user preferences (public method)
+   */
   clearUserPreferences() {
     try {
-      // Clear localStorage and cache
-      localStorage.removeItem(this.config.storageKey);
-      this.preferences = null;
-
-      // Clear any pending debounced saves
-      if (this.debounceTimer) {
-        clearTimeout(this.debounceTimer);
-        this.debounceTimer = null;
-      }
-
-      // Batch reset all cards to default state
-      const updates = [];
-      this.toggleButtons.forEach((buttonData, _section) => {
-        updates.push({
-          card: buttonData.card,
-          button: buttonData.button,
-          shouldShow: this.config.defaultShowEmpty
-        });
-      });
-
-      this.batchUpdateCardStates(updates);
-
+      this._clearPreferencesData();
+      this._resetAllCardsToDefault();
       showToast('表示設定をリセットしました。', 'success');
     } catch (error) {
       console.error('Error clearing user preferences:', error);
@@ -606,25 +672,66 @@ class DetailCardController {
   }
 
   /**
- * Get statistics about empty fields - Enhanced with Performance Metrics
- * @returns {Object} Statistics object
- */
+   * Clear preferences data and timers
+   * @private
+   */
+  _clearPreferencesData() {
+    localStorage.removeItem(this.config.storageKey);
+    this.preferences = null;
+
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+      this.debounceTimer = null;
+    }
+  }
+
+  /**
+   * Reset all cards to default state
+   * @private
+   */
+  _resetAllCardsToDefault() {
+    const updates = [];
+    this.toggleButtons.forEach((buttonData) => {
+      updates.push({
+        card: buttonData.card,
+        button: buttonData.button,
+        shouldShow: this.config.defaultShowEmpty
+      });
+    });
+
+    this._batchUpdateCardStates(updates);
+  }
+
+  /**
+   * Get statistics about empty fields (public method)
+   * @returns {Object} Statistics object
+   */
   getStatistics() {
     const startTime = performance.now();
+    const stats = this._calculateStatistics();
+    stats.performance.calculationTime = performance.now() - startTime;
+    return stats;
+  }
 
+  /**
+   * Calculate statistics
+   * @returns {Object} Statistics object
+   * @private
+   */
+  _calculateStatistics() {
     const stats = {
-      totalCards: this.detailCards?.length || 0,
+      totalCards: this.detailCards.length,
       cardsWithEmptyFields: 0,
       totalEmptyFields: 0,
       sectionsShowing: 0,
       sectionsHiding: 0,
       performance: {
         calculationTime: 0,
-        memoryUsage: this.getMemoryUsage()
+        memoryUsage: this._getMemoryUsage()
       }
     };
 
-    this.toggleButtons.forEach((buttonData, _section) => {
+    this.toggleButtons.forEach((buttonData) => {
       stats.cardsWithEmptyFields++;
       stats.totalEmptyFields += buttonData.emptyFields.length;
 
@@ -635,15 +742,15 @@ class DetailCardController {
       }
     });
 
-    stats.performance.calculationTime = performance.now() - startTime;
     return stats;
   }
 
   /**
- * Get memory usage estimation
- * @returns {Object} Memory usage information
- */
-  getMemoryUsage() {
+   * Get memory usage estimation
+   * @returns {Object} Memory usage information
+   * @private
+   */
+  _getMemoryUsage() {
     const usage = {
       toggleButtons: this.toggleButtons.size,
       eventListeners: this.eventListeners.size,
@@ -653,35 +760,41 @@ class DetailCardController {
 
     // Rough estimation of memory usage
     usage.estimatedMemoryKB = Math.round(
-      (usage.toggleButtons * 0.5) + // Each button data ~0.5KB
-      (usage.eventListeners * 0.1) + // Each listener ~0.1KB
-      (usage.cachedPreferences * 0.05) + // Each preference ~0.05KB
-      1 // Base controller overhead ~1KB
+      (usage.toggleButtons * 0.5) +
+      (usage.eventListeners * 0.1) +
+      (usage.cachedPreferences * 0.05) +
+      1
     );
 
     return usage;
   }
 
   /**
- * Refresh the controller - Optimized for Dynamic Content Changes
- */
-  refresh() {
+   * Refresh the controller (public method)
+   * @returns {Promise<boolean>} Success status
+   */
+  async refresh() {
     if (!this.isInitialized) {
       return this.init();
     }
 
-    // Use requestAnimationFrame for non-blocking refresh
+    return this._performRefresh();
+  }
+
+  /**
+   * Perform the actual refresh operation
+   * @returns {Promise<boolean>} Success status
+   * @private
+   */
+  _performRefresh() {
     return new Promise((resolve) => {
       requestAnimationFrame(() => {
         try {
-          // Clear existing buttons
           this.toggleButtons.clear();
+          this._findDetailCards();
 
-          // Re-initialize with batched operations
-          this.findDetailCards();
-
-          if (this.detailCards && this.detailCards.length > 0) {
-            this.batchInitialization();
+          if (this.detailCards.length > 0) {
+            this._batchInitialization();
             console.log('Detail card controller refreshed');
             resolve(true);
           } else {
@@ -697,27 +810,39 @@ class DetailCardController {
   }
 
   /**
- * Handle focus management for detail rows
- * @param {HTMLElement} detailRow - The detail row element
- * @param {KeyboardEvent} event - The keyboard event
- */
-  handleDetailRowFocus(detailRow, _event) {
-    const focusableElements = detailRow.querySelectorAll('a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
+   * Handle focus management for detail rows
+   * @param {HTMLElement} detailRow - The detail row element
+   * @param {KeyboardEvent} event - The keyboard event
+   * @private
+   */
+  _handleDetailRowFocus(detailRow, _event) {
+    const focusableElements = detailRow.querySelectorAll(
+      'a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
 
     if (focusableElements.length === 0) {
-      // フォーカス可能な要素がない場合、行自体をフォーカス可能にする
-      if (!detailRow.hasAttribute('tabindex')) {
-        detailRow.setAttribute('tabindex', '0');
-        detailRow.setAttribute('role', 'row');
-      }
+      this._makeFocusable(detailRow);
     }
   }
 
   /**
- * Announce detail value for screen readers
- * @param {HTMLElement} detailValue - The detail value element
- */
-  announceDetailValue(detailValue) {
+   * Make element focusable
+   * @param {HTMLElement} element - Element to make focusable
+   * @private
+   */
+  _makeFocusable(element) {
+    if (!element.hasAttribute('tabindex')) {
+      element.setAttribute('tabindex', '0');
+      element.setAttribute('role', 'row');
+    }
+  }
+
+  /**
+   * Announce detail value for screen readers
+   * @param {HTMLElement} detailValue - The detail value element
+   * @private
+   */
+  _announceDetailValue(detailValue) {
     const detailRow = detailValue.closest('.detail-row');
     if (!detailRow) {
       return;
@@ -725,22 +850,32 @@ class DetailCardController {
 
     const label = detailRow.querySelector('.detail-label');
     if (label && !detailValue.hasAttribute('aria-label')) {
-      const labelText = label.textContent.trim();
-      const valueText = detailValue.textContent.trim();
-
-      // 空の値の場合の処理
-      if (!valueText || valueText === '未設定') {
-        detailValue.setAttribute('aria-label', `${labelText}: 未設定`);
-      } else {
-        detailValue.setAttribute('aria-label', `${labelText}: ${valueText}`);
-      }
+      this._setDetailValueAriaLabel(detailValue, label);
     }
   }
 
   /**
-   * Add ARIA landmarks to detail cards
+   * Set aria-label for detail value
+   * @param {HTMLElement} detailValue - The detail value element
+   * @param {HTMLElement} label - The label element
+   * @private
    */
-  addAriaLandmarks() {
+  _setDetailValueAriaLabel(detailValue, label) {
+    const labelText = label.textContent.trim();
+    const valueText = detailValue.textContent.trim();
+
+    const ariaLabel = (!valueText || valueText === '未設定')
+      ? `${labelText}: 未設定`
+      : `${labelText}: ${valueText}`;
+
+    detailValue.setAttribute('aria-label', ariaLabel);
+  }
+
+  /**
+   * Add ARIA landmarks to detail cards
+   * @private
+   */
+  _addAriaLandmarks() {
     this.detailCards.forEach((card, index) => {
       const header = card.querySelector('.card-header h5');
       if (header && !header.hasAttribute('id')) {
@@ -759,10 +894,47 @@ class DetailCardController {
     try {
       console.log('🧹 Cleaning up DetailCardController...');
 
+      this._removeEventListeners();
+      this._clearTimers();
+      this._clearReferences();
+
       console.log('✅ DetailCardController cleanup completed');
     } catch (error) {
       console.error('❌ Error during DetailCardController cleanup:', error);
     }
+  }
+
+  /**
+   * Remove event listeners
+   * @private
+   */
+  _removeEventListeners() {
+    this.eventListeners.forEach((handler, eventType) => {
+      document.removeEventListener(eventType, handler);
+    });
+    this.eventListeners.clear();
+  }
+
+  /**
+   * Clear timers
+   * @private
+   */
+  _clearTimers() {
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+      this.debounceTimer = null;
+    }
+  }
+
+  /**
+   * Clear object references
+   * @private
+   */
+  _clearReferences() {
+    this.toggleButtons.clear();
+    this.detailCards = [];
+    this.preferences = null;
+    this.isInitialized = false;
   }
 }
 

@@ -41,9 +41,24 @@ class UserLandPermissionTest extends TestCase
     }
 
     /** @test */
+    public function primary_responder_can_edit_land_info()
+    {
+        $user = User::factory()->create([
+            'role' => 'primary_responder',
+            'department' => 'any_department',
+        ]);
+
+        $this->assertTrue($user->canEditLandInfo());
+        $this->assertTrue($user->canEditLandBasicInfo());
+        $this->assertTrue($user->canEditLandFinancialInfo());
+        $this->assertTrue($user->canEditLandManagementInfo());
+        $this->assertTrue($user->canEditLandDocuments());
+    }
+
+    /** @test */
     public function non_editor_roles_cannot_edit_land_info()
     {
-        $roles = ['viewer', 'primary_responder', 'approver'];
+        $roles = ['viewer', 'approver'];
 
         foreach ($roles as $role) {
             $user = User::factory()->create([

@@ -71,6 +71,28 @@ class LandInfoAuthorizationTest extends TestCase
     }
 
     /**
+     * Test primary responder can edit but not approve
+     * Requirements: 8.1, 8.2, 8.3, 8.4, 8.5
+     */
+    public function test_primary_responder_can_edit_but_not_approve()
+    {
+        $primaryResponder = User::factory()->create(['role' => 'primary_responder']);
+
+        // Test policy permissions directly
+        $this->assertTrue($primaryResponder->can('view', [LandInfo::class, $this->facility]));
+        $this->assertTrue($primaryResponder->can('create', [LandInfo::class, $this->facility]));
+        $this->assertTrue($primaryResponder->can('update', [LandInfo::class, $this->facility]));
+        $this->assertFalse($primaryResponder->can('delete', [LandInfo::class, $this->facility]));
+        $this->assertFalse($primaryResponder->can('approve', [LandInfo::class, $this->facility]));
+        $this->assertFalse($primaryResponder->can('reject', [LandInfo::class, $this->facility]));
+        $this->assertTrue($primaryResponder->can('uploadDocuments', [LandInfo::class, $this->facility]));
+        $this->assertTrue($primaryResponder->can('downloadDocuments', [LandInfo::class, $this->facility]));
+        $this->assertTrue($primaryResponder->can('deleteDocuments', [LandInfo::class, $this->facility]));
+        $this->assertTrue($primaryResponder->can('export', LandInfo::class));
+        $this->assertFalse($primaryResponder->can('viewAuditLogs', [LandInfo::class, $this->facility]));
+    }
+
+    /**
      * Test approver can approve but not edit
      * Requirements: 8.1, 8.2, 8.3, 8.4, 8.5
      */
@@ -236,8 +258,10 @@ class LandInfoAuthorizationTest extends TestCase
         $this->assertTrue($viewer->can('view', [\App\Models\LandInfo::class, $this->facility]));
 
         // Test update permissions
+        $primaryResponder = User::factory()->create(['role' => 'primary_responder']);
         $this->assertTrue($admin->can('update', [\App\Models\LandInfo::class, $this->facility]));
         $this->assertTrue($editor->can('update', [\App\Models\LandInfo::class, $this->facility]));
+        $this->assertTrue($primaryResponder->can('update', [\App\Models\LandInfo::class, $this->facility]));
         $this->assertFalse($approver->can('update', [\App\Models\LandInfo::class, $this->facility]));
         $this->assertFalse($viewer->can('update', [\App\Models\LandInfo::class, $this->facility]));
 

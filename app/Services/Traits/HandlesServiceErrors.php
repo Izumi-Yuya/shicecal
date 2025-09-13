@@ -59,7 +59,7 @@ trait HandlesServiceErrors
             'code' => $code,
         ]));
 
-        throw new $exceptionClass($message, $code, null, $context);
+        throw new $exceptionClass($message, $code, null, '', $context);
     }
 
     /**
@@ -79,7 +79,7 @@ trait HandlesServiceErrors
         ]));
 
         $exceptionClass = $this->getServiceExceptionClass();
-        throw new $exceptionClass($message, $e->getCode(), $e, $context);
+        throw new $exceptionClass($message, $e->getCode(), $e, '', $context);
     }
 
     /**
