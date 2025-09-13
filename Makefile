@@ -7,7 +7,7 @@
 help: ## Show this help message
 	@echo "Shise-Cal Development Commands"
 	@echo ""
-	@awk 'BEGIN {FS = ":.*##"} /^[a-zA-Z_-]+:.*##/ {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*##"} /^[a-zA-Z_-]+:.*##/ {printf "  \033[36m%-15s\033[0m %s\n", $1, $2}' $(MAKEFILE_LIST)
 
 # Environment setup
 setup: ## Set up the development environment
@@ -169,17 +169,3 @@ help-composer: ## Show composer help
 
 help-npm: ## Show npm help
 	@docker-compose -f docker-compose.dev.yml exec node npm --help
-
-# AWS deployment targets
-deploy-aws: ## Deploy to AWS EC2
-	@echo "🚀 Deploying to AWS EC2..."
-	@chmod +x deployment/deploy-to-aws.sh
-	@./deployment/deploy-to-aws.sh
-
-deploy-quick: ## Quick deploy to AWS (code only)
-	@echo "⚡ Quick deploy to AWS (code only)..."
-	@ssh -i ~/Shise-Cal-test-key.pem ec2-user@35.75.1.64 "cd /home/ec2-user/shicecal && git pull origin $$(git branch --show-current) && sudo systemctl restart nginx php-fpm"
-
-deploy-full: ## Full deploy to AWS (with dependencies)
-	@echo "🔄 Full deploy to AWS (with dependencies)..."
-	@ssh -i ~/Shise-Cal-test-key.pem ec2-user@35.75.1.64 "cd /home/ec2-user/shicecal && git pull origin $$(git branch --show-current) && composer install --no-dev --optimize-autoloader && npm install && npm run build && php artisan migrate --force && php artisan config:cache && sudo systemctl restart nginx php-fpm"
