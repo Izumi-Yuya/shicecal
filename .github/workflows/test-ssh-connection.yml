@@ -1,0 +1,45 @@
+name: Test SSH Connection
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-ssh:
+    name: Test SSH Connection
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Debug SSH Key
+      run: |
+        echo "🔍 SSH鍵の形式を確認中..."
+        
+        # SSH鍵の存在確認
+        if [ -z "${{ secrets.AWS_TEST_PRIVATE_KEY }}" ]; then
+          echo "❌ AWS_TEST_PRIVATE_KEY が設定されていません"
+          exit 1
+        fi
+        
+        # SSH鍵の長さ確認
+        key_length=$(echo "${{ secrets.AWS_TEST_PRIVATE_KEY }}" | wc -c)
+        echo "SSH鍵の文字数: $key_length"
+        
+        # SSH鍵の開始行確認
+        echo "${{ secrets.AWS_TEST_PRIVATE_KEY }}" | head -1
+        
+        # SSH鍵の終了行確認
+        echo "${{ secrets.AWS_TEST_PRIVATE_KEY }}" | tail -1
+        
+    - name: Test SSH Connection
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.AWS_TEST_HOST }}
+        username: ${{ secrets.AWS_TEST_USERNAME }}
+        key: ${{ secrets.AWS_TEST_PRIVATE_KEY }}
+        script: |
+          echo "🎉 SSH接続成功！"
+          whoami
+          pwd
+          uname -a
