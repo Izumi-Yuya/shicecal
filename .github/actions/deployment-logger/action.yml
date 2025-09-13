@@ -27,6 +27,6 @@ runs:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: deployment-logs-${{ github.run_id }}
+        name: deployment-logs-${{ github.run_id }}-${{ github.job }}
         path: deployment.log
         retention-days: 30
