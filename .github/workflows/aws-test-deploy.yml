@@ -142,7 +142,7 @@ jobs:
           echo "🔄 Starting test environment deployment..."
           
           # Navigate to application directory
-          cd /home/ec2-user/shicecal-test
+          cd /home/ec2-user/shicecal
           
           # Create backup of current deployment
           BACKUP_DIR="/home/ec2-user/backups/$(date +%Y%m%d_%H%M%S)"
@@ -243,7 +243,7 @@ jobs:
         username: ${{ secrets.AWS_TEST_USERNAME }}
         key_path: ~/.ssh/deploy_key
         script: |
-          cd /home/ec2-user/shicecal-test
+          cd /home/ec2-user/shicecal
           
           # Check database connection
           if ! php artisan tinker --execute="DB::connection()->getPdo(); echo 'DB OK';" 2>/dev/null | grep -q "DB OK"; then
@@ -312,7 +312,7 @@ jobs:
         script: |
           echo "🔄 Starting rollback process..."
           
-          cd /home/ec2-user/shicecal-test
+          cd /home/ec2-user/shicecal
           
           # Find latest backup
           LATEST_BACKUP=$(ls -t /home/ec2-user/backups/ | head -n1)
