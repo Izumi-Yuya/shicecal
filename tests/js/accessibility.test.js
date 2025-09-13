@@ -312,7 +312,7 @@ describe('Accessibility Features', () => {
     describe('Error Handling', () => {
         it('should properly associate error messages with fields', () => {
             const facilityNameInput = document.getElementById('facility_name');
-            const errorElement = document.getElementById('facility_name_error');
+            const _errorElement = document.getElementById('facility_name_error');
 
             facilityNameInput.classList.add('is-invalid');
             facilityForm.enhanceErrorMessages();
@@ -448,7 +448,7 @@ describe('Accessibility Integration', () => {
     });
 
     it('should initialize all accessibility features by default', () => {
-        const facilityForm = new FacilityFormLayout();
+        const _facilityForm = new FacilityFormLayout();
 
         // Verify live regions are created
         expect(document.getElementById('form-status-live-region')).toBeTruthy();
@@ -463,7 +463,7 @@ describe('Accessibility Integration', () => {
     });
 
     it('should allow disabling accessibility features', () => {
-        const facilityForm = new FacilityFormLayout({
+        const _facilityForm = new FacilityFormLayout({
             enableAccessibility: false
         });
 
@@ -478,7 +478,7 @@ describe('Accessibility Integration', () => {
       </form>
     `;
 
-        const facilityForm = new FacilityFormLayout();
+        const _facilityForm = new FacilityFormLayout();
 
         // Should enhance existing form
         const form = document.getElementById('landInfoForm');

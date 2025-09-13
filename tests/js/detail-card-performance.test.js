@@ -152,7 +152,7 @@ describe('DetailCardController Performance Optimizations', () => {
                 throw new Error('QuotaExceededError');
             });
 
-            const cleanupSpy = vi.spyOn(controller, 'cleanupOldStorageData');
+            const _cleanupSpy = vi.spyOn(controller, 'cleanupOldStorageData');
             const minimalSaveSpy = vi.spyOn(controller, 'saveMinimalPreferences');
 
             controller.preferences = { test: { showEmptyFields: true } };
@@ -186,7 +186,7 @@ describe('DetailCardController Performance Optimizations', () => {
                 { card: mockCard2, button: mockButton2, shouldShow: false }
             ];
 
-            const updateButtonStateSpy = vi.spyOn(controller, 'updateButtonState').mockImplementation(() => { });
+            const _updateButtonStateSpy = vi.spyOn(controller, 'updateButtonState').mockImplementation(() => { });
 
             controller.batchUpdateCardStates(updates);
 

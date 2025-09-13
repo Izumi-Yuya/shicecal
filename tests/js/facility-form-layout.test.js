@@ -31,9 +31,9 @@ describe('FacilityFormLayout', () => {
             form.className = 'facility-edit-form';
             container.appendChild(form);
 
-            const layout = new FacilityFormLayout();
-            expect(layout).toBeDefined();
-            expect(layout.form).toBe(form);
+            const _layout = new FacilityFormLayout();
+            expect(_layout).toBeDefined();
+            expect(_layout.form).toBe(form);
         });
 
         it('should initialize with land info form as fallback', () => {
@@ -41,9 +41,9 @@ describe('FacilityFormLayout', () => {
             form.id = 'landInfoForm';
             container.appendChild(form);
 
-            const layout = new FacilityFormLayout();
-            expect(layout).toBeDefined();
-            expect(layout.form).toBe(form);
+            const _layout = new FacilityFormLayout();
+            expect(_layout).toBeDefined();
+            expect(_layout.form).toBe(form);
         });
 
         it('should accept configuration options', () => {
@@ -54,11 +54,11 @@ describe('FacilityFormLayout', () => {
                 enableAccessibility: false
             };
 
-            const layout = new FacilityFormLayout(options);
-            expect(layout.options.enableAutoSave).toBe(false);
-            expect(layout.options.enableRealTimeValidation).toBe(false);
-            expect(layout.options.enableMobileOptimization).toBe(false);
-            expect(layout.options.enableAccessibility).toBe(false);
+            const _layout = new FacilityFormLayout(options);
+            expect(_layout.options.enableAutoSave).toBe(false);
+            expect(_layout.options.enableRealTimeValidation).toBe(false);
+            expect(_layout.options.enableMobileOptimization).toBe(false);
+            expect(_layout.options.enableAccessibility).toBe(false);
         });
     });
 
@@ -77,7 +77,7 @@ describe('FacilityFormLayout', () => {
             section.appendChild(content);
             container.appendChild(section);
 
-            const layout = new FacilityFormLayout();
+            const _layout = new FacilityFormLayout();
 
             // Check that ARIA attributes are set
             expect(header.getAttribute('aria-expanded')).toBe('true');
@@ -102,7 +102,7 @@ describe('FacilityFormLayout', () => {
             section.appendChild(content);
             container.appendChild(section);
 
-            const layout = new FacilityFormLayout();
+            const _layout = new FacilityFormLayout();
 
             // Simulate click
             header.click();

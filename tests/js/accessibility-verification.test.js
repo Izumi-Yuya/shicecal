@@ -77,13 +77,13 @@ describe('Detail Card Accessibility', () => {
             const values = document.querySelectorAll('.detail-value');
 
             labels.forEach(label => {
-                const computedStyle = window.getComputedStyle(label);
+                const _computedStyle = window.getComputedStyle(label);
                 // フォントサイズが適切に設定されていることを確認
                 expect(label.classList.contains('detail-label')).toBe(true);
             });
 
             values.forEach(value => {
-                const computedStyle = window.getComputedStyle(value);
+                const _computedStyle = window.getComputedStyle(value);
                 expect(value.classList.contains('detail-value')).toBe(true);
             });
         });
@@ -108,7 +108,7 @@ describe('Detail Card Accessibility', () => {
             detailRow.appendChild(longTextValue);
 
             // word-break プロパティが適用されていることを確認
-            const computedStyle = window.getComputedStyle(longTextValue);
+            const _computedStyle = window.getComputedStyle(longTextValue);
             expect(longTextValue.classList.contains('detail-value')).toBe(true);
         });
 
