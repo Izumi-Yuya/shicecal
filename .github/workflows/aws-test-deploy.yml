@@ -93,9 +93,9 @@ jobs:
     - name: Notify deployment start
       uses: ./.github/actions/slack-notify
       with:
-        notification-type: 'deployment-start'
-        environment: 'test'
         webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+        message: 'Starting test environment deployment'
+        status: 'info'
       continue-on-error: true
       
     - name: Optimize resources for test deployment
@@ -251,22 +251,18 @@ jobs:
       if: success()
       uses: ./.github/actions/slack-notify
       with:
-        notification-type: 'deployment-success'
-        environment: 'test'
         webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-        duration: 'Test deployment completed'
-        tests-passed: 'All health checks passed'
+        message: 'Test deployment completed successfully - All health checks passed'
+        status: 'success'
       continue-on-error: true
       
     - name: Notify deployment failure
       if: failure()
       uses: ./.github/actions/slack-notify
       with:
-        notification-type: 'deployment-failure'
-        environment: 'test'
         webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-        error-message: 'Test deployment failed during health check'
-        failed-stage: 'Health Check'
+        message: 'Test deployment failed during health check'
+        status: 'failure'
       continue-on-error: true
 
   rollback-on-failure:
@@ -324,10 +320,9 @@ jobs:
     - name: Notify rollback started
       uses: ./.github/actions/slack-notify
       with:
-        notification-type: 'rollback-started'
-        environment: 'test'
         webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-        error-message: 'Health check failure'
+        message: 'Test deployment rollback started due to health check failure'
+        status: 'warning'
       continue-on-error: true
       
     - name: Send rollback email notification
@@ -345,9 +340,9 @@ jobs:
       if: success()
       uses: ./.github/actions/slack-notify
       with:
-        notification-type: 'rollback-success'
-        environment: 'test'
         webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+        message: 'Test deployment rollback completed successfully'
+        status: 'success'
       continue-on-error: true
       
     - name: Send rollback completion email
@@ -418,9 +413,7 @@ jobs:
       if: steps.performance-analysis.outputs.performance-score < 75
       uses: ./.github/actions/slack-notify
       with:
-        notification-type: 'performance-alert'
-        environment: 'test'
         webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-        performance-score: ${{ steps.performance-analysis.outputs.performance-score }}
-        alerts-count: ${{ steps.performance-analysis.outputs.alerts-count }}
+        message: 'Performance alert - Score: ${{ steps.performance-analysis.outputs.performance-score }}/100, Alerts: ${{ steps.performance-analysis.outputs.alerts-count }}'
+        status: 'warning'
       continue-on-error: true
