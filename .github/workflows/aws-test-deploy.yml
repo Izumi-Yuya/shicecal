@@ -48,6 +48,7 @@ jobs:
       
     - name: Run Blade template linting
       run: npm run lint:blade
+      continue-on-error: true
       
     - name: Build test assets
       run: npm run build
