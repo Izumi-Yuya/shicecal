@@ -166,13 +166,13 @@ class LandInfo extends Model
     public function getTableDisplayData(): array
     {
         $calculationService = app(\App\Services\LandInfo\LandInfoCalculationService::class);
-        
+
         return [
             'basic_info' => $this->getBasicInfoForTable(),
             'area_info' => $this->getAreaInfoForTable(),
             'ownership_info' => $this->getOwnershipInfoForTable($calculationService),
             'documents' => $this->getDocumentsForTable(),
-            'meta' => $this->getMetaInfoForTable()
+            'meta' => $this->getMetaInfoForTable(),
         ];
     }
 
@@ -209,11 +209,11 @@ class LandInfo extends Model
             'contract_start_date' => $this->contract_start_date,
             'contract_end_date' => $this->contract_end_date,
         ];
-        
+
         // Add calculated values
         $data['tsubo_unit_price'] = $calculationService->calculateTsuboUnitPrice($this);
         $data['contract_years'] = $calculationService->calculateContractYears($this);
-        
+
         return $data;
     }
 
@@ -223,37 +223,37 @@ class LandInfo extends Model
     public function getDocumentsForTable(): array
     {
         $documents = [];
-        
+
         // Rental contract document
         if ($this->hasDocument('lease_contract')) {
             $documents['lease_contract'] = [
                 'label' => 'PDF',
                 'url' => $this->getDocumentUrl('lease_contract'),
-                'available' => true
+                'available' => true,
             ];
         } else {
             $documents['lease_contract'] = [
                 'label' => '未登録',
                 'url' => null,
-                'available' => false
+                'available' => false,
             ];
         }
-        
+
         // Registry document
         if ($this->hasDocument('property_register')) {
             $documents['property_register'] = [
                 'label' => 'PDF',
                 'url' => $this->getDocumentUrl('property_register'),
-                'available' => true
+                'available' => true,
             ];
         } else {
             $documents['property_register'] = [
                 'label' => '未登録',
                 'url' => null,
-                'available' => false
+                'available' => false,
             ];
         }
-        
+
         return $documents;
     }
 
@@ -267,7 +267,7 @@ class LandInfo extends Model
             'created_at' => $this->created_at,
             'updated_by' => $this->updater?->name,
             'approval_status' => $this->status,
-            'needs_attention' => $this->updated_at->diffInMonths(now()) > 6
+            'needs_attention' => $this->updated_at->diffInMonths(now()) > 6,
         ];
     }
 
@@ -289,7 +289,7 @@ class LandInfo extends Model
         $file = $this->documents()
             ->where('land_document_type', $documentType)
             ->first();
-            
+
         return $file ? route('files.download', $file->id) : null;
     }
 }

@@ -33,8 +33,6 @@ class FacilityEditWorkflowIntegrationTest extends TestCase
         ]);
     }
 
-
-
     /** @test */
     public function edit_button_is_visible_in_card_view_for_authorized_users()
     {
@@ -70,8 +68,6 @@ class FacilityEditWorkflowIntegrationTest extends TestCase
         // Edit button should not be visible for viewers
         $response->assertDontSee(route('facilities.edit-basic-info', $this->facility));
     }
-
-
 
     /** @test */
     public function seamless_transition_back_to_selected_view_mode_after_editing()
@@ -116,10 +112,6 @@ class FacilityEditWorkflowIntegrationTest extends TestCase
         $showResponse->assertSee('Card View Test Company');
         $showResponse->assertSee('Card View Test Facility');
     }
-
-
-
-
 
     /** @test */
     public function edit_button_functionality_works_in_card_view()

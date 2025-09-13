@@ -35,6 +35,7 @@ class FacilityServiceSeeder extends Seeder
 
         if ($facilities->isEmpty()) {
             $this->command->info('All facilities already have services assigned. Skipping FacilityServiceSeeder.');
+
             return;
         }
 

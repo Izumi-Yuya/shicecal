@@ -29,43 +29,47 @@ class FacilityMasterImportSeeder extends Seeder
     public function run(): void
     {
         $csvPath = base_path('facility_master.csv');
-        
-        if (!file_exists($csvPath)) {
+
+        if (! file_exists($csvPath)) {
             $this->command->error('facility_master.csv file not found in project root.');
+
             return;
         }
 
         // Get admin user for created_by and updated_by
         $adminUser = User::where('role', 'admin')->first();
         $approverUser = User::where('role', 'approver')->first();
-        
-        if (!$adminUser) {
+
+        if (! $adminUser) {
             $this->command->error('Admin user not found. Please run AdminUserSeeder first.');
+
             return;
         }
 
         $handle = fopen($csvPath, 'r');
-        if (!$handle) {
+        if (! $handle) {
             $this->command->error('Could not open facility_master.csv file.');
+
             return;
         }
 
         // Skip header row
         fgetcsv($handle);
-        
+
         $importedCount = 0;
         $skippedCount = 0;
 
         DB::beginTransaction();
-        
+
         try {
             while (($data = fgetcsv($handle)) !== false) {
                 [$facilityCode, $facilityName, $serviceType] = $data;
-                
+
                 // Skip rows with empty facility_code (like the visiting nurse station without code)
                 if (empty($facilityCode)) {
                     $this->command->warn("Skipping facility without code: {$facilityName}");
                     $skippedCount++;
+
                     continue;
                 }
 
@@ -73,6 +77,7 @@ class FacilityMasterImportSeeder extends Seeder
                 if (Facility::where('office_code', $facilityCode)->exists()) {
                     $this->command->info("Facility {$facilityCode} already exists, skipping.");
                     $skippedCount++;
+
                     continue;
                 }
 
@@ -109,14 +114,14 @@ class FacilityMasterImportSeeder extends Seeder
             }
 
             DB::commit();
-            
-            $this->command->info("Import completed successfully!");
+
+            $this->command->info('Import completed successfully!');
             $this->command->info("Imported: {$importedCount} facilities");
             $this->command->info("Skipped: {$skippedCount} facilities");
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
-            $this->command->error("Import failed: " . $e->getMessage());
+            $this->command->error('Import failed: '.$e->getMessage());
             Log::error('Facility import failed', ['error' => $e->getMessage()]);
         } finally {
             fclose($handle);
@@ -137,7 +142,7 @@ class FacilityMasterImportSeeder extends Seeder
             str_contains($facilityName, 'わじろの郷')) {
             return '株式会社パイン';
         }
-        
+
         // それ以外はすべて株式会社シダー
         return '株式会社シダー';
     }
@@ -158,7 +163,7 @@ class FacilityMasterImportSeeder extends Seeder
         // 施設コードの最初の2桁を都道府県コードとして使用
         $prefectureCode = substr($facilityCode, 0, 2);
         $facilityNumber = substr($facilityCode, 2);
-        
-        return $prefectureCode . '71200' . str_pad($facilityNumber, 3, '0', STR_PAD_LEFT);
+
+        return $prefectureCode.'71200'.str_pad($facilityNumber, 3, '0', STR_PAD_LEFT);
     }
 }

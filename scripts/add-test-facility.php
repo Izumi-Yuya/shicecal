@@ -1,19 +1,19 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__.'/../vendor/autoload.php';
 
 use App\Models\Facility;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 // Bootstrap Laravel
-$app = require_once __DIR__ . '/../bootstrap/app.php';
+$app = require_once __DIR__.'/../bootstrap/app.php';
 $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
 echo "=== Adding Test Facility (麻生の郷) ===\n\n";
 
 $adminUser = User::where('role', 'admin')->first();
-if (!$adminUser) {
+if (! $adminUser) {
     echo "Admin user not found!\n";
     exit(1);
 }
@@ -56,9 +56,9 @@ echo "\nTesting keyword search:\n";
 $searchResults = Facility::where(function ($q) {
     $keyword = '麻生の郷';
     $q->where('facility_name', 'like', "%{$keyword}%")
-      ->orWhere('company_name', 'like', "%{$keyword}%")
-      ->orWhere('office_code', 'like', "%{$keyword}%")
-      ->orWhere('address', 'like', "%{$keyword}%");
+        ->orWhere('company_name', 'like', "%{$keyword}%")
+        ->orWhere('office_code', 'like', "%{$keyword}%")
+        ->orWhere('address', 'like', "%{$keyword}%");
 })->get();
 
 echo "Search results for '麻生の郷': {$searchResults->count()} facilities found\n";

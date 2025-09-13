@@ -29,24 +29,27 @@ class ImportFacilityMaster extends Command
     public function handle()
     {
         $this->info('Starting facility master import...');
-        
-        if (!$this->option('force')) {
-            if (!$this->confirm('This will import facilities from facility_master.csv. Continue?')) {
+
+        if (! $this->option('force')) {
+            if (! $this->confirm('This will import facilities from facility_master.csv. Continue?')) {
                 $this->info('Import cancelled.');
+
                 return Command::SUCCESS;
             }
         }
 
         try {
-            $seeder = new FacilityMasterImportSeeder();
+            $seeder = new FacilityMasterImportSeeder;
             $seeder->setCommand($this);
             $seeder->run();
-            
+
             $this->info('Facility master import completed successfully!');
+
             return Command::SUCCESS;
-            
+
         } catch (\Exception $e) {
-            $this->error('Import failed: ' . $e->getMessage());
+            $this->error('Import failed: '.$e->getMessage());
+
             return Command::FAILURE;
         }
     }

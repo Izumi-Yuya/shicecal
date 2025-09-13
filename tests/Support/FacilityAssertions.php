@@ -10,8 +10,6 @@ use PHPUnit\Framework\Assert;
  */
 class FacilityAssertions
 {
-
-
     /**
      * Assert proper date formatting in content
      */

@@ -10,7 +10,7 @@ class FacilitySeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     * 
+     *
      * Note: This seeder creates sample/test facilities.
      * For production data, use FacilityMasterImportSeeder instead.
      */

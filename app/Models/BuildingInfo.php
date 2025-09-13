@@ -94,7 +94,7 @@ class BuildingInfo extends Model
      */
     public function calculateCostPerTsubo(): ?float
     {
-        if (!$this->construction_cost || !$this->building_area_tsubo) {
+        if (! $this->construction_cost || ! $this->building_area_tsubo) {
             return null;
         }
 
@@ -106,7 +106,7 @@ class BuildingInfo extends Model
      */
     public function calculateContractYears(): ?int
     {
-        if (!$this->contract_start_date || !$this->contract_end_date) {
+        if (! $this->contract_start_date || ! $this->contract_end_date) {
             return null;
         }
 
@@ -118,7 +118,7 @@ class BuildingInfo extends Model
      */
     public function calculateBuildingAge(): ?int
     {
-        if (!$this->completion_date) {
+        if (! $this->completion_date) {
             return null;
         }
 
@@ -141,11 +141,11 @@ class BuildingInfo extends Model
      */
     public function getFormattedConstructionCostAttribute(): ?string
     {
-        if (!$this->construction_cost) {
+        if (! $this->construction_cost) {
             return null;
         }
 
-        return '¥' . number_format($this->construction_cost);
+        return '¥'.number_format($this->construction_cost);
     }
 
     /**
@@ -153,11 +153,11 @@ class BuildingInfo extends Model
      */
     public function getFormattedMonthlyRentAttribute(): ?string
     {
-        if (!$this->monthly_rent) {
+        if (! $this->monthly_rent) {
             return null;
         }
 
-        return '¥' . number_format($this->monthly_rent);
+        return '¥'.number_format($this->monthly_rent);
     }
 
     /**
@@ -165,13 +165,13 @@ class BuildingInfo extends Model
      */
     public function getFormattedManagementPostalCodeAttribute(): ?string
     {
-        if (!$this->management_company_postal_code) {
+        if (! $this->management_company_postal_code) {
             return null;
         }
 
         $code = preg_replace('/[^0-9]/', '', $this->management_company_postal_code);
         if (strlen($code) === 7) {
-            return substr($code, 0, 3) . '-' . substr($code, 3);
+            return substr($code, 0, 3).'-'.substr($code, 3);
         }
 
         return $this->management_company_postal_code;
@@ -182,13 +182,13 @@ class BuildingInfo extends Model
      */
     public function getFormattedOwnerPostalCodeAttribute(): ?string
     {
-        if (!$this->owner_postal_code) {
+        if (! $this->owner_postal_code) {
             return null;
         }
 
         $code = preg_replace('/[^0-9]/', '', $this->owner_postal_code);
         if (strlen($code) === 7) {
-            return substr($code, 0, 3) . '-' . substr($code, 3);
+            return substr($code, 0, 3).'-'.substr($code, 3);
         }
 
         return $this->owner_postal_code;

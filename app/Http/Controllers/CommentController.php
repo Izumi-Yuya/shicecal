@@ -27,7 +27,7 @@ class CommentController extends Controller
     /**
      * Store a newly created comment in storage.
      */
-    public function store(Request $request, Facility $facility = null)
+    public function store(Request $request, ?Facility $facility = null)
     {
         // Handle facility-specific section comments (JSON response)
         if ($facility && $request->expectsJson()) {

@@ -65,7 +65,7 @@ class FacilityController extends Controller
         if ($request->filled('prefecture')) {
             $prefectureCode = array_search($request->prefecture, config('prefectures.codes'));
             if ($prefectureCode !== false) {
-                $query->where('office_code', 'like', $prefectureCode . '%');
+                $query->where('office_code', 'like', $prefectureCode.'%');
             }
         }
 
@@ -74,9 +74,9 @@ class FacilityController extends Controller
             $keyword = $request->keyword;
             $query->where(function ($q) use ($keyword) {
                 $q->where('facility_name', 'like', "%{$keyword}%")
-                  ->orWhere('company_name', 'like', "%{$keyword}%")
-                  ->orWhere('office_code', 'like', "%{$keyword}%")
-                  ->orWhere('address', 'like', "%{$keyword}%");
+                    ->orWhere('company_name', 'like', "%{$keyword}%")
+                    ->orWhere('office_code', 'like', "%{$keyword}%")
+                    ->orWhere('address', 'like', "%{$keyword}%");
             });
         }
 
@@ -97,10 +97,10 @@ class FacilityController extends Controller
         $prefectures = collect($allPrefectures)
             ->filter(function ($prefecture, $code) {
                 // Only include standard prefecture codes (01-47) that have facilities
-                return strlen($code) === 2 && 
-                       intval($code) >= 1 && 
+                return strlen($code) === 2 &&
+                       intval($code) >= 1 &&
                        intval($code) <= 47 &&
-                       Facility::where('office_code', 'like', $code . '%')->exists();
+                       Facility::where('office_code', 'like', $code.'%')->exists();
             })
             ->sort(); // Sort by prefecture name
 
@@ -435,12 +435,12 @@ class FacilityController extends Controller
                     if ($request->expectsJson()) {
                         return response()->json([
                             'success' => false,
-                            'message' => 'ファイルのアップロードに失敗しました: ' . $e->getMessage(),
+                            'message' => 'ファイルのアップロードに失敗しました: '.$e->getMessage(),
                         ], 422);
                     }
 
                     return redirect()->back()
-                        ->withErrors(['file_upload' => 'ファイルのアップロードに失敗しました: ' . $e->getMessage()])
+                        ->withErrors(['file_upload' => 'ファイルのアップロードに失敗しました: '.$e->getMessage()])
                         ->withInput();
                 }
             }
@@ -463,7 +463,8 @@ class FacilityController extends Controller
                 ]);
             }
 
-            $redirectUrl = route('facilities.show', $facility) . '#land-info';
+            $redirectUrl = route('facilities.show', $facility).'#land-info';
+
             return redirect($redirectUrl)
                 ->with('success', '土地情報を更新しました。');
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
@@ -474,7 +475,8 @@ class FacilityController extends Controller
                 ], 403);
             }
 
-            $redirectUrl = route('facilities.show', $facility) . '#land-info';
+            $redirectUrl = route('facilities.show', $facility).'#land-info';
+
             return redirect($redirectUrl)
                 ->with('error', 'この施設の土地情報を編集する権限がありません。');
         } catch (ValidationException $e) {
@@ -1008,7 +1010,7 @@ class FacilityController extends Controller
             $this->authorize('view', [LandInfo::class, $facility]);
 
             $landInfo = $facility->landInfo;
-            if (!$landInfo) {
+            if (! $landInfo) {
                 abort(404, '土地情報が見つかりません。');
             }
 
@@ -1028,7 +1030,7 @@ class FacilityController extends Controller
                     abort(404, '指定されたファイルタイプが無効です。');
             }
 
-            if (!$filePath || !Storage::disk('public')->exists($filePath)) {
+            if (! $filePath || ! Storage::disk('public')->exists($filePath)) {
                 abort(404, 'ファイルが見つかりません。');
             }
 
@@ -1037,7 +1039,7 @@ class FacilityController extends Controller
                 'facility_id' => $facility->id,
                 'user_id' => auth()->id(),
                 'file_type' => $type,
-                'file_name' => $fileName
+                'file_name' => $fileName,
             ]);
 
             return Storage::disk('public')->download($filePath, $fileName);
@@ -1049,7 +1051,7 @@ class FacilityController extends Controller
                 'facility_id' => $facility->id,
                 'user_id' => auth()->id(),
                 'file_type' => $type,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             abort(500, 'ファイルのダウンロードに失敗しました。');
         }
@@ -1071,7 +1073,7 @@ class FacilityController extends Controller
                     ]);
                     Log::info('Lease contract PDF deleted', [
                         'facility_id' => $landInfo->facility_id,
-                        'user_id' => auth()->id()
+                        'user_id' => auth()->id(),
                     ]);
                 }
             }
@@ -1085,7 +1087,7 @@ class FacilityController extends Controller
                     ]);
                     Log::info('Registry PDF deleted', [
                         'facility_id' => $landInfo->facility_id,
-                        'user_id' => auth()->id()
+                        'user_id' => auth()->id(),
                     ]);
                 }
             }
@@ -1093,10 +1095,10 @@ class FacilityController extends Controller
             // Handle lease contract PDF upload
             if ($request->hasFile('lease_contract_pdf')) {
                 $file = $request->file('lease_contract_pdf');
-                
+
                 // Validate file
-                if (!$file->isValid()) {
-                    throw new \Exception('アップロードされたファイルが無効です: ' . $file->getErrorMessage());
+                if (! $file->isValid()) {
+                    throw new \Exception('アップロードされたファイルが無効です: '.$file->getErrorMessage());
                 }
 
                 if ($file->getSize() > 2097152) { // 2MB (PHP upload_max_filesize limit)
@@ -1114,8 +1116,8 @@ class FacilityController extends Controller
 
                 // Store new file
                 $path = $file->store('land_documents/lease_contracts', 'public');
-                
-                if (!$path) {
+
+                if (! $path) {
                     throw new \Exception('ファイルの保存に失敗しました。');
                 }
 
@@ -1128,17 +1130,17 @@ class FacilityController extends Controller
                     'facility_id' => $landInfo->facility_id,
                     'user_id' => auth()->id(),
                     'file_name' => $file->getClientOriginalName(),
-                    'file_path' => $path
+                    'file_path' => $path,
                 ]);
             }
 
             // Handle registry PDF upload
             if ($request->hasFile('registry_pdf')) {
                 $file = $request->file('registry_pdf');
-                
+
                 // Validate file
-                if (!$file->isValid()) {
-                    throw new \Exception('アップロードされたファイルが無効です: ' . $file->getErrorMessage());
+                if (! $file->isValid()) {
+                    throw new \Exception('アップロードされたファイルが無効です: '.$file->getErrorMessage());
                 }
 
                 if ($file->getSize() > 2097152) { // 2MB (PHP upload_max_filesize limit)
@@ -1156,8 +1158,8 @@ class FacilityController extends Controller
 
                 // Store new file
                 $path = $file->store('land_documents/registry', 'public');
-                
-                if (!$path) {
+
+                if (! $path) {
                     throw new \Exception('ファイルの保存に失敗しました。');
                 }
 
@@ -1170,7 +1172,7 @@ class FacilityController extends Controller
                     'facility_id' => $landInfo->facility_id,
                     'user_id' => auth()->id(),
                     'file_name' => $file->getClientOriginalName(),
-                    'file_path' => $path
+                    'file_path' => $path,
                 ]);
             }
 
@@ -1179,7 +1181,7 @@ class FacilityController extends Controller
                 'facility_id' => $landInfo->facility_id,
                 'user_id' => auth()->id(),
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
             throw $e;
         }
@@ -1195,7 +1197,7 @@ class FacilityController extends Controller
     public function editBuildingInfo(Facility $facility)
     {
         // Check authorization - same as basic info edit
-        if (!auth()->user()->isEditor() && !auth()->user()->isAdmin()) {
+        if (! auth()->user()->isEditor() && ! auth()->user()->isAdmin()) {
             return redirect()->route('facilities.show', $facility)
                 ->with('error', 'この施設の建物情報を編集する権限がありません。');
         }
@@ -1222,7 +1224,7 @@ class FacilityController extends Controller
     public function updateBuildingInfo(Request $request, Facility $facility)
     {
         // Check authorization - same as basic info edit
-        if (!auth()->user()->isEditor() && !auth()->user()->isAdmin()) {
+        if (! auth()->user()->isEditor() && ! auth()->user()->isAdmin()) {
             return redirect()->route('facilities.show', $facility)
                 ->with('error', 'この施設の建物情報を編集する権限がありません。');
         }
@@ -1270,7 +1272,7 @@ class FacilityController extends Controller
 
             // Create or update building info
             $buildingInfo = $facility->buildingInfo;
-            if (!$buildingInfo) {
+            if (! $buildingInfo) {
                 $buildingInfo = $facility->buildingInfo()->create($validated);
             } else {
                 $buildingInfo->update($validated);
@@ -1282,7 +1284,7 @@ class FacilityController extends Controller
             // Log the activity
             $this->activityLogService->logFacilityUpdated(
                 $facility->id,
-                $facility->facility_name . ' - 建物情報',
+                $facility->facility_name.' - 建物情報',
                 $request
             );
 

@@ -1,12 +1,12 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__.'/../vendor/autoload.php';
 
 use App\Models\Facility;
 use Illuminate\Support\Facades\DB;
 
 // Bootstrap Laravel
-$app = require_once __DIR__ . '/../bootstrap/app.php';
+$app = require_once __DIR__.'/../bootstrap/app.php';
 $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
 echo "=== Facility Search Function Test ===\n\n";
@@ -23,7 +23,7 @@ $dayServiceFacilities = Facility::with('services')
 foreach ($dayServiceFacilities as $facility) {
     echo "  - {$facility->office_code}: {$facility->facility_name}\n";
 }
-echo "  Total: " . $dayServiceFacilities->count() . " facilities\n\n";
+echo '  Total: '.$dayServiceFacilities->count()." facilities\n\n";
 
 // Test 2: Prefecture search (based on facility code)
 echo "2. Prefecture search test (千葉県 - code 12):\n";
@@ -33,23 +33,23 @@ $chibaPrefectureFacilities = Facility::where('office_code', 'like', '12%')
 
 foreach ($chibaPrefectureFacilities as $facility) {
     $prefectureCode = str_pad(substr($facility->office_code, 0, 2), 2, '0', STR_PAD_LEFT);
-    $prefecture = config('prefectures.codes.' . $prefectureCode, '不明');
+    $prefecture = config('prefectures.codes.'.$prefectureCode, '不明');
     echo "  - {$facility->office_code}: {$facility->facility_name} ({$prefecture})\n";
 }
-echo "  Total: " . $chibaPrefectureFacilities->count() . " facilities\n\n";
+echo '  Total: '.$chibaPrefectureFacilities->count()." facilities\n\n";
 
 // Test 3: Keyword search
 echo "3. Keyword search test ('ラ・ナシカ'):\n";
 $keywordFacilities = Facility::where(function ($q) {
     $keyword = 'ラ・ナシカ';
     $q->where('facility_name', 'like', "%{$keyword}%")
-      ->orWhere('company_name', 'like', "%{$keyword}%");
+        ->orWhere('company_name', 'like', "%{$keyword}%");
 })->take(5)->get();
 
 foreach ($keywordFacilities as $facility) {
     echo "  - {$facility->office_code}: {$facility->facility_name} ({$facility->company_name})\n";
 }
-echo "  Total: " . $keywordFacilities->count() . " facilities\n\n";
+echo '  Total: '.$keywordFacilities->count()." facilities\n\n";
 
 // Test 4: Available service types
 echo "4. Available service types:\n";
@@ -73,14 +73,14 @@ $prefectureCodes = Facility::select(DB::raw('DISTINCT SUBSTR(office_code, 1, 2) 
 foreach ($prefectureCodes as $code) {
     $paddedCode = str_pad($code, 2, '0', STR_PAD_LEFT);
     $codeNum = intval($paddedCode);
-    
+
     if ($codeNum >= 1 && $codeNum <= 47) {
-        $prefecture = config('prefectures.codes.' . $paddedCode, '未設定');
+        $prefecture = config('prefectures.codes.'.$paddedCode, '未設定');
     } else {
         $prefecture = '未設定';
     }
-    
-    $count = Facility::where('office_code', 'like', $code . '%')->count();
+
+    $count = Facility::where('office_code', 'like', $code.'%')->count();
     echo "  - {$prefecture} (コード: {$paddedCode}): {$count} facilities\n";
 }
 

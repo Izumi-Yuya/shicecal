@@ -712,8 +712,6 @@ class FacilityControllerTest extends TestCase
             'view_mode' => 'card',
         ]);
 
-
-
         // Test invalid view mode
         $response = $this->actingAs($this->adminUser)
             ->postJson(route('facilities.set-view-mode'), [
@@ -726,10 +724,6 @@ class FacilityControllerTest extends TestCase
     // ========================================
     // Edit Workflow Integration Tests (Task 8)
     // ========================================
-
-
-
-
 
     public function test_seamless_transition_back_to_selected_view_mode_after_editing()
     {
@@ -754,10 +748,5 @@ class FacilityControllerTest extends TestCase
 
         $response->assertViewHas('viewMode', 'card');
 
-
     }
-
-
-
-
 }
