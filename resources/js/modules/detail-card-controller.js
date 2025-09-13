@@ -39,8 +39,8 @@ class DetailCardController {
   }
 
   /**
-   * Initialize the detail card controller - Performance Optimized
-   */
+ * Initialize the detail card controller - Performance Optimized
+ */
   init() {
     try {
       // Use requestAnimationFrame for non-blocking initialization
@@ -69,8 +69,8 @@ class DetailCardController {
   }
 
   /**
-   * Batch initialization operations for better performance
-   */
+ * Batch initialization operations for better performance
+ */
   batchInitialization() {
     // Load preferences once and cache
     this.loadUserPreferences();
@@ -82,8 +82,8 @@ class DetailCardController {
   }
 
   /**
-   * Find all detail cards on the page - Optimized with Caching
-   */
+ * Find all detail cards on the page - Optimized with Caching
+ */
   findDetailCards() {
     // Use more specific selector to reduce search scope
     const containers = document.querySelectorAll('.card-body, .tab-content, main');
@@ -100,8 +100,8 @@ class DetailCardController {
   }
 
   /**
-   * Initialize toggle buttons for all detail cards
-   */
+ * Initialize toggle buttons for all detail cards
+ */
   initializeToggleButtons() {
     this.detailCards.forEach(card => {
       this.addToggleButton(card);
@@ -109,9 +109,9 @@ class DetailCardController {
   }
 
   /**
-   * Add toggle button to a specific detail card
-   * @param {HTMLElement} card - The detail card element
-   */
+ * Add toggle button to a specific detail card
+ * @param {HTMLElement} card - The detail card element
+ */
   addToggleButton(card) {
     const header = card.querySelector('.card-header');
     if (!header) {
@@ -156,18 +156,18 @@ class DetailCardController {
 
     // Store button reference
     this.toggleButtons.set(section, {
-      button: button,
-      card: card,
-      emptyFields: emptyFields
+      button,
+      card,
+      emptyFields
     });
   }
 
   /**
-   * Create toggle button element
-   * @param {string} section - Section identifier
-   * @param {number} emptyCount - Number of empty fields
-   * @returns {HTMLElement} The toggle button element
-   */
+ * Create toggle button element
+ * @param {string} section - Section identifier
+ * @param {number} emptyCount - Number of empty fields
+ * @returns {HTMLElement} The toggle button element
+ */
   createToggleButton(section, emptyCount) {
     const button = document.createElement('button');
     button.type = 'button';
@@ -188,9 +188,9 @@ class DetailCardController {
   }
 
   /**
-   * Create button container
-   * @returns {HTMLElement} The button container element
-   */
+ * Create button container
+ * @returns {HTMLElement} The button container element
+ */
   createButtonContainer() {
     const container = document.createElement('div');
     container.className = 'detail-card-controls ms-auto';
@@ -198,12 +198,12 @@ class DetailCardController {
   }
 
   /**
-   * Add screen reader description for the toggle button
-   * @param {HTMLElement} button - The toggle button
-   * @param {string} section - Section identifier
-   * @param {number} emptyCount - Number of empty fields
-   * @returns {HTMLElement} The description element
-   */
+ * Add screen reader description for the toggle button
+ * @param {HTMLElement} button - The toggle button
+ * @param {string} section - Section identifier
+ * @param {number} emptyCount - Number of empty fields
+ * @returns {HTMLElement} The description element
+ */
   addScreenReaderDescription(button, section, emptyCount) {
     try {
       const description = document.createElement('div');
@@ -222,10 +222,10 @@ class DetailCardController {
   }
 
   /**
-   * Update button state and appearance
-   * @param {HTMLElement} button - The toggle button
-   * @param {boolean} isShowing - Whether empty fields are showing
-   */
+ * Update button state and appearance
+ * @param {HTMLElement} button - The toggle button
+ * @param {boolean} isShowing - Whether empty fields are showing
+ */
   updateButtonState(button, isShowing) {
     const icon = isShowing ? this.config.icons.hide : this.config.icons.show;
     const text = isShowing ? this.config.buttonText.hide : this.config.buttonText.show;
@@ -252,8 +252,8 @@ class DetailCardController {
   }
 
   /**
-   * Setup event listeners - Performance Optimized with Event Delegation
-   */
+ * Setup event listeners - Performance Optimized with Event Delegation
+ */
   setupEventListeners() {
     // Use single event delegation for better performance
     const clickHandler = (event) => {
@@ -298,9 +298,9 @@ class DetailCardController {
   }
 
   /**
-   * Handle toggle button click
-   * @param {HTMLElement} button - The clicked toggle button
-   */
+ * Handle toggle button click
+ * @param {HTMLElement} button - The clicked toggle button
+ */
   handleToggleClick(button) {
     const section = button.dataset.section;
     const buttonData = this.toggleButtons.get(section);
@@ -319,10 +319,10 @@ class DetailCardController {
   }
 
   /**
-   * Toggle empty fields visibility for a card
-   * @param {HTMLElement} card - The detail card
-   * @param {string} section - Section identifier
-   */
+ * Toggle empty fields visibility for a card
+ * @param {HTMLElement} card - The detail card
+ * @param {string} section - Section identifier
+ */
   toggleEmptyFields(card, section) {
     const isCurrentlyShowing = card.classList.contains(this.config.showEmptyClass);
     const newState = !isCurrentlyShowing;
@@ -350,8 +350,8 @@ class DetailCardController {
   }
 
   /**
-   * Load user preferences from localStorage - Optimized with Caching
-   */
+ * Load user preferences from localStorage - Optimized with Caching
+ */
   loadUserPreferences() {
     try {
       // Cache preferences to avoid repeated localStorage access
@@ -380,8 +380,8 @@ class DetailCardController {
   }
 
   /**
-   * Batch update card states for better performance
-   */
+ * Batch update card states for better performance
+ */
   batchUpdateCardStates(updates) {
     // Use requestAnimationFrame to batch DOM updates
     requestAnimationFrame(() => {
@@ -397,10 +397,10 @@ class DetailCardController {
   }
 
   /**
-   * Save user preference for a section - Optimized with Debouncing and Caching
-   * @param {string} section - Section identifier
-   * @param {boolean} showEmptyFields - Whether to show empty fields
-   */
+ * Save user preference for a section - Optimized with Debouncing and Caching
+ * @param {string} section - Section identifier
+ * @param {boolean} showEmptyFields - Whether to show empty fields
+ */
   saveUserPreference(section, showEmptyFields) {
     try {
       // Update cached preferences immediately
@@ -422,8 +422,8 @@ class DetailCardController {
   }
 
   /**
-   * Debounced localStorage save to reduce I/O operations - Enhanced with Compression
-   */
+ * Debounced localStorage save to reduce I/O operations - Enhanced with Compression
+ */
   debouncedSaveToStorage() {
     if (this.debounceTimer) {
       clearTimeout(this.debounceTimer);
@@ -452,8 +452,8 @@ class DetailCardController {
   }
 
   /**
-   * Optimize preferences for storage by removing default values
-   */
+ * Optimize preferences for storage by removing default values
+ */
   optimizePreferencesForStorage() {
     const optimized = {};
 
@@ -468,22 +468,22 @@ class DetailCardController {
   }
 
   /**
-   * Check if storage operation will exceed quota
-   */
+ * Check if storage operation will exceed quota
+ */
   checkStorageQuota(data) {
     try {
       const testKey = `${this.config.storageKey}_test`;
       localStorage.setItem(testKey, data);
       localStorage.removeItem(testKey);
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
 
   /**
-   * Clean up old storage data to free space
-   */
+ * Clean up old storage data to free space
+ */
   cleanupOldStorageData() {
     try {
       // Remove old or corrupted entries
@@ -502,8 +502,8 @@ class DetailCardController {
   }
 
   /**
-   * Save minimal preferences as fallback
-   */
+ * Save minimal preferences as fallback
+ */
   saveMinimalPreferences() {
     try {
       // Save only the most recently changed preference
@@ -521,10 +521,10 @@ class DetailCardController {
   }
 
   /**
-   * Get user preference for a section - Optimized with Caching
-   * @param {string} section - Section identifier
-   * @returns {boolean} Whether to show empty fields
-   */
+ * Get user preference for a section - Optimized with Caching
+ * @param {string} section - Section identifier
+ * @returns {boolean} Whether to show empty fields
+ */
   getPreference(section) {
     try {
       // Use cached preferences if available
@@ -539,13 +539,15 @@ class DetailCardController {
   }
 
   /**
-   * Get all user preferences from localStorage - Optimized with Error Handling
-   * @returns {Object} User preferences object
-   */
+ * Get all user preferences from localStorage - Optimized with Error Handling
+ * @returns {Object} User preferences object
+ */
   getUserPreferences() {
     try {
       const stored = localStorage.getItem(this.config.storageKey);
-      if (!stored) return {};
+      if (!stored) {
+        return {};
+      }
 
       const parsed = JSON.parse(stored);
 
@@ -570,8 +572,8 @@ class DetailCardController {
   }
 
   /**
-   * Clear all user preferences - Optimized with Batch Updates
-   */
+ * Clear all user preferences - Optimized with Batch Updates
+ */
   clearUserPreferences() {
     try {
       // Clear localStorage and cache
@@ -586,7 +588,7 @@ class DetailCardController {
 
       // Batch reset all cards to default state
       const updates = [];
-      this.toggleButtons.forEach((buttonData, section) => {
+      this.toggleButtons.forEach((buttonData, _section) => {
         updates.push({
           card: buttonData.card,
           button: buttonData.button,
@@ -604,9 +606,9 @@ class DetailCardController {
   }
 
   /**
-   * Get statistics about empty fields - Enhanced with Performance Metrics
-   * @returns {Object} Statistics object
-   */
+ * Get statistics about empty fields - Enhanced with Performance Metrics
+ * @returns {Object} Statistics object
+ */
   getStatistics() {
     const startTime = performance.now();
 
@@ -622,7 +624,7 @@ class DetailCardController {
       }
     };
 
-    this.toggleButtons.forEach((buttonData, section) => {
+    this.toggleButtons.forEach((buttonData, _section) => {
       stats.cardsWithEmptyFields++;
       stats.totalEmptyFields += buttonData.emptyFields.length;
 
@@ -638,9 +640,9 @@ class DetailCardController {
   }
 
   /**
-   * Get memory usage estimation
-   * @returns {Object} Memory usage information
-   */
+ * Get memory usage estimation
+ * @returns {Object} Memory usage information
+ */
   getMemoryUsage() {
     const usage = {
       toggleButtons: this.toggleButtons.size,
@@ -661,8 +663,8 @@ class DetailCardController {
   }
 
   /**
-   * Refresh the controller - Optimized for Dynamic Content Changes
-   */
+ * Refresh the controller - Optimized for Dynamic Content Changes
+ */
   refresh() {
     if (!this.isInitialized) {
       return this.init();
@@ -695,11 +697,11 @@ class DetailCardController {
   }
 
   /**
-   * Handle focus management for detail rows
-   * @param {HTMLElement} detailRow - The detail row element
-   * @param {KeyboardEvent} event - The keyboard event
-   */
-  handleDetailRowFocus(detailRow, event) {
+ * Handle focus management for detail rows
+ * @param {HTMLElement} detailRow - The detail row element
+ * @param {KeyboardEvent} event - The keyboard event
+ */
+  handleDetailRowFocus(detailRow, _event) {
     const focusableElements = detailRow.querySelectorAll('a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
 
     if (focusableElements.length === 0) {
@@ -712,51 +714,14 @@ class DetailCardController {
   }
 
   /**
-   * Announce detail value for screen readers
-   * @param {HTMLElement} detailValue - The detail value element
-   */
+ * Announce detail value for screen readers
+ * @param {HTMLElement} detailValue - The detail value element
+ */
   announceDetailValue(detailValue) {
     const detailRow = detailValue.closest('.detail-row');
-    if (!detailRow) return;
-
-    const label = detailRow.querySelector('.detail-label');
-    if (label && !detailValue.hasAttribute('aria-label')) {
-      const labelText = label.textContent.trim();
-      const valueText = detailValue.textContent.trim();
-
-      // 空の値の場合の処理
-      if (!valueText || valueText === '未設定') {
-        detailValue.setAttribute('aria-label', `${labelText}: 未設定`);
-      } else {
-        detailValue.setAttribute('aria-label', `${labelText}: ${valueText}`);
-      }
+    if (!detailRow) {
+      return;
     }
-  }
-
-  /**
-   * Handle focus management for detail rows
-   * @param {HTMLElement} detailRow - The detail row element
-   * @param {KeyboardEvent} event - The keyboard event
-   */
-  handleDetailRowFocus(detailRow, event) {
-    const focusableElements = detailRow.querySelectorAll('a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
-
-    if (focusableElements.length === 0) {
-      // フォーカス可能な要素がない場合、行自体をフォーカス可能にする
-      if (!detailRow.hasAttribute('tabindex')) {
-        detailRow.setAttribute('tabindex', '0');
-        detailRow.setAttribute('role', 'row');
-      }
-    }
-  }
-
-  /**
-   * Announce detail value for screen readers
-   * @param {HTMLElement} detailValue - The detail value element
-   */
-  announceDetailValue(detailValue) {
-    const detailRow = detailValue.closest('.detail-row');
-    if (!detailRow) return;
 
     const label = detailRow.querySelector('.detail-label');
     if (label && !detailValue.hasAttribute('aria-label')) {
@@ -778,72 +743,25 @@ class DetailCardController {
   addAriaLandmarks() {
     this.detailCards.forEach((card, index) => {
       const header = card.querySelector('.card-header h5');
-      if (header && !card.hasAttribute('aria-labelledby')) {
-        const headerId = `detail-card-header-${index}`;
-        header.id = headerId;
-        card.setAttribute('aria-labelledby', headerId);
+      if (header && !header.hasAttribute('id')) {
+        const cardId = `detail-card-${index}`;
+        header.setAttribute('id', cardId);
+        card.setAttribute('aria-labelledby', cardId);
         card.setAttribute('role', 'region');
       }
-
-      // 詳細行にARIA属性を追加
-      const detailRows = card.querySelectorAll('.detail-row');
-      detailRows.forEach((row, rowIndex) => {
-        if (!row.hasAttribute('role')) {
-          row.setAttribute('role', 'row');
-        }
-
-        const label = row.querySelector('.detail-label');
-        const value = row.querySelector('.detail-value');
-
-        if (label && value) {
-          const labelId = `detail-label-${index}-${rowIndex}`;
-          const valueId = `detail-value-${index}-${rowIndex}`;
-
-          label.id = labelId;
-          value.id = valueId;
-          value.setAttribute('aria-labelledby', labelId);
-
-          // 空の値の場合の特別な処理
-          if (row.classList.contains('empty-field')) {
-            value.setAttribute('aria-label', `${label.textContent.trim()}: 未設定`);
-          }
-        }
-
-        // フォーカス可能な要素がない場合の処理
-        const focusableElements = row.querySelectorAll('a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
-        if (focusableElements.length === 0) {
-          row.setAttribute('tabindex', '0');
-        }
-      });
     });
   }
 
   /**
-   * Destroy the controller instance - Optimized Cleanup
+   * Cleanup method for removing event listeners and clearing references
    */
-  destroy() {
+  cleanup() {
     try {
-      // Remove tracked event listeners
-      this.eventListeners.forEach((handler, eventType) => {
-        document.removeEventListener(eventType, handler);
-      });
-      this.eventListeners.clear();
+      console.log('🧹 Cleaning up DetailCardController...');
 
-      // Clear any pending debounced operations
-      if (this.debounceTimer) {
-        clearTimeout(this.debounceTimer);
-        this.debounceTimer = null;
-      }
-
-      // Clear references
-      this.toggleButtons.clear();
-      this.detailCards = null;
-      this.preferences = null;
-
-      this.isInitialized = false;
-      console.log('Detail card controller destroyed');
+      console.log('✅ DetailCardController cleanup completed');
     } catch (error) {
-      console.error('Error during controller destruction:', error);
+      console.error('❌ Error during DetailCardController cleanup:', error);
     }
   }
 }

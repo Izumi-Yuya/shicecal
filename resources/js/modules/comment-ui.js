@@ -9,6 +9,7 @@ export class CommentUI {
       this.container = document.querySelector(containerSelector);
       this.currentSection = 'basic_info';
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('CommentUI constructor error:', error);
       this.container = null;
       this.currentSection = 'basic_info';
@@ -16,8 +17,8 @@ export class CommentUI {
   }
 
   /**
- * Setup event listeners for comment UI
- */
+* Setup event listeners for comment UI
+*/
   setupEventListeners(commentManager) {
     this.setupToggleListeners();
     this.setupSubmitListeners(commentManager);
@@ -25,10 +26,11 @@ export class CommentUI {
   }
 
   /**
- * Setup comment toggle button listeners
- */
+* Setup comment toggle button listeners
+*/
   setupToggleListeners() {
     if (!this.container) {
+      // eslint-disable-next-line no-console
       console.warn('CommentUI: Container not found, skipping toggle listeners setup');
       return;
     }
@@ -45,10 +47,11 @@ export class CommentUI {
   }
 
   /**
- * Setup comment submit button listeners
- */
+* Setup comment submit button listeners
+*/
   setupSubmitListeners(commentManager) {
     if (!this.container) {
+      // eslint-disable-next-line no-console
       console.warn('CommentUI: Container not found, skipping submit listeners setup');
       return;
     }
@@ -65,10 +68,11 @@ export class CommentUI {
   }
 
   /**
- * Setup comment input listeners
- */
+* Setup comment input listeners
+*/
   setupInputListeners() {
     if (!this.container) {
+      // eslint-disable-next-line no-console
       console.warn('CommentUI: Container not found, skipping input listeners setup');
       return;
     }
@@ -96,8 +100,8 @@ export class CommentUI {
   }
 
   /**
- * Toggle comment section visibility
- */
+* Toggle comment section visibility
+*/
   toggleCommentSection(section) {
     if (!this.container) {
       return;
@@ -120,8 +124,8 @@ export class CommentUI {
   }
 
   /**
- * Hide comment section
- */
+* Hide comment section
+*/
   hideCommentSection(commentSection, toggleButton) {
     commentSection.classList.add('d-none');
     toggleButton.classList.remove('active');
@@ -129,8 +133,8 @@ export class CommentUI {
   }
 
   /**
- * Show comment section
- */
+* Show comment section
+*/
   showCommentSection(commentSection, toggleButton, section) {
     commentSection.classList.remove('d-none');
     toggleButton.classList.add('active');
@@ -139,8 +143,8 @@ export class CommentUI {
   }
 
   /**
- * Handle comment submission
- */
+* Handle comment submission
+*/
   async handleCommentSubmit(section, commentManager) {
     if (!this.container) {
       return;
@@ -173,8 +177,8 @@ export class CommentUI {
   }
 
   /**
- * Render comments for a section
- */
+* Render comments for a section
+*/
   renderComments(section, comments) {
     if (!this.container) {
       return;
@@ -195,8 +199,8 @@ export class CommentUI {
   }
 
   /**
- * Update comment count display
- */
+* Update comment count display
+*/
   updateCommentCount(section, count) {
     if (!this.container) {
       return;
@@ -220,8 +224,8 @@ export class CommentUI {
   }
 
   /**
- * Generate HTML for a single comment
- */
+* Generate HTML for a single comment
+*/
   getCommentHTML(comment) {
     const date = new Date(comment.created_at);
     const formattedDate = date.toLocaleDateString('ja-JP', {
@@ -244,8 +248,8 @@ export class CommentUI {
   }
 
   /**
- * Get empty state HTML
- */
+* Get empty state HTML
+*/
   getEmptyStateHTML() {
     return `
       <div class="comment-empty">
@@ -257,8 +261,8 @@ export class CommentUI {
   }
 
   /**
- * Set submit button loading state
- */
+* Set submit button loading state
+*/
   setSubmitButtonLoading(button, isLoading) {
     if (isLoading) {
       button.disabled = true;
@@ -270,8 +274,8 @@ export class CommentUI {
   }
 
   /**
- * Update character counter
- */
+* Update character counter
+*/
   updateCharacterCounter(input) {
     const currentLength = input.value.length;
     const maxLength = 500; // Should come from config
@@ -295,24 +299,26 @@ export class CommentUI {
   }
 
   /**
- * Show success message
- */
+* Show success message
+*/
   showSuccessMessage(message) {
     // Implement toast notification or other success feedback
+    // eslint-disable-next-line no-console
     console.log('Success:', message);
   }
 
   /**
- * Show error message
- */
+* Show error message
+*/
   showErrorMessage(message) {
     // Implement toast notification or other error feedback
+    // eslint-disable-next-line no-console
     console.error('Error:', message);
   }
 
   /**
- * Escape HTML to prevent XSS
- */
+* Escape HTML to prevent XSS
+*/
   escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
