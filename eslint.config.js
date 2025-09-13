@@ -50,6 +50,11 @@ export default [
         MutationObserver: 'readonly',
         Node: 'readonly',
         URL: 'readonly',
+        history: 'readonly',
+        KeyboardEvent: 'readonly',
+        process: 'readonly',
+        screen: 'readonly',
+        CSS: 'readonly',
         // HTTP methods (if using global functions)
         get: 'readonly',
         post: 'readonly'
@@ -80,7 +85,7 @@ export default [
       'prefer-template': 'error',
 
       // Formatting (more lenient for existing code)
-      'indent': ['warn', 4],
+      'indent': ['warn', 2], // Temporarily allow 2-space indentation
       'quotes': ['warn', 'single'],
       'semi': ['warn', 'always'],
       'comma-dangle': ['warn', 'never'],
