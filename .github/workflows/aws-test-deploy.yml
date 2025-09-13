@@ -114,13 +114,28 @@ jobs:
         environment: 'test'
         enable-alerts: 'true'
         
+    - name: Prepare SSH Key
+      run: |
+        echo "🔧 SSH鍵の形式を修正中..."
+        mkdir -p ~/.ssh
+        echo "${{ secrets.AWS_TEST_PRIVATE_KEY }}" | sed 's/%$//' > ~/.ssh/deploy_key
+        chmod 600 ~/.ssh/deploy_key
+        
+        # SSH鍵の形式確認
+        if head -1 ~/.ssh/deploy_key | grep -q "BEGIN RSA PRIVATE KEY"; then
+          echo "✅ SSH鍵の形式確認完了"
+        else
+          echo "❌ SSH鍵の形式に問題があります"
+          exit 1
+        fi
+        
     - name: Deploy to AWS Test Server
       uses: appleboy/ssh-action@v0.1.5
       continue-on-error: true
       with:
         host: ${{ secrets.AWS_TEST_HOST }}
         username: ${{ secrets.AWS_TEST_USERNAME }}
-        key: ${{ secrets.AWS_TEST_PRIVATE_KEY }}
+        key_path: ~/.ssh/deploy_key
         script: |
           set -e
           
@@ -214,13 +229,19 @@ jobs:
         fi
         echo "✅ HTTP health check passed"
         
+    - name: Prepare SSH Key for Health Check
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.AWS_TEST_PRIVATE_KEY }}" | sed 's/%$//' > ~/.ssh/deploy_key
+        chmod 600 ~/.ssh/deploy_key
+        
     - name: Health check - Application status
       uses: appleboy/ssh-action@v0.1.5
       continue-on-error: true
       with:
         host: ${{ secrets.AWS_TEST_HOST }}
         username: ${{ secrets.AWS_TEST_USERNAME }}
-        key: ${{ secrets.AWS_TEST_PRIVATE_KEY }}
+        key_path: ~/.ssh/deploy_key
         script: |
           cd /home/ec2-user/shicecal-test
           
@@ -275,13 +296,19 @@ jobs:
     if: failure()
     
     steps:
+    - name: Prepare SSH Key for Rollback
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.AWS_TEST_PRIVATE_KEY }}" | sed 's/%$//' > ~/.ssh/deploy_key
+        chmod 600 ~/.ssh/deploy_key
+        
     - name: Rollback deployment
       uses: appleboy/ssh-action@v0.1.5
       continue-on-error: true
       with:
         host: ${{ secrets.AWS_TEST_HOST }}
         username: ${{ secrets.AWS_TEST_USERNAME }}
-        key: ${{ secrets.AWS_TEST_PRIVATE_KEY }}
+        key_path: ~/.ssh/deploy_key
         script: |
           echo "🔄 Starting rollback process..."
           
