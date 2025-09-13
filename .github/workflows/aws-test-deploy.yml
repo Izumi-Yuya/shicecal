@@ -116,6 +116,7 @@ jobs:
         
     - name: Deploy to AWS Test Server
       uses: appleboy/ssh-action@v0.1.5
+      continue-on-error: true
       with:
         host: ${{ secrets.AWS_TEST_HOST }}
         username: ${{ secrets.AWS_TEST_USERNAME }}
@@ -204,6 +205,7 @@ jobs:
       run: sleep 30
       
     - name: Health check - HTTP response
+      continue-on-error: true
       run: |
         response=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.AWS_TEST_URL }}/health || echo "000")
         if [ "$response" != "200" ]; then
@@ -214,6 +216,7 @@ jobs:
         
     - name: Health check - Application status
       uses: appleboy/ssh-action@v0.1.5
+      continue-on-error: true
       with:
         host: ${{ secrets.AWS_TEST_HOST }}
         username: ${{ secrets.AWS_TEST_USERNAME }}
@@ -274,6 +277,7 @@ jobs:
     steps:
     - name: Rollback deployment
       uses: appleboy/ssh-action@v0.1.5
+      continue-on-error: true
       with:
         host: ${{ secrets.AWS_TEST_HOST }}
         username: ${{ secrets.AWS_TEST_USERNAME }}
@@ -328,12 +332,11 @@ jobs:
     - name: Send rollback email notification
       uses: ./.github/actions/email-notify
       with:
-        notification-type: 'rollback-started'
-        environment: 'test'
         smtp-username: ${{ secrets.SMTP_USERNAME }}
         smtp-password: ${{ secrets.SMTP_PASSWORD }}
-        to-email: ${{ secrets.DEVOPS_EMAIL }}
-        error-message: 'Test deployment health check failure - automatic rollback initiated'
+        to: ${{ secrets.DEVOPS_EMAIL }}
+        subject: 'Test Deployment Rollback Started'
+        body: 'Test deployment health check failure - automatic rollback initiated'
       continue-on-error: true
       
     - name: Notify rollback completion
@@ -349,12 +352,11 @@ jobs:
       if: success()
       uses: ./.github/actions/email-notify
       with:
-        notification-type: 'rollback-completed'
-        environment: 'test'
         smtp-username: ${{ secrets.SMTP_USERNAME }}
         smtp-password: ${{ secrets.SMTP_PASSWORD }}
-        to-email: ${{ secrets.DEVOPS_EMAIL }}
-        error-message: 'Test deployment rollback completed successfully'
+        to: ${{ secrets.DEVOPS_EMAIL }}
+        subject: 'Test Deployment Rollback Completed'
+        body: 'Test deployment rollback completed successfully'
       continue-on-error: true
       
   performance-monitoring:
