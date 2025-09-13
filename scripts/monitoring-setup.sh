@@ -5,18 +5,24 @@
 
 set -e
 
+# 設定ファイル読み込み
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/config.sh" ]; then
+    source "$SCRIPT_DIR/config.sh"
+fi
+
 # 色付きログ関数
 info() { echo -e "\033[32m[INFO]\033[0m $*"; }
 warn() { echo -e "\033[33m[WARN]\033[0m $*"; }
 error() { echo -e "\033[31m[ERROR]\033[0m $*"; }
 success() { echo -e "\033[32m[SUCCESS]\033[0m $*"; }
 
-# 設定
-SSH_KEY_FILE="$HOME/Shise-Cal-test-key.pem"
-AWS_HOST="35.75.1.64"
-AWS_USER="ec2-user"
-APP_URL="http://35.75.1.64"
-DEPLOY_DIR="/home/ec2-user/shicecal"
+# 設定（環境変数で上書き可能）
+SSH_KEY_FILE="${SSH_KEY_PATH:-$HOME/Shise-Cal-test-key.pem}"
+AWS_HOST="${AWS_HOST:-35.75.1.64}"
+AWS_USER="${AWS_USERNAME:-ec2-user}"
+APP_URL="${AWS_PROD_URL:-http://35.75.1.64}"
+DEPLOY_DIR="${DEPLOY_DIR:-/home/ec2-user/shicecal}"
 
 info "📊 監視システムセットアップ開始"
 

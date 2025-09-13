@@ -5,18 +5,55 @@
 
 set -e
 
+# 設定ファイル読み込み
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/config.sh" ]; then
+    source "$SCRIPT_DIR/config.sh"
+fi
+
 # 色付きログ関数
 info() { echo -e "\033[32m[INFO]\033[0m $*"; }
 warn() { echo -e "\033[33m[WARN]\033[0m $*"; }
 error() { echo -e "\033[31m[ERROR]\033[0m $*"; }
 success() { echo -e "\033[32m[SUCCESS]\033[0m $*"; }
 
-# 設定値
-REPO="Izumi-Yuya/shicecal"
-SSH_KEY_FILE="$HOME/Shise-Cal-test-key.pem"
-AWS_HOST="35.75.1.64"
-AWS_USERNAME="ec2-user"
-AWS_PROD_URL="http://35.75.1.64"
+# 設定値（環境変数で上書き可能）
+REPO="${GITHUB_REPO:-Izumi-Yuya/shicecal}"
+SSH_KEY_FILE="${SSH_KEY_PATH:-$HOME/Shise-Cal-test-key.pem}"
+AWS_HOST="${AWS_HOST:-35.75.1.64}"
+AWS_USERNAME="${AWS_USERNAME:-ec2-user}"
+AWS_PROD_URL="${AWS_PROD_URL:-http://35.75.1.64}"
+
+# コマンドライン引数での上書き
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --ssh-key)
+      SSH_KEY_FILE="$2"
+      shift 2
+      ;;
+    --aws-host)
+      AWS_HOST="$2"
+      shift 2
+      ;;
+    --repo)
+      REPO="$2"
+      shift 2
+      ;;
+    -h|--help)
+      echo "使用方法: $0 [オプション]"
+      echo "オプション:"
+      echo "  --ssh-key PATH    SSH鍵ファイルのパス (デフォルト: $HOME/Shise-Cal-test-key.pem)"
+      echo "  --aws-host HOST   AWS EC2のホスト (デフォルト: 35.75.1.64)"
+      echo "  --repo REPO       GitHubリポジトリ (デフォルト: Izumi-Yuya/shicecal)"
+      echo "  -h, --help        このヘルプを表示"
+      exit 0
+      ;;
+    *)
+      error "不明なオプション: $1"
+      exit 1
+      ;;
+  esac
+done
 
 info "🔧 GitHub Secrets 設定開始"
 
