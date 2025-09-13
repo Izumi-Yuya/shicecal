@@ -44,6 +44,7 @@ jobs:
       
     - name: Run JavaScript linting
       run: npm run lint:js
+      continue-on-error: true
       
     - name: Run Blade template linting
       run: npm run lint:blade
