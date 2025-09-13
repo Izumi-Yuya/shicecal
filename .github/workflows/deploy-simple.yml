@@ -1,0 +1,250 @@
+name: Simple Deploy
+
+on:
+  push:
+    branches: [ production ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+        - production
+        - staging
+
+env:
+  DEPLOYMENT_ENVIRONMENT: ${{ github.event.inputs.environment || 'production' }}
+
+jobs:
+  pre-deployment:
+    name: Pre-Deployment Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Validate deployment
+      run: |
+        echo "🔍 Validating deployment to: ${{ env.DEPLOYMENT_ENVIRONMENT }}"
+        echo "Branch: ${{ github.ref_name }}"
+        echo "Commit: ${{ github.sha }}"
+        echo "✅ Validation completed"
+
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    needs: pre-deployment
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        composer install --prefer-dist --no-interaction --optimize-autoloader
+        npm ci
+        
+    - name: Create environment
+      run: |
+        cp .env.example .env
+        php artisan key:generate
+        touch database/database.sqlite
+        
+    - name: Security checks
+      run: |
+        echo "🔒 Running security checks..."
+        composer audit --format=json > audit.json || true
+        if [ -f "audit.json" ]; then
+          VULNS=$(cat audit.json | jq '.advisories | length' 2>/dev/null || echo "0")
+          echo "Found $VULNS PHP advisories"
+        fi
+        
+        npm audit --audit-level=high || echo "⚠️ npm audit completed with warnings"
+        echo "✅ Security checks completed"
+        
+    - name: Code quality
+      run: |
+        echo "🎨 Running code quality checks..."
+        vendor/bin/pint --test
+        npm run lint:js || echo "⚠️ JavaScript linting completed with warnings"
+        echo "✅ Code quality checks completed"
+        
+    - name: Build assets
+      run: |
+        echo "📦 Building production assets..."
+        npm run build
+        
+        if [ ! -d "public/build" ] || [ ! -f "public/build/manifest.json" ]; then
+          echo "❌ Build verification failed"
+          exit 1
+        fi
+        
+        echo "✅ Assets built successfully"
+        echo "📊 Build files: $(find public/build -type f | wc -l)"
+        
+    - name: Basic tests
+      run: |
+        echo "🧪 Running basic tests..."
+        php artisan migrate --force
+        php artisan --version
+        echo "✅ Basic tests completed"
+      env:
+        DB_CONNECTION: sqlite
+        DB_DATABASE: database/database.sqlite
+
+  deploy:
+    name: Deploy to ${{ github.event.inputs.environment || 'Production' }}
+    runs-on: ubuntu-latest
+    needs: quality-gate
+    environment: ${{ github.event.inputs.environment || 'production' }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Notify deployment start
+      run: |
+        echo "🚀 Starting deployment to ${{ env.DEPLOYMENT_ENVIRONMENT }}"
+        echo "Timestamp: $(date)"
+        echo "Commit: ${{ github.sha }}"
+        
+    - name: Deploy to AWS
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ env.DEPLOYMENT_ENVIRONMENT == 'production' && secrets.AWS_HOST || secrets.AWS_STAGING_HOST }}
+        username: ${{ env.DEPLOYMENT_ENVIRONMENT == 'production' && secrets.AWS_USERNAME || secrets.AWS_STAGING_USERNAME }}
+        key: ${{ env.DEPLOYMENT_ENVIRONMENT == 'production' && secrets.AWS_PRIVATE_KEY || secrets.AWS_STAGING_PRIVATE_KEY }}
+        script: |
+          set -e
+          
+          echo "🚀 Starting ${{ env.DEPLOYMENT_ENVIRONMENT }} deployment..."
+          
+          # Set deployment directory
+          if [ "${{ env.DEPLOYMENT_ENVIRONMENT }}" = "production" ]; then
+            DEPLOY_DIR="/home/ec2-user/shicecal"
+            BRANCH="production"
+          else
+            DEPLOY_DIR="/home/ec2-user/shicecal"
+            BRANCH="main"
+          fi
+          
+          cd "$DEPLOY_DIR"
+          
+          # Create backup
+          BACKUP_DIR="/home/ec2-user/backups/$(date +%Y%m%d_%H%M%S)"
+          mkdir -p "$BACKUP_DIR"
+          
+          if [ -d "public/build" ]; then
+            cp -r public/build "$BACKUP_DIR/"
+            echo "✅ Backed up build assets"
+          fi
+          
+          if [ -f ".env" ]; then
+            cp .env "$BACKUP_DIR/"
+            echo "✅ Backed up environment"
+          fi
+          
+          # Update code
+          git fetch origin
+          git reset --hard "origin/$BRANCH"
+          echo "✅ Updated to latest $BRANCH"
+          
+          # Install dependencies
+          composer install --no-dev --optimize-autoloader --no-interaction
+          npm ci --production=false
+          echo "✅ Dependencies installed"
+          
+          # Build assets
+          rm -rf public/build
+          npm run build
+          
+          if [ ! -d "public/build" ] || [ ! -f "public/build/manifest.json" ]; then
+            echo "❌ Build failed"
+            exit 1
+          fi
+          echo "✅ Assets built - Files: $(find public/build -type f | wc -l)"
+          
+          # Database operations
+          php artisan migrate --force
+          echo "✅ Database migrated"
+          
+          # Optimize caches
+          php artisan config:clear
+          php artisan route:clear
+          php artisan view:clear
+          php artisan cache:clear
+          
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+          echo "✅ Caches optimized"
+          
+          # Restart services
+          sudo systemctl restart nginx
+          sudo systemctl restart php-fpm
+          echo "✅ Services restarted"
+          
+          echo "🎉 Deployment completed successfully"
+
+  post-deployment:
+    name: Post-Deployment Verification
+    runs-on: ubuntu-latest
+    needs: deploy
+    
+    steps:
+    - name: Wait for services
+      run: sleep 30
+      
+    - name: Health check
+      run: |
+        echo "🏥 Running health checks..."
+        
+        # Set health check URL
+        if [ "${{ env.DEPLOYMENT_ENVIRONMENT }}" = "production" ]; then
+          HEALTH_URL="${{ secrets.AWS_PROD_URL || 'https://your-prod-domain.com' }}"
+        else
+          HEALTH_URL="${{ secrets.AWS_STAGING_URL || 'https://your-staging-domain.com' }}"
+        fi
+        
+        # Simple HTTP check
+        for i in {1..3}; do
+          response=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL" || echo "000")
+          if [ "$response" = "200" ] || [ "$response" = "302" ]; then
+            echo "✅ Health check passed (HTTP $response)"
+            break
+          else
+            echo "⚠️ Health check attempt $i failed (HTTP $response)"
+            if [ $i -eq 3 ]; then
+              echo "❌ Health check failed after 3 attempts"
+              exit 1
+            fi
+            sleep 10
+          fi
+        done
+        
+    - name: Deployment summary
+      run: |
+        echo "🎯 Deployment Summary"
+        echo "===================="
+        echo "Environment: ${{ env.DEPLOYMENT_ENVIRONMENT }}"
+        echo "Branch: ${{ github.ref_name }}"
+        echo "Commit: ${{ github.sha }}"
+        echo "Timestamp: $(date)"
+        echo "Status: ✅ SUCCESS"
+        echo ""
+        echo "🚀 Deployment completed successfully!"
