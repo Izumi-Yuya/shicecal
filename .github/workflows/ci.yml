@@ -72,7 +72,7 @@ jobs:
       uses: ./.github/actions/deployment-logger
       with:
         log-level: 'info'
-        message: 'PHP security scan completed - vulnerabilities found: ${{ env.PHP_VULNS || "0" }}'
+        message: 'PHP security scan completed - vulnerabilities found: ${{ env.PHP_VULNS || 0 }}'
         deployment-id: 'ci-security-${{ github.run_id }}'
         
     - name: Node.js Security Audit
@@ -100,7 +100,7 @@ jobs:
       uses: ./.github/actions/deployment-logger
       with:
         log-level: 'info'
-        message: 'Node.js security scan completed - vulnerabilities found: ${{ env.NPM_VULNS || "0" }}'
+        message: 'Node.js security scan completed - vulnerabilities found: ${{ env.NPM_VULNS || 0 }}'
         deployment-id: 'ci-security-${{ github.run_id }}'
         
     - name: Notify security vulnerabilities
@@ -357,7 +357,7 @@ jobs:
       uses: ./.github/actions/deployment-logger
       with:
         log-level: 'info'
-        message: 'PHP tests completed - passed: ${{ env.PHP_TESTS_PASSED || "0" }}, failed: ${{ env.PHP_TESTS_FAILED || "0" }}'
+        message: 'PHP tests completed - passed: ${{ env.PHP_TESTS_PASSED || 0 }}, failed: ${{ env.PHP_TESTS_FAILED || 0 }}'
         deployment-id: 'ci-test-${{ github.run_id }}'
         
     - name: Start JavaScript test logging
@@ -395,7 +395,7 @@ jobs:
       uses: ./.github/actions/deployment-logger
       with:
         log-level: 'info'
-        message: 'JavaScript tests completed - passed: ${{ env.JS_TESTS_PASSED || "0" }}, failed: ${{ env.JS_TESTS_FAILED || "0" }}'
+        message: 'JavaScript tests completed - passed: ${{ env.JS_TESTS_PASSED || 0 }}, failed: ${{ env.JS_TESTS_FAILED || 0 }}'
         deployment-id: 'ci-test-${{ github.run_id }}'
         
     - name: Generate Test Reports
