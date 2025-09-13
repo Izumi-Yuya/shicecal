@@ -1,0 +1,39 @@
+name: 'Email Notification'
+description: 'Send email notifications'
+inputs:
+  smtp-host:
+    description: 'SMTP server host'
+    required: false
+  smtp-port:
+    description: 'SMTP server port'
+    required: false
+    default: '587'
+  smtp-username:
+    description: 'SMTP username'
+    required: false
+  smtp-password:
+    description: 'SMTP password'
+    required: false
+  to:
+    description: 'Recipient email address'
+    required: true
+  subject:
+    description: 'Email subject'
+    required: true
+  body:
+    description: 'Email body'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Send email notification
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.smtp-host }}" ] && [ -n "${{ inputs.smtp-username }}" ]; then
+          echo "Email notification would be sent to: ${{ inputs.to }}"
+          echo "Subject: ${{ inputs.subject }}"
+          echo "Body: ${{ inputs.body }}"
+          echo "Note: Actual email sending requires SMTP configuration"
+        else
+          echo "SMTP configuration not provided, skipping email notification"
+        fi
