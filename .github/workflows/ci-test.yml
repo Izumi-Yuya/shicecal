@@ -1,0 +1,99 @@
+name: CI Test - Basic Validation
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  basic-validation:
+    name: Basic Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install PHP dependencies
+      run: composer install --prefer-dist --no-interaction --optimize-autoloader
+      
+    - name: Install Node.js dependencies
+      run: npm ci
+      
+    - name: Create environment file
+      run: |
+        cp .env.example .env
+        php artisan key:generate
+        
+    - name: Setup SQLite database
+      run: |
+        touch database/database.sqlite
+        
+    - name: Run PHP Linting (Laravel Pint)
+      run: |
+        echo "🎨 Running PHP code formatting check..."
+        vendor/bin/pint --test
+        echo "✅ PHP code formatting passed"
+      
+    - name: Build Frontend Assets
+      run: |
+        echo "📦 Building frontend assets..."
+        npm run build
+        echo "✅ Frontend build completed"
+        
+    - name: Verify Build Output
+      run: |
+        if [ ! -d "public/build" ]; then
+          echo "❌ Build directory not created"
+          exit 1
+        fi
+        
+        if [ ! -f "public/build/manifest.json" ]; then
+          echo "❌ Vite manifest file not generated"
+          exit 1
+        fi
+        
+        echo "✅ Build verification passed"
+        echo "📊 Build files: $(find public/build -type f | wc -l)"
+        
+    - name: Basic PHP Tests
+      run: |
+        echo "🧪 Running basic PHP tests..."
+        php artisan test --stop-on-failure --testsuite=Unit
+        echo "✅ Basic PHP tests completed"
+      env:
+        DB_CONNECTION: sqlite
+        DB_DATABASE: database/database.sqlite
+        
+    - name: JavaScript Linting
+      run: |
+        echo "🎨 Running JavaScript linting..."
+        npm run lint:js || echo "⚠️ JavaScript linting completed with warnings"
+      continue-on-error: true
+      
+    - name: Summary
+      run: |
+        echo "🎯 Basic Validation Summary"
+        echo "=========================="
+        echo "✅ PHP environment setup"
+        echo "✅ Node.js environment setup"
+        echo "✅ Dependencies installed"
+        echo "✅ PHP code formatting"
+        echo "✅ Frontend build"
+        echo "✅ Basic tests"
+        echo ""
+        echo "🚀 Basic validation completed successfully"
