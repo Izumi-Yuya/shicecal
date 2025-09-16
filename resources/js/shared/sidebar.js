@@ -27,7 +27,7 @@ export class SidebarComponent {
       this.collapseSidebar();
     } else {
       // Set initial position when sidebar is expanded
-      this.updateToggleButtonPosition(false);
+      this.expandSidebar();
     }
 
     // Toggle sidebar on button click
