@@ -12,12 +12,13 @@ class LogSearchDisplayTest extends TestCase
     use RefreshDatabase;
 
     protected $adminUser;
+
     protected $regularUser;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->adminUser = User::factory()->create(['role' => 'admin']);
         $this->regularUser = User::factory()->create(['role' => 'editor']);
     }
@@ -54,7 +55,7 @@ class LogSearchDisplayTest extends TestCase
 
         $response->assertStatus(200);
         $logs = $response->viewData('logs');
-        
+
         $this->assertEquals(1, $logs->count());
         $this->assertEquals($this->adminUser->id, $logs->first()->user_id);
     }
@@ -71,7 +72,7 @@ class LogSearchDisplayTest extends TestCase
 
         $response->assertStatus(200);
         $logs = $response->viewData('logs');
-        
+
         $this->assertEquals(1, $logs->count());
         $this->assertEquals('create', $logs->first()->action);
     }
@@ -88,7 +89,7 @@ class LogSearchDisplayTest extends TestCase
 
         $response->assertStatus(200);
         $logs = $response->viewData('logs');
-        
+
         $this->assertEquals(1, $logs->count());
         $this->assertEquals('facility', $logs->first()->target_type);
     }
@@ -100,11 +101,11 @@ class LogSearchDisplayTest extends TestCase
         // Create logs with different dates
         ActivityLog::factory()->create([
             'user_id' => $this->adminUser->id,
-            'created_at' => now()->subDays(5)
+            'created_at' => now()->subDays(5),
         ]);
         ActivityLog::factory()->create([
             'user_id' => $this->adminUser->id,
-            'created_at' => now()->subDays(15)
+            'created_at' => now()->subDays(15),
         ]);
 
         $startDate = now()->subDays(7)->format('Y-m-d');
@@ -112,12 +113,12 @@ class LogSearchDisplayTest extends TestCase
 
         $response = $this->get(route('admin.logs.index', [
             'start_date' => $startDate,
-            'end_date' => $endDate
+            'end_date' => $endDate,
         ]));
 
         $response->assertStatus(200);
         $logs = $response->viewData('logs');
-        
+
         $this->assertEquals(1, $logs->count());
     }
 
@@ -128,18 +129,18 @@ class LogSearchDisplayTest extends TestCase
         // Create logs with different IP addresses
         ActivityLog::factory()->create([
             'user_id' => $this->adminUser->id,
-            'ip_address' => '192.168.1.1'
+            'ip_address' => '192.168.1.1',
         ]);
         ActivityLog::factory()->create([
             'user_id' => $this->adminUser->id,
-            'ip_address' => '10.0.0.1'
+            'ip_address' => '10.0.0.1',
         ]);
 
         $response = $this->get(route('admin.logs.index', ['ip_address' => '192.168']));
 
         $response->assertStatus(200);
         $logs = $response->viewData('logs');
-        
+
         $this->assertEquals(1, $logs->count());
         $this->assertStringContainsString('192.168', $logs->first()->ip_address);
     }
@@ -181,7 +182,7 @@ class LogSearchDisplayTest extends TestCase
 
         $response->assertStatus(200);
         $logs = $response->viewData('logs');
-        
+
         $this->assertEquals(50, $logs->perPage()); // Default pagination limit
         $this->assertTrue($logs->hasPages());
     }
@@ -192,19 +193,19 @@ class LogSearchDisplayTest extends TestCase
 
         $oldLog = ActivityLog::factory()->create([
             'user_id' => $this->adminUser->id,
-            'created_at' => now()->subHours(2)
+            'created_at' => now()->subHours(2),
         ]);
-        
+
         $newLog = ActivityLog::factory()->create([
             'user_id' => $this->adminUser->id,
-            'created_at' => now()->subHours(1)
+            'created_at' => now()->subHours(1),
         ]);
 
         $response = $this->get(route('admin.logs.index'));
 
         $response->assertStatus(200);
         $logs = $response->viewData('logs');
-        
+
         $this->assertEquals($newLog->id, $logs->first()->id);
         $this->assertEquals($oldLog->id, $logs->last()->id);
     }
@@ -227,9 +228,9 @@ class LogSearchDisplayTest extends TestCase
                     'target_type',
                     'description',
                     'created_at',
-                    'user'
-                ]
-            ]
+                    'user',
+                ],
+            ],
         ]);
 
         $data = $response->json();
@@ -265,8 +266,8 @@ class LogSearchDisplayTest extends TestCase
                 'total_logs',
                 'action_stats',
                 'user_stats',
-                'daily_stats'
-            ]
+                'daily_stats',
+            ],
         ]);
 
         $data = $response->json();
@@ -282,13 +283,13 @@ class LogSearchDisplayTest extends TestCase
         ActivityLog::factory()->create([
             'action' => 'create',
             'user_id' => $this->adminUser->id,
-            'created_at' => now()
+            'created_at' => now(),
         ]);
-        
+
         ActivityLog::factory()->create([
             'action' => 'create',
             'user_id' => $this->adminUser->id,
-            'created_at' => now()
+            'created_at' => now(),
         ]);
 
         $response = $this->get(route('admin.logs.statistics'));
@@ -309,18 +310,18 @@ class LogSearchDisplayTest extends TestCase
 
         $queryParams = [
             'user_id' => $this->adminUser->id,
-            'action' => 'create'
+            'action' => 'create',
         ];
 
         $response = $this->get(route('admin.logs.index', $queryParams));
 
         $response->assertStatus(200);
-        
+
         // Check that pagination links preserve the query parameters
         $logs = $response->viewData('logs');
         $paginationView = $logs->appends($queryParams)->links()->render();
-        
-        $this->assertStringContainsString('user_id=' . $this->adminUser->id, $paginationView);
+
+        $this->assertStringContainsString('user_id='.$this->adminUser->id, $paginationView);
         $this->assertStringContainsString('action=create', $paginationView);
     }
 }

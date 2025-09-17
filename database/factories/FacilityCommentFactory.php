@@ -17,7 +17,7 @@ class FacilityCommentFactory extends Factory
     public function definition()
     {
         $sections = ['basic_info', 'contact_info', 'building_info', 'facility_info', 'services'];
-        
+
         return [
             'facility_id' => \App\Models\Facility::factory(),
             'user_id' => \App\Models\User::factory(),

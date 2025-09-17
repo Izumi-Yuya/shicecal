@@ -58,7 +58,7 @@ describe('Asset Integration Tests', () => {
           expect(utils).toBeDefined();
           expect(typeof utils).toBe('object');
         }
-      } catch (error) {
+      } catch {
         // If modules don't exist yet, that's okay for this test
         console.log('Shared utils module not found - this is expected during refactoring');
       }
@@ -72,7 +72,7 @@ describe('Asset Integration Tests', () => {
           expect(api).toBeDefined();
           expect(typeof api).toBe('object');
         }
-      } catch (error) {
+      } catch {
         console.log('API module not found - this is expected during refactoring');
       }
     });
@@ -85,7 +85,7 @@ describe('Asset Integration Tests', () => {
           expect(validation).toBeDefined();
           expect(typeof validation).toBe('object');
         }
-      } catch (error) {
+      } catch {
         console.log('Validation module not found - this is expected during refactoring');
       }
     });
@@ -105,7 +105,7 @@ describe('Asset Integration Tests', () => {
             expect(module).toBeDefined();
             expect(typeof module).toBe('object');
           }
-        } catch (error) {
+        } catch {
           console.log(`${moduleName} module not found - this is expected during refactoring`);
         }
       }
@@ -125,7 +125,7 @@ describe('Asset Integration Tests', () => {
             const hasInit = module.init || module.initialize || module.default;
             expect(hasInit).toBeDefined();
           }
-        } catch (error) {
+        } catch {
           // Module doesn't exist yet, which is fine
         }
       }
@@ -148,7 +148,7 @@ describe('Asset Integration Tests', () => {
             expect(hasCommonUtils || exportedKeys.length > 0).toBe(true);
           }
         }
-      } catch (error) {
+      } catch {
         // Module doesn't exist yet
       }
     });
@@ -306,7 +306,7 @@ describe('Asset Integration Tests', () => {
           expect(response.ok).toBe(true);
           expect(data.success).toBe(true);
         }
-      } catch (error) {
+      } catch {
         // API module doesn't exist yet
       }
     });
@@ -346,7 +346,7 @@ describe('Asset Integration Tests', () => {
             }
           });
         }
-      } catch (error) {
+      } catch {
         // Validation module doesn't exist yet
       }
     });
@@ -421,7 +421,7 @@ describe('Asset Integration Tests', () => {
           // Should have been called once
           expect(mockFn).toHaveBeenCalledTimes(1);
         }
-      } catch (error) {
+      } catch {
         // Utils module doesn't exist yet
       }
     });

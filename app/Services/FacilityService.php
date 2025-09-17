@@ -2,17 +2,17 @@
 
 namespace App\Services;
 
+use App\Exceptions\FacilityServiceException;
 use App\Models\Facility;
 use App\Models\LandInfo;
 use App\Models\User;
 use App\Services\Traits\HandlesServiceErrors;
-use App\Exceptions\FacilityServiceException;
+use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
 use InvalidArgumentException;
-use Exception;
 
 class FacilityService
 {
@@ -41,9 +41,6 @@ class FacilityService
      * Create a new facility
      * Requirements: 2.1, 2.3
      *
-     * @param array $data
-     * @param User $user
-     * @return Facility
      * @throws FacilityServiceException
      */
     public function createFacility(array $data, User $user): Facility
@@ -59,16 +56,17 @@ class FacilityService
             $this->logError('Facility created', [
                 'facility_id' => $facility->id,
                 'user_id' => $user->id,
-                'action' => 'create'
+                'action' => 'create',
             ]);
 
             DB::commit();
+
             return $facility;
         } catch (Exception $e) {
             DB::rollBack();
-            $this->logError('Failed to create facility: ' . $e->getMessage(), [
+            $this->logError('Failed to create facility: '.$e->getMessage(), [
                 'user_id' => $user->id,
-                'data' => $data
+                'data' => $data,
             ]);
             $this->throwServiceException('施設の作成に失敗しました。');
         }
@@ -78,10 +76,6 @@ class FacilityService
      * Update facility basic information
      * Requirements: 2.1, 2.3
      *
-     * @param int $facilityId
-     * @param array $data
-     * @param User $user
-     * @return Facility
      * @throws FacilityServiceException
      */
     public function updateFacility(int $facilityId, array $data, User $user): Facility
@@ -99,12 +93,13 @@ class FacilityService
             $this->logFacilityChange($facility, $originalData, $data, $user, 'update');
 
             DB::commit();
+
             return $facility;
         } catch (Exception $e) {
             DB::rollBack();
-            $this->logError('Failed to update facility: ' . $e->getMessage(), [
+            $this->logError('Failed to update facility: '.$e->getMessage(), [
                 'facility_id' => $facilityId,
-                'user_id' => $user->id
+                'user_id' => $user->id,
             ]);
             $this->throwServiceException('施設の更新に失敗しました。');
         }
@@ -114,9 +109,6 @@ class FacilityService
      * Delete a facility
      * Requirements: 2.1, 2.3
      *
-     * @param int $facilityId
-     * @param User $user
-     * @return bool
      * @throws FacilityServiceException
      */
     public function deleteFacility(int $facilityId, User $user): bool
@@ -130,7 +122,7 @@ class FacilityService
                 'facility_id' => $facility->id,
                 'facility_name' => $facility->facility_name,
                 'user_id' => $user->id,
-                'action' => 'delete'
+                'action' => 'delete',
             ]);
 
             $facility->delete(); // This is soft delete if SoftDeletes trait is used
@@ -139,12 +131,13 @@ class FacilityService
             $this->clearFacilityCache($facility);
 
             DB::commit();
+
             return true;
         } catch (Exception $e) {
             DB::rollBack();
-            $this->logError('Failed to delete facility: ' . $e->getMessage(), [
+            $this->logError('Failed to delete facility: '.$e->getMessage(), [
                 'facility_id' => $facilityId,
-                'user_id' => $user->id
+                'user_id' => $user->id,
             ]);
             $this->throwServiceException('施設の削除に失敗しました。');
         }
@@ -154,9 +147,6 @@ class FacilityService
      * Get facility with permissions check
      * Requirements: 2.1, 2.3
      *
-     * @param int $facilityId
-     * @param User $user
-     * @return Facility
      * @throws FacilityServiceException
      */
     public function getFacilityWithPermissions(int $facilityId, User $user): Facility
@@ -169,9 +159,9 @@ class FacilityService
 
             return $facility;
         } catch (Exception $e) {
-            $this->logError('Failed to get facility: ' . $e->getMessage(), [
+            $this->logError('Failed to get facility: '.$e->getMessage(), [
                 'facility_id' => $facilityId,
-                'user_id' => $user->id
+                'user_id' => $user->id,
             ]);
             $this->throwServiceException('施設の取得に失敗しました。');
         }
@@ -184,16 +174,13 @@ class FacilityService
     /**
      * Get land information for a facility with caching
      * Requirements: 1.1, 1.2
-     *
-     * @param Facility $facility
-     * @return LandInfo|null
      */
     public function getLandInfo(Facility $facility): ?LandInfo
     {
         return Cache::remember(
             "land_info.facility.{$facility->id}",
             3600, // 1 hour
-            fn() => $facility->landInfo
+            fn () => $facility->landInfo
         );
     }
 
@@ -201,10 +188,6 @@ class FacilityService
      * Create or update land information for a facility
      * Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 9.1, 9.2, 9.3, 9.4, 9.5
      *
-     * @param Facility $facility
-     * @param array $data
-     * @param User $user
-     * @return LandInfo
      * @throws FacilityServiceException
      */
     public function createOrUpdateLandInfo(Facility $facility, array $data, User $user): LandInfo
@@ -223,7 +206,7 @@ class FacilityService
 
             // Get or create land info record
             $landInfo = $facility->landInfo ?? new LandInfo(['facility_id' => $facility->id]);
-            $isNewRecord = !$landInfo->exists;
+            $isNewRecord = ! $landInfo->exists;
 
             // Store original data for audit logging
             $originalData = $landInfo->exists ? $landInfo->toArray() : null;
@@ -249,9 +232,9 @@ class FacilityService
             return $landInfo;
         } catch (Exception $e) {
             DB::rollBack();
-            $this->logError('Failed to create/update land info: ' . $e->getMessage(), [
+            $this->logError('Failed to create/update land info: '.$e->getMessage(), [
                 'facility_id' => $facility->id,
-                'user_id' => $user->id
+                'user_id' => $user->id,
             ]);
             $this->throwServiceException('土地情報の保存に失敗しました。');
         }
@@ -261,9 +244,6 @@ class FacilityService
      * Approve land information changes
      * Requirements: 9.4
      *
-     * @param LandInfo $landInfo
-     * @param User $approver
-     * @return LandInfo
      * @throws FacilityServiceException
      */
     public function approveLandInfo(LandInfo $landInfo, User $approver): LandInfo
@@ -282,9 +262,9 @@ class FacilityService
 
             return $landInfo;
         } catch (Exception $e) {
-            $this->logError('Failed to approve land info: ' . $e->getMessage(), [
+            $this->logError('Failed to approve land info: '.$e->getMessage(), [
                 'land_info_id' => $landInfo->id,
-                'approver_id' => $approver->id
+                'approver_id' => $approver->id,
             ]);
             $this->throwServiceException('土地情報の承認に失敗しました。');
         }
@@ -294,10 +274,6 @@ class FacilityService
      * Reject land information changes
      * Requirements: 9.5
      *
-     * @param LandInfo $landInfo
-     * @param User $approver
-     * @param string $reason
-     * @return LandInfo
      * @throws FacilityServiceException
      */
     public function rejectLandInfo(LandInfo $landInfo, User $approver, string $reason): LandInfo
@@ -316,9 +292,9 @@ class FacilityService
 
             return $landInfo;
         } catch (Exception $e) {
-            $this->logError('Failed to reject land info: ' . $e->getMessage(), [
+            $this->logError('Failed to reject land info: '.$e->getMessage(), [
                 'land_info_id' => $landInfo->id,
-                'approver_id' => $approver->id
+                'approver_id' => $approver->id,
             ]);
             $this->throwServiceException('土地情報の差し戻しに失敗しました。');
         }
@@ -332,8 +308,8 @@ class FacilityService
      * Calculate unit price per tsubo (購入価格÷敷地面積（坪数）)
      * Requirements: 2.1, 2.2
      *
-     * @param float $purchasePrice Purchase price in yen
-     * @param float $areaInTsubo Area in tsubo
+     * @param  float  $purchasePrice  Purchase price in yen
+     * @param  float  $areaInTsubo  Area in tsubo
      * @return float|null Unit price per tsubo, null if calculation not possible
      */
     public function calculateUnitPrice(float $purchasePrice, float $areaInTsubo): ?float
@@ -349,8 +325,8 @@ class FacilityService
      * Calculate contract period in years and months format (5年5ヶ月)
      * Requirements: 2.3, 2.4
      *
-     * @param string $startDate Contract start date (YYYY-MM-DD format)
-     * @param string $endDate Contract end date (YYYY-MM-DD format)
+     * @param  string  $startDate  Contract start date (YYYY-MM-DD format)
+     * @param  string  $endDate  Contract end date (YYYY-MM-DD format)
      * @return string Contract period in Japanese format
      */
     public function calculateContractPeriod(string $startDate, string $endDate): string
@@ -371,10 +347,10 @@ class FacilityService
 
             $result = '';
             if ($years > 0) {
-                $result .= $years . '年';
+                $result .= $years.'年';
             }
             if ($months > 0) {
-                $result .= $months . 'ヶ月';
+                $result .= $months.'ヶ月';
             }
 
             return $result ?: '0ヶ月';
@@ -387,7 +363,7 @@ class FacilityService
      * Format currency with comma separators (3桁区切りカンマ)
      * Requirements: 1.7, 1.8, 2.2
      *
-     * @param float $amount Amount to format
+     * @param  float  $amount  Amount to format
      * @return string Formatted currency string
      */
     public function formatCurrency(float $amount): string
@@ -403,8 +379,8 @@ class FacilityService
      * Format area with unit display
      * Requirements: 2.5, 2.6
      *
-     * @param float $area Area value
-     * @param string $unit Unit type ('sqm' for ㎡, 'tsubo' for 坪)
+     * @param  float  $area  Area value
+     * @param  string  $unit  Unit type ('sqm' for ㎡, 'tsubo' for 坪)
      * @return string Formatted area string
      */
     public function formatArea(float $area, string $unit): string
@@ -417,9 +393,9 @@ class FacilityService
 
         switch ($unit) {
             case 'sqm':
-                return $formattedArea . '㎡';
+                return $formattedArea.'㎡';
             case 'tsubo':
-                return $formattedArea . '坪';
+                return $formattedArea.'坪';
             default:
                 throw new InvalidArgumentException("Invalid unit: {$unit}. Use 'sqm' or 'tsubo'.");
         }
@@ -432,9 +408,6 @@ class FacilityService
     /**
      * Format land information data for display
      * Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6
-     *
-     * @param LandInfo $landInfo
-     * @return array
      */
     public function formatDisplayData(LandInfo $landInfo): array
     {
@@ -503,9 +476,6 @@ class FacilityService
     /**
      * Get formatted land information with caching for display
      * Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6
-     *
-     * @param Facility $facility
-     * @return array|null
      */
     public function getFormattedLandInfoWithCache(Facility $facility): ?array
     {
@@ -514,6 +484,7 @@ class FacilityService
             3600, // 1 hour
             function () use ($facility) {
                 $landInfo = $facility->landInfo;
+
                 return $landInfo ? $this->formatDisplayData($landInfo) : null;
             }
         );
@@ -522,9 +493,6 @@ class FacilityService
     /**
      * Get land information export data with caching
      * Requirements: 10.1, 10.2, 10.3, 10.4
-     *
-     * @param Facility $facility
-     * @return array|null
      */
     public function getExportDataWithCache(Facility $facility): ?array
     {
@@ -533,7 +501,7 @@ class FacilityService
             7200, // 2 hours
             function () use ($facility) {
                 $landInfo = $facility->landInfo;
-                if (!$landInfo) {
+                if (! $landInfo) {
                     return null;
                 }
 
@@ -563,14 +531,11 @@ class FacilityService
     /**
      * Get multiple land information records with caching for bulk operations
      * Requirements: 10.1, 10.2, 10.3, 10.4
-     *
-     * @param array $facilityIds
-     * @return array
      */
     public function getBulkLandInfo(array $facilityIds): array
     {
         sort($facilityIds); // Sort in place
-        $cacheKey = 'land_info.bulk.' . md5(implode(',', $facilityIds));
+        $cacheKey = 'land_info.bulk.'.md5(implode(',', $facilityIds));
 
         return Cache::remember($cacheKey, 1800, function () use ($facilityIds) { // 30 minutes
             return LandInfo::whereIn('facility_id', $facilityIds)
@@ -584,9 +549,6 @@ class FacilityService
     /**
      * Warm up cache for multiple facilities
      * Requirements: 8.1, 8.2, 8.3, 8.4, 8.5
-     *
-     * @param array $facilityIds
-     * @return void
      */
     public function warmUpCache(array $facilityIds): void
     {
@@ -612,9 +574,6 @@ class FacilityService
 
     /**
      * Clear facility-related cache
-     *
-     * @param Facility $facility
-     * @return void
      */
     public function clearFacilityCache(Facility $facility): void
     {
@@ -624,9 +583,6 @@ class FacilityService
 
     /**
      * Clear land information cache
-     *
-     * @param Facility $facility
-     * @return void
      */
     public function clearLandInfoCache(Facility $facility): void
     {
@@ -637,8 +593,6 @@ class FacilityService
 
     /**
      * Clear all facility and land info caches (for maintenance)
-     *
-     * @return void
      */
     public function clearAllCaches(): void
     {
@@ -646,7 +600,7 @@ class FacilityService
 
         foreach ($patterns as $pattern) {
             $keys = Cache::getRedis()->keys($pattern);
-            if (!empty($keys)) {
+            if (! empty($keys)) {
                 Cache::getRedis()->del($keys);
             }
         }
@@ -659,9 +613,6 @@ class FacilityService
     /**
      * Sanitize input data (full-width to half-width conversion and security)
      * Requirements: 4.10, Security enhancements
-     *
-     * @param array $data
-     * @return array
      */
     protected function sanitizeInputData(array $data): array
     {
@@ -670,25 +621,25 @@ class FacilityService
             'site_area_sqm',
             'site_area_tsubo',
             'purchase_price',
-            'monthly_rent'
+            'monthly_rent',
         ];
 
         $phoneFields = [
             'management_company_phone',
             'management_company_fax',
             'owner_phone',
-            'owner_fax'
+            'owner_fax',
         ];
 
         $postalCodeFields = [
             'management_company_postal_code',
-            'owner_postal_code'
+            'owner_postal_code',
         ];
 
         $textFields = [
             'notes',
             'management_company_notes',
-            'owner_notes'
+            'owner_notes',
         ];
 
         $stringFields = [
@@ -701,14 +652,14 @@ class FacilityService
             'owner_address',
             'owner_building',
             'owner_email',
-            'owner_url'
+            'owner_url',
         ];
 
         $sanitized = $data;
 
         // Convert full-width numbers to half-width for numeric fields
         foreach ($numericFields as $field) {
-            if (isset($sanitized[$field]) && !empty($sanitized[$field])) {
+            if (isset($sanitized[$field]) && ! empty($sanitized[$field])) {
                 $sanitized[$field] = $this->convertToHalfWidth($sanitized[$field]);
                 // Remove any non-numeric characters except decimal point
                 $sanitized[$field] = preg_replace('/[^0-9.]/', '', $sanitized[$field]);
@@ -725,7 +676,7 @@ class FacilityService
 
         // Format phone numbers with security checks
         foreach ($phoneFields as $field) {
-            if (isset($sanitized[$field]) && !empty($sanitized[$field])) {
+            if (isset($sanitized[$field]) && ! empty($sanitized[$field])) {
                 // Remove any non-numeric and non-hyphen characters for security
                 $cleaned = preg_replace('/[^0-9\-]/', '', $sanitized[$field]);
                 $formatted = $this->formatPhoneNumber($cleaned);
@@ -735,7 +686,7 @@ class FacilityService
 
         // Format postal codes with security checks
         foreach ($postalCodeFields as $field) {
-            if (isset($sanitized[$field]) && !empty($sanitized[$field])) {
+            if (isset($sanitized[$field]) && ! empty($sanitized[$field])) {
                 // Remove any non-numeric and non-hyphen characters for security
                 $cleaned = preg_replace('/[^0-9\-]/', '', $sanitized[$field]);
                 $formatted = $this->formatPostalCode($cleaned);
@@ -766,12 +717,12 @@ class FacilityService
                 $sanitized[$field] = trim($sanitized[$field]);
 
                 // Special handling for email fields
-                if (str_contains($field, 'email') && !empty($sanitized[$field])) {
+                if (str_contains($field, 'email') && ! empty($sanitized[$field])) {
                     $sanitized[$field] = filter_var($sanitized[$field], FILTER_SANITIZE_EMAIL);
                 }
 
                 // Special handling for URL fields
-                if (str_contains($field, 'url') && !empty($sanitized[$field])) {
+                if (str_contains($field, 'url') && ! empty($sanitized[$field])) {
                     $sanitized[$field] = filter_var($sanitized[$field], FILTER_SANITIZE_URL);
                 }
             }
@@ -780,7 +731,7 @@ class FacilityService
         // Validate ownership type for security
         if (isset($sanitized['ownership_type'])) {
             $allowedTypes = ['owned', 'leased', 'owned_rental'];
-            if (!in_array($sanitized['ownership_type'], $allowedTypes)) {
+            if (! in_array($sanitized['ownership_type'], $allowedTypes)) {
                 $sanitized['ownership_type'] = null;
             }
         }
@@ -788,7 +739,7 @@ class FacilityService
         // Validate auto_renewal for security
         if (isset($sanitized['auto_renewal'])) {
             $allowedValues = ['yes', 'no'];
-            if (!in_array($sanitized['auto_renewal'], $allowedValues)) {
+            if (! in_array($sanitized['auto_renewal'], $allowedValues)) {
                 $sanitized['auto_renewal'] = null;
             }
         }
@@ -799,9 +750,6 @@ class FacilityService
     /**
      * Perform automatic calculations
      * Requirements: 2.1, 2.2, 2.3, 2.4
-     *
-     * @param array $data
-     * @return array
      */
     protected function performCalculations(array $data): array
     {
@@ -839,11 +787,6 @@ class FacilityService
     /**
      * Handle approval workflow
      * Requirements: 9.1, 9.2, 9.3
-     *
-     * @param LandInfo $landInfo
-     * @param array $data
-     * @param User $user
-     * @return LandInfo
      */
     protected function handleApprovalWorkflow(LandInfo $landInfo, array $data, User $user): LandInfo
     {
@@ -852,7 +795,7 @@ class FacilityService
         $landInfo->status = 'pending_approval';
         $landInfo->updated_by = $user->id;
 
-        if (!$landInfo->exists) {
+        if (! $landInfo->exists) {
             $landInfo->created_by = $user->id;
         }
 
@@ -868,11 +811,6 @@ class FacilityService
     /**
      * Direct update without approval
      * Requirements: 9.2
-     *
-     * @param LandInfo $landInfo
-     * @param array $data
-     * @param User $user
-     * @return LandInfo
      */
     protected function directUpdate(LandInfo $landInfo, array $data, User $user): LandInfo
     {
@@ -881,7 +819,7 @@ class FacilityService
         $landInfo->approved_at = now();
         $landInfo->updated_by = $user->id;
 
-        if (!$landInfo->exists) {
+        if (! $landInfo->exists) {
             $landInfo->created_by = $user->id;
         }
 
@@ -893,8 +831,6 @@ class FacilityService
     /**
      * Check if approval is enabled in system settings
      * Requirements: 9.1
-     *
-     * @return bool
      */
     protected function isApprovalEnabled(): bool
     {
@@ -909,10 +845,6 @@ class FacilityService
     /**
      * Prepare land information for approval workflow
      * Requirements: 9.1, 9.2, 9.3, 9.4, 9.5
-     *
-     * @param LandInfo $landInfo
-     * @param array $changes
-     * @return void
      */
     protected function prepareForApproval(LandInfo $landInfo, array $changes): void
     {
@@ -939,10 +871,6 @@ class FacilityService
     /**
      * Notify approvers about land info update request
      * Requirements: 9.1, 9.3
-     *
-     * @param LandInfo $landInfo
-     * @param string $type
-     * @return void
      */
     protected function notifyApprovers(LandInfo $landInfo, string $type): void
     {
@@ -972,10 +900,6 @@ class FacilityService
     /**
      * Notify approval completion
      * Requirements: 9.4
-     *
-     * @param LandInfo $landInfo
-     * @param User $approver
-     * @return void
      */
     protected function notifyApprovalComplete(LandInfo $landInfo, User $approver): void
     {
@@ -1002,11 +926,6 @@ class FacilityService
     /**
      * Notify approval rejection
      * Requirements: 9.5
-     *
-     * @param LandInfo $landInfo
-     * @param User $approver
-     * @param string $reason
-     * @return void
      */
     protected function notifyApprovalRejected(LandInfo $landInfo, User $approver, string $reason): void
     {
@@ -1036,7 +955,7 @@ class FacilityService
      * Convert full-width numbers to half-width numbers
      * Requirements: 4.10
      *
-     * @param string $input Input string with potential full-width numbers
+     * @param  string  $input  Input string with potential full-width numbers
      * @return string String with half-width numbers
      */
     protected function convertToHalfWidth(string $input): string
@@ -1048,7 +967,7 @@ class FacilityService
      * Validate and format postal code (XXX-XXXX format)
      * Requirements: 4.2, 5.2
      *
-     * @param string $postalCode Postal code input
+     * @param  string  $postalCode  Postal code input
      * @return string|null Formatted postal code or null if invalid
      */
     protected function formatPostalCode(string $postalCode): ?string
@@ -1057,7 +976,7 @@ class FacilityService
         $cleaned = preg_replace('/[^0-9-]/', '', $cleaned);
 
         if (preg_match('/^(\d{3})-?(\d{4})$/', $cleaned, $matches)) {
-            return $matches[1] . '-' . $matches[2];
+            return $matches[1].'-'.$matches[2];
         }
 
         return null;
@@ -1067,7 +986,7 @@ class FacilityService
      * Validate and format phone number (XX-XXXX-XXXX format)
      * Requirements: 4.5, 4.6, 5.5, 5.6
      *
-     * @param string $phoneNumber Phone number input
+     * @param  string  $phoneNumber  Phone number input
      * @return string|null Formatted phone number or null if invalid
      */
     protected function formatPhoneNumber(string $phoneNumber): ?string
@@ -1082,16 +1001,16 @@ class FacilityService
         if (strlen($numbersOnly) === 10) {
             // Standard 10-digit format: 03-1234-5678
             if (preg_match('/^(0\d{1,3})(\d{4})(\d{4})$/', $numbersOnly, $matches)) {
-                return $matches[1] . '-' . $matches[2] . '-' . $matches[3];
+                return $matches[1].'-'.$matches[2].'-'.$matches[3];
             }
         } elseif (strlen($numbersOnly) === 11) {
             // Check for toll-free numbers first (0120, 0800)
             if (preg_match('/^(0120|0800)(\d{3})(\d{4})$/', $numbersOnly, $matches)) {
-                return $matches[1] . '-' . $matches[2] . '-' . $matches[3];
+                return $matches[1].'-'.$matches[2].'-'.$matches[3];
             }
             // Mobile numbers: 090, 080, 070
             elseif (preg_match('/^(0\d{2})(\d{4})(\d{4})$/', $numbersOnly, $matches)) {
-                return $matches[1] . '-' . $matches[2] . '-' . $matches[3];
+                return $matches[1].'-'.$matches[2].'-'.$matches[3];
             }
         }
 
@@ -1102,7 +1021,7 @@ class FacilityService
      * Format date in Japanese format (2000年12月12日)
      * Requirements: 3.3
      *
-     * @param string $date Date string in YYYY-MM-DD format
+     * @param  string  $date  Date string in YYYY-MM-DD format
      * @return string Japanese formatted date
      */
     protected function formatJapaneseDate(string $date): string
@@ -1114,6 +1033,7 @@ class FacilityService
         try {
             /** @var \Carbon\Carbon $carbon */
             $carbon = Carbon::parse($date);
+
             return $carbon->format('Y年n月j日');
         } catch (\Exception $e) {
             return '';
@@ -1122,13 +1042,6 @@ class FacilityService
 
     /**
      * Log facility changes for audit purposes
-     *
-     * @param Facility $facility
-     * @param array|null $originalData
-     * @param array $newData
-     * @param User $user
-     * @param string $action
-     * @return void
      */
     protected function logFacilityChange(Facility $facility, ?array $originalData, array $newData, User $user, string $action): void
     {
@@ -1141,7 +1054,7 @@ class FacilityService
                 if ($originalValue != $value) {
                     $changes[$key] = [
                         'old' => $originalValue,
-                        'new' => $value
+                        'new' => $value,
                     ];
                 }
             }
@@ -1170,13 +1083,6 @@ class FacilityService
     /**
      * Log land information changes for audit purposes
      * Security enhancement for tracking all changes
-     *
-     * @param LandInfo $landInfo
-     * @param array|null $originalData
-     * @param array $newData
-     * @param User $user
-     * @param string $action
-     * @return void
      */
     protected function logLandInfoChange(LandInfo $landInfo, ?array $originalData, array $newData, User $user, string $action): void
     {
@@ -1189,7 +1095,7 @@ class FacilityService
                 if ($originalValue != $value) {
                     $changes[$key] = [
                         'old' => $originalValue,
-                        'new' => $value
+                        'new' => $value,
                     ];
                 }
             }
@@ -1222,13 +1128,13 @@ class FacilityService
                 $activityLogService = app(\App\Services\ActivityLogService::class);
                 $activityLogService->logFacilityUpdated(
                     $landInfo->facility_id,
-                    $landInfo->facility->facility_name . ' - 土地情報' . ($action === 'create' ? '作成' : '更新'),
+                    $landInfo->facility->facility_name.' - 土地情報'.($action === 'create' ? '作成' : '更新'),
                     request()
                 );
             } catch (Exception $e) {
                 Log::warning('Failed to log to activity log service', [
                     'error' => $e->getMessage(),
-                    'land_info_id' => $landInfo->id
+                    'land_info_id' => $landInfo->id,
                 ]);
             }
         }

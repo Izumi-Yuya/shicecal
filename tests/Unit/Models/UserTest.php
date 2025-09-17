@@ -2,10 +2,10 @@
 
 namespace Tests\Unit\Models;
 
-use App\Models\User;
 use App\Models\Comment;
 use App\Models\ExportFavorite;
 use App\Models\Notification;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

@@ -5,8 +5,8 @@ namespace App\Services;
 use App\Models\Comment;
 use App\Models\Facility;
 use App\Models\User;
-use App\Services\Comments\CommentValidator;
 use App\Services\Comments\CommentCacheManager;
+use App\Services\Comments\CommentValidator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
 
@@ -20,16 +20,16 @@ class CommentService
         private CommentValidator $validator,
         private CommentCacheManager $cacheManager
     ) {}
-    
+
     /**
      * Get comments for a facility section
      */
     public function getCommentsForSection(Facility $facility, string $section): Collection
     {
         $this->validator->validateSection($section);
-        
+
         $cacheKey = $this->cacheManager->getCommentsKey($facility->id, $section);
-        
+
         return $this->cacheManager->remember($cacheKey, function () use ($facility, $section) {
             return Comment::where('facility_id', $facility->id)
                 ->where('section', $section)
@@ -38,7 +38,7 @@ class CommentService
                 ->get();
         });
     }
-    
+
     /**
      * Create a new comment
      */
@@ -46,38 +46,38 @@ class CommentService
     {
         $this->validator->validateSection($section);
         $this->validator->validateContent($content);
-        
+
         $comment = Comment::create([
             'facility_id' => $facility->id,
             'section' => $section,
             'comment' => trim($content),
             'user_id' => $user->id,
-            'status' => 'active'
+            'status' => 'active',
         ]);
-        
+
         // Clear cache for this section
         $this->cacheManager->clearSectionCache($facility->id, $section);
-        
+
         // Log activity
         Log::info('Comment created', [
             'facility_id' => $facility->id,
             'section' => $section,
             'user_id' => $user->id,
-            'comment_id' => $comment->id
+            'comment_id' => $comment->id,
         ]);
-        
+
         return $comment->load('user:id,name');
     }
-    
+
     /**
      * Get comment count for a section
      */
     public function getCommentCount(Facility $facility, string $section): int
     {
         $this->validator->validateSection($section);
-        
+
         $cacheKey = $this->cacheManager->getCountKey($facility->id, $section);
-        
+
         return $this->cacheManager->remember($cacheKey, function () use ($facility, $section) {
             return Comment::where('facility_id', $facility->id)
                 ->where('section', $section)
@@ -85,7 +85,7 @@ class CommentService
                 ->count();
         });
     }
-    
+
     /**
      * Get all comment counts for a facility
      */
@@ -93,14 +93,14 @@ class CommentService
     {
         $sections = array_keys(config('comments.sections', []));
         $counts = [];
-        
+
         foreach ($sections as $section) {
             $counts[$section] = $this->getCommentCount($facility, $section);
         }
-        
+
         return $counts;
     }
-    
+
     /**
      * Get section configuration
      */
@@ -108,7 +108,7 @@ class CommentService
     {
         return config("comments.sections.{$section}");
     }
-    
+
     /**
      * Get all available sections
      */
@@ -116,7 +116,7 @@ class CommentService
     {
         return config('comments.sections', []);
     }
-    
+
     /**
      * Clear all comment cache for a facility
      */

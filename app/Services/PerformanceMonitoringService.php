@@ -3,12 +3,13 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PerformanceMonitoringService
 {
     protected array $metrics = [];
+
     protected array $timers = [];
 
     /**
@@ -24,7 +25,7 @@ class PerformanceMonitoringService
      */
     public function endTimer(string $operation): float
     {
-        if (!isset($this->timers[$operation])) {
+        if (! isset($this->timers[$operation])) {
             return 0.0;
         }
 
@@ -52,7 +53,7 @@ class PerformanceMonitoringService
         ];
 
         // Store in cache for real-time monitoring
-        $cacheKey = "performance_metrics_" . date('Y-m-d-H');
+        $cacheKey = 'performance_metrics_'.date('Y-m-d-H');
         $existingMetrics = Cache::get($cacheKey, []);
         $existingMetrics[] = [
             'operation' => $operation,
@@ -117,9 +118,9 @@ class PerformanceMonitoringService
     public function getMetrics(string $period = 'hour'): array
     {
         $cacheKey = match ($period) {
-            'hour' => "performance_metrics_" . date('Y-m-d-H'),
-            'day' => "performance_metrics_" . date('Y-m-d'),
-            default => "performance_metrics_" . date('Y-m-d-H'),
+            'hour' => 'performance_metrics_'.date('Y-m-d-H'),
+            'day' => 'performance_metrics_'.date('Y-m-d'),
+            default => 'performance_metrics_'.date('Y-m-d-H'),
         };
 
         return Cache::get($cacheKey, []);
@@ -174,6 +175,7 @@ class PerformanceMonitoringService
         try {
             $result = $callback();
             $this->endTimer("land_info_{$operation}");
+
             return $result;
         } catch (\Exception $e) {
             $this->endTimer("land_info_{$operation}");
@@ -281,7 +283,7 @@ class PerformanceMonitoringService
 
         foreach ($patterns as $pattern) {
             $keys = Cache::getRedis()->keys($pattern);
-            if (!empty($keys)) {
+            if (! empty($keys)) {
                 Cache::getRedis()->del($keys);
             }
         }
@@ -301,7 +303,7 @@ class PerformanceMonitoringService
         $operationGroups = [];
         foreach ($metrics as $metric) {
             $operation = $metric['operation'];
-            if (!isset($operationGroups[$operation])) {
+            if (! isset($operationGroups[$operation])) {
                 $operationGroups[$operation] = [];
             }
             $operationGroups[$operation][] = $metric['value'];
@@ -356,6 +358,7 @@ class PerformanceMonitoringService
         } else {
             $lower = $values[floor($index)];
             $upper = $values[ceil($index)];
+
             return $lower + ($upper - $lower) * ($index - floor($index));
         }
     }

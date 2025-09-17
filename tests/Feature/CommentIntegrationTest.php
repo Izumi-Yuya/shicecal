@@ -15,22 +15,25 @@ class CommentIntegrationTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Facility $facility;
+
     private CommentService $commentService;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->user = User::factory()->create(['role' => 'admin']);
         $this->facility = Facility::factory()->create();
         $this->commentService = app(CommentService::class);
-        
+
         $this->actingAs($this->user);
     }
 
     /**
      * Test comment creation through service
+     *
      * @test
      */
     public function it_creates_comments_through_service()
@@ -51,6 +54,7 @@ class CommentIntegrationTest extends TestCase
 
     /**
      * Test comment retrieval with caching
+     *
      * @test
      */
     public function it_retrieves_comments_with_caching()
@@ -59,7 +63,7 @@ class CommentIntegrationTest extends TestCase
         Comment::factory()->count(3)->create([
             'facility_id' => $this->facility->id,
             'section' => 'basic_info',
-            'user_id' => $this->user->id
+            'user_id' => $this->user->id,
         ]);
 
         // First call should hit database
@@ -74,6 +78,7 @@ class CommentIntegrationTest extends TestCase
 
     /**
      * Test comment count functionality
+     *
      * @test
      */
     public function it_counts_comments_correctly()
@@ -81,13 +86,13 @@ class CommentIntegrationTest extends TestCase
         Comment::factory()->count(5)->create([
             'facility_id' => $this->facility->id,
             'section' => 'basic_info',
-            'user_id' => $this->user->id
+            'user_id' => $this->user->id,
         ]);
 
         Comment::factory()->count(3)->create([
             'facility_id' => $this->facility->id,
             'section' => 'contact_info',
-            'user_id' => $this->user->id
+            'user_id' => $this->user->id,
         ]);
 
         $basicInfoCount = $this->commentService->getCommentCount($this->facility, 'basic_info');
@@ -99,6 +104,7 @@ class CommentIntegrationTest extends TestCase
 
     /**
      * Test bulk comment count retrieval
+     *
      * @test
      */
     public function it_retrieves_all_comment_counts()
@@ -106,13 +112,13 @@ class CommentIntegrationTest extends TestCase
         Comment::factory()->count(2)->create([
             'facility_id' => $this->facility->id,
             'section' => 'basic_info',
-            'user_id' => $this->user->id
+            'user_id' => $this->user->id,
         ]);
 
         Comment::factory()->count(1)->create([
             'facility_id' => $this->facility->id,
             'section' => 'service_info',
-            'user_id' => $this->user->id
+            'user_id' => $this->user->id,
         ]);
 
         $counts = $this->commentService->getAllCommentCounts($this->facility);
@@ -125,13 +131,14 @@ class CommentIntegrationTest extends TestCase
 
     /**
      * Test cache invalidation on comment creation
+     *
      * @test
      */
     public function it_invalidates_cache_on_comment_creation()
     {
         // Prime the cache
         $this->commentService->getCommentCount($this->facility, 'basic_info');
-        
+
         // Verify cache exists
         $cacheKey = "facility_comment_count_{$this->facility->id}_basic_info";
         $this->assertTrue(Cache::has($cacheKey));
@@ -150,6 +157,7 @@ class CommentIntegrationTest extends TestCase
 
     /**
      * Test validation of invalid sections
+     *
      * @test
      */
     public function it_validates_comment_sections()
@@ -167,6 +175,7 @@ class CommentIntegrationTest extends TestCase
 
     /**
      * Test validation of comment content
+     *
      * @test
      */
     public function it_validates_comment_content()
@@ -185,6 +194,7 @@ class CommentIntegrationTest extends TestCase
 
     /**
      * Test validation of long comment content
+     *
      * @test
      */
     public function it_validates_long_comment_content()
@@ -204,31 +214,33 @@ class CommentIntegrationTest extends TestCase
 
     /**
      * Test API endpoint for comment creation
+     *
      * @test
      */
     public function it_creates_comments_via_api()
     {
         $response = $this->postJson(route('facilities.comments.store', $this->facility), [
             'section' => 'basic_info',
-            'comment' => 'API test comment'
+            'comment' => 'API test comment',
         ]);
 
         $response->assertStatus(200)
-                ->assertJson([
-                    'success' => true,
-                    'message' => 'コメントを投稿しました。'
-                ]);
+            ->assertJson([
+                'success' => true,
+                'message' => 'コメントを投稿しました。',
+            ]);
 
         $this->assertDatabaseHas('comments', [
             'facility_id' => $this->facility->id,
             'section' => 'basic_info',
             'comment' => 'API test comment',
-            'user_id' => $this->user->id
+            'user_id' => $this->user->id,
         ]);
     }
 
     /**
      * Test API endpoint for comment retrieval
+     *
      * @test
      */
     public function it_retrieves_comments_via_api()
@@ -236,30 +248,31 @@ class CommentIntegrationTest extends TestCase
         Comment::factory()->count(2)->create([
             'facility_id' => $this->facility->id,
             'section' => 'basic_info',
-            'user_id' => $this->user->id
+            'user_id' => $this->user->id,
         ]);
 
         $response = $this->getJson(route('facilities.comments.index', [
             'facility' => $this->facility,
-            'section' => 'basic_info'
+            'section' => 'basic_info',
         ]));
 
         $response->assertStatus(200)
-                ->assertJsonStructure([
-                    'success',
-                    'comments' => [
-                        '*' => [
-                            'id',
-                            'comment',
-                            'created_at',
-                            'user' => ['id', 'name']
-                        ]
-                    ]
-                ]);
+            ->assertJsonStructure([
+                'success',
+                'comments' => [
+                    '*' => [
+                        'id',
+                        'comment',
+                        'created_at',
+                        'user' => ['id', 'name'],
+                    ],
+                ],
+            ]);
     }
 
     /**
      * Test authorization for comment operations
+     *
      * @test
      */
     public function it_enforces_authorization_for_comments()
@@ -269,7 +282,7 @@ class CommentIntegrationTest extends TestCase
 
         $response = $this->postJson(route('facilities.comments.store', $this->facility), [
             'section' => 'basic_info',
-            'comment' => 'Unauthorized comment'
+            'comment' => 'Unauthorized comment',
         ]);
 
         $response->assertStatus(403);

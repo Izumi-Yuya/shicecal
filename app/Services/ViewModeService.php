@@ -11,11 +11,12 @@ use Illuminate\Support\Facades\Session;
 class ViewModeService
 {
     const VIEW_PREFERENCE_KEY = 'facility_basic_info_view_mode';
+
     const DEFAULT_VIEW_MODE = 'card';
-    
+
     const VIEW_MODES = [
         'card' => 'カード形式',
-        'table' => 'テーブル形式'
+        'table' => 'テーブル形式',
     ];
 
     /**
@@ -25,14 +26,14 @@ class ViewModeService
     {
         // Sanitize input
         $viewMode = trim(strtolower($viewMode));
-        
-        if (!$this->isValidViewMode($viewMode)) {
+
+        if (! $this->isValidViewMode($viewMode)) {
             throw new \InvalidArgumentException("Invalid view mode: {$viewMode}");
         }
 
         // Additional security check for session hijacking
-        if (!$this->isSessionSecure()) {
-            throw new \RuntimeException("Insecure session detected");
+        if (! $this->isSessionSecure()) {
+            throw new \RuntimeException('Insecure session detected');
         }
 
         Session::put(self::VIEW_PREFERENCE_KEY, $viewMode);
@@ -76,8 +77,8 @@ class ViewModeService
     private function isSessionSecure(): bool
     {
         // Check if session has required security attributes
-        return Session::isStarted() && 
-               !empty(Session::getId()) && 
+        return Session::isStarted() &&
+               ! empty(Session::getId()) &&
                strlen(Session::getId()) >= 32; // Minimum session ID length
     }
 

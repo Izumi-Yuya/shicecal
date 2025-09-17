@@ -10,13 +10,6 @@ class ActivityLogService
 {
     /**
      * Log user activity.
-     *
-     * @param string $action
-     * @param string $targetType
-     * @param int|null $targetId
-     * @param string $description
-     * @param Request|null $request
-     * @return ActivityLog
      */
     public function log(
         string $action,
@@ -26,7 +19,7 @@ class ActivityLogService
         ?Request $request = null
     ): ActivityLog {
         $request = $request ?: request();
-        
+
         return ActivityLog::create([
             'user_id' => Auth::id(),
             'action' => $action,
@@ -41,15 +34,11 @@ class ActivityLogService
 
     /**
      * Log user login activity.
-     *
-     * @param int $userId
-     * @param Request|null $request
-     * @return ActivityLog
      */
     public function logLogin(int $userId, ?Request $request = null): ActivityLog
     {
         $request = $request ?: request();
-        
+
         return ActivityLog::create([
             'user_id' => $userId,
             'action' => 'login',
@@ -64,15 +53,11 @@ class ActivityLogService
 
     /**
      * Log user logout activity.
-     *
-     * @param int $userId
-     * @param Request|null $request
-     * @return ActivityLog
      */
     public function logLogout(int $userId, ?Request $request = null): ActivityLog
     {
         $request = $request ?: request();
-        
+
         return ActivityLog::create([
             'user_id' => $userId,
             'action' => 'logout',
@@ -87,11 +72,6 @@ class ActivityLogService
 
     /**
      * Log facility creation.
-     *
-     * @param int $facilityId
-     * @param string $facilityName
-     * @param Request|null $request
-     * @return ActivityLog
      */
     public function logFacilityCreated(int $facilityId, string $facilityName, ?Request $request = null): ActivityLog
     {
@@ -106,11 +86,6 @@ class ActivityLogService
 
     /**
      * Log facility update.
-     *
-     * @param int $facilityId
-     * @param string $facilityName
-     * @param Request|null $request
-     * @return ActivityLog
      */
     public function logFacilityUpdated(int $facilityId, string $facilityName, ?Request $request = null): ActivityLog
     {
@@ -125,11 +100,6 @@ class ActivityLogService
 
     /**
      * Log facility deletion.
-     *
-     * @param int $facilityId
-     * @param string $facilityName
-     * @param Request|null $request
-     * @return ActivityLog
      */
     public function logFacilityDeleted(int $facilityId, string $facilityName, ?Request $request = null): ActivityLog
     {
@@ -144,11 +114,6 @@ class ActivityLogService
 
     /**
      * Log facility approval.
-     *
-     * @param int $facilityId
-     * @param string $facilityName
-     * @param Request|null $request
-     * @return ActivityLog
      */
     public function logFacilityApproved(int $facilityId, string $facilityName, ?Request $request = null): ActivityLog
     {
@@ -163,12 +128,6 @@ class ActivityLogService
 
     /**
      * Log facility rejection.
-     *
-     * @param int $facilityId
-     * @param string $facilityName
-     * @param string $reason
-     * @param Request|null $request
-     * @return ActivityLog
      */
     public function logFacilityRejected(int $facilityId, string $facilityName, string $reason, ?Request $request = null): ActivityLog
     {
@@ -183,12 +142,6 @@ class ActivityLogService
 
     /**
      * Log file upload.
-     *
-     * @param int $fileId
-     * @param string $fileName
-     * @param int $facilityId
-     * @param Request|null $request
-     * @return ActivityLog
      */
     public function logFileUploaded(int $fileId, string $fileName, int $facilityId, ?Request $request = null): ActivityLog
     {
@@ -203,11 +156,6 @@ class ActivityLogService
 
     /**
      * Log file download.
-     *
-     * @param int $fileId
-     * @param string $fileName
-     * @param Request|null $request
-     * @return ActivityLog
      */
     public function logFileDownloaded(int $fileId, string $fileName, ?Request $request = null): ActivityLog
     {
@@ -222,17 +170,12 @@ class ActivityLogService
 
     /**
      * Log CSV export.
-     *
-     * @param array $facilityIds
-     * @param array $fields
-     * @param Request|null $request
-     * @return ActivityLog
      */
     public function logCsvExported(array $facilityIds, array $fields, ?Request $request = null): ActivityLog
     {
         $facilityCount = count($facilityIds);
         $fieldCount = count($fields);
-        
+
         return $this->log(
             'export_csv',
             'facility',
@@ -244,15 +187,11 @@ class ActivityLogService
 
     /**
      * Log PDF export.
-     *
-     * @param array $facilityIds
-     * @param Request|null $request
-     * @return ActivityLog
      */
     public function logPdfExported(array $facilityIds, ?Request $request = null): ActivityLog
     {
         $facilityCount = count($facilityIds);
-        
+
         return $this->log(
             'export_pdf',
             'facility',
@@ -264,12 +203,6 @@ class ActivityLogService
 
     /**
      * Log comment creation.
-     *
-     * @param int $commentId
-     * @param int $facilityId
-     * @param string $fieldName
-     * @param Request|null $request
-     * @return ActivityLog
      */
     public function logCommentCreated(int $commentId, int $facilityId, string $fieldName, ?Request $request = null): ActivityLog
     {
@@ -284,12 +217,6 @@ class ActivityLogService
 
     /**
      * Log comment status update.
-     *
-     * @param int $commentId
-     * @param string $oldStatus
-     * @param string $newStatus
-     * @param Request|null $request
-     * @return ActivityLog
      */
     public function logCommentStatusUpdated(int $commentId, string $oldStatus, string $newStatus, ?Request $request = null): ActivityLog
     {
@@ -304,12 +231,6 @@ class ActivityLogService
 
     /**
      * Log user creation.
-     *
-     * @param int $userId
-     * @param string $email
-     * @param string $role
-     * @param Request|null $request
-     * @return ActivityLog
      */
     public function logUserCreated(int $userId, string $email, string $role, ?Request $request = null): ActivityLog
     {
@@ -324,11 +245,6 @@ class ActivityLogService
 
     /**
      * Log user update.
-     *
-     * @param int $userId
-     * @param string $email
-     * @param Request|null $request
-     * @return ActivityLog
      */
     public function logUserUpdated(int $userId, string $email, ?Request $request = null): ActivityLog
     {
@@ -343,11 +259,6 @@ class ActivityLogService
 
     /**
      * Log user deletion.
-     *
-     * @param int $userId
-     * @param string $email
-     * @param Request|null $request
-     * @return ActivityLog
      */
     public function logUserDeleted(int $userId, string $email, ?Request $request = null): ActivityLog
     {
@@ -362,12 +273,6 @@ class ActivityLogService
 
     /**
      * Log system settings update.
-     *
-     * @param string $key
-     * @param string $oldValue
-     * @param string $newValue
-     * @param Request|null $request
-     * @return ActivityLog
      */
     public function logSystemSettingUpdated(string $key, string $oldValue, string $newValue, ?Request $request = null): ActivityLog
     {
@@ -382,12 +287,6 @@ class ActivityLogService
 
     /**
      * Log file deletion.
-     *
-     * @param int $fileId
-     * @param string $fileName
-     * @param int $facilityId
-     * @param Request|null $request
-     * @return ActivityLog
      */
     public function logFileDeleted(int $fileId, string $fileName, int $facilityId, ?Request $request = null): ActivityLog
     {

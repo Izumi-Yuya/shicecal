@@ -5,13 +5,20 @@
 
 export class CommentUI {
   constructor(containerSelector = '.facility-table-view') {
-    this.container = document.querySelector(containerSelector);
-    this.currentSection = 'basic_info';
+    try {
+      this.container = document.querySelector(containerSelector);
+      this.currentSection = 'basic_info';
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('CommentUI constructor error:', error);
+      this.container = null;
+      this.currentSection = 'basic_info';
+    }
   }
 
   /**
-   * Setup event listeners for comment UI
-   */
+* Setup event listeners for comment UI
+*/
   setupEventListeners(commentManager) {
     this.setupToggleListeners();
     this.setupSubmitListeners(commentManager);
@@ -19,9 +26,15 @@ export class CommentUI {
   }
 
   /**
-   * Setup comment toggle button listeners
-   */
+* Setup comment toggle button listeners
+*/
   setupToggleListeners() {
+    if (!this.container) {
+      // eslint-disable-next-line no-console
+      console.warn('CommentUI: Container not found, skipping toggle listeners setup');
+      return;
+    }
+
     const toggleButtons = this.container.querySelectorAll('.comment-toggle');
 
     toggleButtons.forEach(button => {
@@ -34,9 +47,15 @@ export class CommentUI {
   }
 
   /**
-   * Setup comment submit button listeners
-   */
+* Setup comment submit button listeners
+*/
   setupSubmitListeners(commentManager) {
+    if (!this.container) {
+      // eslint-disable-next-line no-console
+      console.warn('CommentUI: Container not found, skipping submit listeners setup');
+      return;
+    }
+
     const submitButtons = this.container.querySelectorAll('.comment-submit');
 
     submitButtons.forEach(button => {
@@ -49,9 +68,15 @@ export class CommentUI {
   }
 
   /**
-   * Setup comment input listeners
-   */
+* Setup comment input listeners
+*/
   setupInputListeners() {
+    if (!this.container) {
+      // eslint-disable-next-line no-console
+      console.warn('CommentUI: Container not found, skipping input listeners setup');
+      return;
+    }
+
     const commentInputs = this.container.querySelectorAll('.comment-input');
 
     commentInputs.forEach(input => {
@@ -75,13 +100,19 @@ export class CommentUI {
   }
 
   /**
-   * Toggle comment section visibility
-   */
+* Toggle comment section visibility
+*/
   toggleCommentSection(section) {
+    if (!this.container) {
+      return;
+    }
+
     const commentSection = this.container.querySelector(`.comment-section[data-section="${section}"]`);
     const toggleButton = this.container.querySelector(`.comment-toggle[data-section="${section}"]`);
 
-    if (!commentSection || !toggleButton) return;
+    if (!commentSection || !toggleButton) {
+      return;
+    }
 
     const isVisible = !commentSection.classList.contains('d-none');
 
@@ -93,8 +124,8 @@ export class CommentUI {
   }
 
   /**
-   * Hide comment section
-   */
+* Hide comment section
+*/
   hideCommentSection(commentSection, toggleButton) {
     commentSection.classList.add('d-none');
     toggleButton.classList.remove('active');
@@ -102,8 +133,8 @@ export class CommentUI {
   }
 
   /**
-   * Show comment section
-   */
+* Show comment section
+*/
   showCommentSection(commentSection, toggleButton, section) {
     commentSection.classList.remove('d-none');
     toggleButton.classList.add('active');
@@ -112,13 +143,19 @@ export class CommentUI {
   }
 
   /**
-   * Handle comment submission
-   */
+* Handle comment submission
+*/
   async handleCommentSubmit(section, commentManager) {
+    if (!this.container) {
+      return;
+    }
+
     const input = this.container.querySelector(`.comment-input[data-section="${section}"]`);
     const submitButton = this.container.querySelector(`.comment-submit[data-section="${section}"]`);
 
-    if (!input || !submitButton) return;
+    if (!input || !submitButton) {
+      return;
+    }
 
     const commentText = input.value.trim();
 
@@ -140,11 +177,17 @@ export class CommentUI {
   }
 
   /**
-   * Render comments for a section
-   */
+* Render comments for a section
+*/
   renderComments(section, comments) {
+    if (!this.container) {
+      return;
+    }
+
     const commentList = this.container.querySelector(`.comment-list[data-section="${section}"]`);
-    if (!commentList) return;
+    if (!commentList) {
+      return;
+    }
 
     if (comments.length === 0) {
       commentList.innerHTML = this.getEmptyStateHTML();
@@ -156,9 +199,13 @@ export class CommentUI {
   }
 
   /**
-   * Update comment count display
-   */
+* Update comment count display
+*/
   updateCommentCount(section, count) {
+    if (!this.container) {
+      return;
+    }
+
     const countElements = this.container.querySelectorAll(`.comment-count[data-section="${section}"]`);
 
     countElements.forEach(element => {
@@ -177,8 +224,8 @@ export class CommentUI {
   }
 
   /**
-   * Generate HTML for a single comment
-   */
+* Generate HTML for a single comment
+*/
   getCommentHTML(comment) {
     const date = new Date(comment.created_at);
     const formattedDate = date.toLocaleDateString('ja-JP', {
@@ -201,8 +248,8 @@ export class CommentUI {
   }
 
   /**
-   * Get empty state HTML
-   */
+* Get empty state HTML
+*/
   getEmptyStateHTML() {
     return `
       <div class="comment-empty">
@@ -214,8 +261,8 @@ export class CommentUI {
   }
 
   /**
-   * Set submit button loading state
-   */
+* Set submit button loading state
+*/
   setSubmitButtonLoading(button, isLoading) {
     if (isLoading) {
       button.disabled = true;
@@ -227,8 +274,8 @@ export class CommentUI {
   }
 
   /**
-   * Update character counter
-   */
+* Update character counter
+*/
   updateCharacterCounter(input) {
     const currentLength = input.value.length;
     const maxLength = 500; // Should come from config
@@ -252,24 +299,26 @@ export class CommentUI {
   }
 
   /**
-   * Show success message
-   */
+* Show success message
+*/
   showSuccessMessage(message) {
     // Implement toast notification or other success feedback
+    // eslint-disable-next-line no-console
     console.log('Success:', message);
   }
 
   /**
-   * Show error message
-   */
+* Show error message
+*/
   showErrorMessage(message) {
     // Implement toast notification or other error feedback
+    // eslint-disable-next-line no-console
     console.error('Error:', message);
   }
 
   /**
-   * Escape HTML to prevent XSS
-   */
+* Escape HTML to prevent XSS
+*/
   escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;

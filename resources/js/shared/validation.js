@@ -15,7 +15,9 @@ const VALIDATION_RULES = {
   },
   email: {
     validate: (value) => {
-      if (!value) return true; // Allow empty for optional fields
+      if (!value) {
+        return true;
+      } // Allow empty for optional fields
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       return emailRegex.test(value);
     },
@@ -23,56 +25,72 @@ const VALIDATION_RULES = {
   },
   numeric: {
     validate: (value) => {
-      if (!value) return true; // Allow empty for optional fields
+      if (!value) {
+        return true;
+      } // Allow empty for optional fields
       return !isNaN(value) && !isNaN(parseFloat(value));
     },
     message: '数値を入力してください。'
   },
   integer: {
     validate: (value) => {
-      if (!value) return true; // Allow empty for optional fields
+      if (!value) {
+        return true;
+      } // Allow empty for optional fields
       return Number.isInteger(Number(value));
     },
     message: '整数を入力してください。'
   },
   positive: {
     validate: (value) => {
-      if (!value) return true; // Allow empty for optional fields
+      if (!value) {
+        return true;
+      } // Allow empty for optional fields
       return Number(value) > 0;
     },
     message: '正の数値を入力してください。'
   },
   minLength: {
     validate: (value, param) => {
-      if (!value) return true; // Allow empty for optional fields
+      if (!value) {
+        return true;
+      } // Allow empty for optional fields
       return value.toString().length >= param;
     },
     message: (param) => `${param}文字以上で入力してください。`
   },
   maxLength: {
     validate: (value, param) => {
-      if (!value) return true; // Allow empty for optional fields
+      if (!value) {
+        return true;
+      } // Allow empty for optional fields
       return value.toString().length <= param;
     },
     message: (param) => `${param}文字以下で入力してください。`
   },
   min: {
     validate: (value, param) => {
-      if (!value) return true; // Allow empty for optional fields
+      if (!value) {
+        return true;
+      } // Allow empty for optional fields
       return Number(value) >= param;
     },
     message: (param) => `${param}以上の値を入力してください。`
   },
   max: {
     validate: (value, param) => {
-      if (!value) return true; // Allow empty for optional fields
+      if (!value) {
+        return true;
+      } // Allow empty for optional fields
       return Number(value) <= param;
     },
     message: (param) => `${param}以下の値を入力してください。`
   },
   date: {
     validate: (value) => {
-      if (!value) return true; // Allow empty for optional fields
+      if (!value) {
+        return true;
+      } // Allow empty for optional fields
       const date = new Date(value);
       return !isNaN(date.getTime());
     },
@@ -80,7 +98,9 @@ const VALIDATION_RULES = {
   },
   futureDate: {
     validate: (value) => {
-      if (!value) return true; // Allow empty for optional fields
+      if (!value) {
+        return true;
+      } // Allow empty for optional fields
       const date = new Date(value);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -90,7 +110,9 @@ const VALIDATION_RULES = {
   },
   pastDate: {
     validate: (value) => {
-      if (!value) return true; // Allow empty for optional fields
+      if (!value) {
+        return true;
+      } // Allow empty for optional fields
       const date = new Date(value);
       const today = new Date();
       today.setHours(23, 59, 59, 999);
@@ -100,16 +122,20 @@ const VALIDATION_RULES = {
   },
   phone: {
     validate: (value) => {
-      if (!value) return true; // Allow empty for optional fields
+      if (!value) {
+        return true;
+      } // Allow empty for optional fields
       // Japanese phone number pattern (flexible)
-      const phoneRegex = /^[\d\-\(\)\+\s]+$/;
+      const phoneRegex = /^[\d\-()+ \s]+$/;
       return phoneRegex.test(value) && value.replace(/\D/g, '').length >= 10;
     },
     message: '有効な電話番号を入力してください。'
   },
   zipCode: {
     validate: (value) => {
-      if (!value) return true; // Allow empty for optional fields
+      if (!value) {
+        return true;
+      } // Allow empty for optional fields
       // Japanese postal code pattern (xxx-xxxx or xxxxxxx)
       const zipRegex = /^\d{3}-?\d{4}$/;
       return zipRegex.test(value);
@@ -124,7 +150,9 @@ const VALIDATION_RULES = {
  * @returns {Array} Array of rule objects
  */
 function parseRules(rulesString) {
-  if (!rulesString) return [];
+  if (!rulesString) {
+    return [];
+  }
 
   return rulesString.split('|').map(rule => {
     const [name, param] = rule.split(':');
@@ -142,7 +170,7 @@ function parseRules(rulesString) {
  * @param {string} fieldName - Field name for error messages
  * @returns {Object} Validation result
  */
-export function validateField(value, rules, fieldName = 'フィールド') {
+export function validateField(value, rules, _fieldName = 'フィールド') {
   const ruleArray = typeof rules === 'string' ? parseRules(rules) : rules;
   const errors = [];
 
@@ -164,7 +192,7 @@ export function validateField(value, rules, fieldName = 'フィールド') {
 
   return {
     isValid: errors.length === 0,
-    errors: errors
+    errors
   };
 }
 
@@ -205,7 +233,9 @@ export function displayFormErrors(form, errors) {
 
   for (const [fieldName, fieldErrors] of Object.entries(errors)) {
     const field = form.querySelector(`[name="${fieldName}"]`);
-    if (!field) continue;
+    if (!field) {
+      continue;
+    }
 
     // Add error class to field
     field.classList.add('is-invalid');
@@ -257,7 +287,9 @@ export function enableRealTimeValidation(form, rules, options = {}) {
     const fieldName = field.name;
     const fieldRules = rules[fieldName];
 
-    if (!fieldRules) return;
+    if (!fieldRules) {
+      return;
+    }
 
     const result = validateField(field.value, fieldRules, fieldName);
 
@@ -282,7 +314,9 @@ export function enableRealTimeValidation(form, rules, options = {}) {
   // Add event listeners
   for (const fieldName of Object.keys(rules)) {
     const field = form.querySelector(`[name="${fieldName}"]`);
-    if (!field) continue;
+    if (!field) {
+      continue;
+    }
 
     if (validateOnBlur) {
       field.addEventListener('blur', () => {
@@ -351,7 +385,7 @@ export function validateOnSubmit(form, rules, onValid, onInvalid = null) {
 export function addValidationRule(name, validator, message) {
   VALIDATION_RULES[name] = {
     validate: validator,
-    message: message
+    message
   };
 }
 
@@ -378,20 +412,20 @@ export function validateFile(file, options = {}) {
 
   // Check file type
   if (allowedTypes.length > 0 && !allowedTypes.includes(file.type)) {
-    errors.push(`許可されていないファイル形式です。`);
+    errors.push('許可されていないファイル形式です。');
   }
 
   // Check file extension
   if (allowedExtensions.length > 0) {
     const extension = file.name.split('.').pop().toLowerCase();
     if (!allowedExtensions.includes(extension)) {
-      errors.push(`許可されていないファイル拡張子です。`);
+      errors.push('許可されていないファイル拡張子です。');
     }
   }
 
   return {
     isValid: errors.length === 0,
-    errors: errors
+    errors
   };
 }
 

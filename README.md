@@ -174,8 +174,9 @@ resources/
 - **HTTPS**: SSL/TLS通信の強制
 - **セキュリティヘッダー**: XSS、CSRF、Clickjacking対策
 
-## 🧪 テスト
+## 🧪 テスト・品質管理
 
+### テスト実行
 ```bash
 # 全テストの実行
 php artisan test
@@ -185,18 +186,48 @@ php artisan test --coverage
 
 # 特定のテストスイート
 php artisan test --testsuite=Feature
+
+# JavaScriptテスト
+npm run test
+npm run test:watch  # ウォッチモード
+```
+
+### コード品質チェック
+```bash
+# 全体的な品質チェック
+npm run quality     # lint + test + build の統合実行
+npm run ci          # CI環境と同等のチェック
+
+# 個別のリンティング
+npm run lint        # 全てのリンティングチェック
+npm run lint:js     # JavaScript ESLint
+npm run lint:blade  # Bladeテンプレート検証
+npm run lint:html   # HTML構文チェック
+npm run lint:php    # PHP コードスタイル（Laravel Pint）
+
+# 自動修正
+npm run lint:js:fix  # JavaScript自動修正
+npm run lint:php:fix # PHP自動修正
 ```
 
 ## 📦 デプロイメント
 
 ### 開発環境
 ```bash
+# 開発サーバー起動
 npm run dev
 php artisan serve
+
+# 品質チェック（開発中）
+npm run lint        # コード品質チェック
+npm run test:watch  # テスト監視モード
 ```
 
 ### 本番環境
 ```bash
+# デプロイ前品質チェック
+npm run quality     # lint + test + build
+
 # アセットビルド
 npm run build
 

@@ -27,7 +27,7 @@ class ActivityLogFactory extends Factory
     {
         $actions = ['create', 'update', 'delete', 'view', 'download', 'upload', 'export_csv', 'export_pdf', 'approve', 'reject'];
         $targetTypes = ['facility', 'user', 'file', 'comment', 'maintenance_history', 'system_setting'];
-        
+
         return [
             'user_id' => User::factory(),
             'action' => $this->faker->randomElement($actions),

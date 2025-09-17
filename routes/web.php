@@ -1,14 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ExportController;
-use App\Http\Controllers\CommentController;
-use App\Http\Controllers\FacilityController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\MyPageController;
-use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\AnnualConfirmationController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\ExportController;
+use App\Http\Controllers\FacilityController;
+use App\Http\Controllers\MaintenanceController;
+use App\Http\Controllers\MyPageController;
+use App\Http\Controllers\NotificationController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -83,7 +83,6 @@ Route::middleware(['auth'])->group(function () {
 
     // Facility basic information routes
     Route::prefix('facilities/{facility}')->name('facilities.')->group(function () {
-        Route::get('/basic-info', [FacilityController::class, 'basicInfo'])->name('basic-info');
         Route::get('/edit-basic-info', [FacilityController::class, 'editBasicInfo'])->name('edit-basic-info');
         Route::put('/basic-info', [FacilityController::class, 'updateBasicInfo'])->name('update-basic-info');
 
@@ -107,12 +106,22 @@ Route::middleware(['auth'])->group(function () {
             });
         });
 
+        // Building Information nested routes
+        Route::prefix('building-info')->name('building-info.')->group(function () {
+            Route::get('/edit', [FacilityController::class, 'editBuildingInfo'])->name('edit');
+            Route::put('/', [FacilityController::class, 'updateBuildingInfo'])->name('update');
+        });
+
         // Facility-specific comment routes
         Route::prefix('comments')->name('comments.')->group(function () {
+            Route::get('/', [CommentController::class, 'allFacilityComments'])->name('all');
             Route::get('/{section}', [CommentController::class, 'facilityComments'])->name('index');
             Route::post('/', [CommentController::class, 'store'])->name('store');
             Route::delete('/{comment}', [CommentController::class, 'destroyFacilityComment'])->name('destroy');
         });
+
+        // Land info document download routes
+        Route::get('/land-info/download/{type}', [FacilityController::class, 'downloadLandInfoPdf'])->name('land-info.download');
     });
 });
 
@@ -334,7 +343,7 @@ Route::middleware(['auth'])->group(function () {
 */
 if (app()->environment(['local', 'testing'])) {
     Route::get('/test-notifications', function () {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return response()->json(['error' => 'Not authenticated', 'user' => null]);
         }
 
@@ -346,7 +355,7 @@ if (app()->environment(['local', 'testing'])) {
             'user_id' => $user->id,
             'user_name' => $user->name,
             'unread_count' => $count,
-            'route_exists' => route('notifications.unread-count')
+            'route_exists' => route('notifications.unread-count'),
         ]);
     })->middleware('auth');
 }

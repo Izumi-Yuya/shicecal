@@ -58,8 +58,6 @@ class FacilityComment extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-
-
     /**
      * セクション名の日本語表示
      */

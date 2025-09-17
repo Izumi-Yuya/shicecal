@@ -2,10 +2,9 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Facility;
 use App\Models\LandInfo;
-use App\Services\FacilityService;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -15,7 +14,9 @@ class LandInfoSecurityTest extends TestCase
     use RefreshDatabase, WithFaker;
 
     protected LandInfoService $landInfoService;
+
     protected User $user;
+
     protected Facility $facility;
 
     protected function setUp(): void
@@ -280,7 +281,7 @@ class LandInfoSecurityTest extends TestCase
         $maliciousFile = \Illuminate\Http\Testing\File::fake()->create('malicious.exe', 100, 'application/x-executable');
 
         $response = $this->actingAs($editor)->post("/facilities/{$this->facility->id}/land-info/documents", [
-            'property_register' => $maliciousFile
+            'property_register' => $maliciousFile,
         ]);
 
         // Should be rejected due to file type validation
@@ -300,7 +301,7 @@ class LandInfoSecurityTest extends TestCase
         $oversizedFile = \Illuminate\Http\Testing\File::fake()->create('large.pdf', 11000, 'application/pdf');
 
         $response = $this->actingAs($editor)->post("/facilities/{$this->facility->id}/land-info/documents", [
-            'property_register' => $oversizedFile
+            'property_register' => $oversizedFile,
         ]);
 
         // Should be rejected due to file size validation

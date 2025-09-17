@@ -177,7 +177,7 @@ class MaintenanceController extends Controller
         return response()->json([
             'success' => true,
             'message' => '検索条件を保存しました。',
-            'favorite' => $favorite->load('facility')
+            'favorite' => $favorite->load('facility'),
         ]);
     }
 
@@ -187,11 +187,11 @@ class MaintenanceController extends Controller
     public function loadSearchFavorite($favoriteId)
     {
         $favorite = MaintenanceSearchFavorite::find($favoriteId);
-        
-        if (!$favorite) {
+
+        if (! $favorite) {
             return response()->json([
                 'success' => false,
-                'message' => 'お気に入りが見つかりません。'
+                'message' => 'お気に入りが見つかりません。',
             ], 404);
         }
 
@@ -199,13 +199,13 @@ class MaintenanceController extends Controller
         if ($favorite->user_id !== Auth::id()) {
             return response()->json([
                 'success' => false,
-                'message' => 'アクセス権限がありません。'
+                'message' => 'アクセス権限がありません。',
             ], 403);
         }
 
         return response()->json([
             'success' => true,
-            'favorite' => $favorite->load('facility')
+            'favorite' => $favorite->load('facility'),
         ]);
     }
 
@@ -215,11 +215,11 @@ class MaintenanceController extends Controller
     public function updateSearchFavorite(Request $request, $favoriteId)
     {
         $favorite = MaintenanceSearchFavorite::find($favoriteId);
-        
-        if (!$favorite) {
+
+        if (! $favorite) {
             return response()->json([
                 'success' => false,
-                'message' => 'お気に入りが見つかりません。'
+                'message' => 'お気に入りが見つかりません。',
             ], 404);
         }
 
@@ -227,7 +227,7 @@ class MaintenanceController extends Controller
         if ($favorite->user_id !== Auth::id()) {
             return response()->json([
                 'success' => false,
-                'message' => 'アクセス権限がありません。'
+                'message' => 'アクセス権限がありません。',
             ], 403);
         }
 
@@ -244,7 +244,7 @@ class MaintenanceController extends Controller
         return response()->json([
             'success' => true,
             'message' => '検索条件を更新しました。',
-            'favorite' => $favorite->load('facility')
+            'favorite' => $favorite->load('facility'),
         ]);
     }
 
@@ -254,11 +254,11 @@ class MaintenanceController extends Controller
     public function deleteSearchFavorite($favoriteId)
     {
         $favorite = MaintenanceSearchFavorite::find($favoriteId);
-        
-        if (!$favorite) {
+
+        if (! $favorite) {
             return response()->json([
                 'success' => false,
-                'message' => 'お気に入りが見つかりません。'
+                'message' => 'お気に入りが見つかりません。',
             ], 404);
         }
 
@@ -266,7 +266,7 @@ class MaintenanceController extends Controller
         if ($favorite->user_id !== Auth::id()) {
             return response()->json([
                 'success' => false,
-                'message' => 'アクセス権限がありません。'
+                'message' => 'アクセス権限がありません。',
             ], 403);
         }
 
@@ -274,7 +274,7 @@ class MaintenanceController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => '検索条件を削除しました。'
+            'message' => '検索条件を削除しました。',
         ]);
     }
 
@@ -290,7 +290,7 @@ class MaintenanceController extends Controller
 
         return response()->json([
             'success' => true,
-            'favorites' => $favorites
+            'favorites' => $favorites,
         ]);
     }
 }

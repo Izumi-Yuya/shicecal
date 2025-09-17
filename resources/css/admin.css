@@ -503,14 +503,18 @@
 }
 
 .facility-info-card .card-header {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-bottom: 1px solid #dee2e6;
+  background: linear-gradient(135deg, #00B4E3);
+  border-bottom: none;
   padding: 1rem 1.25rem;
 }
 
 .facility-info-card .card-header h5 {
   font-weight: 600;
-  color: #2c3e50;
+  color: white;
+}
+
+.facility-info-card .card-header i {
+  color: white !important;
 }
 
 .facility-info-card .card-body {

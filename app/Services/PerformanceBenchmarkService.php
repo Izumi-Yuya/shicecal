@@ -2,17 +2,19 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
 use App\Models\Facility;
 use App\Models\LandInfo;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PerformanceBenchmarkService
 {
     private array $results = [];
+
     private float $startTime;
+
     private int $startMemory;
 
     public function __construct()
@@ -77,9 +79,10 @@ class PerformanceBenchmarkService
 
         $this->measureOperation('database.facility_show', function () {
             $facility = Facility::first();
-            if (!$facility) {
+            if (! $facility) {
                 return null; // Skip if no facilities exist
             }
+
             return Facility::with(['landInfo', 'landDocuments', 'comments', 'maintenanceHistories'])->find($facility->id);
         });
 
@@ -136,7 +139,7 @@ class PerformanceBenchmarkService
 
             $this->measureOperation('services.facility_create', function () use ($facilityService) {
                 $testUser = User::first();
-                if (!$testUser) {
+                if (! $testUser) {
                     return null; // Skip test if no users exist
                 }
 
@@ -155,10 +158,11 @@ class PerformanceBenchmarkService
                     if ($facility) {
                         $facility->delete();
                     }
+
                     return $facility;
                 } catch (\Exception $e) {
                     // Re-throw with more specific error message including stack trace
-                    throw new \Exception("FacilityService::createFacility failed: " . $e->getMessage() . " | Previous: " . ($e->getPrevious() ? $e->getPrevious()->getMessage() : 'none'));
+                    throw new \Exception('FacilityService::createFacility failed: '.$e->getMessage().' | Previous: '.($e->getPrevious() ? $e->getPrevious()->getMessage() : 'none'));
                 }
             });
         }
@@ -191,8 +195,10 @@ class PerformanceBenchmarkService
                         'Performance benchmark test'
                     );
                     auth()->logout();
+
                     return $result;
                 }
+
                 return null;
             });
         }
@@ -218,6 +224,7 @@ class PerformanceBenchmarkService
                     $processed++;
                 }
             });
+
             return $processed;
         });
 
@@ -228,6 +235,7 @@ class PerformanceBenchmarkService
             file_put_contents($tempFile, $data);
             $content = file_get_contents($tempFile);
             unlink($tempFile);
+
             return strlen($content);
         });
     }
@@ -244,6 +252,7 @@ class PerformanceBenchmarkService
             for ($i = 0; $i < 100; $i++) {
                 Cache::put("perf_test_$i", "test_data_$i", 60);
             }
+
             return 100;
         });
 
@@ -255,6 +264,7 @@ class PerformanceBenchmarkService
                     $hits++;
                 }
             }
+
             return $hits;
         });
 
@@ -440,9 +450,9 @@ class PerformanceBenchmarkService
         }
 
         if (empty($recommendations)) {
-            $recommendations[] = "✅ All operations are performing within acceptable limits";
+            $recommendations[] = '✅ All operations are performing within acceptable limits';
         }
 
-        return implode("\n", $recommendations) . "\n";
+        return implode("\n", $recommendations)."\n";
     }
 }

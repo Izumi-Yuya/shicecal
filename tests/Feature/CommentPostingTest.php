@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\FacilityComment;
 use App\Models\Facility;
+use App\Models\FacilityComment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;

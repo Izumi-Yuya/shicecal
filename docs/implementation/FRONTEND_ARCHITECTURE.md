@@ -143,7 +143,6 @@ export {
 export {
   FormValidator,         // フォームバリデーター
   SearchComponent,       // 検索コンポーネント
-  TableComponent,        // テーブルコンポーネント
   ModalComponent,        // モーダルコンポーネント
   ServiceCardsComponent  // サービスカードコンポーネント
 };

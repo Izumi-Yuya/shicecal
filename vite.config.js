@@ -34,7 +34,7 @@ export default defineConfig({
         'resources/css/app.css',
         'resources/css/auth.css',
         'resources/css/admin.css',
-        'resources/css/land-info.css',
+        'resources/css/land-info-final.css',
         // Shared CSS files
         'resources/css/shared/variables.css',
         'resources/css/shared/components.css',
@@ -43,19 +43,18 @@ export default defineConfig({
         'resources/css/pages/facilities.css',
         'resources/css/pages/notifications.css',
         'resources/css/pages/export.css',
-        'resources/css/pages/facility-table-view.css',
         // Component CSS files
-        'resources/css/components/service-table.css',
         // JavaScript files
         'resources/js/app.js',
         'resources/js/admin.js',
-        'resources/js/land-info.js',
+        'resources/js/land-info-final.js',
         // JavaScript modules (for proper bundling)
         'resources/js/modules/facilities.js',
         'resources/js/modules/notifications.js',
         'resources/js/modules/export.js',
-        'resources/js/modules/service-table-manager.js',
         'resources/js/modules/facility-view-toggle.js',
+        'resources/js/modules/comment-manager.js',
+        'resources/js/modules/comment-ui.js',
         'resources/js/shared/utils.js',
         'resources/js/shared/api.js',
         'resources/js/shared/validation.js',
@@ -155,7 +154,7 @@ export default defineConfig({
         'resources/css/app.css',
         'resources/css/auth.css',
         'resources/css/admin.css',
-        'resources/css/land-info.css',
+        'resources/css/land-info-final.css',
         // Shared CSS files
         'resources/css/shared/variables.css',
         'resources/css/shared/components.css',
@@ -164,19 +163,18 @@ export default defineConfig({
         'resources/css/pages/facilities.css',
         'resources/css/pages/notifications.css',
         'resources/css/pages/export.css',
-        'resources/css/pages/facility-table-view.css',
         // Component CSS files
-        'resources/css/components/service-table.css',
         // JavaScript files
         'resources/js/app.js',
         'resources/js/admin.js',
-        'resources/js/land-info.js',
+        'resources/js/land-info-final.js',
         // JavaScript modules (for proper bundling)
         'resources/js/modules/facilities.js',
         'resources/js/modules/notifications.js',
         'resources/js/modules/export.js',
-        'resources/js/modules/service-table-manager.js',
         'resources/js/modules/facility-view-toggle.js',
+        'resources/js/modules/comment-manager.js',
+        'resources/js/modules/comment-ui.js',
         'resources/js/shared/utils.js',
         'resources/js/shared/api.js',
         'resources/js/shared/validation.js',
@@ -197,8 +195,9 @@ export default defineConfig({
             'resources/js/modules/facilities.js',
             'resources/js/modules/notifications.js',
             'resources/js/modules/export.js',
-            'resources/js/modules/service-table-manager.js',
-            'resources/js/modules/facility-view-toggle.js'
+            'resources/js/modules/facility-view-toggle.js',
+            'resources/js/modules/comment-manager.js',
+            'resources/js/modules/comment-ui.js'
           ]
         },
         // Optimize file naming for better caching

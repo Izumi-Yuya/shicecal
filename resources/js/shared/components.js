@@ -3,17 +3,17 @@
  * Reusable component classes and utilities
  */
 
-import { debounce, showToast, confirmDialog } from './utils.js';
+import { debounce } from './utils.js';
 
 /**
  * Form Validator Component
  */
 export class FormValidator {
   /**
-   * Validate required fields
-   * @param {HTMLFormElement} form - Form element to validate
-   * @returns {boolean} - Validation result
-   */
+ * Validate required fields
+ * @param {HTMLFormElement} form - Form element to validate
+ * @returns {boolean} - Validation result
+ */
   static validateRequired(form) {
     const requiredFields = form.querySelectorAll('[required]');
     let isValid = true;
@@ -31,10 +31,10 @@ export class FormValidator {
   }
 
   /**
-   * Show field error
-   * @param {HTMLElement} field - Field element
-   * @param {string} message - Error message
-   */
+ * Show field error
+ * @param {HTMLElement} field - Field element
+ * @param {string} message - Error message
+ */
   static showFieldError(field, message) {
     this.clearFieldError(field);
     field.classList.add('is-invalid');
@@ -46,9 +46,9 @@ export class FormValidator {
   }
 
   /**
-   * Clear field error
-   * @param {HTMLElement} field - Field element
-   */
+ * Clear field error
+ * @param {HTMLElement} field - Field element
+ */
   static clearFieldError(field) {
     field.classList.remove('is-invalid');
     const errorDiv = field.parentNode.querySelector('.invalid-feedback');
@@ -138,7 +138,9 @@ export class TableComponent {
     const allHeaders = table.querySelectorAll('[data-sort]');
     allHeaders.forEach(h => {
       const icon = h.querySelector('.sort-icon');
-      if (icon) icon.remove();
+      if (icon) {
+        icon.remove();
+      }
     });
 
     const sortIcon = document.createElement('i');
@@ -196,11 +198,11 @@ export class TableComponent {
  */
 export class ModalComponent {
   /**
-   * Show modal
-   * @param {string} modalId - Modal element ID
-   * @param {Object} options - Bootstrap modal options
-   * @returns {bootstrap.Modal} - Bootstrap modal instance
-   */
+ * Show modal
+ * @param {string} modalId - Modal element ID
+ * @param {Object} options - Bootstrap modal options
+ * @returns {bootstrap.Modal} - Bootstrap modal instance
+ */
   static show(modalId, options = {}) {
     const modal = document.getElementById(modalId);
     if (modal) {
@@ -211,9 +213,9 @@ export class ModalComponent {
   }
 
   /**
-   * Hide modal
-   * @param {string} modalId - Modal element ID
-   */
+ * Hide modal
+ * @param {string} modalId - Modal element ID
+ */
   static hide(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
@@ -240,7 +242,9 @@ export class ServiceCardsComponent {
       const content = section.querySelector('.card-section-content');
       const serviceCards = section.querySelectorAll('.service-card');
 
-      if (!content || serviceCards.length === 0) return;
+      if (!content || serviceCards.length === 0) {
+        return;
+      }
 
       console.log(`Found ${serviceCards.length} service cards`);
 
@@ -270,7 +274,9 @@ export class ServiceCardsComponent {
   limitServiceDisplay(content, serviceCards) {
     const maxDisplay = 10;
 
-    if (serviceCards.length <= maxDisplay) return;
+    if (serviceCards.length <= maxDisplay) {
+      return;
+    }
 
     // Hide cards beyond the 10th
     serviceCards.forEach((card, index) => {
@@ -305,7 +311,9 @@ export class ServiceCardsComponent {
   }
 
   addMoreContentIndicators(section, serviceCards) {
-    if (serviceCards.length <= 10) return;
+    if (serviceCards.length <= 10) {
+      return;
+    }
 
     // Add class to section to show indicators
     section.classList.add('has-more-content');
@@ -333,10 +341,14 @@ export class ServiceCardsComponent {
     section.classList.remove('has-more-content');
 
     const indicator = section.querySelector('.more-content-indicator');
-    if (indicator) indicator.remove();
+    if (indicator) {
+      indicator.remove();
+    }
 
     const bottomIndicator = section.querySelector('.bottom-indicator');
-    if (bottomIndicator) bottomIndicator.remove();
+    if (bottomIndicator) {
+      bottomIndicator.remove();
+    }
   }
 
   toggleServiceDisplay(content, serviceCards, showMoreCard) {

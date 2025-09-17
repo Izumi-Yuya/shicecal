@@ -17,7 +17,7 @@ class FacilityBasicInfoSeeder extends Seeder
     {
         // 管理者ユーザーを取得（存在しない場合は作成）
         $adminUser = User::where('email', 'admin@example.com')->first();
-        if (!$adminUser) {
+        if (! $adminUser) {
             $adminUser = User::create([
                 'name' => '管理者',
                 'email' => 'admin@example.com',

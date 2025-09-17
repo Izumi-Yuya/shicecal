@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\ActivityLog;
-use App\Models\AnnualConfirmation;
 use App\Models\Comment;
 use App\Models\ExportFavorite;
 use App\Models\Facility;
@@ -38,8 +36,9 @@ class TestDataSeeder extends Seeder
         $viewer = User::where('role', 'viewer')->first();
         $responder = User::where('role', 'primary_responder')->first();
 
-        if ($facilities->isEmpty() || !$viewer || !$responder) {
+        if ($facilities->isEmpty() || ! $viewer || ! $responder) {
             $this->command->warn('Insufficient data for creating comments. Please run other seeders first.');
+
             return;
         }
 
@@ -83,7 +82,7 @@ class TestDataSeeder extends Seeder
             Comment::create($commentData);
         }
 
-        $this->command->info('Created ' . count($comments) . ' test comments.');
+        $this->command->info('Created '.count($comments).' test comments.');
     }
 
     /**
@@ -96,6 +95,7 @@ class TestDataSeeder extends Seeder
 
         if ($users->isEmpty() || empty($facilities)) {
             $this->command->warn('Insufficient data for creating export favorites.');
+
             return;
         }
 
@@ -111,9 +111,9 @@ class TestDataSeeder extends Seeder
                 'name' => '全項目出力',
                 'facility_ids' => array_slice($facilities, 0, 5),
                 'export_fields' => [
-                    'company_name', 'office_code', 'designation_number', 
-                    'facility_name', 'postal_code', 'address', 
-                    'phone_number', 'fax_number', 'status'
+                    'company_name', 'office_code', 'designation_number',
+                    'facility_name', 'postal_code', 'address',
+                    'phone_number', 'fax_number', 'status',
                 ],
             ],
         ];
@@ -131,7 +131,7 @@ class TestDataSeeder extends Seeder
             ExportFavorite::create($favoriteData);
         }
 
-        $this->command->info('Created ' . count($favorites) . ' export favorites.');
+        $this->command->info('Created '.count($favorites).' export favorites.');
     }
 
     /**
@@ -142,8 +142,9 @@ class TestDataSeeder extends Seeder
         $facilities = Facility::approved()->take(3)->get();
         $editor = User::where('role', 'editor')->first();
 
-        if ($facilities->isEmpty() || !$editor) {
+        if ($facilities->isEmpty() || ! $editor) {
             $this->command->warn('Insufficient data for creating maintenance histories.');
+
             return;
         }
 
@@ -194,7 +195,7 @@ class TestDataSeeder extends Seeder
             MaintenanceHistory::create($maintenanceData);
         }
 
-        $this->command->info('Created ' . count($maintenances) . ' maintenance histories.');
+        $this->command->info('Created '.count($maintenances).' maintenance histories.');
     }
 
     /**
@@ -207,6 +208,7 @@ class TestDataSeeder extends Seeder
 
         if ($users->isEmpty() || empty($facilities)) {
             $this->command->warn('Insufficient data for creating maintenance search favorites.');
+
             return;
         }
 
@@ -244,7 +246,7 @@ class TestDataSeeder extends Seeder
             MaintenanceSearchFavorite::create($favoriteData);
         }
 
-        $this->command->info('Created ' . count($searchFavorites) . ' maintenance search favorites.');
+        $this->command->info('Created '.count($searchFavorites).' maintenance search favorites.');
     }
 
     /**
@@ -256,8 +258,9 @@ class TestDataSeeder extends Seeder
         $viewer = User::where('role', 'viewer')->first();
         $facility = Facility::approved()->first();
 
-        if (!$responder || !$viewer || !$facility) {
+        if (! $responder || ! $viewer || ! $facility) {
             $this->command->warn('Insufficient data for creating notifications.');
+
             return;
         }
 
@@ -266,7 +269,7 @@ class TestDataSeeder extends Seeder
                 'user_id' => $responder->id,
                 'type' => 'comment_posted',
                 'title' => '新しいコメントが投稿されました',
-                'message' => $viewer->name . ' さんが施設「' . $facility->facility_name . '」にコメントを投稿しました。',
+                'message' => $viewer->name.' さんが施設「'.$facility->facility_name.'」にコメントを投稿しました。',
                 'data' => [
                     'comment_id' => 1,
                     'facility_id' => $facility->id,
@@ -281,7 +284,7 @@ class TestDataSeeder extends Seeder
                 'user_id' => $viewer->id,
                 'type' => 'comment_status_changed',
                 'title' => 'コメントのステータスが更新されました',
-                'message' => '施設「' . $facility->facility_name . '」のあなたのコメントのステータスが「未対応」から「対応中」に変更されました。',
+                'message' => '施設「'.$facility->facility_name.'」のあなたのコメントのステータスが「未対応」から「対応中」に変更されました。',
                 'data' => [
                     'comment_id' => 1,
                     'facility_id' => $facility->id,
@@ -300,7 +303,7 @@ class TestDataSeeder extends Seeder
             Notification::create($notificationData);
         }
 
-        $this->command->info('Created ' . count($notifications) . ' test notifications.');
+        $this->command->info('Created '.count($notifications).' test notifications.');
     }
 
     /**
@@ -312,16 +315,17 @@ class TestDataSeeder extends Seeder
         $admin = User::where('role', 'admin')->first();
         $viewers = User::where('role', 'viewer')->get();
 
-        if ($facilities->isEmpty() || !$admin || $viewers->isEmpty()) {
+        if ($facilities->isEmpty() || ! $admin || $viewers->isEmpty()) {
             $this->command->warn('Insufficient data for creating annual confirmations.');
+
             return;
         }
 
         $confirmations = [];
-        
+
         foreach ($facilities as $index => $facility) {
             $viewer = $viewers->get($index % $viewers->count());
-            
+
             // Create completed confirmation
             $confirmations[] = [
                 'facility_id' => $facility->id,
@@ -368,13 +372,13 @@ class TestDataSeeder extends Seeder
             $existing = \App\Models\AnnualConfirmation::where('facility_id', $confirmationData['facility_id'])
                 ->where('confirmation_year', $confirmationData['confirmation_year'])
                 ->first();
-                
-            if (!$existing) {
+
+            if (! $existing) {
                 \App\Models\AnnualConfirmation::create($confirmationData);
             }
         }
 
-        $this->command->info('Created ' . count($confirmations) . ' annual confirmations.');
+        $this->command->info('Created '.count($confirmations).' annual confirmations.');
     }
 
     /**
@@ -387,6 +391,7 @@ class TestDataSeeder extends Seeder
 
         if ($users->isEmpty() || $facilities->isEmpty()) {
             $this->command->warn('Insufficient data for creating activity logs.');
+
             return;
         }
 
@@ -417,13 +422,13 @@ class TestDataSeeder extends Seeder
             $facility = $facilities->random();
             $action = array_rand($actions);
             $actionName = $actions[$action];
-            
+
             $createdAt = now()->subDays(rand(0, 30))->subHours(rand(0, 23))->subMinutes(rand(0, 59));
-            
+
             // Determine target type and ID based on action
             $targetType = 'App\\Models\\User'; // Default target type
             $targetId = $user->id; // Default target ID
-            
+
             if (in_array($action, ['facility_view', 'facility_create', 'facility_update', 'facility_delete', 'comment_post', 'file_upload', 'maintenance_create'])) {
                 $targetType = 'App\\Models\\Facility';
                 $targetId = $facility->id;
@@ -434,7 +439,7 @@ class TestDataSeeder extends Seeder
                 $targetType = 'App\\Models\\SystemSetting';
                 $targetId = 1; // Assuming system settings have IDs
             }
-            
+
             $activities[] = [
                 'user_id' => $user->id,
                 'action' => $action,
@@ -451,7 +456,7 @@ class TestDataSeeder extends Seeder
             \App\Models\ActivityLog::create($activityData);
         }
 
-        $this->command->info('Created ' . count($activities) . ' activity logs.');
+        $this->command->info('Created '.count($activities).' activity logs.');
     }
 
     /**
@@ -460,13 +465,13 @@ class TestDataSeeder extends Seeder
     private function generateRandomIP(): string
     {
         $ips = [
-            '192.168.1.' . rand(1, 254),
-            '10.0.0.' . rand(1, 254),
-            '172.16.0.' . rand(1, 254),
-            '203.104.209.' . rand(1, 254),
-            '133.106.33.' . rand(1, 254),
+            '192.168.1.'.rand(1, 254),
+            '10.0.0.'.rand(1, 254),
+            '172.16.0.'.rand(1, 254),
+            '203.104.209.'.rand(1, 254),
+            '133.106.33.'.rand(1, 254),
         ];
-        
+
         return $ips[array_rand($ips)];
     }
 
@@ -482,9 +487,7 @@ class TestDataSeeder extends Seeder
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/605.1.15',
             'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
         ];
-        
+
         return $userAgents[array_rand($userAgents)];
     }
-
-
 }

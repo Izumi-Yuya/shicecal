@@ -1,8 +1,125 @@
-/* Facility Detail Page Styles */
+/* ========================================
+   Facility Detail Page Styles
+   Optimized and Refactored Version
+   ======================================== */
 
-/* タブナビゲーションのスタイル */
+/* ========================================
+   CSS Variables - Design System
+   ======================================== */
+:root {
+  /* Color Palette */
+  --primary-blue: #0d6efd;
+  --primary-blue-dark: #0a58ca;
+  --primary-blue-light: rgba(13, 110, 253, 0.1);
+
+  /* Border Colors */
+  --border-light: #dee2e6;
+  --border-lighter: #e9ecef;
+  --border-lightest: #f0f0f0;
+
+  /* Background Colors */
+  --bg-light: #f8f9fa;
+  --bg-hover: #f5f5f5;
+  --bg-stripe: #fbfbfb;
+
+  /* Text Colors */
+  --text-primary: #212529;
+  --text-secondary: #495057;
+  --text-muted: #6c757d;
+
+  /* Typography Scale */
+  --font-size-base: 0.9rem;
+  --font-size-sm: 0.875rem;
+  --font-size-xs: 0.8rem;
+  --font-size-xxs: 0.75rem;
+
+  /* Spacing Scale */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 0.75rem;
+  --spacing-lg: 1rem;
+  --spacing-xl: 1.5rem;
+  --spacing-xxl: 2rem;
+
+  /* Component Specific */
+  --detail-label-width: 150px;
+  --detail-min-height: 0.5rem;
+  --border-radius: 0.5rem;
+  --box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+  --box-shadow-hover: 0 0.25rem 2rem 0 rgba(58, 59, 69, 0.2);
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+}
+
+/* ========================================
+   Base Card Styles
+   ======================================== */
+.facility-info-card,
+.building-info-card {
+  border: 1px solid var(--border-light);
+  box-shadow: var(--box-shadow);
+  transition: box-shadow var(--transition-normal);
+  border-radius: var(--border-radius);
+}
+
+.facility-info-card:hover,
+.building-info-card:hover {
+  box-shadow: var(--box-shadow-hover);
+}
+
+/* Card Headers */
+.facility-info-card .card-header,
+.building-info-card .card-header,
+.form-section .card-header {
+  background: linear-gradient(135deg, var(--primary-blue), var(--primary-blue-dark));
+  color: white;
+  border-bottom: none;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.facility-info-card .card-header h5,
+.facility-info-card .card-header h6,
+.building-info-card .card-header h5,
+.building-info-card .card-header h6,
+.form-section .card-header h5 {
+  margin: 0;
+  font-size: 1rem;
+  color: white;
+}
+
+.facility-info-card .card-header i,
+.building-info-card .card-header i,
+.form-section .card-header i {
+  color: white !important;
+}
+
+/* Header Buttons */
+.facility-info-card .card-header .btn,
+.building-info-card .card-header .btn {
+  color: white;
+  border-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.1);
+  transition: all var(--transition-fast);
+}
+
+.facility-info-card .card-header .btn:hover,
+.building-info-card .card-header .btn:hover {
+  color: white;
+  border-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ========================================
+   Tab Navigation
+   ======================================== */
 .facility-detail-container .nav-tabs {
-  border-bottom: 2px solid #dee2e6;
+  border-bottom: 2px solid var(--border-light);
   margin-bottom: 0;
 }
 
@@ -10,34 +127,34 @@
   border: none;
   border-bottom: 3px solid transparent;
   background: none;
-  color: #6c757d;
+  color: var(--text-muted);
   font-weight: 500;
-  padding: 1rem 1.5rem;
+  padding: var(--spacing-lg) var(--spacing-xl);
   margin-bottom: -2px;
-  transition: all 0.3s ease;
+  transition: all var(--transition-normal);
 }
 
 .facility-detail-container .nav-tabs .nav-link:hover {
   border-color: transparent;
-  color: #495057;
-  background-color: #f8f9fa;
+  color: var(--text-secondary);
+  background-color: var(--bg-light);
 }
 
 .facility-detail-container .nav-tabs .nav-link.active {
-  color: #0d6efd;
-  border-bottom-color: #0d6efd;
+  color: var(--primary-blue);
+  border-bottom-color: var(--primary-blue);
   background-color: transparent;
 }
 
 .facility-detail-container .tab-content {
-  padding-top: 2rem;
+  padding-top: var(--spacing-xxl);
 }
 
-/* タブコンテンツのアニメーション */
+/* Tab Animation */
 .facility-detail-container .tab-pane {
   opacity: 0;
   transform: translateY(10px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: opacity var(--transition-normal), transform var(--transition-normal);
 }
 
 .facility-detail-container .tab-pane.show.active {
@@ -45,91 +162,201 @@
   transform: translateY(0);
 }
 
-/* 施設詳細テーブルのスタイル */
-.facility-detail-table {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+/* ========================================
+   Detail Card Layout (PC Optimized)
+   ======================================== */
+@media (min-width: 1024px) {
+
+  .detail-card-improved .mb-3,
+  .detail-card-improved .detail-row {
+    margin-bottom: var(--spacing-md) !important;
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid var(--border-lighter);
+    display: flex;
+    align-items: flex-start;
+    min-height: var(--detail-min-height);
+  }
+
+  .detail-card-improved .mb-3:last-child,
+  .detail-card-improved .detail-row:last-child {
+    border-bottom: none;
+    margin-bottom: 0 !important;
+  }
+
+  /* Labels */
+  .detail-card-improved .form-label,
+  .detail-card-improved .detail-label {
+    min-width: var(--detail-label-width);
+    max-width: var(--detail-label-width);
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding-right: var(--spacing-lg);
+    border-right: 2px solid var(--border-lighter);
+    margin-right: var(--spacing-lg);
+    flex-shrink: 0;
+    line-height: 1.4;
+    margin-bottom: 0 !important;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Values */
+  .detail-card-improved .form-control-plaintext,
+  .detail-card-improved .detail-value {
+    flex: 1;
+    color: var(--text-primary);
+    word-break: break-word;
+    line-height: 1.4;
+    margin-bottom: 0 !important;
+    padding: 0;
+    border: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    min-height: 1.5rem;
+  }
+
+  /* Empty Fields */
+  .detail-card-improved .empty-field {
+    display: none;
+  }
+
+  .detail-card-improved.show-empty-fields .empty-field {
+    display: flex;
+  }
+
+  .detail-card-improved .empty-field .form-control-plaintext,
+  .detail-card-improved .empty-field .detail-value {
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .detail-card-improved .empty-field .form-control-plaintext::before {
+    content: "未設定";
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  /* Hover Effects */
+  .detail-card-improved .mb-3:hover {
+    background-color: var(--primary-blue-light);
+    transition: background-color var(--transition-fast);
+  }
+
+  .detail-card-improved .mb-3:focus-within {
+    background-color: rgba(0, 123, 255, 0.05);
+    outline: 2px solid rgba(0, 123, 255, 0.25);
+    outline-offset: -2px;
+  }
 }
 
-.detail-row {
-  display: flex;
-  align-items: flex-start;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #f0f0f0;
+/* ========================================
+   Building Info Specific Styles
+   ======================================== */
+.building-info-card .info-grid {
+  display: grid;
+  gap: var(--spacing-lg);
 }
 
-.detail-row:last-child {
+.building-info-card .info-item {
+  border-bottom: 1px solid var(--border-lightest);
+  padding-bottom: var(--spacing-sm);
+}
+
+.building-info-card .info-item:last-child {
   border-bottom: none;
 }
 
-.detail-label {
-  font-weight: 600;
-  color: #495057;
-  min-width: 140px;
-  flex-shrink: 0;
-  margin-right: 1rem;
-  font-size: 0.9rem;
+.building-info-card .info-label {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: var(--spacing-xs);
+  display: block;
 }
 
-.detail-value {
-  flex: 1;
-  color: #212529;
-  word-break: break-word;
+.building-info-card .info-value {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  font-weight: 400;
 }
 
-.facility-info-card {
-  border: 1px solid #e3e6f0;
-  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-  transition: all 0.3s;
+/* ========================================
+   Auto-Calculation Fields
+   ======================================== */
+.auto-calc-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-left: var(--spacing-sm);
+  padding: 0.125rem 0.375rem;
+  background-color: rgba(13, 202, 240, 0.1);
+  border: 1px solid rgba(13, 202, 240, 0.3);
+  border-radius: 12px;
+  font-size: var(--font-size-xxs);
+  color: #0dcaf0;
 }
 
-.facility-info-card:hover {
-  box-shadow: 0 0.25rem 2rem 0 rgba(58, 59, 69, 0.2);
+.auto-calc-field {
+  background-color: var(--bg-light) !important;
+  border: 2px solid #0dcaf0 !important;
+  color: var(--text-secondary) !important;
+  cursor: not-allowed;
 }
 
-.facility-info-card .card-header {
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-  color: white;
-  border-bottom: none;
-  font-weight: 600;
+.auto-calc-field:focus {
+  background-color: var(--bg-light) !important;
+  border-color: #0dcaf0 !important;
+  box-shadow: 0 0 0 0.2rem rgba(13, 202, 240, 0.25) !important;
 }
 
-.facility-info-card .card-header h5 {
-  margin: 0;
-  font-size: 1rem;
-  color: white;
-}
-
-.facility-info-card .card-header i {
-  color: white !important;
-}
-
-.facility-info-card .card-header .btn {
-  color: white;
-  border-color: rgba(255, 255, 255, 0.3);
+/* ========================================
+   Toggle Button for Empty Fields
+   ======================================== */
+.empty-fields-toggle {
+  font-size: var(--font-size-sm);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: 20px;
+  transition: all var(--transition-fast);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  cursor: pointer;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
 }
 
-.facility-info-card .card-header .btn:hover {
-  color: white;
+.empty-fields-toggle:hover {
   border-color: rgba(255, 255, 255, 0.5);
   background-color: rgba(255, 255, 255, 0.2);
-}
-
-.facility-info-card .card-header .btn i {
-  color: white !important;
-}
-
-.facility-info-card .card-header .comment-count {
   color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* レスポンシブデザイン */
+.empty-fields-toggle.active {
+  background-color: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.empty-fields-toggle i {
+  font-size: var(--font-size-xxs);
+  transition: transform var(--transition-normal);
+}
+
+.empty-fields-toggle.active i {
+  transform: rotate(180deg);
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
 @media (max-width: 768px) {
   .facility-detail-container .nav-tabs .nav-link {
-    padding: 0.75rem 1rem;
-    font-size: 0.9rem;
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: var(--font-size-sm);
   }
 
   .facility-detail-container .nav-tabs .nav-link i {
@@ -137,7 +364,28 @@
   }
 
   .facility-detail-container .tab-content {
-    padding-top: 1rem;
+    padding-top: var(--spacing-lg);
+  }
+
+  .detail-row {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  .detail-label {
+    min-width: auto;
+    margin-right: 0;
+    font-weight: 700;
+    color: var(--text-muted);
+  }
+
+  .empty-fields-toggle {
+    font-size: var(--font-size-xs);
+    padding: 0.3rem 0.6rem;
+  }
+
+  .empty-fields-toggle .toggle-text {
+    display: none;
   }
 }
 
@@ -154,22 +402,136 @@
 
   .facility-detail-container .nav-tabs .nav-link {
     white-space: nowrap;
-    padding: 0.75rem;
+    padding: var(--spacing-md);
+  }
+
+  .empty-fields-toggle {
+    font-size: var(--font-size-xxs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: 15px;
   }
 }
 
-/* Add
-itional responsive styles for detail rows */
-@media (max-width: 768px) {
-  .detail-row {
-    flex-direction: column;
-    gap: 0.25rem;
+/* ========================================
+   Accessibility & Print Styles
+   ======================================== */
+
+/* Focus States */
+.detail-card-improved .detail-row:focus-within {
+  background-color: var(--primary-blue-light);
+  outline: 2px solid rgba(13, 110, 253, 0.25);
+  outline-offset: -2px;
+  border-radius: 4px;
+}
+
+.detail-card-improved .detail-value a:focus {
+  outline: 2px solid var(--primary-blue);
+  outline-offset: 2px;
+  border-radius: 3px;
+  background-color: var(--primary-blue-light);
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .detail-card-improved .detail-label {
+    color: #000000;
+    font-weight: 700;
   }
 
-  .detail-label {
-    min-width: auto;
-    margin-right: 0;
-    font-weight: 700;
-    color: #6c757d;
+  .detail-card-improved .detail-value {
+    color: #000000;
+    background-color: #ffffff;
   }
+
+  .empty-fields-toggle {
+    border: 2px solid white;
+    background-color: rgba(0, 0, 0, 0.9);
+    color: white;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+
+  .empty-fields-toggle,
+  .empty-fields-toggle i,
+  .detail-card-improved .mb-3,
+  .detail-card-improved .detail-row {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .empty-fields-toggle.active i {
+    transform: none !important;
+  }
+}
+
+/* Print Styles */
+@media print {
+
+  .detail-card-improved .mb-3,
+  .detail-card-improved .detail-row {
+    border-bottom: 1px solid #000 !important;
+    padding: 0.25rem 0 !important;
+    page-break-inside: avoid;
+    background: white !important;
+  }
+
+  .detail-card-improved .form-label,
+  .detail-card-improved .detail-label {
+    border-right: 1px solid #000 !important;
+    font-weight: bold !important;
+    color: #000 !important;
+  }
+
+  .detail-card-improved .empty-fields-toggle {
+    display: none !important;
+  }
+
+  .detail-card-improved .empty-field {
+    display: flex !important;
+  }
+}
+
+/* ========================================
+   Legacy Browser Support
+   ======================================== */
+
+/* CSS Variables Fallback */
+.no-css-variables .detail-card-improved .mb-3 {
+  margin-bottom: 0.75rem !important;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.no-css-variables .detail-card-improved .form-label {
+  min-width: 140px;
+  max-width: 140px;
+  padding-right: 1rem;
+  border-right: 2px solid #e9ecef;
+  margin-right: 1rem;
+}
+
+/* Flexbox Fallback */
+.no-flexbox .detail-card-improved .mb-3 {
+  display: block;
+  overflow: hidden;
+}
+
+.no-flexbox .detail-card-improved .form-label {
+  float: left;
+  width: 140px;
+}
+
+.no-flexbox .detail-card-improved .form-control-plaintext {
+  margin-left: 160px;
+}
+
+/* JavaScript Disabled Fallback */
+.no-js .detail-card-improved .empty-field {
+  display: flex !important;
+}
+
+.no-js .empty-fields-toggle {
+  display: none !important;
 }

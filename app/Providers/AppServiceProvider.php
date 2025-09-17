@@ -2,12 +2,12 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use App\Services\FacilityService;
-use App\Services\ExportService;
-use App\Services\NotificationService;
 use App\Services\ActivityLogService;
+use App\Services\ExportService;
+use App\Services\FacilityService;
+use App\Services\NotificationService;
 use App\Services\PerformanceMonitoringService;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -31,20 +31,5 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
-    {
-        // Register view composers
-        $this->registerViewComposers();
-    }
-
-    /**
-     * Register view composers
-     */
-    private function registerViewComposers(): void
-    {
-        view()->composer(
-            'facilities.partials.service-table',
-            \App\Http\View\Composers\ServiceTableComposer::class
-        );
-    }
+    public function boot() {}
 }

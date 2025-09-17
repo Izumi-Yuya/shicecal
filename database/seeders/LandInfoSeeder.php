@@ -5,9 +5,9 @@ namespace Database\Seeders;
 use App\Models\Facility;
 use App\Models\LandInfo;
 use App\Models\User;
-use Illuminate\Database\Seeder;
 use Carbon\Carbon;
 use Faker\Factory as Faker;
+use Illuminate\Database\Seeder;
 
 class LandInfoSeeder extends Seeder
 {
@@ -26,8 +26,9 @@ class LandInfoSeeder extends Seeder
         $editor = User::where('role', 'editor')->first();
         $approver = User::where('role', 'approver')->first();
 
-        if (!$editor || !$approver) {
+        if (! $editor || ! $approver) {
             $this->command->warn('Editor or approver user not found. Please run AdminUserSeeder first.');
+
             return;
         }
 
@@ -36,6 +37,7 @@ class LandInfoSeeder extends Seeder
 
         if ($facilities->isEmpty()) {
             $this->command->warn('No facilities found. Please run FacilitySeeder first.');
+
             return;
         }
 
@@ -47,6 +49,7 @@ class LandInfoSeeder extends Seeder
             // Skip if land info already exists
             if (LandInfo::where('facility_id', $facility->id)->exists()) {
                 $this->command->info("Land info already exists for facility: {$facility->facility_name}");
+
                 continue;
             }
 
@@ -82,19 +85,20 @@ class LandInfoSeeder extends Seeder
                 $landInfoData[] = $baseData;
                 $createdCount++;
             } catch (\Exception $e) {
-                $this->command->error("Error creating land info for facility {$facility->id}: " . $e->getMessage());
+                $this->command->error("Error creating land info for facility {$facility->id}: ".$e->getMessage());
+
                 continue;
             }
         }
 
         // Create land info records in batches for better performance
-        if (!empty($landInfoData)) {
+        if (! empty($landInfoData)) {
             foreach (array_chunk($landInfoData, 50) as $chunk) {
                 foreach ($chunk as $data) {
                     try {
                         LandInfo::create($data);
                     } catch (\Exception $e) {
-                        $this->command->error("Error saving land info: " . $e->getMessage());
+                        $this->command->error('Error saving land info: '.$e->getMessage());
                     }
                 }
             }
@@ -264,7 +268,7 @@ class LandInfoSeeder extends Seeder
             $notes[] = 'バリアフリー対応済み';
         }
 
-        return empty($notes) ? null : implode('。', $notes) . '。';
+        return empty($notes) ? null : implode('。', $notes).'。';
     }
 
     /**
@@ -307,8 +311,8 @@ class LandInfoSeeder extends Seeder
             'lease_contract_pdf_path' => null,
             'lease_contract_pdf_name' => null,
             'registry_pdf_path' => fake()->optional(0.95)->randomElement([
-                'land_documents/registry/owned_property_' . fake()->uuid() . '.pdf',
-                'land_documents/registry/self_owned_registry_' . fake()->uuid() . '.pdf',
+                'land_documents/registry/owned_property_'.fake()->uuid().'.pdf',
+                'land_documents/registry/self_owned_registry_'.fake()->uuid().'.pdf',
             ]),
             'registry_pdf_name' => fake()->optional(0.95)->randomElement([
                 '自社所有不動産登記簿謄本.pdf',
@@ -358,22 +362,22 @@ class LandInfoSeeder extends Seeder
 
             // PDF file information (simulated)
             'lease_contract_pdf_path' => fake()->optional(0.8)->randomElement([
-                'land_documents/lease_contracts/contract_' . fake()->uuid() . '.pdf',
-                'land_documents/lease_contracts/lease_agreement_' . fake()->uuid() . '.pdf',
+                'land_documents/lease_contracts/contract_'.fake()->uuid().'.pdf',
+                'land_documents/lease_contracts/lease_agreement_'.fake()->uuid().'.pdf',
             ]),
             'lease_contract_pdf_name' => fake()->optional(0.8)->randomElement([
-                '賃貸借契約書_' . $facility->facility_name . '.pdf',
-                '土地賃貸契約書_' . date('Y年m月d日') . '.pdf',
+                '賃貸借契約書_'.$facility->facility_name.'.pdf',
+                '土地賃貸契約書_'.date('Y年m月d日').'.pdf',
                 '賃貸借契約書及び覚書.pdf',
             ]),
             'registry_pdf_path' => fake()->optional(0.9)->randomElement([
-                'land_documents/registry/registry_' . fake()->uuid() . '.pdf',
-                'land_documents/registry/land_registry_' . fake()->uuid() . '.pdf',
+                'land_documents/registry/registry_'.fake()->uuid().'.pdf',
+                'land_documents/registry/land_registry_'.fake()->uuid().'.pdf',
             ]),
             'registry_pdf_name' => fake()->optional(0.9)->randomElement([
-                '土地登記簿謄本_' . $facility->facility_name . '.pdf',
+                '土地登記簿謄本_'.$facility->facility_name.'.pdf',
                 '不動産登記事項証明書.pdf',
-                '登記簿謄本_' . date('Y年m月d日取得') . '.pdf',
+                '登記簿謄本_'.date('Y年m月d日取得').'.pdf',
             ]),
         ];
     }
@@ -420,17 +424,17 @@ class LandInfoSeeder extends Seeder
 
             // PDF file information (simulated)
             'lease_contract_pdf_path' => fake()->optional(0.9)->randomElement([
-                'land_documents/lease_contracts/rental_contract_' . fake()->uuid() . '.pdf',
-                'land_documents/lease_contracts/tenant_agreement_' . fake()->uuid() . '.pdf',
+                'land_documents/lease_contracts/rental_contract_'.fake()->uuid().'.pdf',
+                'land_documents/lease_contracts/tenant_agreement_'.fake()->uuid().'.pdf',
             ]),
             'lease_contract_pdf_name' => fake()->optional(0.9)->randomElement([
-                'テナント賃貸借契約書_' . $facility->facility_name . '.pdf',
+                'テナント賃貸借契約書_'.$facility->facility_name.'.pdf',
                 '事業用賃貸借契約書.pdf',
-                '賃貸借契約書_' . date('Y年m月d日') . '.pdf',
+                '賃貸借契約書_'.date('Y年m月d日').'.pdf',
             ]),
             'registry_pdf_path' => fake()->optional(0.95)->randomElement([
-                'land_documents/registry/owned_registry_' . fake()->uuid() . '.pdf',
-                'land_documents/registry/property_registry_' . fake()->uuid() . '.pdf',
+                'land_documents/registry/owned_registry_'.fake()->uuid().'.pdf',
+                'land_documents/registry/property_registry_'.fake()->uuid().'.pdf',
             ]),
             'registry_pdf_name' => fake()->optional(0.95)->randomElement([
                 '自社所有土地登記簿謄本.pdf',
@@ -465,6 +469,7 @@ class LandInfoSeeder extends Seeder
             ) {
                 return fake()->numberBetween(400000, 700000); // High-end residential
             }
+
             return fake()->numberBetween(300000, 600000); // Other Tokyo areas
         }
 
@@ -477,6 +482,7 @@ class LandInfoSeeder extends Seeder
             ) {
                 return fake()->numberBetween(250000, 500000); // Central Osaka
             }
+
             return fake()->numberBetween(150000, 350000); // Other Osaka areas
         }
 
@@ -485,6 +491,7 @@ class LandInfoSeeder extends Seeder
             if (str_contains($address, '横浜市')) {
                 return fake()->numberBetween(200000, 450000);
             }
+
             return fake()->numberBetween(180000, 350000);
         }
 
@@ -492,6 +499,7 @@ class LandInfoSeeder extends Seeder
             if (str_contains($address, '名古屋市')) {
                 return fake()->numberBetween(180000, 400000);
             }
+
             return fake()->numberBetween(120000, 280000);
         }
 
@@ -735,7 +743,7 @@ class LandInfoSeeder extends Seeder
      */
     private function calculateContractPeriod($startDate, $endDate): string
     {
-        if (!$startDate || !$endDate) {
+        if (! $startDate || ! $endDate) {
             return '';
         }
 
@@ -753,10 +761,10 @@ class LandInfoSeeder extends Seeder
 
             $result = '';
             if ($years > 0) {
-                $result .= $years . '年';
+                $result .= $years.'年';
             }
             if ($months > 0) {
-                $result .= $months . 'ヶ月';
+                $result .= $months.'ヶ月';
             }
 
             return $result ?: '1ヶ月未満';
@@ -818,7 +826,7 @@ class LandInfoSeeder extends Seeder
             'management',
         ];
 
-        return fake()->randomElement($prefixes) . '@' . fake()->randomElement($domains);
+        return fake()->randomElement($prefixes).'@'.fake()->randomElement($domains);
     }
 
     /**
@@ -834,7 +842,7 @@ class LandInfoSeeder extends Seeder
             'realestate-pro.co.jp',
         ];
 
-        return fake()->boolean(70) ? 'https://www.' . fake()->randomElement($domains) : null;
+        return fake()->boolean(70) ? 'https://www.'.fake()->randomElement($domains) : null;
     }
 
     /**
@@ -930,7 +938,7 @@ class LandInfoSeeder extends Seeder
             'facility',
         ];
 
-        return fake()->randomElement($prefixes) . '@' . fake()->randomElement($domains);
+        return fake()->randomElement($prefixes).'@'.fake()->randomElement($domains);
     }
 
     /**
@@ -946,7 +954,7 @@ class LandInfoSeeder extends Seeder
             'medical-support.co.jp',
         ];
 
-        return fake()->boolean(80) ? 'https://www.' . fake()->randomElement($domains) : null;
+        return fake()->boolean(80) ? 'https://www.'.fake()->randomElement($domains) : null;
     }
 
     /**

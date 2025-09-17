@@ -2,14 +2,13 @@
 
 namespace Tests\Unit\Services;
 
-use App\Models\FacilityComment;
 use App\Models\Facility;
+use App\Models\FacilityComment;
 use App\Models\Notification;
 use App\Models\User;
 use App\Services\NotificationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
-use Mockery;
 use Tests\TestCase;
 
 class NotificationServiceTest extends TestCase
@@ -21,10 +20,8 @@ class NotificationServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new NotificationService();
+        $this->service = new NotificationService;
     }
-
-
 
     /**
      * Test comment posted notification.
@@ -245,7 +242,7 @@ class NotificationServiceTest extends TestCase
         $this->assertNotNull($notification);
         $this->assertEquals('annual_confirmation_request', $notification->type);
         $this->assertEquals('年次情報確認のお願い', $notification->title);
-        $this->assertStringContainsString((string)$year, $notification->message);
+        $this->assertStringContainsString((string) $year, $notification->message);
         $this->assertStringContainsString($facility->facility_name, $notification->message);
 
         $data = $notification->data;

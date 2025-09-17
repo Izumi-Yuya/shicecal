@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use App\Models\LandInfo;
 use App\Models\Facility;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -18,7 +17,7 @@ class LandInfoPolicy
     public function view(User $user, Facility $facility): bool
     {
         // Check if user can access the facility
-        if (!$user->canAccessFacility($facility->id)) {
+        if (! $user->canAccessFacility($facility->id)) {
             return false;
         }
 
@@ -50,7 +49,7 @@ class LandInfoPolicy
             'editor',
             'primary_responder',
             'approver',
-            'viewer'
+            'viewer',
         ]);
     }
 
@@ -61,7 +60,7 @@ class LandInfoPolicy
     public function create(User $user, Facility $facility): bool
     {
         // Only editors and above can create land information
-        if (!$user->canEdit()) {
+        if (! $user->canEdit()) {
             return false;
         }
 
@@ -76,12 +75,12 @@ class LandInfoPolicy
     public function update(User $user, Facility $facility): bool
     {
         // Only editors and above can update land information
-        if (!$user->canEdit()) {
+        if (! $user->canEdit()) {
             return false;
         }
 
         // Must have access to the facility
-        if (!$user->canAccessFacility($facility->id)) {
+        if (! $user->canAccessFacility($facility->id)) {
             return false;
         }
 
@@ -128,7 +127,7 @@ class LandInfoPolicy
     public function delete(User $user, Facility $facility): bool
     {
         // Only admins can delete land information
-        if (!$user->isAdmin()) {
+        if (! $user->isAdmin()) {
             return false;
         }
 
@@ -143,7 +142,7 @@ class LandInfoPolicy
     public function approve(User $user, Facility $facility): bool
     {
         // Only approvers and admins can approve changes
-        if (!$user->canApprove()) {
+        if (! $user->canApprove()) {
             return false;
         }
 
@@ -158,7 +157,7 @@ class LandInfoPolicy
     public function reject(User $user, Facility $facility): bool
     {
         // Only approvers and admins can reject changes
-        if (!$user->canApprove()) {
+        if (! $user->canApprove()) {
             return false;
         }
 
@@ -173,7 +172,7 @@ class LandInfoPolicy
     public function uploadDocuments(User $user, Facility $facility): bool
     {
         // Only editors and above can upload documents
-        if (!$user->canEdit()) {
+        if (! $user->canEdit()) {
             return false;
         }
 
@@ -198,7 +197,7 @@ class LandInfoPolicy
     public function deleteDocuments(User $user, Facility $facility): bool
     {
         // Only editors and above can delete documents
-        if (!$user->canEdit()) {
+        if (! $user->canEdit()) {
             return false;
         }
 
@@ -218,7 +217,7 @@ class LandInfoPolicy
             'editor',
             'primary_responder',
             'approver',
-            'viewer'
+            'viewer',
         ]);
     }
 
@@ -229,7 +228,7 @@ class LandInfoPolicy
     public function viewAuditLogs(User $user, Facility $facility): bool
     {
         // Only admins and approvers can view audit logs
-        if (!in_array($user->role, ['admin', 'approver'])) {
+        if (! in_array($user->role, ['admin', 'approver'])) {
             return false;
         }
 

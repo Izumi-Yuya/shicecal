@@ -16,7 +16,7 @@ class CommentStatusManagementTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Run migrations
         $this->artisan('migrate');
     }
@@ -24,7 +24,7 @@ class CommentStatusManagementTest extends TestCase
     public function test_primary_responder_can_view_status_dashboard()
     {
         $primaryResponder = User::factory()->create(['role' => 'primary_responder']);
-        
+
         // Create some comments with different statuses
         $facility = Facility::factory()->create();
         Comment::factory()->create(['facility_id' => $facility->id, 'status' => 'pending']);
@@ -46,7 +46,7 @@ class CommentStatusManagementTest extends TestCase
     {
         $primaryResponder = User::factory()->create(['role' => 'primary_responder']);
         $facility = Facility::factory()->create();
-        
+
         // Create comments with specific statuses
         Comment::factory()->count(2)->create(['facility_id' => $facility->id, 'status' => 'pending']);
         Comment::factory()->count(3)->create(['facility_id' => $facility->id, 'status' => 'in_progress']);
@@ -66,7 +66,7 @@ class CommentStatusManagementTest extends TestCase
     {
         $primaryResponder = User::factory()->create(['role' => 'primary_responder']);
         $facility = Facility::factory()->create();
-        
+
         Comment::factory()->create(['facility_id' => $facility->id, 'status' => 'pending']);
         Comment::factory()->create(['facility_id' => $facility->id, 'status' => 'in_progress']);
         Comment::factory()->create(['facility_id' => $facility->id, 'status' => 'resolved']);
@@ -84,10 +84,10 @@ class CommentStatusManagementTest extends TestCase
     public function test_status_dashboard_filters_by_facility_name()
     {
         $primaryResponder = User::factory()->create(['role' => 'primary_responder']);
-        
+
         $facility1 = Facility::factory()->create(['facility_name' => 'Test Facility A']);
         $facility2 = Facility::factory()->create(['facility_name' => 'Test Facility B']);
-        
+
         Comment::factory()->create(['facility_id' => $facility1->id]);
         Comment::factory()->create(['facility_id' => $facility2->id]);
 
@@ -106,9 +106,9 @@ class CommentStatusManagementTest extends TestCase
         $primaryResponder = User::factory()->create(['role' => 'primary_responder']);
         $assignee1 = User::factory()->create(['role' => 'primary_responder']);
         $assignee2 = User::factory()->create(['role' => 'primary_responder']);
-        
+
         $facility = Facility::factory()->create();
-        
+
         Comment::factory()->create(['facility_id' => $facility->id, 'assigned_to' => $assignee1->id]);
         Comment::factory()->create(['facility_id' => $facility->id, 'assigned_to' => $assignee2->id]);
 
@@ -126,7 +126,7 @@ class CommentStatusManagementTest extends TestCase
     {
         $primaryResponder = User::factory()->create(['role' => 'primary_responder']);
         $facility = Facility::factory()->create();
-        
+
         $comments = Comment::factory()->count(3)->create([
             'facility_id' => $facility->id,
             'status' => 'pending',
@@ -155,7 +155,7 @@ class CommentStatusManagementTest extends TestCase
     {
         $primaryResponder = User::factory()->create(['role' => 'primary_responder']);
         $facility = Facility::factory()->create();
-        
+
         $comment = Comment::factory()->create([
             'facility_id' => $facility->id,
             'status' => 'pending',
@@ -181,7 +181,7 @@ class CommentStatusManagementTest extends TestCase
     {
         $primaryResponder = User::factory()->create(['role' => 'primary_responder']);
         $facility = Facility::factory()->create();
-        
+
         $comment = Comment::factory()->create([
             'facility_id' => $facility->id,
             'status' => 'pending',
@@ -204,7 +204,7 @@ class CommentStatusManagementTest extends TestCase
     {
         $primaryResponder = User::factory()->create(['role' => 'primary_responder']);
         $facility = Facility::factory()->create();
-        
+
         $comment = Comment::factory()->create([
             'facility_id' => $facility->id,
             'status' => 'resolved',

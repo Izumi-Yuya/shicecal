@@ -13,6 +13,7 @@ class FacilityService extends Model
     protected $fillable = [
         'facility_id',
         'service_type',
+        'section',
         'renewal_start_date',
         'renewal_end_date',
     ];
@@ -35,11 +36,11 @@ class FacilityService extends Model
      */
     public function getRenewalPeriodAttribute(): string
     {
-        if (!$this->renewal_start_date || !$this->renewal_end_date) {
+        if (! $this->renewal_start_date || ! $this->renewal_end_date) {
             return '未設定';
         }
 
-        return $this->renewal_start_date->format('Y年m月d日') . ' ～ ' . $this->renewal_end_date->format('Y年m月d日');
+        return $this->renewal_start_date->format('Y年m月d日').' ～ '.$this->renewal_end_date->format('Y年m月d日');
     }
 
     /**
@@ -47,7 +48,7 @@ class FacilityService extends Model
      */
     public function isExpiringSoon(): bool
     {
-        if (!$this->renewal_end_date) {
+        if (! $this->renewal_end_date) {
             return false;
         }
 
@@ -59,7 +60,7 @@ class FacilityService extends Model
      */
     public function isExpired(): bool
     {
-        if (!$this->renewal_end_date) {
+        if (! $this->renewal_end_date) {
             return false;
         }
 

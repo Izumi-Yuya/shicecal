@@ -22,11 +22,11 @@ return new class extends Migration
             $table->string('contractor')->nullable();
             $table->unsignedBigInteger('created_by');
             $table->timestamps();
-            
+
             // Foreign key constraints
             $table->foreign('facility_id')->references('id')->on('facilities')->onDelete('cascade');
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
-            
+
             // Indexes
             $table->index('facility_id');
             $table->index('maintenance_date');

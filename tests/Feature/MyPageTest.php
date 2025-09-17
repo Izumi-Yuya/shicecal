@@ -17,7 +17,7 @@ class MyPageTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Run migrations
         $this->artisan('migrate');
     }
@@ -26,7 +26,7 @@ class MyPageTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'viewer']);
         $facility = Facility::factory()->create();
-        
+
         // Create some comments and notifications for the user
         Comment::factory()->count(3)->create(['posted_by' => $user->id, 'facility_id' => $facility->id]);
         Notification::factory()->count(2)->create(['user_id' => $user->id]);
@@ -47,7 +47,7 @@ class MyPageTest extends TestCase
     {
         $primaryResponder = User::factory()->create(['role' => 'primary_responder']);
         $facility = Facility::factory()->create();
-        
+
         // Create comments assigned to the primary responder
         Comment::factory()->count(2)->create([
             'assigned_to' => $primaryResponder->id,
@@ -61,7 +61,7 @@ class MyPageTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewHas('assignedComments');
         $response->assertViewHas('assignedStatusCounts');
-        
+
         $assignedComments = $response->viewData('assignedComments');
         $this->assertEquals(2, $assignedComments->count());
     }
@@ -70,7 +70,7 @@ class MyPageTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'viewer']);
         $facility = Facility::factory()->create();
-        
+
         // Create comments with different statuses
         Comment::factory()->create(['posted_by' => $user->id, 'facility_id' => $facility->id, 'status' => 'pending']);
         Comment::factory()->create(['posted_by' => $user->id, 'facility_id' => $facility->id, 'status' => 'in_progress']);
@@ -84,7 +84,7 @@ class MyPageTest extends TestCase
         $response->assertViewIs('my-page.my-comments');
         $response->assertViewHas('comments');
         $response->assertViewHas('statusCounts');
-        
+
         $statusCounts = $response->viewData('statusCounts');
         $this->assertEquals(1, $statusCounts['pending']);
         $this->assertEquals(1, $statusCounts['in_progress']);
@@ -95,7 +95,7 @@ class MyPageTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'viewer']);
         $facility = Facility::factory()->create();
-        
+
         Comment::factory()->create(['posted_by' => $user->id, 'facility_id' => $facility->id, 'status' => 'pending']);
         Comment::factory()->create(['posted_by' => $user->id, 'facility_id' => $facility->id, 'status' => 'resolved']);
 
@@ -112,10 +112,10 @@ class MyPageTest extends TestCase
     public function test_my_comments_filters_by_facility_name()
     {
         $user = User::factory()->create(['role' => 'viewer']);
-        
+
         $facility1 = Facility::factory()->create(['facility_name' => 'Test Facility A']);
         $facility2 = Facility::factory()->create(['facility_name' => 'Test Facility B']);
-        
+
         Comment::factory()->create(['posted_by' => $user->id, 'facility_id' => $facility1->id]);
         Comment::factory()->create(['posted_by' => $user->id, 'facility_id' => $facility2->id]);
 
@@ -133,7 +133,7 @@ class MyPageTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'viewer']);
         $facility = Facility::factory()->create();
-        
+
         // Create some resolved comments for statistics
         Comment::factory()->create([
             'posted_by' => $user->id,
@@ -158,7 +158,7 @@ class MyPageTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'viewer']);
         $facility = Facility::factory()->create();
-        
+
         // Create resolved comment with specific timing
         $comment = Comment::factory()->create([
             'posted_by' => $user->id,
@@ -180,10 +180,10 @@ class MyPageTest extends TestCase
     public function test_activity_summary_shows_top_facilities()
     {
         $user = User::factory()->create(['role' => 'viewer']);
-        
+
         $facility1 = Facility::factory()->create(['facility_name' => 'Facility A']);
         $facility2 = Facility::factory()->create(['facility_name' => 'Facility B']);
-        
+
         // Create more comments for facility1
         Comment::factory()->count(3)->create(['posted_by' => $user->id, 'facility_id' => $facility1->id]);
         Comment::factory()->count(1)->create(['posted_by' => $user->id, 'facility_id' => $facility2->id]);
@@ -194,7 +194,7 @@ class MyPageTest extends TestCase
 
         $topFacilities = $response->viewData('topFacilities');
         $this->assertEquals(2, $topFacilities->count());
-        
+
         // First facility should have more comments
         $this->assertEquals($facility1->id, $topFacilities->first()->facility_id);
         $this->assertEquals(3, $topFacilities->first()->comment_count);
@@ -205,7 +205,7 @@ class MyPageTest extends TestCase
         $user1 = User::factory()->create(['role' => 'viewer']);
         $user2 = User::factory()->create(['role' => 'viewer']);
         $facility = Facility::factory()->create();
-        
+
         // Create comments for both users
         Comment::factory()->count(2)->create(['posted_by' => $user1->id, 'facility_id' => $facility->id]);
         Comment::factory()->count(3)->create(['posted_by' => $user2->id, 'facility_id' => $facility->id]);
@@ -216,7 +216,7 @@ class MyPageTest extends TestCase
 
         $comments = $response->viewData('comments');
         $this->assertEquals(2, $comments->count());
-        
+
         // All comments should belong to user1
         foreach ($comments as $comment) {
             $this->assertEquals($user1->id, $comment->posted_by);
@@ -227,7 +227,7 @@ class MyPageTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'viewer']);
         $facility = Facility::factory()->create();
-        
+
         // Create comments with specific statuses
         Comment::factory()->count(2)->create(['posted_by' => $user->id, 'facility_id' => $facility->id, 'status' => 'pending']);
         Comment::factory()->count(1)->create(['posted_by' => $user->id, 'facility_id' => $facility->id, 'status' => 'in_progress']);

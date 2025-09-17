@@ -4,21 +4,19 @@ namespace App\Services;
 
 use App\Models\Facility;
 use App\Models\File;
-use App\Models\User;
 use App\Services\Traits\HandlesServiceErrors;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Exception;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Elibyy\TCPDF\Facades\TCPDF;
-use Barryvdh\DomPDF\Facade\Pdf;
 use ZipArchive;
-use Exception;
 
 /**
  * Unified export service handling PDF generation, CSV export, and file management
@@ -39,7 +37,7 @@ class ExportService
     {
         try {
             // Load land info if not already loaded
-            if (!$facility->relationLoaded('landInfo')) {
+            if (! $facility->relationLoaded('landInfo')) {
                 $facility->load('landInfo');
             }
 
@@ -56,7 +54,7 @@ class ExportService
             // Set document information
             $pdf->SetCreator('Shise-Cal System');
             $pdf->SetAuthor('Shise-Cal System');
-            $pdf->SetTitle('施設情報帳票 - ' . $facility->facility_name);
+            $pdf->SetTitle('施設情報帳票 - '.$facility->facility_name);
             $pdf->SetSubject('Facility Information Report');
             $pdf->SetKeywords('facility, report, shise-cal');
 
@@ -79,7 +77,7 @@ class ExportService
             $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
 
             // Set auto page breaks
-            $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+            $pdf->SetAutoPageBreak(true, PDF_MARGIN_BOTTOM);
 
             // Set image scale factor
             $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
@@ -102,7 +100,7 @@ class ExportService
         } catch (Exception $e) {
             $this->logError('Secure PDF generation failed', [
                 'facility_id' => $facility->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
@@ -115,7 +113,7 @@ class ExportService
     {
         try {
             // Load land info if not already loaded
-            if (!$facility->relationLoaded('landInfo')) {
+            if (! $facility->relationLoaded('landInfo')) {
                 $facility->load('landInfo');
             }
 
@@ -133,7 +131,7 @@ class ExportService
         } catch (Exception $e) {
             $this->logError('Standard PDF generation failed', [
                 'facility_id' => $facility->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
@@ -153,16 +151,16 @@ class ExportService
 
         try {
             $zipFilename = $this->generateZipFilename($useSecure);
-            $zipPath = storage_path('app/temp/' . $zipFilename);
+            $zipPath = storage_path('app/temp/'.$zipFilename);
 
             // Ensure temp directory exists
-            if (!file_exists(dirname($zipPath))) {
+            if (! file_exists(dirname($zipPath))) {
                 mkdir(dirname($zipPath), 0755, true);
             }
 
             $zip = new ZipArchive;
 
-            if ($zip->open($zipPath, ZipArchive::CREATE) !== TRUE) {
+            if ($zip->open($zipPath, ZipArchive::CREATE) !== true) {
                 throw new Exception('ZIP ファイルの作成に失敗しました。');
             }
 
@@ -187,11 +185,11 @@ class ExportService
                 } catch (Exception $e) {
                     $errors[] = [
                         'facility' => $facility->facility_name,
-                        'error' => $e->getMessage()
+                        'error' => $e->getMessage(),
                     ];
                     $this->logError('Batch PDF generation error', [
                         'facility_id' => $facility->id,
-                        'error' => $e->getMessage()
+                        'error' => $e->getMessage(),
                     ]);
                 }
             }
@@ -208,7 +206,7 @@ class ExportService
                 'zip_filename' => $zipFilename,
                 'processed_count' => $processedCount,
                 'total_count' => $totalFacilities,
-                'errors' => $errors
+                'errors' => $errors,
             ];
         } catch (Exception $e) {
             $this->failProgress($batchId, $e->getMessage());
@@ -216,7 +214,7 @@ class ExportService
             return [
                 'success' => false,
                 'batch_id' => $batchId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ];
         }
     }
@@ -228,7 +226,7 @@ class ExportService
     {
         return Cache::get("batch_pdf_progress_{$batchId}", [
             'status' => 'not_found',
-            'message' => 'バッチが見つかりません'
+            'message' => 'バッチが見つかりません',
         ]);
     }
 
@@ -270,7 +268,7 @@ class ExportService
         } catch (Exception $e) {
             $this->logError('CSV generation failed', [
                 'facility_count' => count($facilityIds),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
@@ -314,12 +312,12 @@ class ExportService
                 'fields' => $selectedFields,
                 'preview_data' => $previewData,
                 'total_facilities' => count($facilityIds),
-                'preview_count' => count($previewData)
+                'preview_count' => count($previewData),
             ];
         } catch (Exception $e) {
             $this->logError('CSV preview failed', [
                 'facility_count' => count($facilityIds),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
@@ -376,7 +374,7 @@ class ExportService
             $this->logError('Failed to upload land document', [
                 'facility_id' => $facilityId,
                 'document_type' => $type,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
@@ -397,7 +395,7 @@ class ExportService
             }
 
             // Check if file exists
-            if (!Storage::exists($file->file_path)) {
+            if (! Storage::exists($file->file_path)) {
                 throw new Exception('ファイルが見つかりません。');
             }
 
@@ -412,7 +410,7 @@ class ExportService
         } catch (Exception $e) {
             $this->logError('File download failed', [
                 'file_id' => $fileId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
@@ -456,7 +454,7 @@ class ExportService
             DB::rollBack();
             $this->logError('File deletion failed', [
                 'file_id' => $fileId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
             throw $e;
         }
@@ -505,7 +503,7 @@ class ExportService
             'fill-forms' => false,  // Disable form filling
             'extract' => false,     // Disable content extraction
             'assemble' => false,    // Disable document assembly
-            'print-high' => false   // Disable high-quality printing
+            'print-high' => false,   // Disable high-quality printing
         ];
 
         // Set protection with passwords and permissions
@@ -514,7 +512,7 @@ class ExportService
         // Add metadata to track document authenticity
         $pdf->SetCreator('Shise-Cal System v1.0');
         $pdf->SetAuthor(Auth::user()->email);
-        $pdf->SetTitle('Secure Facility Report - ' . now()->toISOString());
+        $pdf->SetTitle('Secure Facility Report - '.now()->toISOString());
         $pdf->SetSubject('Protected Facility Information');
         $pdf->SetKeywords('facility,report,secure,protected,shise-cal');
     }
@@ -583,9 +581,9 @@ class ExportService
     public function generateSecureFilename(Facility $facility): string
     {
         $safeFilename = preg_replace('/[^a-zA-Z0-9\-_]/', '_', $facility->facility_name);
-        $hash = substr(hash('sha256', $facility->id . $facility->updated_at . Auth::id()), 0, 8);
+        $hash = substr(hash('sha256', $facility->id.$facility->updated_at.Auth::id()), 0, 8);
 
-        return "secure_facility_report_{$facility->office_code}_{$safeFilename}_{$hash}_" . now()->format('Y-m-d') . '.pdf';
+        return "secure_facility_report_{$facility->office_code}_{$safeFilename}_{$hash}_".now()->format('Y-m-d').'.pdf';
     }
 
     /**
@@ -594,7 +592,8 @@ class ExportService
     private function generateStandardFilename(Facility $facility): string
     {
         $safeFilename = preg_replace('/[^a-zA-Z0-9\-_]/', '_', $facility->facility_name);
-        return "facility_report_{$facility->office_code}_{$safeFilename}_" . now()->format('Y-m-d') . '.pdf';
+
+        return "facility_report_{$facility->office_code}_{$safeFilename}_".now()->format('Y-m-d').'.pdf';
     }
 
     /**
@@ -602,7 +601,7 @@ class ExportService
      */
     private function generateBatchId(): string
     {
-        return 'batch_' . Auth::id() . '_' . now()->format('YmdHis') . '_' . substr(uniqid(), -6);
+        return 'batch_'.Auth::id().'_'.now()->format('YmdHis').'_'.substr(uniqid(), -6);
     }
 
     /**
@@ -611,7 +610,8 @@ class ExportService
     private function generateZipFilename(bool $useSecure): string
     {
         $prefix = $useSecure ? 'secure_' : '';
-        return $prefix . 'facility_reports_' . now()->format('Y-m-d_H-i-s') . '.zip';
+
+        return $prefix.'facility_reports_'.now()->format('Y-m-d_H-i-s').'.zip';
     }
 
     // ========================================
@@ -629,7 +629,7 @@ class ExportService
             'total_count' => $totalCount,
             'current_facility' => '',
             'started_at' => now()->toISOString(),
-            'errors' => []
+            'errors' => [],
         ];
 
         Cache::put("batch_pdf_progress_{$batchId}", $progress, now()->addHours(2));
@@ -789,7 +789,7 @@ class ExportService
      */
     private function getLandInfoFieldValue($landInfo, string $field)
     {
-        if (!$landInfo) {
+        if (! $landInfo) {
             return '';
         }
 
@@ -844,7 +844,7 @@ class ExportService
      */
     private function getOwnershipTypeLabel(?string $ownershipType): string
     {
-        if (!$ownershipType) {
+        if (! $ownershipType) {
             return '';
         }
 
@@ -879,7 +879,7 @@ class ExportService
     protected function validateLandDocument(UploadedFile $file): void
     {
         // Check if file is valid
-        if (!$file->isValid()) {
+        if (! $file->isValid()) {
             throw new Exception('アップロードされたファイルが無効です。');
         }
 
@@ -891,14 +891,14 @@ class ExportService
 
         // Check MIME type (PDF only)
         $allowedMimeTypes = ['application/pdf'];
-        if (!in_array($file->getMimeType(), $allowedMimeTypes)) {
+        if (! in_array($file->getMimeType(), $allowedMimeTypes)) {
             throw new Exception('PDFファイルのみアップロード可能です。');
         }
 
         // Check file extension
         $allowedExtensions = ['pdf'];
         $extension = strtolower($file->getClientOriginalExtension());
-        if (!in_array($extension, $allowedExtensions)) {
+        if (! in_array($extension, $allowedExtensions)) {
             throw new Exception('PDFファイルのみアップロード可能です。');
         }
     }
@@ -921,6 +921,7 @@ class ExportService
     protected function storeLandDocument(UploadedFile $file, Facility $facility, string $filename): string
     {
         $directory = "facilities/{$facility->id}/land_documents";
+
         return $file->storeAs($directory, $filename);
     }
 
@@ -943,8 +944,8 @@ class ExportService
                 $facility->id,
                 $facility->updated_at,
                 Auth::id(),
-                now()->format('Y-m-d')
-            ]))
+                now()->format('Y-m-d'),
+            ])),
         ];
     }
 
@@ -960,7 +961,7 @@ class ExportService
 
         $bytes /= (1 << (10 * $pow));
 
-        return round($bytes, 2) . ' ' . $units[$pow];
+        return round($bytes, 2).' '.$units[$pow];
     }
 
     /**

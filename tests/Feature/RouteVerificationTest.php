@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
 use Illuminate\Support\Facades\Route;
+use Tests\TestCase;
 
 class RouteVerificationTest extends TestCase
 {
@@ -135,9 +135,9 @@ class RouteVerificationTest extends TestCase
         // Verify we have the main route groups
         $routeUris = collect($routes)->pluck('uri');
 
-        $exportRoutes = $routeUris->filter(fn($uri) => str_starts_with($uri, 'export/'))->count();
-        $facilityRoutes = $routeUris->filter(fn($uri) => str_starts_with($uri, 'facilities'))->count();
-        $adminRoutes = $routeUris->filter(fn($uri) => str_starts_with($uri, 'admin/'))->count();
+        $exportRoutes = $routeUris->filter(fn ($uri) => str_starts_with($uri, 'export/'))->count();
+        $facilityRoutes = $routeUris->filter(fn ($uri) => str_starts_with($uri, 'facilities'))->count();
+        $adminRoutes = $routeUris->filter(fn ($uri) => str_starts_with($uri, 'admin/'))->count();
 
         $this->assertGreaterThan(5, $exportRoutes, 'Should have multiple export routes');
         $this->assertGreaterThan(10, $facilityRoutes, 'Should have multiple facility routes');
@@ -152,6 +152,7 @@ class RouteVerificationTest extends TestCase
         // Check that resource routes follow Laravel conventions
         $resourceRoutes = $routes->filter(function ($route) {
             $name = $route->getName();
+
             return $name && (
                 str_ends_with($name, '.index') ||
                 str_ends_with($name, '.create') ||

@@ -18,7 +18,7 @@ class NotificationSystemTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Run migrations
         $this->artisan('migrate');
     }
@@ -28,7 +28,7 @@ class NotificationSystemTest extends TestCase
         // Create test users
         $user = User::factory()->create(['role' => 'viewer']);
         $primaryResponder = User::factory()->create(['role' => 'primary_responder']);
-        
+
         // Create test facility
         $facility = Facility::factory()->create();
 
@@ -59,7 +59,7 @@ class NotificationSystemTest extends TestCase
         // Create test users
         $poster = User::factory()->create(['role' => 'viewer']);
         $primaryResponder = User::factory()->create(['role' => 'primary_responder']);
-        
+
         // Create test facility and comment
         $facility = Facility::factory()->create();
         $comment = Comment::factory()->create([
@@ -92,7 +92,7 @@ class NotificationSystemTest extends TestCase
     public function test_user_can_view_notifications()
     {
         $user = User::factory()->create();
-        
+
         // Create some notifications
         $notifications = Notification::factory()->count(3)->create([
             'user_id' => $user->id,
@@ -104,7 +104,7 @@ class NotificationSystemTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertViewIs('notifications.index');
-        
+
         $viewNotifications = $response->viewData('notifications');
         $this->assertEquals(3, $viewNotifications->count());
     }
@@ -122,7 +122,7 @@ class NotificationSystemTest extends TestCase
         $response = $this->post(route('notifications.mark-as-read', $notification));
 
         $response->assertJson(['success' => true]);
-        
+
         $notification->refresh();
         $this->assertTrue($notification->is_read);
         $this->assertNotNull($notification->read_at);
@@ -132,7 +132,7 @@ class NotificationSystemTest extends TestCase
     {
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
-        
+
         $notification = Notification::factory()->create([
             'user_id' => $user2->id,
         ]);
@@ -147,7 +147,7 @@ class NotificationSystemTest extends TestCase
     public function test_user_can_mark_all_notifications_as_read()
     {
         $user = User::factory()->create();
-        
+
         // Create unread notifications
         $notifications = Notification::factory()->count(3)->create([
             'user_id' => $user->id,
@@ -171,13 +171,13 @@ class NotificationSystemTest extends TestCase
     public function test_unread_count_api_returns_correct_count()
     {
         $user = User::factory()->create();
-        
+
         // Create mix of read and unread notifications
         Notification::factory()->count(2)->create([
             'user_id' => $user->id,
             'is_read' => false,
         ]);
-        
+
         Notification::factory()->count(3)->create([
             'user_id' => $user->id,
             'is_read' => true,
@@ -192,16 +192,16 @@ class NotificationSystemTest extends TestCase
 
     public function test_notification_service_methods()
     {
-        $notificationService = new NotificationService();
-        
+        $notificationService = new NotificationService;
+
         $user = User::factory()->create();
-        
+
         // Create notifications
         Notification::factory()->count(2)->create([
             'user_id' => $user->id,
             'is_read' => false,
         ]);
-        
+
         Notification::factory()->count(3)->create([
             'user_id' => $user->id,
             'is_read' => true,

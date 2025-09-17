@@ -7,8 +7,8 @@
  * @returns {string|null} CSRF token or null if not found
  */
 export function getCsrfToken() {
-  const metaTag = document.querySelector('meta[name="csrf-token"]');
-  return metaTag ? metaTag.getAttribute('content') : null;
+    const metaTag = document.querySelector('meta[name="csrf-token"]');
+    return metaTag ? metaTag.getAttribute('content') : null;
 }
 
 /**
@@ -17,11 +17,11 @@ export function getCsrfToken() {
  * @returns {Object} Headers with CSRF token added
  */
 export function addCsrfToken(headers = {}) {
-  const token = getCsrfToken();
-  if (token) {
-    headers['X-CSRF-TOKEN'] = token;
-  }
-  return headers;
+    const token = getCsrfToken();
+    if (token) {
+        headers['X-CSRF-TOKEN'] = token;
+    }
+    return headers;
 }
 
 /**
@@ -30,13 +30,13 @@ export function addCsrfToken(headers = {}) {
  * @returns {Object} Options with CSRF token added
  */
 export function withCsrfProtection(options = {}) {
-  const headers = addCsrfToken(options.headers || {});
-  return {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      ...headers
-    }
-  };
+    const headers = addCsrfToken(options.headers || {});
+    return {
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            ...headers
+        }
+    };
 }

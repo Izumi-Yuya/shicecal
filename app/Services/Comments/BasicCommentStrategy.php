@@ -16,15 +16,15 @@ class BasicCommentStrategy implements CommentStrategyInterface
     public function validateContent(string $content): void
     {
         $trimmedContent = trim($content);
-        
+
         if (strlen($trimmedContent) < 1) {
             throw new \InvalidArgumentException('Comment content too short');
         }
-        
+
         if (strlen($content) > 500) {
             throw new \InvalidArgumentException('Comment content too long');
         }
-        
+
         // Basic security validation
         if (preg_match('/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/mi', $content)) {
             throw new \InvalidArgumentException('Invalid content detected');
@@ -38,18 +38,18 @@ class BasicCommentStrategy implements CommentStrategyInterface
             'section' => $section,
             'comment' => trim($content),
             'user_id' => $user->id,
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         $this->clearCache($facility->id, $section);
-        
+
         return $comment->load('user:id,name');
     }
 
     public function getComments(Facility $facility, string $section): Collection
     {
         $cacheKey = "facility_comments_{$facility->id}_{$section}";
-        
+
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($facility, $section) {
             return Comment::where('facility_id', $facility->id)
                 ->where('section', $section)
@@ -63,7 +63,7 @@ class BasicCommentStrategy implements CommentStrategyInterface
     public function getCommentCount(Facility $facility, string $section): int
     {
         $cacheKey = "facility_comment_count_{$facility->id}_{$section}";
-        
+
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($facility, $section) {
             return Comment::where('facility_id', $facility->id)
                 ->where('section', $section)
@@ -78,7 +78,7 @@ class BasicCommentStrategy implements CommentStrategyInterface
             'facility_id' => $comment->facility_id,
             'section' => $comment->section,
             'user_id' => $comment->user_id,
-            'comment_id' => $comment->id
+            'comment_id' => $comment->id,
         ]);
     }
 

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Notification;
 use App\Services\NotificationService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
@@ -84,7 +83,7 @@ class NotificationController extends Controller
     public function unreadCount()
     {
         try {
-            if (!Auth::check()) {
+            if (! Auth::check()) {
                 return response()->json(['message' => 'Unauthenticated.'], 401);
             }
 
@@ -92,18 +91,18 @@ class NotificationController extends Controller
 
             return response()->json([
                 'success' => true,
-                'count' => $count
+                'count' => $count,
             ]);
         } catch (\Exception $e) {
             \Log::error('Failed to get notification count', [
                 'user_id' => Auth::id(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch notification count',
-                'count' => 0
+                'count' => 0,
             ], 500);
         }
     }

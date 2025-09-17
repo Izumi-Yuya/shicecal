@@ -12,8 +12,11 @@ class ValidationService
 {
     // Security patterns
     private const SCRIPT_PATTERN = '/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/mi';
+
     private const DANGEROUS_HTML_PATTERN = '/<(iframe|object|embed|form|input|textarea|select|button)\b/i';
+
     private const SQL_INJECTION_PATTERN = '/(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION)\b)/i';
+
     private const XSS_PATTERN = '/(javascript:|vbscript:|onload=|onerror=|onclick=)/i';
 
     /**
@@ -25,9 +28,9 @@ class ValidationService
             'content' => [
                 'required',
                 'string',
-                'min:' . ($options['min_length'] ?? 1),
-                'max:' . ($options['max_length'] ?? 500),
-            ]
+                'min:'.($options['min_length'] ?? 1),
+                'max:'.($options['max_length'] ?? 500),
+            ],
         ];
 
         $validator = Validator::make(['content' => $content], $rules);
@@ -78,8 +81,8 @@ class ValidationService
     public function validateViewMode(string $viewMode): void
     {
         $allowedModes = ['card', 'table'];
-        
-        if (!in_array($viewMode, $allowedModes, true)) {
+
+        if (! in_array($viewMode, $allowedModes, true)) {
             throw new \InvalidArgumentException("Invalid view mode: {$viewMode}");
         }
     }
@@ -96,9 +99,9 @@ class ValidationService
             'file' => [
                 'required',
                 'file',
-                'mimes:' . implode(',', $allowedMimes),
-                'max:' . $maxSize,
-            ]
+                'mimes:'.implode(',', $allowedMimes),
+                'max:'.$maxSize,
+            ],
         ];
 
         $validator = Validator::make(['file' => $file], $rules);
@@ -119,7 +122,7 @@ class ValidationService
         // Remove potentially dangerous content
         $sanitized = strip_tags($input);
         $sanitized = htmlspecialchars($sanitized, ENT_QUOTES, 'UTF-8');
-        
+
         return trim($sanitized);
     }
 

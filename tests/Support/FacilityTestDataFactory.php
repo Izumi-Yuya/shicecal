@@ -34,13 +34,13 @@ class FacilityTestDataFactory
     public static function createWithServices(): Facility
     {
         $facility = self::createComplete();
-        
+
         foreach (self::getServiceConfigurations() as $config) {
             FacilityService::factory()->create(
                 array_merge(['facility_id' => $facility->id], $config)
             );
         }
-        
+
         return $facility->fresh(['services']);
     }
 
@@ -96,7 +96,7 @@ class FacilityTestDataFactory
             'designation_number', 'postal_code', 'address', 'building_name',
             'phone_number', 'fax_number', 'toll_free_number', 'email',
             'website_url', 'opening_date', 'years_in_operation', 'building_structure',
-            'building_floors', 'paid_rooms_count', 'ss_rooms_count', 'capacity'
+            'building_floors', 'paid_rooms_count', 'ss_rooms_count', 'capacity',
         ];
 
         foreach ($nullableFields as $field) {

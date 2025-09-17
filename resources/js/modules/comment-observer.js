@@ -9,8 +9,8 @@ export class CommentObserver {
   }
 
   /**
-   * Subscribe to comment events
-   */
+ * Subscribe to comment events
+ */
   subscribe(event, callback) {
     if (!this.observers.has(event)) {
       this.observers.set(event, []);
@@ -19,10 +19,12 @@ export class CommentObserver {
   }
 
   /**
-   * Unsubscribe from comment events
-   */
+ * Unsubscribe from comment events
+ */
   unsubscribe(event, callback) {
-    if (!this.observers.has(event)) return;
+    if (!this.observers.has(event)) {
+      return;
+    }
 
     const callbacks = this.observers.get(event);
     const index = callbacks.indexOf(callback);
@@ -32,15 +34,18 @@ export class CommentObserver {
   }
 
   /**
-   * Notify observers of comment events
-   */
+ * Notify observers of comment events
+ */
   notify(event, data) {
-    if (!this.observers.has(event)) return;
+    if (!this.observers.has(event)) {
+      return;
+    }
 
     this.observers.get(event).forEach(callback => {
       try {
         callback(data);
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error(`Error in comment observer callback for ${event}:`, error);
       }
     });

@@ -13,8 +13,11 @@ use Carbon\Carbon;
 class FacilityTestDataBuilder
 {
     private array $facilityData = [];
+
     private array $services = [];
+
     private bool $withEmptyValues = false;
+
     private bool $withMixedData = false;
 
     public function __construct()
@@ -27,7 +30,7 @@ class FacilityTestDataBuilder
      */
     public static function create(): self
     {
-        return new self();
+        return new self;
     }
 
     /**
@@ -57,7 +60,7 @@ class FacilityTestDataBuilder
             'capacity' => 60,
             'status' => 'approved',
         ];
-        
+
         return $this;
     }
 
@@ -85,7 +88,7 @@ class FacilityTestDataBuilder
             'ss_rooms_count' => null,
             'capacity' => null,
         ]);
-        
+
         return $this;
     }
 
@@ -117,7 +120,7 @@ class FacilityTestDataBuilder
             'capacity' => 25,
             'status' => 'approved',
         ];
-        
+
         return $this;
     }
 
@@ -138,7 +141,7 @@ class FacilityTestDataBuilder
                 'renewal_end_date' => Carbon::parse('2028-09-30'),
             ],
         ];
-        
+
         return $this;
     }
 
@@ -152,7 +155,7 @@ class FacilityTestDataBuilder
             'renewal_start_date' => $startDate,
             'renewal_end_date' => $endDate,
         ];
-        
+
         return $this;
     }
 
@@ -162,6 +165,7 @@ class FacilityTestDataBuilder
     public function with(string $field, $value): self
     {
         $this->facilityData[$field] = $value;
+
         return $this;
     }
 
@@ -171,14 +175,14 @@ class FacilityTestDataBuilder
     public function build(): Facility
     {
         $facility = Facility::factory()->create($this->facilityData);
-        
+
         // Create services if specified
         foreach ($this->services as $serviceData) {
             FacilityService::factory()->create(
                 array_merge(['facility_id' => $facility->id], $serviceData)
             );
         }
-        
+
         return $facility->fresh(['services']);
     }
 

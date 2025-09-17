@@ -2,14 +2,14 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Facility;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
  * Functionality Validation Tests
- * 
+ *
  * Validates that core functionality works after refactoring
  */
 class FunctionalityValidationTest extends TestCase
@@ -17,7 +17,9 @@ class FunctionalityValidationTest extends TestCase
     use RefreshDatabase;
 
     protected $admin;
+
     protected $editor;
+
     protected $viewer;
 
     protected function setUp(): void
@@ -40,13 +42,13 @@ class FunctionalityValidationTest extends TestCase
             'facility_name' => 'Test Facility',
             'office_code' => 'TEST001',
             'company_name' => 'Test Company',
-            'status' => 'approved'
+            'status' => 'approved',
         ]);
 
         // Test that facility was created
         $this->assertDatabaseHas('facilities', [
             'facility_name' => 'Test Facility',
-            'office_code' => 'TEST001'
+            'office_code' => 'TEST001',
         ]);
 
         // Test facility can be viewed
@@ -89,7 +91,7 @@ class FunctionalityValidationTest extends TestCase
             ->post('/login', [
                 'email' => $this->admin->email,
                 'password' => 'password',
-                '_token' => 'test-token'
+                '_token' => 'test-token',
             ]);
 
         $response->assertRedirect('/facilities');
@@ -131,7 +133,7 @@ class FunctionalityValidationTest extends TestCase
 
         $facility = Facility::factory()->create([
             'created_by' => $this->admin->id,
-            'updated_by' => $this->admin->id
+            'updated_by' => $this->admin->id,
         ]);
 
         // Test model relationships

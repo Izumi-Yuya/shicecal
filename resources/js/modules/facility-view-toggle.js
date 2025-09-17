@@ -27,8 +27,8 @@ class FacilityViewToggle {
   }
 
   /**
-   * Initialize the view toggle functionality
-   */
+ * Initialize the view toggle functionality
+ */
   init() {
     try {
       this.findElements();
@@ -50,11 +50,13 @@ class FacilityViewToggle {
   }
 
   /**
-   * Find required DOM elements
-   */
+ * Find required DOM elements
+ */
   findElements() {
     this.container = document.querySelector('.view-toggle-container');
-    if (!this.container) return;
+    if (!this.container) {
+      return;
+    }
 
     this.toggleButtons = this.container.querySelectorAll('input[name="viewMode"]');
     this.cardView = document.querySelector('.facility-card-view, .basic-info-card');
@@ -62,8 +64,8 @@ class FacilityViewToggle {
   }
 
   /**
-   * Setup event listeners for toggle buttons
-   */
+ * Setup event listeners for toggle buttons
+ */
   setupEventListeners() {
     this.toggleButtons.forEach(button => {
       button.addEventListener('change', (event) => {
@@ -89,8 +91,8 @@ class FacilityViewToggle {
   }
 
   /**
-   * Detect current view mode from DOM state
-   */
+ * Detect current view mode from DOM state
+ */
   detectCurrentViewMode() {
     const checkedButton = this.container.querySelector('input[name="viewMode"]:checked');
     if (checkedButton) {
@@ -99,8 +101,8 @@ class FacilityViewToggle {
   }
 
   /**
-   * Setup CSS transitions for smooth view switching
-   */
+ * Setup CSS transitions for smooth view switching
+ */
   setupTransitions() {
     // Add transition classes to view containers
     if (this.cardView) {
@@ -112,9 +114,9 @@ class FacilityViewToggle {
   }
 
   /**
-   * Handle view mode change
-   * @param {string} newViewMode - The new view mode ('card' or 'table')
-   */
+ * Handle view mode change
+ * @param {string} newViewMode - The new view mode ('card' or 'table')
+ */
   async handleViewModeChange(newViewMode) {
     if (this.isTransitioning || newViewMode === this.currentViewMode) {
       return;
@@ -152,9 +154,9 @@ class FacilityViewToggle {
   }
 
   /**
-   * Save view preference to session via AJAX
-   * @param {string} viewMode - The view mode to save
-   */
+ * Save view preference to session via AJAX
+ * @param {string} viewMode - The view mode to save
+ */
   async saveViewPreference(viewMode) {
     try {
       const response = await post(this.config.apiEndpoint, {
@@ -173,10 +175,10 @@ class FacilityViewToggle {
   }
 
   /**
-   * Transition to the new view with smooth animation
-   * @param {string} newViewMode - The target view mode
-   */
-  async transitionToView(newViewMode) {
+ * Transition to the new view with smooth animation
+ * @param {string} newViewMode - The target view mode
+ */
+  async transitionToView(_newViewMode) {
     return new Promise((resolve) => {
       // For now, we'll reload the page to show the new view
       // In a future enhancement, we could implement client-side view switching
@@ -188,8 +190,8 @@ class FacilityViewToggle {
   }
 
   /**
-   * Show loading state during transition
-   */
+ * Show loading state during transition
+ */
   showLoadingState() {
     // Disable all toggle buttons
     this.toggleButtons.forEach(button => {
@@ -215,8 +217,8 @@ class FacilityViewToggle {
   }
 
   /**
-   * Hide loading state
-   */
+ * Hide loading state
+ */
   hideLoadingState() {
     // Re-enable toggle buttons
     this.toggleButtons.forEach(button => {
@@ -234,18 +236,18 @@ class FacilityViewToggle {
   }
 
   /**
-   * Show success feedback
-   * @param {string} viewMode - The new view mode
-   */
+ * Show success feedback
+ * @param {string} viewMode - The new view mode
+ */
   showSuccessFeedback(viewMode) {
     const modeLabel = viewMode === 'card' ? 'カード形式' : 'テーブル形式';
     showToast(`表示形式を${modeLabel}に変更しました。`, 'success');
   }
 
   /**
-   * Handle view mode change errors
-   * @param {Error} error - The error that occurred
-   */
+ * Handle view mode change errors
+ * @param {Error} error - The error that occurred
+ */
   handleViewModeError(error) {
     let message = '表示形式の変更に失敗しました。';
 
@@ -257,8 +259,8 @@ class FacilityViewToggle {
   }
 
   /**
-   * Revert toggle state to previous selection
-   */
+ * Revert toggle state to previous selection
+ */
   revertToggleState() {
     const currentButton = this.container.querySelector(`input[value="${this.currentViewMode}"]`);
     if (currentButton) {
@@ -267,9 +269,9 @@ class FacilityViewToggle {
   }
 
   /**
-   * Update toggle button active states
-   * @param {string} activeMode - The active view mode
-   */
+ * Update toggle button active states
+ * @param {string} activeMode - The active view mode
+ */
   updateToggleStates(activeMode) {
     this.toggleButtons.forEach(button => {
       const label = document.querySelector(`label[for="${button.id}"]`);
@@ -288,17 +290,17 @@ class FacilityViewToggle {
   }
 
   /**
-   * Get current view mode
-   * @returns {string} Current view mode
-   */
+ * Get current view mode
+ * @returns {string} Current view mode
+ */
   getCurrentViewMode() {
     return this.currentViewMode;
   }
 
   /**
-   * Programmatically set view mode
-   * @param {string} viewMode - The view mode to set
-   */
+ * Programmatically set view mode
+ * @param {string} viewMode - The view mode to set
+ */
   async setViewMode(viewMode) {
     if (['card', 'table'].includes(viewMode)) {
       await this.handleViewModeChange(viewMode);
@@ -306,8 +308,8 @@ class FacilityViewToggle {
   }
 
   /**
-   * Destroy the view toggle instance
-   */
+ * Destroy the view toggle instance
+ */
   destroy() {
     // Remove event listeners
     this.toggleButtons.forEach(button => {

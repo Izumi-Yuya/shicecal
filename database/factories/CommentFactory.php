@@ -29,7 +29,7 @@ class CommentFactory extends Factory
             'phone_number',
             'fax_number',
             'general',
-            null
+            null,
         ];
 
         return [

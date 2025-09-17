@@ -15,12 +15,12 @@ class CsvFavoritesTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->user = User::factory()->create([
             'role' => 'admin',
             'access_scope' => null,
         ]);
-        
+
         $this->facilities = Facility::factory()->count(3)->create([
             'status' => 'approved',
         ]);
@@ -32,16 +32,16 @@ class CsvFavoritesTest extends TestCase
         $exportFields = ['company_name', 'facility_name', 'address'];
 
         $response = $this->actingAs($this->user)
-                         ->postJson(route('csv.export.favorites.store'), [
-                             'name' => 'テストお気に入り',
-                             'facility_ids' => $facilityIds,
-                             'export_fields' => $exportFields
-                         ]);
+            ->postJson(route('csv.export.favorites.store'), [
+                'name' => 'テストお気に入り',
+                'facility_ids' => $facilityIds,
+                'export_fields' => $exportFields,
+            ]);
 
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
-            'message' => 'お気に入りを保存しました。'
+            'message' => 'お気に入りを保存しました。',
         ]);
 
         $this->assertDatabaseHas('export_favorites', [
@@ -63,16 +63,16 @@ class CsvFavoritesTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->user)
-                         ->postJson(route('csv.export.favorites.store'), [
-                             'name' => '既存のお気に入り',
-                             'facility_ids' => [$this->facilities->first()->id],
-                             'export_fields' => ['company_name']
-                         ]);
+            ->postJson(route('csv.export.favorites.store'), [
+                'name' => '既存のお気に入り',
+                'facility_ids' => [$this->facilities->first()->id],
+                'export_fields' => ['company_name'],
+            ]);
 
         $response->assertStatus(400);
         $response->assertJson([
             'success' => false,
-            'message' => 'この名前のお気に入りは既に存在します。'
+            'message' => 'この名前のお気に入りは既に存在します。',
         ]);
     }
 
@@ -89,7 +89,7 @@ class CsvFavoritesTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->user)
-                         ->getJson(route('csv.export.favorites.index'));
+            ->getJson(route('csv.export.favorites.index'));
 
         $response->assertStatus(200);
         $response->assertJson([
@@ -98,7 +98,7 @@ class CsvFavoritesTest extends TestCase
 
         $data = $response->json('data');
         $this->assertCount(3, $data);
-        
+
         // Check that all returned favorites belong to the user
         foreach ($data as $favorite) {
             $this->assertEquals($this->user->id, $favorite['user_id']);
@@ -109,7 +109,7 @@ class CsvFavoritesTest extends TestCase
     {
         $facilityIds = $this->facilities->take(2)->pluck('id')->toArray();
         $exportFields = ['company_name', 'facility_name'];
-        
+
         $favorite = ExportFavorite::factory()->create([
             'user_id' => $this->user->id,
             'name' => 'テストお気に入り',
@@ -118,7 +118,7 @@ class CsvFavoritesTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->user)
-                         ->getJson(route('csv.export.favorites.show', $favorite->id));
+            ->getJson(route('csv.export.favorites.show', $favorite->id));
 
         $response->assertStatus(200);
         $response->assertJson([
@@ -130,7 +130,7 @@ class CsvFavoritesTest extends TestCase
                 'export_fields' => $exportFields,
                 'original_facility_count' => 2,
                 'accessible_facility_count' => 2,
-            ]
+            ],
         ]);
     }
 
@@ -142,12 +142,12 @@ class CsvFavoritesTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->user)
-                         ->getJson(route('csv.export.favorites.show', $favorite->id));
+            ->getJson(route('csv.export.favorites.show', $favorite->id));
 
         $response->assertStatus(404);
         $response->assertJson([
             'success' => false,
-            'message' => 'お気に入りが見つかりません。'
+            'message' => 'お気に入りが見つかりません。',
         ]);
     }
 
@@ -159,14 +159,14 @@ class CsvFavoritesTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->user)
-                         ->putJson(route('csv.export.favorites.update', $favorite->id), [
-                             'name' => '新しい名前'
-                         ]);
+            ->putJson(route('csv.export.favorites.update', $favorite->id), [
+                'name' => '新しい名前',
+            ]);
 
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
-            'message' => 'お気に入り名を更新しました。'
+            'message' => 'お気に入り名を更新しました。',
         ]);
 
         $favorite->refresh();
@@ -186,14 +186,14 @@ class CsvFavoritesTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->user)
-                         ->putJson(route('csv.export.favorites.update', $favorite2->id), [
-                             'name' => 'お気に入り1'
-                         ]);
+            ->putJson(route('csv.export.favorites.update', $favorite2->id), [
+                'name' => 'お気に入り1',
+            ]);
 
         $response->assertStatus(400);
         $response->assertJson([
             'success' => false,
-            'message' => 'この名前のお気に入りは既に存在します。'
+            'message' => 'この名前のお気に入りは既に存在します。',
         ]);
     }
 
@@ -204,12 +204,12 @@ class CsvFavoritesTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->user)
-                         ->deleteJson(route('csv.export.favorites.destroy', $favorite->id));
+            ->deleteJson(route('csv.export.favorites.destroy', $favorite->id));
 
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
-            'message' => 'お気に入りを削除しました。'
+            'message' => 'お気に入りを削除しました。',
         ]);
 
         $this->assertDatabaseMissing('export_favorites', [
@@ -225,12 +225,12 @@ class CsvFavoritesTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->user)
-                         ->deleteJson(route('csv.export.favorites.destroy', $favorite->id));
+            ->deleteJson(route('csv.export.favorites.destroy', $favorite->id));
 
         $response->assertStatus(404);
         $response->assertJson([
             'success' => false,
-            'message' => 'お気に入りが見つかりません。'
+            'message' => 'お気に入りが見つかりません。',
         ]);
 
         // Favorite should still exist
@@ -246,7 +246,7 @@ class CsvFavoritesTest extends TestCase
             'role' => 'viewer',
             'access_scope' => [
                 'type' => 'facility',
-                'facility_ids' => [$this->facilities->first()->id]
+                'facility_ids' => [$this->facilities->first()->id],
             ],
         ]);
 
@@ -259,10 +259,10 @@ class CsvFavoritesTest extends TestCase
         ]);
 
         $response = $this->actingAs($viewerUser)
-                         ->getJson(route('csv.export.favorites.show', $favorite->id));
+            ->getJson(route('csv.export.favorites.show', $favorite->id));
 
         $response->assertStatus(200);
-        
+
         $data = $response->json('data');
         $this->assertEquals(3, $data['original_facility_count']);
         $this->assertEquals(1, $data['accessible_facility_count']);
@@ -277,7 +277,7 @@ class CsvFavoritesTest extends TestCase
             'role' => 'viewer',
             'access_scope' => [
                 'type' => 'facility',
-                'facility_ids' => [$this->facilities->first()->id]
+                'facility_ids' => [$this->facilities->first()->id],
             ],
         ]);
 
@@ -285,16 +285,16 @@ class CsvFavoritesTest extends TestCase
         $allFacilityIds = $this->facilities->pluck('id')->toArray();
 
         $response = $this->actingAs($viewerUser)
-                         ->postJson(route('csv.export.favorites.store'), [
-                             'name' => 'テストお気に入り',
-                             'facility_ids' => $allFacilityIds,
-                             'export_fields' => ['company_name']
-                         ]);
+            ->postJson(route('csv.export.favorites.store'), [
+                'name' => 'テストお気に入り',
+                'facility_ids' => $allFacilityIds,
+                'export_fields' => ['company_name'],
+            ]);
 
         $response->assertStatus(400);
         $response->assertJson([
             'success' => false,
-            'message' => 'アクセス権限のない施設が含まれています。'
+            'message' => 'アクセス権限のない施設が含まれています。',
         ]);
     }
 

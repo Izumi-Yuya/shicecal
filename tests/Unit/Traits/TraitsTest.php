@@ -2,14 +2,14 @@
 
 namespace Tests\Unit\Traits;
 
-use Tests\TestCase;
-use Tests\Traits\CreatesTestUsers;
-use Tests\Traits\CreatesTestFacilities;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+use Tests\Traits\CreatesTestFacilities;
+use Tests\Traits\CreatesTestUsers;
 
 class TraitsTest extends TestCase
 {
-    use RefreshDatabase, CreatesTestUsers, CreatesTestFacilities;
+    use CreatesTestFacilities, CreatesTestUsers, RefreshDatabase;
 
     public function test_creates_test_users_trait_works()
     {

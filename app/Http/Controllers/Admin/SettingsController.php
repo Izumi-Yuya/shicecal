@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Artisan;
 
 class SettingsController extends Controller
@@ -13,9 +12,10 @@ class SettingsController extends Controller
     {
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
-            if (!auth()->user()->isAdmin()) {
+            if (! auth()->user()->isAdmin()) {
                 abort(403, 'Access denied');
             }
+
             return $next($request);
         });
     }
@@ -60,10 +60,10 @@ class SettingsController extends Controller
     {
         // In a real application, you would save these to database
         // For now, we'll just return success
-        
+
         return response()->json([
             'success' => true,
-            'message' => '設定が正常に保存されました'
+            'message' => '設定が正常に保存されました',
         ]);
     }
 
@@ -72,7 +72,7 @@ class SettingsController extends Controller
         // Reset settings to defaults
         return response()->json([
             'success' => true,
-            'message' => '設定がデフォルト値にリセットされました'
+            'message' => '設定がデフォルト値にリセットされました',
         ]);
     }
 
@@ -82,15 +82,15 @@ class SettingsController extends Controller
             Artisan::call('cache:clear');
             Artisan::call('config:clear');
             Artisan::call('view:clear');
-            
+
             return response()->json([
                 'success' => true,
-                'message' => 'キャッシュがクリアされました'
+                'message' => 'キャッシュがクリアされました',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'キャッシュのクリアに失敗しました: ' . $e->getMessage()
+                'message' => 'キャッシュのクリアに失敗しました: '.$e->getMessage(),
             ]);
         }
     }
@@ -101,12 +101,12 @@ class SettingsController extends Controller
             // In a real application, you would run database optimization commands
             return response()->json([
                 'success' => true,
-                'message' => 'データベースが最適化されました'
+                'message' => 'データベースが最適化されました',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'データベースの最適化に失敗しました: ' . $e->getMessage()
+                'message' => 'データベースの最適化に失敗しました: '.$e->getMessage(),
             ]);
         }
     }
@@ -116,7 +116,7 @@ class SettingsController extends Controller
         // Update single setting
         return response()->json([
             'success' => true,
-            'message' => '設定が更新されました'
+            'message' => '設定が更新されました',
         ]);
     }
 }

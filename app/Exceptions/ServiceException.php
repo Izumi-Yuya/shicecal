@@ -10,9 +10,10 @@ use Exception;
 class ServiceException extends Exception
 {
     protected string $errorCode;
+
     protected array $context;
 
-    public function __construct(string $message = "", int $code = 0, ?Exception $previous = null, string $errorCode = '', array $context = [])
+    public function __construct(string $message = '', int $code = 0, ?Exception $previous = null, string $errorCode = '', array $context = [])
     {
         parent::__construct($message, $code, $previous);
         $this->errorCode = $errorCode ?: 'SERVICE_ERROR';

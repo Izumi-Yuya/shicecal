@@ -2,24 +2,23 @@
 
 namespace Tests\Unit\Services;
 
-use Tests\TestCase;
-use App\Services\FacilityService;
-use App\Services\NotificationService;
+use App\Exceptions\FacilityServiceException;
 use App\Models\Facility;
 use App\Models\LandInfo;
 use App\Models\User;
-use App\Exceptions\FacilityServiceException;
+use App\Services\FacilityService;
+use App\Services\NotificationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Exception;
+use Tests\TestCase;
 
 class FacilityServiceTest extends TestCase
 {
     use RefreshDatabase;
 
     protected FacilityService $service;
+
     protected NotificationService $notificationService;
 
     protected function setUp(): void
@@ -181,6 +180,12 @@ class FacilityServiceTest extends TestCase
     {
         // Arrange
         $facility = Facility::factory()->create();
+        
+        // Ensure no land info exists by deleting any that might have been created
+        LandInfo::where('facility_id', $facility->id)->delete();
+        
+        // Clear cache to ensure fresh query
+        Cache::forget("land_info.facility.{$facility->id}");
 
         // Act
         $result = $this->service->getLandInfo($facility);
@@ -772,7 +777,7 @@ class FacilityServiceTest extends TestCase
     {
         // Arrange
         $approver = User::factory()->create(['role' => 'approver']);
-        $landInfo = new LandInfo(); // Invalid land info without facility
+        $landInfo = new LandInfo; // Invalid land info without facility
 
         // Act & Assert
         $this->expectException(FacilityServiceException::class);

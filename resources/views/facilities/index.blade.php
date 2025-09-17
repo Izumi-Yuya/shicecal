@@ -24,36 +24,69 @@
             <!-- Search and Filter Section -->
             <div class="card mb-4">
                 <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <label for="search" class="form-label">検索</label>
-                            <input type="text" class="form-control" id="search" placeholder="施設名、会社名、住所で検索..." 
-                                   data-search="tbody tr">
+                    <form method="GET" action="{{ route('facilities.index') }}" id="search-form">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label for="service_type" class="form-label">サービスタイプ</label>
+                                <select class="form-select" id="service_type" name="service_type">
+                                    <option value="">すべてのサービス</option>
+                                    @foreach($serviceTypes as $serviceType)
+                                        <option value="{{ $serviceType }}" 
+                                                {{ request('service_type') == $serviceType ? 'selected' : '' }}>
+                                            {{ $serviceType }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="prefecture" class="form-label">都道府県</label>
+                                <select class="form-select" id="prefecture" name="prefecture">
+                                    <option value="">すべての都道府県</option>
+                                    @foreach($prefectures as $prefecture)
+                                        <option value="{{ $prefecture }}" 
+                                                {{ request('prefecture') == $prefecture ? 'selected' : '' }}>
+                                            {{ $prefecture }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="keyword" class="form-label">キーワード検索</label>
+                                <input type="text" class="form-control" id="keyword" name="keyword" 
+                                       placeholder="施設名、会社名、事業所コード、住所で検索..." 
+                                       value="{{ request('keyword') }}">
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <div class="btn-group w-100" role="group">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search me-1"></i>検索
+                                    </button>
+                                    <a href="{{ route('facilities.index') }}" class="btn btn-outline-secondary">
+                                        検索クリア
+                                    </a>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-3">
-                            <label for="company-filter" class="form-label">会社名</label>
-                            <select class="form-select" id="company-filter">
-                                <option value="">すべて</option>
-                                @foreach($facilities->pluck('company_name')->unique()->sort() as $company)
-                                    <option value="{{ $company }}">{{ $company }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="sort-by" class="form-label">並び順</label>
-                            <select class="form-select" id="sort-by">
-                                <option value="updated_at">更新日順</option>
-                                <option value="facility_name">施設名順</option>
-                                <option value="company_name">会社名順</option>
-                                <option value="office_code">事業所コード順</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button type="button" class="btn btn-outline-secondary w-100" onclick="clearFilters()">
-                                <i class="fas fa-times me-1"></i>クリア
-                            </button>
-                        </div>
-                    </div>
+                        @if(request()->hasAny(['service_type', 'prefecture', 'keyword']))
+                            <div class="row g-3 mt-2">
+                                <div class="col-12">
+                                    <small class="text-muted">
+                                        <i class="fas fa-filter me-1"></i>
+                                        {{ $facilities->count() }}件の施設が見つかりました
+                                        @if(request('service_type'))
+                                            <span class="badge bg-primary ms-1">{{ request('service_type') }}</span>
+                                        @endif
+                                        @if(request('prefecture'))
+                                            <span class="badge bg-info ms-1">{{ request('prefecture') }}</span>
+                                        @endif
+                                        @if(request('keyword'))
+                                            <span class="badge bg-success ms-1">"{{ request('keyword') }}"</span>
+                                        @endif
+                                    </small>
+                                </div>
+                            </div>
+                        @endif
+                    </form>
                 </div>
             </div>
 
@@ -71,24 +104,8 @@
                             <table class="table table-hover mb-0">
                                 <thead>
                                     <tr>
-                                        <th data-sort="office_code" class="text-center">
-                                            事業所コード
-                                            <i class="fas fa-sort ms-1 text-muted"></i>
-                                        </th>
-                                        <th data-sort="facility_name">
-                                            施設名
-                                            <i class="fas fa-sort ms-1 text-muted"></i>
-                                        </th>
-                                        <th data-sort="company_name">
-                                            会社名
-                                            <i class="fas fa-sort ms-1 text-muted"></i>
-                                        </th>
-                                        <th>住所</th>
-                                        <th data-sort="updated_at" class="text-center">
-                                            最終更新日
-                                            <i class="fas fa-sort ms-1 text-muted"></i>
-                                        </th>
-                                        <th class="text-center">操作</th>
+                                        <th class="text-center">事業所コード</th>
+                                        <th>施設名</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -103,44 +120,20 @@
                                                     {{ $facility->facility_name }}
                                                 </a>
                                             </td>
-                                            <td>{{ $facility->company_name }}</td>
-                                            <td class="text-muted">
-                                                <i class="fas fa-map-marker-alt me-1"></i>
-                                                {{ Str::limit($facility->address, 40) }}
-                                            </td>
-                                            <td class="text-center">
-                                                <small class="text-muted">
-                                                    {{ $facility->updated_at->format('Y年m月d日') }}
-                                                </small>
-                                            </td>
-                                            <td class="text-center">
-                                                <div class="btn-group" role="group">
-                                                    <a href="{{ route('facilities.show', $facility) }}" 
-                                                       class="btn btn-sm btn-outline-primary"
-                                                       data-bs-toggle="tooltip" title="詳細を表示">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                    @if(auth()->user()->isEditor() || auth()->user()->isAdmin())
-                                                        <a href="{{ route('facilities.edit', $facility) }}" 
-                                                           class="btn btn-sm btn-outline-secondary"
-                                                           data-bs-toggle="tooltip" title="編集">
-                                                            <i class="fas fa-edit"></i>
-                                                        </a>
-                                                    @endif
-                                                </div>
-                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
                         </div>
 
-                        <!-- Pagination -->
+                        {{-- Pagination - Disabled --}}
+                        {{--
                         @if($facilities->hasPages())
                             <div class="d-flex justify-content-center py-3">
                                 {{ $facilities->links() }}
                             </div>
                         @endif
+                        --}}
                     @else
                         <div class="text-center py-5">
                             <div class="mb-4">
@@ -163,25 +156,34 @@
 
 @push('scripts')
 <script>
-function clearFilters() {
-    document.getElementById('search').value = '';
-    document.getElementById('company-filter').value = '';
-    document.getElementById('sort-by').value = 'updated_at';
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-submit form when filters change
+    const filterElements = ['service_type', 'prefecture'];
     
-    // Show all rows
-    const rows = document.querySelectorAll('tbody tr');
-    rows.forEach(row => row.style.display = '');
-}
+    filterElements.forEach(function(elementId) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.addEventListener('change', function() {
+                document.getElementById('search-form').submit();
+            });
+        }
+    });
 
-// Company filter functionality
-document.getElementById('company-filter').addEventListener('change', function() {
-    const selectedCompany = this.value;
-    const rows = document.querySelectorAll('tbody tr');
-    
-    rows.forEach(row => {
-        const companyCell = row.cells[2].textContent.trim();
-        const shouldShow = selectedCompany === '' || companyCell === selectedCompany;
-        row.style.display = shouldShow ? '' : 'none';
+    // Submit form on Enter key in keyword field
+    const keywordField = document.getElementById('keyword');
+    if (keywordField) {
+        keywordField.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('search-form').submit();
+            }
+        });
+    }
+
+    // Initialize tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
     });
 });
 </script>

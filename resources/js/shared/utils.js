@@ -16,7 +16,7 @@ export function formatCurrency(amount, currency = 'JPY') {
 
   return new Intl.NumberFormat('ja-JP', {
     style: 'currency',
-    currency: currency,
+    currency,
     minimumFractionDigits: 0,
     maximumFractionDigits: 0
   }).format(amount);
@@ -43,7 +43,9 @@ export function formatArea(area, unit = 'm²') {
  * @returns {string} Formatted date string
  */
 export function formatDate(date, includeTime = false) {
-  if (!date) return '';
+  if (!date) {
+    return '';
+  }
 
   const dateObj = date instanceof Date ? date : new Date(date);
 
@@ -122,7 +124,7 @@ export function deepClone(obj) {
   if (typeof obj === 'object') {
     const clonedObj = {};
     for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
         clonedObj[key] = deepClone(obj[key]);
       }
     }
@@ -160,7 +162,9 @@ export function escapeHtml(text) {
  * @param {string} text - Loading text (default: '読み込み中...')
  */
 export function showLoading(element, text = '読み込み中...') {
-  if (!element) return;
+  if (!element) {
+    return;
+  }
 
   element.dataset.originalContent = element.innerHTML;
   element.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status"></span>${text}`;
@@ -172,7 +176,9 @@ export function showLoading(element, text = '読み込み中...') {
  * @param {HTMLElement} element - Element to hide loading from
  */
 export function hideLoading(element) {
-  if (!element) return;
+  if (!element) {
+    return;
+  }
 
   if (element.dataset.originalContent) {
     element.innerHTML = element.dataset.originalContent;

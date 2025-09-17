@@ -4,11 +4,10 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Cache\TaggedCache;
 
 /**
  * Centralized cache management for facility-related data
- * 
+ *
  * Provides advanced caching features including:
  * - Cache tagging for efficient invalidation
  * - Batch operations for performance
@@ -18,28 +17,36 @@ use Illuminate\Cache\TaggedCache;
 class CacheManager
 {
     private const DEFAULT_TTL = 300; // 5 minutes
+
     private const LONG_TTL = 3600;   // 1 hour
+
     private const SHORT_TTL = 60;    // 1 minute
-    
+
     // Cache key patterns
     private const FACILITY_KEY = 'facility_%d';
+
     private const FACILITY_COMMENTS_KEY = 'facility_comments_%d_%s';
+
     private const FACILITY_COMMENT_COUNT_KEY = 'facility_comment_count_%d_%s';
+
     private const VIEW_MODE_KEY = 'view_mode_%d';
+
     private const SERVICE_TABLE_KEY = 'service_table_%d';
-    
+
     // Cache tags
     private const FACILITY_TAG = 'facility';
+
     private const COMMENTS_TAG = 'comments';
+
     private const SERVICE_TAG = 'services';
-    
+
     private array $stats = [
         'hits' => 0,
         'misses' => 0,
         'writes' => 0,
         'deletes' => 0,
     ];
-    
+
     /**
      * Get or set facility data with caching and tagging
      */
@@ -47,7 +54,7 @@ class CacheManager
     {
         $key = sprintf(self::FACILITY_KEY, $facilityId);
         $tags = [self::FACILITY_TAG, "facility_{$facilityId}"];
-        
+
         return $this->rememberWithTags($key, $tags, $ttl, $callback);
     }
 
@@ -58,12 +65,12 @@ class CacheManager
     {
         $results = [];
         $missingIds = [];
-        
+
         // Check cache for each facility
         foreach ($facilityIds as $id) {
             $key = sprintf(self::FACILITY_KEY, $id);
             $cached = Cache::get($key);
-            
+
             if ($cached !== null) {
                 $results[$id] = $cached;
                 $this->stats['hits']++;
@@ -72,20 +79,20 @@ class CacheManager
                 $this->stats['misses']++;
             }
         }
-        
+
         // Fetch missing facilities in batch
-        if (!empty($missingIds)) {
+        if (! empty($missingIds)) {
             $facilities = $callback($missingIds);
-            
+
             foreach ($facilities as $facility) {
                 $key = sprintf(self::FACILITY_KEY, $facility->id);
                 $tags = [self::FACILITY_TAG, "facility_{$facility->id}"];
-                
+
                 $this->putWithTags($key, $facility, $tags, $ttl);
                 $results[$facility->id] = $facility;
             }
         }
-        
+
         return $results;
     }
 
@@ -95,6 +102,7 @@ class CacheManager
     public function rememberFacilityComments(int $facilityId, string $section, callable $callback, int $ttl = self::DEFAULT_TTL)
     {
         $key = sprintf(self::FACILITY_COMMENTS_KEY, $facilityId, $section);
+
         return Cache::remember($key, $ttl, $callback);
     }
 
@@ -104,6 +112,7 @@ class CacheManager
     public function rememberCommentCount(int $facilityId, string $section, callable $callback, int $ttl = self::DEFAULT_TTL)
     {
         $key = sprintf(self::FACILITY_COMMENT_COUNT_KEY, $facilityId, $section);
+
         return Cache::remember($key, $ttl, $callback);
     }
 
@@ -121,12 +130,12 @@ class CacheManager
                 // Fallback to individual key deletion
                 $this->clearFacilityCacheByKeys($facilityId);
             }
-            
+
             Log::debug("Cleared cache for facility {$facilityId}");
         } catch (\Exception $e) {
-            Log::error("Failed to clear facility cache", [
+            Log::error('Failed to clear facility cache', [
                 'facility_id' => $facilityId,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -172,7 +181,7 @@ class CacheManager
     {
         // This could be called after facility updates to pre-populate cache
         $facility = \App\Models\Facility::with(['services', 'comments'])->find($facilityId);
-        
+
         if ($facility) {
             $key = sprintf(self::FACILITY_KEY, $facilityId);
             Cache::put($key, $facility, self::LONG_TTL);
@@ -186,7 +195,7 @@ class CacheManager
     {
         $total = $this->stats['hits'] + $this->stats['misses'];
         $hitRate = $total > 0 ? ($this->stats['hits'] / $total) * 100 : 0;
-        
+
         return [
             'driver' => config('cache.default'),
             'supports_tags' => $this->supportsTags(),
@@ -215,6 +224,7 @@ class CacheManager
     private function supportsTags(): bool
     {
         $driver = config('cache.default');
+
         return in_array($driver, ['redis', 'memcached', 'array']);
     }
 
@@ -228,7 +238,7 @@ class CacheManager
         } else {
             $result = Cache::remember($key, $ttl, $callback);
         }
-        
+
         // Track statistics
         if (Cache::has($key)) {
             $this->stats['hits']++;
@@ -236,7 +246,7 @@ class CacheManager
             $this->stats['misses']++;
             $this->stats['writes']++;
         }
-        
+
         return $result;
     }
 
@@ -250,7 +260,7 @@ class CacheManager
         } else {
             Cache::put($key, $value, $ttl);
         }
-        
+
         $this->stats['writes']++;
     }
 
@@ -263,22 +273,22 @@ class CacheManager
             $facilities = \App\Models\Facility::with(['services', 'comments'])
                 ->whereIn('id', $facilityIds)
                 ->get();
-            
+
             foreach ($facilities as $facility) {
                 $key = sprintf(self::FACILITY_KEY, $facility->id);
                 $tags = [self::FACILITY_TAG, "facility_{$facility->id}"];
-                
+
                 $this->putWithTags($key, $facility, $tags, self::LONG_TTL);
             }
-            
+
             Log::info('Cache warmed up for facilities', [
                 'facility_count' => count($facilityIds),
-                'cached_count' => $facilities->count()
+                'cached_count' => $facilities->count(),
             ]);
         } catch (\Exception $e) {
             Log::error('Cache warm-up failed', [
                 'facility_ids' => $facilityIds,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
