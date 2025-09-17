@@ -5,6 +5,16 @@
   --sidebar-toggle-top: 88px;
   --sidebar-toggle-left-expanded: 200px;
   --sidebar-toggle-left-collapsed: 20px;
+  
+  /* Animation timing variables for consistency */
+  --animation-duration: 0.3s;
+  --animation-easing: ease-in-out;
+  
+  /* Header positioning variables */
+  --header-brand-left: 40px;
+  --header-brand-top: 10px;
+  --header-right-position: 60px;
+  --header-right-top: 25px;
 }
 
 /* Navigation and Header */
@@ -56,27 +66,27 @@
 }
 
 .header-right {
-  display: flex !important;
-  align-items: center !important;
-  gap: 1rem !important;
-  position: fixed !important;
-  right: 60px !important;
-  top: 25px !important;
-  z-index: 1031 !important;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: fixed;
+  right: var(--header-right-position);
+  top: var(--header-right-top);
+  z-index: 1031;
 }
 
 /* Brand and Logo */
 .navbar-brand {
   font-weight: 600;
   font-size: 1.2rem;
-  color: white !important;
+  color: white;
   margin: 0;
   padding: 0;
   text-decoration: none;
-  position: fixed !important;
-  left: 40px !important;
-  top: 10px !important;
-  z-index: 1031 !important;
+  position: fixed;
+  left: var(--header-brand-left);
+  top: var(--header-brand-top);
+  z-index: 1031;
 }
 
 .navbar-logo {
@@ -140,7 +150,20 @@
   border-color: var(--primary-color);
   
   /* Animation */
-  transition: left 0.3s ease-in-out, background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+  transition: left var(--animation-duration) var(--animation-easing), 
+              background-color var(--animation-duration) var(--animation-easing), 
+              border-color var(--animation-duration) var(--animation-easing);
+}
+
+#sidebarToggle i {
+  transition: transform var(--animation-duration) var(--animation-easing);
+}
+
+.sidebar,
+.main-content,
+#sidebarToggle {
+  transition-duration: 0.3s;
+  transition-timing-function: ease-in-out;
 }
 
 /* Sidebar Toggle Button - Collapsed State */
@@ -173,7 +196,7 @@
   top: var(--header-height);
   left: 0;
   z-index: 1000;
-  transition: var(--transition-smooth);
+  transition: transform 0.3s ease-in-out;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
   overflow-x: hidden;
@@ -279,7 +302,7 @@
   left: var(--sidebar-width);
   overflow-y: auto;
   overflow-x: hidden;
-  transition: var(--transition-smooth);
+  transition: left 0.3s ease-in-out;
   background-color: var(--light-color);
   z-index: 1000;
   scrollbar-width: thin;
