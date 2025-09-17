@@ -70,6 +70,11 @@
                                 <i class="fas fa-building me-2"></i>建物
                             </button>
                         </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="lifeline-tab" data-bs-toggle="tab" data-bs-target="#lifeline-equipment" type="button" role="tab" aria-controls="lifeline-equipment" aria-selected="false">
+                                <i class="fas fa-plug me-2"></i>ライフライン設備
+                            </button>
+                        </li>
                     </ul>
                 </div>
                 
@@ -204,6 +209,18 @@
                         <!-- Building Info Display Card -->
                         @include('facilities.building-info.partials.display-card', ['facility' => $facility, 'buildingInfo' => $buildingInfo])
                     </div>
+                    
+                    <div class="tab-pane fade" id="lifeline-equipment" role="tabpanel" aria-labelledby="lifeline-tab">
+                        <!-- ライフライン設備タブヘッダー -->
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="mb-0">
+                                <i class="fas fa-plug text-primary me-2"></i>ライフライン設備
+                            </h4>
+                        </div>
+                        
+                        <!-- Lifeline Equipment Content -->
+                        @include('facilities.lifeline-equipment.index', ['facility' => $facility])
+                    </div>
                 </div>
             </div>
         </div>
@@ -212,6 +229,94 @@
 @endsection
 
 @vite(['resources/css/pages/facilities.css', 'resources/js/modules/facilities.js'])
+
+<style>
+/* Lifeline Equipment Styles */
+.lifeline-equipment-container {
+    margin-top: 1rem;
+}
+
+.lifeline-equipment-container .nav-tabs {
+    border-bottom: 2px solid #dee2e6;
+    margin-bottom: 1.5rem;
+}
+
+.lifeline-equipment-container .nav-tabs .nav-link {
+    border: none;
+    border-bottom: 3px solid transparent;
+    background: none;
+    color: #6c757d;
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+    margin-bottom: -2px;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.lifeline-equipment-container .nav-tabs .nav-link:hover {
+    border-color: transparent;
+    color: #495057;
+    background-color: #f8f9fa;
+}
+
+.lifeline-equipment-container .nav-tabs .nav-link.active {
+    color: #0d6efd;
+    border-bottom-color: #0d6efd;
+    background-color: transparent;
+}
+
+.lifeline-equipment-container .card {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.lifeline-equipment-container .card.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#electrical .card-header {
+    background: linear-gradient(135deg, #ffc107, #ff8f00);
+}
+
+#gas .card-header {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+}
+
+#water .card-header {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+}
+
+#elevator .card-header {
+    background: linear-gradient(135deg, #6f42c1, #59359a);
+}
+
+#hvac-lighting .card-header {
+    background: linear-gradient(135deg, #28a745, #1e7e34);
+}
+
+.lifeline-equipment-container .comment-toggle {
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    transition: all 0.15s ease;
+}
+
+.lifeline-equipment-container .comment-toggle:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.lifeline-equipment-container .comment-count {
+    margin-left: 0.25rem;
+    font-size: 0.75rem;
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 0.125rem 0.375rem;
+    border-radius: 10px;
+}
+</style>
 
 <script>
 // Pass facility ID to the JavaScript module
@@ -259,5 +364,57 @@ document.addEventListener('DOMContentLoaded', function() {
             tabEvent.show();
         }
     @endif
+    
+    // Lifeline Equipment Tab Functionality
+    const lifelineTab = document.getElementById('lifeline-tab');
+    if (lifelineTab) {
+        lifelineTab.addEventListener('shown.bs.tab', function() {
+            console.log('Lifeline equipment tab activated');
+            
+            // Animate cards in the active sub-tab
+            setTimeout(() => {
+                const activePane = document.querySelector('#lifeline-equipment .tab-pane.active .card');
+                if (activePane) {
+                    const cards = activePane.parentElement.querySelectorAll('.card');
+                    cards.forEach((card, index) => {
+                        card.style.animationDelay = `${index * 0.1}s`;
+                        card.classList.add('animate-in');
+                    });
+                }
+            }, 100);
+        });
+    }
+    
+    // Handle sub-tab switching
+    const subTabs = document.querySelectorAll('#lifelineSubTabs .nav-link');
+    subTabs.forEach(tab => {
+        tab.addEventListener('shown.bs.tab', function(event) {
+            const targetId = event.target.getAttribute('data-bs-target');
+            console.log(`Switched to ${targetId.replace('#', '')} equipment`);
+            
+            // Animate cards in the newly active tab
+            setTimeout(() => {
+                const activePane = document.querySelector('#lifeline-equipment .tab-pane.active .card');
+                if (activePane) {
+                    const cards = activePane.parentElement.querySelectorAll('.card');
+                    cards.forEach((card, index) => {
+                        card.style.animationDelay = `${index * 0.1}s`;
+                        card.classList.add('animate-in');
+                    });
+                }
+            }, 100);
+        });
+    });
+    
+    // Handle comment toggles
+    const commentToggles = document.querySelectorAll('#lifeline-equipment .comment-toggle');
+    commentToggles.forEach(toggle => {
+        toggle.addEventListener('click', function(event) {
+            event.preventDefault();
+            const section = toggle.getAttribute('data-section');
+            console.log(`Toggle comments for section: ${section}`);
+            alert(`コメント機能は今後実装予定です。\nセクション: ${section}`);
+        });
+    });
 });
 </script>

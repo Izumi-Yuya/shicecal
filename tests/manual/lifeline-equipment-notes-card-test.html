@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ライフライン設備 - 備考カード テスト</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .facility-info-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .detail-card-improved {
+            transition: all 0.3s ease;
+        }
+        
+        .detail-card-improved:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .facility-detail-table .detail-row {
+            display: flex;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+        
+        .facility-detail-table .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #495057;
+            min-width: 120px;
+            flex-shrink: 0;
+        }
+        
+        .detail-value {
+            flex: 1;
+            margin-left: 1rem;
+        }
+        
+        .empty-field .detail-value {
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .notes-content {
+            white-space: pre-line;
+            word-wrap: break-word;
+        }
+        
+        .character-count {
+            font-size: 0.875rem;
+        }
+        
+        .character-count.text-warning {
+            color: #ffc107 !important;
+        }
+        
+        .character-count.text-danger {
+            color: #dc3545 !important;
+        }
+        
+        .loading-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .test-section {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+        
+        .test-result {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 4px;
+        }
+        
+        .test-result.success {
+            background-color: #d1edff;
+            border: 1px solid #0ea5e9;
+            color: #0369a1;
+        }
+        
+        .test-result.error {
+            background-color: #fee2e2;
+            border: 1px solid #ef4444;
+            color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <h1 class="mb-4">ライフライン設備 - 備考カード 手動テスト</h1>
+        
+        <!-- Test Instructions -->
+        <div class="alert alert-info">
+            <h5><i class="fas fa-info-circle me-2"></i>テスト手順</h5>
+            <ol>
+                <li>備考カードの表示状態を確認</li>
+                <li>編集ボタンをクリックして編集モードに切り替え</li>
+                <li>テキストエリアに文字を入力して文字数カウンターを確認</li>
+                <li>保存ボタンをクリックして保存機能をテスト</li>
+                <li>キャンセルボタンをクリックして編集キャンセル機能をテスト</li>
+                <li>コメントボタンをクリックしてコメント機能をテスト</li>
+                <li>カード折りたたみ機能をテスト</li>
+            </ol>
+        </div>
+
+        <!-- Test Results Section -->
+        <div class="test-section">
+            <h3>テスト結果</h3>
+            <div id="testResults"></div>
+            <button class="btn btn-primary" onclick="runAllTests()">
+                <i class="fas fa-play me-2"></i>全テストを実行
+            </button>
+        </div>
+
+        <!-- Notes Card Test -->
+        <div class="row">
+            <div class="col-12 mb-4">
+                <div class="card facility-info-card detail-card-improved h-100 equipment-card" 
+                     data-section="electrical_notes" 
+                     data-card-type="notes">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-sticky-note me-2" aria-hidden="true"></i>備考
+                        </h5>
+                        <div class="card-actions d-flex align-items-center">
+                            <button class="btn btn-outline-light btn-sm me-2 card-toggle" 
+                                    data-card="notes"
+                                    data-bs-toggle="tooltip" 
+                                    title="カードを折りたたむ/展開する"
+                                    aria-label="備考カードを折りたたむまたは展開する"
+                                    aria-expanded="true"
+                                    aria-controls="electrical-notes-content">
+                                <i class="fas fa-chevron-up" aria-hidden="true"></i>
+                            </button>
+                            <button class="btn btn-outline-light btn-sm comment-toggle" 
+                                    data-section="electrical_notes" 
+                                    data-bs-toggle="tooltip" 
+                                    title="コメントを表示/非表示"
+                                    aria-label="備考のコメントを表示または非表示にする"
+                                    aria-expanded="false"
+                                    aria-controls="comment-section-electrical_notes">
+                                <i class="fas fa-comment" aria-hidden="true"></i>
+                                <span class="comment-count" data-section="electrical_notes" aria-label="コメント数">0</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body collapse show" id="electrical-notes-content">
+                        <!-- Display Mode -->
+                        <div class="facility-detail-table display-mode">
+                            <div class="detail-row">
+                                <span class="detail-label">備考</span>
+                                <span class="detail-value">
+                                    <div class="notes-content">
+                                        電気設備に関する特記事項：
+                                        - 定期点検は毎年3月に実施
+                                        - 非常用発電機の燃料補給は月1回
+                                        - キュービクルの清掃は年2回実施
+                                    </div>
+                                </span>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <button type="button" class="btn btn-primary btn-sm edit-card-btn" 
+                                        data-card="notes" 
+                                        data-section="electrical_notes"
+                                        aria-label="備考を編集">
+                                    <i class="fas fa-edit me-1" aria-hidden="true"></i>編集
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Edit Mode -->
+                        <div class="edit-mode d-none">
+                            <form class="equipment-form" data-section="electrical_notes" data-card="notes">
+                                <div class="row">
+                                    <div class="col-12 mb-3">
+                                        <label for="electrical_notes" class="form-label">備考</label>
+                                        <textarea class="form-control" 
+                                                  id="electrical_notes" 
+                                                  name="notes"
+                                                  rows="6"
+                                                  maxlength="2000"
+                                                  placeholder="電気設備に関する特記事項、注意点、その他の情報を入力してください"
+                                                  aria-describedby="electrical_notes_help">電気設備に関する特記事項：
+- 定期点検は毎年3月に実施
+- 非常用発電機の燃料補給は月1回
+- キュービクルの清掃は年2回実施</textarea>
+                                        <div id="electrical_notes_help" class="form-text">
+                                            電気設備に関する特記事項、メンテナンス履歴、注意点などを記録してください（最大2000文字）
+                                        </div>
+                                        <div class="character-count text-muted small mt-1">
+                                            <span class="current-count">87</span> / 2000 文字
+                                        </div>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-actions mt-3">
+                                    <button type="submit" class="btn btn-success btn-sm me-2 save-card-btn" 
+                                            data-card="notes" 
+                                            data-section="electrical_notes"
+                                            aria-label="備考を保存">
+                                        <i class="fas fa-save me-1" aria-hidden="true"></i>保存
+                                    </button>
+                                    <button type="button" class="btn btn-secondary btn-sm cancel-edit-btn" 
+                                            data-card="notes" 
+                                            data-section="electrical_notes"
+                                            aria-label="編集をキャンセル">
+                                        <i class="fas fa-times me-1" aria-hidden="true"></i>キャンセル
+                                    </button>
+                                </div>
+                                
+                                <!-- Loading indicator -->
+                                <div class="loading-indicator d-none mt-2">
+                                    <div class="d-flex align-items-center">
+                                        <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
+                                        <span>保存中...</span>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- コメントセクション -->
+                        <div class="comment-section mt-3 d-none" 
+                             data-section="electrical_notes" 
+                             id="comment-section-electrical_notes"
+                             role="region"
+                             aria-label="備考のコメント">
+                            <hr>
+                            <div class="comment-form mb-3">
+                                <div class="input-group">
+                                    <label for="comment-input-electrical_notes" class="sr-only">備考にコメントを追加</label>
+                                    <input type="text" 
+                                           class="form-control comment-input" 
+                                           id="comment-input-electrical_notes"
+                                           placeholder="コメントを入力..." 
+                                           data-section="electrical_notes">
+                                    <button class="btn btn-primary comment-submit" 
+                                            data-section="electrical_notes"
+                                            aria-label="備考にコメントを投稿">
+                                        <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="comment-list" 
+                                 data-section="electrical_notes"
+                                 role="log"
+                                 aria-label="備考のコメント一覧"
+                                 aria-live="polite">
+                                <!-- コメントがここに動的に追加されます -->
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    コメント機能は今後実装予定です。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Test functionality
+        let testResults = [];
+
+        function addTestResult(testName, success, message) {
+            testResults.push({ testName, success, message });
+            updateTestDisplay();
+        }
+
+        function updateTestDisplay() {
+            const container = document.getElementById('testResults');
+            container.innerHTML = testResults.map(result => `
+                <div class="test-result ${result.success ? 'success' : 'error'}">
+                    <strong>${result.testName}:</strong> ${result.message}
+                </div>
+            `).join('');
+        }
+
+        function runAllTests() {
+            testResults = [];
+            
+            // Test 1: Card structure
+            const card = document.querySelector('[data-section="electrical_notes"]');
+            addTestResult(
+                'カード構造テスト',
+                card !== null,
+                card ? 'カードが正しく表示されています' : 'カードが見つかりません'
+            );
+
+            // Test 2: Edit functionality
+            const editBtn = document.querySelector('.edit-card-btn[data-card="notes"]');
+            addTestResult(
+                '編集ボタンテスト',
+                editBtn !== null,
+                editBtn ? '編集ボタンが存在します' : '編集ボタンが見つかりません'
+            );
+
+            // Test 3: Form elements
+            const textarea = document.querySelector('#electrical_notes');
+            const characterCount = document.querySelector('.character-count');
+            addTestResult(
+                'フォーム要素テスト',
+                textarea && characterCount,
+                (textarea && characterCount) ? 'テキストエリアと文字数カウンターが存在します' : 'フォーム要素が不完全です'
+            );
+
+            // Test 4: Comment functionality
+            const commentToggle = document.querySelector('.comment-toggle[data-section="electrical_notes"]');
+            addTestResult(
+                'コメント機能テスト',
+                commentToggle !== null,
+                commentToggle ? 'コメントボタンが存在します' : 'コメントボタンが見つかりません'
+            );
+
+            // Test 5: Accessibility attributes
+            const hasAriaLabels = editBtn && editBtn.hasAttribute('aria-label');
+            const hasAriaDescribedBy = textarea && textarea.hasAttribute('aria-describedby');
+            addTestResult(
+                'アクセシビリティテスト',
+                hasAriaLabels && hasAriaDescribedBy,
+                (hasAriaLabels && hasAriaDescribedBy) ? 'アクセシビリティ属性が適切に設定されています' : 'アクセシビリティ属性が不足しています'
+            );
+        }
+
+        // Initialize functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Edit button functionality
+            const editBtn = document.querySelector('.edit-card-btn[data-card="notes"]');
+            if (editBtn) {
+                editBtn.addEventListener('click', function() {
+                    const displayMode = document.querySelector('[data-section="electrical_notes"] .display-mode');
+                    const editMode = document.querySelector('[data-section="electrical_notes"] .edit-mode');
+                    
+                    if (displayMode && editMode) {
+                        displayMode.classList.add('d-none');
+                        editMode.classList.remove('d-none');
+                        
+                        // Focus on textarea
+                        const textarea = document.querySelector('#electrical_notes');
+                        if (textarea) {
+                            setTimeout(() => textarea.focus(), 100);
+                        }
+                    }
+                });
+            }
+
+            // Cancel button functionality
+            const cancelBtn = document.querySelector('.cancel-edit-btn[data-card="notes"]');
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', function() {
+                    const displayMode = document.querySelector('[data-section="electrical_notes"] .display-mode');
+                    const editMode = document.querySelector('[data-section="electrical_notes"] .edit-mode');
+                    
+                    if (displayMode && editMode) {
+                        editMode.classList.add('d-none');
+                        displayMode.classList.remove('d-none');
+                    }
+                });
+            }
+
+            // Save button functionality (mock)
+            const saveBtn = document.querySelector('.save-card-btn[data-card="notes"]');
+            if (saveBtn) {
+                saveBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const loadingIndicator = document.querySelector('[data-section="electrical_notes"] .loading-indicator');
+                    if (loadingIndicator) {
+                        loadingIndicator.classList.remove('d-none');
+                        
+                        // Simulate API call
+                        setTimeout(() => {
+                            loadingIndicator.classList.add('d-none');
+                            alert('保存が完了しました（テストモード）');
+                            
+                            // Exit edit mode
+                            const displayMode = document.querySelector('[data-section="electrical_notes"] .display-mode');
+                            const editMode = document.querySelector('[data-section="electrical_notes"] .edit-mode');
+                            
+                            if (displayMode && editMode) {
+                                editMode.classList.add('d-none');
+                                displayMode.classList.remove('d-none');
+                            }
+                        }, 2000);
+                    }
+                });
+            }
+
+            // Character count functionality
+            const textarea = document.querySelector('#electrical_notes');
+            const currentCountElement = document.querySelector('.current-count');
+            
+            if (textarea && currentCountElement) {
+                textarea.addEventListener('input', function() {
+                    const currentLength = textarea.value.length;
+                    const maxLength = parseInt(textarea.getAttribute('maxlength'));
+                    
+                    currentCountElement.textContent = currentLength;
+                    
+                    const counterElement = currentCountElement.closest('.character-count');
+                    
+                    // Remove existing classes
+                    counterElement.classList.remove('text-warning', 'text-danger');
+                    
+                    // Add warning class when approaching limit
+                    if (currentLength > maxLength * 0.9) {
+                        counterElement.classList.add('text-warning');
+                    }
+                    
+                    // Add danger class when at limit
+                    if (currentLength >= maxLength) {
+                        counterElement.classList.add('text-danger');
+                        counterElement.classList.remove('text-warning');
+                    }
+                });
+                
+                // Initialize count
+                const initialLength = textarea.value.length;
+                currentCountElement.textContent = initialLength;
+            }
+
+            // Comment toggle functionality
+            const commentToggle = document.querySelector('.comment-toggle[data-section="electrical_notes"]');
+            const commentSection = document.querySelector('#comment-section-electrical_notes');
+            
+            if (commentToggle && commentSection) {
+                commentToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    if (commentSection.classList.contains('d-none')) {
+                        commentSection.classList.remove('d-none');
+                        commentToggle.setAttribute('aria-expanded', 'true');
+                    } else {
+                        commentSection.classList.add('d-none');
+                        commentToggle.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            }
+
+            // Card toggle functionality
+            const cardToggle = document.querySelector('.card-toggle[data-card="notes"]');
+            const cardContent = document.querySelector('#electrical-notes-content');
+            
+            if (cardToggle && cardContent) {
+                cardToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const isExpanded = cardToggle.getAttribute('aria-expanded') === 'true';
+                    const icon = cardToggle.querySelector('i');
+                    
+                    if (isExpanded) {
+                        cardContent.classList.remove('show');
+                        cardToggle.setAttribute('aria-expanded', 'false');
+                        icon.classList.remove('fa-chevron-up');
+                        icon.classList.add('fa-chevron-down');
+                    } else {
+                        cardContent.classList.add('show');
+                        cardToggle.setAttribute('aria-expanded', 'true');
+                        icon.classList.remove('fa-chevron-down');
+                        icon.classList.add('fa-chevron-up');
+                    }
+                });
+            }
+
+            // Run initial tests
+            setTimeout(runAllTests, 500);
+        });
+    </script>
+</body>
+</html>

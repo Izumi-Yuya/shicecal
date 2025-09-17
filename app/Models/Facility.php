@@ -118,6 +118,75 @@ class Facility extends Model
     }
 
     /**
+     * Get the lifeline equipment associated with this facility
+     */
+    public function lifelineEquipments(): HasMany
+    {
+        return $this->hasMany(LifelineEquipment::class);
+    }
+
+    /**
+     * Get the lifeline equipment associated with this facility
+     */
+    public function lifelineEquipment(): HasMany
+    {
+        return $this->hasMany(LifelineEquipment::class);
+    }
+
+    /**
+     * Get lifeline equipment by category
+     */
+    public function getLifelineEquipmentByCategory(string $category): ?LifelineEquipment
+    {
+        return $this->lifelineEquipment()->where('category', $category)->first();
+    }
+
+    /**
+     * Get electrical equipment
+     */
+    public function getElectricalEquipment(): ?ElectricalEquipment
+    {
+        $lifelineEquipment = $this->getLifelineEquipmentByCategory('electrical');
+        return $lifelineEquipment?->electricalEquipment;
+    }
+
+    /**
+     * Get gas equipment for this facility
+     */
+    public function getGasEquipment(): ?GasEquipment
+    {
+        $lifelineEquipment = $this->getLifelineEquipmentByCategory('gas');
+        return $lifelineEquipment?->gasEquipment;
+    }
+
+    /**
+     * Get water equipment for this facility
+     */
+    public function getWaterEquipment(): ?WaterEquipment
+    {
+        $lifelineEquipment = $this->getLifelineEquipmentByCategory('water');
+        return $lifelineEquipment?->waterEquipment;
+    }
+
+    /**
+     * Get elevator equipment for this facility
+     */
+    public function getElevatorEquipment(): ?ElevatorEquipment
+    {
+        $lifelineEquipment = $this->getLifelineEquipmentByCategory('elevator');
+        return $lifelineEquipment?->elevatorEquipment;
+    }
+
+    /**
+     * Get HVAC/Lighting equipment for this facility
+     */
+    public function getHvacLightingEquipment(): ?HvacLightingEquipment
+    {
+        $lifelineEquipment = $this->getLifelineEquipmentByCategory('hvac_lighting');
+        return $lifelineEquipment?->hvacLightingEquipment;
+    }
+
+    /**
      * Get the land documents associated with this facility
      */
     public function landDocuments(): HasMany

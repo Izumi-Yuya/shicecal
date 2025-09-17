@@ -17,11 +17,11 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AdminUserSeeder::class,
             SystemSettingsSeeder::class,
-            FacilityDummyDataSeeder::class, // Add dummy facility data including "あおぞらの里 グループホーム小松川"
+            // FacilityDummyDataSeeder::class, // Disabled - seeder does not exist
             FacilityMasterImportSeeder::class, // Import real facility data from CSV
-            // FacilitySeeder::class, // Disabled - using real data from CSV instead
+            FacilitySeeder::class, // Re-enabled for basic facility data
             LandInfoSeeder::class,
-            // FacilityServiceSeeder::class, // Disabled - services are created by FacilityMasterImportSeeder
+            FacilityServiceSeeder::class, // Re-enabled for service data
             FacilityBasicInfoSeeder::class,
             MaintenanceHistorySeeder::class,
             TestDataSeeder::class,

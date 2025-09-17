@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>非常用発電機カード - 手動テスト</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .facility-info-card {
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        
+        .detail-card-improved {
+            transition: all 0.3s ease;
+        }
+        
+        .detail-card-improved:hover {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        
+        .facility-detail-table .detail-row {
+            display: flex;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+        
+        .facility-detail-table .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #495057;
+            min-width: 120px;
+            flex-shrink: 0;
+        }
+        
+        .detail-value {
+            flex: 1;
+            margin-left: 1rem;
+        }
+        
+        .empty-field .detail-value {
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .equipment-item {
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+        
+        .equipment-item:hover {
+            background-color: #e9ecef;
+        }
+        
+        .no-equipment-message {
+            background-color: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 0.375rem;
+        }
+        
+        .character-count {
+            font-size: 0.875rem;
+        }
+        
+        .character-count.text-warning {
+            color: #ffc107 !important;
+        }
+        
+        .character-count.text-danger {
+            color: #dc3545 !important;
+        }
+        
+        .loading-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 0.375rem;
+        }
+        
+        .animate-in {
+            animation: slideInUp 0.5s ease-out;
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="h3 mb-4">
+                    <i class="fas fa-cog me-2"></i>非常用発電機カード - 手動テスト
+                </h1>
+                
+                <div class="alert alert-info">
+                    <h5><i class="fas fa-info-circle me-2"></i>テスト項目</h5>
+                    <ul class="mb-0">
+                        <li>カードの表示・非表示切り替え</li>
+                        <li>編集モードの切り替え</li>
+                        <li>有無プルダウンによる条件表示</li>
+                        <li>設備の動的追加・削除</li>
+                        <li>フォームバリデーション</li>
+                        <li>データ保存（モック）</li>
+                        <li>レスポンシブデザイン</li>
+                        <li>アクセシビリティ</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- 非常用発電機カード -->
+            <div class="col-lg-6 mb-4">
+                <div class="card facility-info-card detail-card-improved h-100 equipment-card" 
+                     data-section="electrical_generator" 
+                     data-card-type="generator">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-cog me-2" aria-hidden="true"></i>非常用発電機
+                        </h5>
+                        <div class="card-actions d-flex align-items-center">
+                            <button class="btn btn-outline-light btn-sm me-2 card-toggle" 
+                                    data-card="generator"
+                                    data-bs-toggle="tooltip" 
+                                    title="カードを折りたたむ/展開する"
+                                    aria-label="非常用発電機カードを折りたたむまたは展開する"
+                                    aria-expanded="true"
+                                    aria-controls="electrical-generator-content">
+                                <i class="fas fa-chevron-up" aria-hidden="true"></i>
+                            </button>
+                            <button class="btn btn-outline-light btn-sm comment-toggle" 
+                                    data-section="electrical_generator" 
+                                    data-bs-toggle="tooltip" 
+                                    title="コメントを表示/非表示"
+                                    aria-label="非常用発電機のコメントを表示または非表示にする"
+                                    aria-expanded="false"
+                                    aria-controls="comment-section-electrical_generator">
+                                <i class="fas fa-comment" aria-hidden="true"></i>
+                                <span class="comment-count" data-section="electrical_generator" aria-label="コメント数">0</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body collapse show" id="electrical-generator-content">
+                        <!-- Display Mode -->
+                        <div class="facility-detail-table display-mode">
+                            <div class="detail-row empty-field">
+                                <span class="detail-label">有無</span>
+                                <span class="detail-value">未登録</span>
+                            </div>
+                            <div class="detail-row empty-field">
+                                <span class="detail-label">詳細</span>
+                                <span class="detail-value">未登録</span>
+                            </div>
+                            <div class="detail-row empty-field">
+                                <span class="detail-label">設備情報</span>
+                                <span class="detail-value">未登録</span>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <button type="button" class="btn btn-primary btn-sm edit-card-btn" 
+                                        data-card="generator" 
+                                        data-section="electrical_generator"
+                                        aria-label="非常用発電機情報を編集">
+                                    <i class="fas fa-edit me-1" aria-hidden="true"></i>編集
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Edit Mode -->
+                        <div class="edit-mode d-none">
+                            <form class="equipment-form" data-section="electrical_generator" data-card="generator">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="generator_availability" class="form-label">有無 <span class="text-danger">*</span></label>
+                                        <select class="form-select" 
+                                                id="generator_availability" 
+                                                name="generator_info[availability]"
+                                                aria-describedby="generator_availability_help"
+                                                data-conditional-trigger="generator_details">
+                                            <option value="">選択してください</option>
+                                            <option value="有">有</option>
+                                            <option value="無">無</option>
+                                        </select>
+                                        <div id="generator_availability_help" class="form-text">
+                                            非常用発電機の有無を選択してください
+                                        </div>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 詳細情報（「有」選択時のみ表示） -->
+                                <div class="conditional-fields" 
+                                     data-conditional-target="generator_details" 
+                                     style="display: none;">
+                                    <div class="row">
+                                        <div class="col-md-12 mb-3">
+                                            <label for="generator_availability_details" class="form-label">詳細</label>
+                                            <textarea class="form-control" 
+                                                      id="generator_availability_details" 
+                                                      name="generator_info[availability_details]"
+                                                      rows="3"
+                                                      maxlength="1000"
+                                                      placeholder="非常用発電機の詳細情報を入力してください"
+                                                      aria-describedby="generator_availability_details_help"></textarea>
+                                            <div id="generator_availability_details_help" class="form-text">
+                                                非常用発電機の仕様、設置場所、容量などの詳細情報を入力してください（最大1000文字）
+                                            </div>
+                                            <div class="character-count text-muted small mt-1">
+                                                <span class="current-count">0</span> / 1000 文字
+                                            </div>
+                                            <div class="invalid-feedback"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 設備リスト -->
+                                    <div class="equipment-list-section">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h6 class="mb-0">設備情報</h6>
+                                            <button type="button" class="btn btn-outline-primary btn-sm add-equipment-btn" 
+                                                    data-equipment-type="generator"
+                                                    aria-label="非常用発電機設備を追加">
+                                                <i class="fas fa-plus me-1" aria-hidden="true"></i>設備追加
+                                            </button>
+                                        </div>
+                                        
+                                        <div class="equipment-list" data-equipment-type="generator">
+                                            <!-- 動的に追加される設備項目がここに表示されます -->
+                                        </div>
+                                        
+                                        <!-- 設備が0件の場合のメッセージ -->
+                                        <div class="no-equipment-message text-muted text-center py-3">
+                                            設備情報が登録されていません。「設備追加」ボタンから追加してください。
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-actions mt-3">
+                                    <button type="submit" class="btn btn-success btn-sm me-2 save-card-btn" 
+                                            data-card="generator" 
+                                            data-section="electrical_generator"
+                                            aria-label="非常用発電機情報を保存">
+                                        <i class="fas fa-save me-1" aria-hidden="true"></i>保存
+                                    </button>
+                                    <button type="button" class="btn btn-secondary btn-sm cancel-edit-btn" 
+                                            data-card="generator" 
+                                            data-section="electrical_generator"
+                                            aria-label="編集をキャンセル">
+                                        <i class="fas fa-times me-1" aria-hidden="true"></i>キャンセル
+                                    </button>
+                                </div>
+                                
+                                <!-- Loading indicator -->
+                                <div class="loading-indicator d-none mt-2">
+                                    <div class="d-flex align-items-center">
+                                        <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
+                                        <span>保存中...</span>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- コメントセクション -->
+                        <div class="comment-section mt-3 d-none" 
+                             data-section="electrical_generator" 
+                             id="comment-section-electrical_generator"
+                             role="region"
+                             aria-label="非常用発電機のコメント">
+                            <hr>
+                            <div class="comment-form mb-3">
+                                <div class="input-group">
+                                    <label for="comment-input-electrical_generator" class="sr-only">非常用発電機にコメントを追加</label>
+                                    <input type="text" 
+                                           class="form-control comment-input" 
+                                           id="comment-input-electrical_generator"
+                                           placeholder="コメントを入力..." 
+                                           data-section="electrical_generator">
+                                    <button class="btn btn-primary comment-submit" 
+                                            data-section="electrical_generator"
+                                            aria-label="非常用発電機にコメントを投稿">
+                                        <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="comment-list" 
+                                 data-section="electrical_generator"
+                                 role="log"
+                                 aria-label="非常用発電機のコメント一覧"
+                                 aria-live="polite">
+                                <!-- コメントがここに動的に追加されます -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- テスト結果表示エリア -->
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-clipboard-check me-2"></i>テスト結果
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="test-results">
+                            <p class="text-muted">テストを実行してください...</p>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <button type="button" class="btn btn-primary me-2" onclick="runAllTests()">
+                                <i class="fas fa-play me-1"></i>全テスト実行
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="clearResults()">
+                                <i class="fas fa-trash me-1"></i>結果クリア
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- テストデータ入力エリア -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-database me-2"></i>テストデータ
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <button type="button" class="btn btn-outline-primary btn-sm me-2" onclick="loadSampleData('none')">
+                            「無」データ読み込み
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm me-2" onclick="loadSampleData('available')">
+                            「有」データ読み込み
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="loadSampleData('multiple')">
+                            複数設備データ読み込み
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Mock LifelineEquipmentManager functionality for testing
+        class MockLifelineEquipmentManager {
+            constructor() {
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+            }
+
+            bindEvents() {
+                this.bindEditFunctionality();
+                this.bindConditionalFields();
+                this.bindEquipmentListFunctionality();
+                this.bindCharacterCount();
+                this.bindCardToggles();
+                this.bindCommentToggles();
+            }
+
+            bindEditFunctionality() {
+                // Handle edit button clicks
+                document.addEventListener('click', (event) => {
+                    if (event.target.closest('.edit-card-btn')) {
+                        event.preventDefault();
+                        const button = event.target.closest('.edit-card-btn');
+                        const cardType = button.getAttribute('data-card');
+                        const section = button.getAttribute('data-section');
+                        this.enterEditMode(cardType, section);
+                    }
+                });
+
+                // Handle save button clicks
+                document.addEventListener('click', (event) => {
+                    if (event.target.closest('.save-card-btn')) {
+                        event.preventDefault();
+                        const button = event.target.closest('.save-card-btn');
+                        const cardType = button.getAttribute('data-card');
+                        const section = button.getAttribute('data-section');
+                        this.saveCardData(cardType, section);
+                    }
+                });
+
+                // Handle cancel button clicks
+                document.addEventListener('click', (event) => {
+                    if (event.target.closest('.cancel-edit-btn')) {
+                        event.preventDefault();
+                        const button = event.target.closest('.cancel-edit-btn');
+                        const cardType = button.getAttribute('data-card');
+                        const section = button.getAttribute('data-section');
+                        this.cancelEdit(cardType, section);
+                    }
+                });
+
+                // Handle form submissions
+                document.addEventListener('submit', (event) => {
+                    if (event.target.closest('.equipment-form')) {
+                        event.preventDefault();
+                        const form = event.target.closest('.equipment-form');
+                        const cardType = form.getAttribute('data-card');
+                        const section = form.getAttribute('data-section');
+                        this.saveCardData(cardType, section);
+                    }
+                });
+            }
+
+            enterEditMode(cardType, section) {
+                const card = document.querySelector(`[data-section="${section}"]`);
+                if (!card) return;
+
+                const displayMode = card.querySelector('.display-mode');
+                const editMode = card.querySelector('.edit-mode');
+
+                if (displayMode && editMode) {
+                    displayMode.classList.add('d-none');
+                    editMode.classList.remove('d-none');
+
+                    const firstInput = editMode.querySelector('input, select, textarea');
+                    if (firstInput) {
+                        setTimeout(() => firstInput.focus(), 100);
+                    }
+                }
+
+                logTest(`✓ 編集モードに切り替え: ${cardType}`);
+            }
+
+            cancelEdit(cardType, section) {
+                const card = document.querySelector(`[data-section="${section}"]`);
+                if (!card) return;
+
+                const displayMode = card.querySelector('.display-mode');
+                const editMode = card.querySelector('.edit-mode');
+                const form = card.querySelector('.equipment-form');
+
+                if (displayMode && editMode) {
+                    if (form) {
+                        form.reset();
+                        this.clearValidationErrors(form);
+                    }
+
+                    editMode.classList.add('d-none');
+                    displayMode.classList.remove('d-none');
+                }
+
+                logTest(`✓ 編集をキャンセル: ${cardType}`);
+            }
+
+            async saveCardData(cardType, section) {
+                const card = document.querySelector(`[data-section="${section}"]`);
+                if (!card) return;
+
+                const form = card.querySelector('.equipment-form');
+                if (!form) return;
+
+                this.showLoadingIndicator(card, true);
+                this.clearValidationErrors(form);
+
+                // Mock API call
+                setTimeout(() => {
+                    this.showLoadingIndicator(card, false);
+                    this.showSuccessMessage('データを保存しました（モック）');
+                    this.exitEditMode(cardType, section);
+                    logTest(`✓ データ保存完了: ${cardType}`);
+                }, 1000);
+            }
+
+            exitEditMode(cardType, section) {
+                const card = document.querySelector(`[data-section="${section}"]`);
+                if (!card) return;
+
+                const displayMode = card.querySelector('.display-mode');
+                const editMode = card.querySelector('.edit-mode');
+
+                if (displayMode && editMode) {
+                    editMode.classList.add('d-none');
+                    displayMode.classList.remove('d-none');
+                }
+            }
+
+            showLoadingIndicator(card, show) {
+                const indicator = card.querySelector('.loading-indicator');
+                if (indicator) {
+                    if (show) {
+                        indicator.classList.remove('d-none');
+                    } else {
+                        indicator.classList.add('d-none');
+                    }
+                }
+            }
+
+            clearValidationErrors(form) {
+                const errorElements = form.querySelectorAll('.invalid-feedback');
+                errorElements.forEach(element => {
+                    element.textContent = '';
+                });
+
+                const invalidInputs = form.querySelectorAll('.is-invalid');
+                invalidInputs.forEach(input => {
+                    input.classList.remove('is-invalid');
+                });
+            }
+
+            showSuccessMessage(message) {
+                this.showToast(message, 'success');
+            }
+
+            showToast(message, type = 'info') {
+                const toast = document.createElement('div');
+                toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
+                toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+                toast.innerHTML = `
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+
+                document.body.appendChild(toast);
+
+                setTimeout(() => {
+                    if (toast.parentElement) {
+                        toast.remove();
+                    }
+                }, 3000);
+            }
+
+            bindConditionalFields() {
+                document.addEventListener('change', (event) => {
+                    if (event.target.hasAttribute('data-conditional-trigger')) {
+                        const trigger = event.target;
+                        const targetName = trigger.getAttribute('data-conditional-trigger');
+                        this.handleConditionalDisplay(trigger, targetName);
+                    }
+                });
+            }
+
+            handleConditionalDisplay(trigger, targetName) {
+                const targetElements = document.querySelectorAll(`[data-conditional-target="${targetName}"]`);
+                const selectedValue = trigger.value;
+
+                targetElements.forEach(target => {
+                    if (selectedValue === '有') {
+                        target.style.display = 'block';
+                        logTest(`✓ 条件表示: ${targetName} を表示`);
+                    } else {
+                        target.style.display = 'none';
+                        const allFields = target.querySelectorAll('input, select, textarea');
+                        allFields.forEach(field => {
+                            if (selectedValue === '無') {
+                                if (field.type === 'checkbox' || field.type === 'radio') {
+                                    field.checked = false;
+                                } else {
+                                    field.value = '';
+                                }
+                            }
+                        });
+                        logTest(`✓ 条件表示: ${targetName} を非表示`);
+                    }
+                });
+            }
+
+            bindCharacterCount() {
+                document.addEventListener('input', (event) => {
+                    if (event.target.matches('textarea[maxlength]')) {
+                        const textarea = event.target;
+                        const maxLength = parseInt(textarea.getAttribute('maxlength'));
+                        const counterElement = textarea.parentElement.querySelector('.character-count .current-count');
+
+                        if (counterElement) {
+                            const currentLength = textarea.value.length;
+                            counterElement.textContent = currentLength;
+
+                            const parentCounter = counterElement.closest('.character-count');
+                            parentCounter.classList.remove('text-warning', 'text-danger');
+
+                            if (currentLength > maxLength * 0.9) {
+                                parentCounter.classList.add('text-warning');
+                            }
+
+                            if (currentLength >= maxLength) {
+                                parentCounter.classList.add('text-danger');
+                                parentCounter.classList.remove('text-warning');
+                            }
+                        }
+                    }
+                });
+            }
+
+            bindEquipmentListFunctionality() {
+                document.addEventListener('click', (event) => {
+                    if (event.target.closest('.add-equipment-btn')) {
+                        event.preventDefault();
+                        const button = event.target.closest('.add-equipment-btn');
+                        const equipmentType = button.getAttribute('data-equipment-type');
+                        this.addEquipmentItem(equipmentType);
+                    }
+
+                    if (event.target.closest('.remove-equipment-btn')) {
+                        event.preventDefault();
+                        const removeButton = event.target.closest('.remove-equipment-btn');
+                        const equipmentItem = removeButton.closest('.equipment-item');
+                        this.removeEquipmentItem(equipmentItem);
+                    }
+                });
+            }
+
+            addEquipmentItem(equipmentType) {
+                const equipmentList = document.querySelector(`[data-equipment-type="${equipmentType}"] .equipment-list`);
+                const noEquipmentMessage = document.querySelector(`[data-equipment-type="${equipmentType}"] .no-equipment-message`);
+
+                if (!equipmentList) return;
+
+                const existingItems = equipmentList.querySelectorAll('.equipment-item');
+                const newIndex = existingItems.length;
+
+                const equipmentItemHtml = this.createEquipmentItemHtml(equipmentType, newIndex);
+
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = equipmentItemHtml;
+                const newEquipmentItem = tempDiv.firstElementChild;
+
+                equipmentList.appendChild(newEquipmentItem);
+
+                if (noEquipmentMessage) {
+                    noEquipmentMessage.style.display = 'none';
+                }
+
+                const firstInput = newEquipmentItem.querySelector('input');
+                if (firstInput) {
+                    setTimeout(() => firstInput.focus(), 100);
+                }
+
+                newEquipmentItem.style.opacity = '0';
+                newEquipmentItem.style.transform = 'translateY(-10px)';
+                setTimeout(() => {
+                    newEquipmentItem.style.transition = 'all 0.3s ease';
+                    newEquipmentItem.style.opacity = '1';
+                    newEquipmentItem.style.transform = 'translateY(0)';
+                }, 10);
+
+                logTest(`✓ 設備追加: ${equipmentType} 設備 ${newIndex + 1}`);
+            }
+
+            removeEquipmentItem(equipmentItem) {
+                if (!equipmentItem) return;
+
+                const equipmentList = equipmentItem.closest('.equipment-list');
+                const equipmentType = equipmentItem.closest('[data-equipment-type]')?.getAttribute('data-equipment-type');
+
+                equipmentItem.style.transition = 'all 0.3s ease';
+                equipmentItem.style.opacity = '0';
+                equipmentItem.style.transform = 'translateX(-20px)';
+
+                setTimeout(() => {
+                    equipmentItem.remove();
+
+                    this.reindexEquipmentItems(equipmentList, equipmentType);
+
+                    const remainingItems = equipmentList.querySelectorAll('.equipment-item');
+                    if (remainingItems.length === 0 && equipmentType) {
+                        const noEquipmentMessage = document.querySelector(`[data-equipment-type="${equipmentType}"] .no-equipment-message`);
+                        if (noEquipmentMessage) {
+                            noEquipmentMessage.style.display = 'block';
+                        }
+                    }
+
+                    logTest(`✓ 設備削除: ${equipmentType} 設備を削除`);
+                }, 300);
+            }
+
+            reindexEquipmentItems(equipmentList, equipmentType) {
+                const items = equipmentList.querySelectorAll('.equipment-item');
+                items.forEach((item, index) => {
+                    item.setAttribute('data-equipment-index', index);
+
+                    const heading = item.querySelector('h6');
+                    if (heading) {
+                        heading.textContent = `設備 ${index + 1}`;
+                    }
+
+                    const inputs = item.querySelectorAll('input');
+                    inputs.forEach(input => {
+                        const name = input.getAttribute('name');
+                        if (name) {
+                            const newName = name.replace(/\[\d+\]/, `[${index}]`);
+                            input.setAttribute('name', newName);
+                        }
+                    });
+                });
+            }
+
+            createEquipmentItemHtml(equipmentType, index) {
+                return `
+                    <div class="equipment-item border rounded p-3 mb-3" data-equipment-index="${index}">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0">設備 ${index + 1}</h6>
+                            <button type="button" class="btn btn-outline-danger btn-sm remove-equipment-btn"
+                                    aria-label="この設備を削除">
+                                <i class="fas fa-trash" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">設備番号</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       name="${equipmentType}_info[equipment_list][${index}][equipment_number]"
+                                       maxlength="50"
+                                       placeholder="例: GEN-001">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">メーカー</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       name="${equipmentType}_info[equipment_list][${index}][manufacturer]"
+                                       maxlength="100"
+                                       placeholder="例: ヤンマー">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">年式</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       name="${equipmentType}_info[equipment_list][${index}][model_year]"
+                                       maxlength="10"
+                                       placeholder="例: 2021">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">更新年月日</label>
+                                <input type="date" 
+                                       class="form-control" 
+                                       name="${equipmentType}_info[equipment_list][${index}][update_date]">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            bindCardToggles() {
+                document.addEventListener('click', (event) => {
+                    if (event.target.closest('.card-toggle')) {
+                        event.preventDefault();
+                        const toggle = event.target.closest('.card-toggle');
+                        const cardType = toggle.getAttribute('data-card');
+                        this.toggleCard(cardType, toggle);
+                    }
+                });
+            }
+
+            toggleCard(cardType, toggleButton) {
+                const targetId = `electrical-${cardType}-content`;
+                const targetElement = document.getElementById(targetId);
+
+                if (!targetElement) return;
+
+                const bsCollapse = new bootstrap.Collapse(targetElement, {
+                    toggle: false
+                });
+
+                const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
+
+                if (isExpanded) {
+                    bsCollapse.hide();
+                    toggleButton.setAttribute('aria-expanded', 'false');
+                    toggleButton.querySelector('i').classList.remove('fa-chevron-up');
+                    toggleButton.querySelector('i').classList.add('fa-chevron-down');
+                    logTest(`✓ カード折りたたみ: ${cardType}`);
+                } else {
+                    bsCollapse.show();
+                    toggleButton.setAttribute('aria-expanded', 'true');
+                    toggleButton.querySelector('i').classList.remove('fa-chevron-down');
+                    toggleButton.querySelector('i').classList.add('fa-chevron-up');
+                    logTest(`✓ カード展開: ${cardType}`);
+                }
+            }
+
+            bindCommentToggles() {
+                document.addEventListener('click', (event) => {
+                    if (event.target.closest('.comment-toggle')) {
+                        event.preventDefault();
+                        const toggle = event.target.closest('.comment-toggle');
+                        const section = toggle.getAttribute('data-section');
+                        this.toggleComments(section);
+                    }
+                });
+            }
+
+            toggleComments(section) {
+                const commentSection = document.getElementById(`comment-section-${section}`);
+                if (commentSection) {
+                    if (commentSection.classList.contains('d-none')) {
+                        commentSection.classList.remove('d-none');
+                        logTest(`✓ コメント表示: ${section}`);
+                    } else {
+                        commentSection.classList.add('d-none');
+                        logTest(`✓ コメント非表示: ${section}`);
+                    }
+                }
+            }
+        }
+
+        // Test functions
+        let testResults = [];
+
+        function logTest(message) {
+            testResults.push({
+                timestamp: new Date().toLocaleTimeString(),
+                message: message
+            });
+            updateTestResults();
+        }
+
+        function updateTestResults() {
+            const resultsDiv = document.getElementById('test-results');
+            if (testResults.length === 0) {
+                resultsDiv.innerHTML = '<p class="text-muted">テストを実行してください...</p>';
+                return;
+            }
+
+            const html = testResults.map(result => 
+                `<div class="test-result mb-1">
+                    <small class="text-muted">${result.timestamp}</small> ${result.message}
+                </div>`
+            ).join('');
+
+            resultsDiv.innerHTML = html;
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        function clearResults() {
+            testResults = [];
+            updateTestResults();
+        }
+
+        function runAllTests() {
+            clearResults();
+            
+            // Test card toggle
+            setTimeout(() => {
+                const toggleBtn = document.querySelector('.card-toggle');
+                if (toggleBtn) toggleBtn.click();
+            }, 100);
+
+            // Test edit mode
+            setTimeout(() => {
+                const editBtn = document.querySelector('.edit-card-btn');
+                if (editBtn) editBtn.click();
+            }, 500);
+
+            // Test conditional display
+            setTimeout(() => {
+                const availabilitySelect = document.getElementById('generator_availability');
+                if (availabilitySelect) {
+                    availabilitySelect.value = '有';
+                    availabilitySelect.dispatchEvent(new Event('change'));
+                }
+            }, 1000);
+
+            // Test equipment addition
+            setTimeout(() => {
+                const addBtn = document.querySelector('.add-equipment-btn');
+                if (addBtn) addBtn.click();
+            }, 1500);
+
+            // Test character count
+            setTimeout(() => {
+                const textarea = document.getElementById('generator_availability_details');
+                if (textarea) {
+                    textarea.value = 'テスト用の詳細情報を入力しています。';
+                    textarea.dispatchEvent(new Event('input'));
+                }
+            }, 2000);
+
+            // Test save
+            setTimeout(() => {
+                const saveBtn = document.querySelector('.save-card-btn');
+                if (saveBtn) saveBtn.click();
+            }, 2500);
+
+            logTest('✓ 全テスト実行開始');
+        }
+
+        function loadSampleData(type) {
+            const availabilitySelect = document.getElementById('generator_availability');
+            const detailsTextarea = document.getElementById('generator_availability_details');
+
+            if (!availabilitySelect) return;
+
+            switch (type) {
+                case 'none':
+                    availabilitySelect.value = '無';
+                    availabilitySelect.dispatchEvent(new Event('change'));
+                    logTest('✓ サンプルデータ読み込み: 無');
+                    break;
+
+                case 'available':
+                    availabilitySelect.value = '有';
+                    availabilitySelect.dispatchEvent(new Event('change'));
+                    setTimeout(() => {
+                        if (detailsTextarea) {
+                            detailsTextarea.value = '地下1階に設置された非常用発電機。停電時に自動で起動し、重要な設備に電力を供給します。';
+                            detailsTextarea.dispatchEvent(new Event('input'));
+                        }
+                    }, 100);
+                    logTest('✓ サンプルデータ読み込み: 有（詳細あり）');
+                    break;
+
+                case 'multiple':
+                    availabilitySelect.value = '有';
+                    availabilitySelect.dispatchEvent(new Event('change'));
+                    setTimeout(() => {
+                        if (detailsTextarea) {
+                            detailsTextarea.value = '複数台の非常用発電機を設置';
+                            detailsTextarea.dispatchEvent(new Event('input'));
+                        }
+                        
+                        // Add multiple equipment items
+                        const addBtn = document.querySelector('.add-equipment-btn');
+                        if (addBtn) {
+                            addBtn.click();
+                            setTimeout(() => addBtn.click(), 200);
+                            setTimeout(() => addBtn.click(), 400);
+                        }
+                    }, 100);
+                    logTest('✓ サンプルデータ読み込み: 複数設備');
+                    break;
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            window.mockManager = new MockLifelineEquipmentManager();
+            logTest('✓ 非常用発電機カード初期化完了');
+        });
+    </script>
+</body>
+</html>

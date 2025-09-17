@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>キュービクルカード機能テスト</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 2rem 0;
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .test-section {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .test-title {
+            color: #0d6efd;
+            border-bottom: 2px solid #0d6efd;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .test-case {
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .test-case h5 {
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+        
+        .test-steps {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 0.25rem;
+            margin: 1rem 0;
+        }
+        
+        .test-steps ol {
+            margin-bottom: 0;
+        }
+        
+        .expected-result {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            padding: 1rem;
+            border-radius: 0.25rem;
+            margin-top: 1rem;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        
+        .status-pass { background-color: #28a745; }
+        .status-fail { background-color: #dc3545; }
+        .status-pending { background-color: #ffc107; }
+        
+        .demo-card {
+            border: 1px solid #dee2e6;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .demo-card .card-header {
+            background: linear-gradient(135deg, #ffc107, #ff8f00);
+            color: white;
+            padding: 1rem;
+        }
+        
+        .demo-card .card-body {
+            padding: 1.5rem;
+        }
+        
+        .equipment-item {
+            background-color: white;
+            border: 1px solid #dee2e6;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .equipment-item:hover {
+            border-color: #0d6efd;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .add-equipment-btn {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+            color: white;
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-weight: 500;
+            transition: all 0.15s ease-in-out;
+        }
+        
+        .add-equipment-btn:hover {
+            background-color: #0b5ed7;
+            border-color: #0a58ca;
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .remove-equipment-btn {
+            background-color: transparent;
+            border: 1px solid #dc3545;
+            color: #dc3545;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            transition: all 0.15s ease-in-out;
+        }
+        
+        .remove-equipment-btn:hover {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .no-equipment-message {
+            background-color: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-section">
+            <h2 class="test-title">
+                <i class="fas fa-cube me-2"></i>
+                キュービクルカード機能テスト
+            </h2>
+            <p class="text-muted">
+                ライフライン設備管理システムのキュービクルカードの動的設備リスト機能をテストします。
+            </p>
+        </div>
+
+        <!-- Test Case 1: Basic Functionality -->
+        <div class="test-section">
+            <h3><span class="status-indicator status-pending"></span>基本機能テスト</h3>
+            
+            <div class="test-case">
+                <h5>1.1 有無ドロップダウンの動作確認</h5>
+                <div class="test-steps">
+                    <strong>テスト手順:</strong>
+                    <ol>
+                        <li>キュービクルカードの編集ボタンをクリック</li>
+                        <li>「有無」ドロップダウンで「有」を選択</li>
+                        <li>詳細フィールドと設備情報セクションが表示されることを確認</li>
+                        <li>「無」を選択</li>
+                        <li>詳細フィールドと設備情報セクションが非表示になることを確認</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>期待結果:</strong> 「有」選択時に条件付きフィールドが表示され、「無」選択時に非表示になる
+                </div>
+            </div>
+
+            <div class="test-case">
+                <h5>1.2 詳細テキストエリアの動作確認</h5>
+                <div class="test-steps">
+                    <strong>テスト手順:</strong>
+                    <ol>
+                        <li>「有無」で「有」を選択</li>
+                        <li>詳細テキストエリアに文字を入力</li>
+                        <li>最大文字数（1000文字）まで入力可能であることを確認</li>
+                        <li>1000文字を超える入力時の動作を確認</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>期待結果:</strong> 詳細情報が正常に入力でき、文字数制限が適用される
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Case 2: Dynamic Equipment List -->
+        <div class="test-section">
+            <h3><span class="status-indicator status-pending"></span>動的設備リスト機能テスト</h3>
+            
+            <div class="test-case">
+                <h5>2.1 設備追加機能</h5>
+                <div class="test-steps">
+                    <strong>テスト手順:</strong>
+                    <ol>
+                        <li>「有無」で「有」を選択</li>
+                        <li>「設備追加」ボタンをクリック</li>
+                        <li>新しい設備項目が追加されることを確認</li>
+                        <li>複数回「設備追加」ボタンをクリック</li>
+                        <li>設備番号が正しく連番になることを確認</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>期待結果:</strong> 設備項目が動的に追加され、適切な番号が付与される
+                </div>
+            </div>
+
+            <div class="test-case">
+                <h5>2.2 設備削除機能</h5>
+                <div class="test-steps">
+                    <strong>テスト手順:</strong>
+                    <ol>
+                        <li>複数の設備項目を追加</li>
+                        <li>中間の設備項目の削除ボタンをクリック</li>
+                        <li>設備が削除され、残りの設備番号が再採番されることを確認</li>
+                        <li>全ての設備を削除</li>
+                        <li>「設備情報が登録されていません」メッセージが表示されることを確認</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>期待結果:</strong> 設備が正常に削除され、番号の再採番が行われる
+                </div>
+            </div>
+
+            <div class="test-case">
+                <h5>2.3 設備フィールドの入力確認</h5>
+                <div class="test-steps">
+                    <strong>テスト手順:</strong>
+                    <ol>
+                        <li>設備項目を追加</li>
+                        <li>各フィールド（設備番号、メーカー、年式、更新年月日）に値を入力</li>
+                        <li>プレースホルダーテキストが適切に表示されることを確認</li>
+                        <li>日付フィールドでカレンダーが表示されることを確認</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>期待結果:</strong> 全てのフィールドが正常に動作し、適切な入力制限が適用される
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Case 3: Data Persistence -->
+        <div class="test-section">
+            <h3><span class="status-indicator status-pending"></span>データ保存・更新テスト</h3>
+            
+            <div class="test-case">
+                <h5>3.1 基本データ保存</h5>
+                <div class="test-steps">
+                    <strong>テスト手順:</strong>
+                    <ol>
+                        <li>「有無」で「有」を選択</li>
+                        <li>詳細情報を入力</li>
+                        <li>設備項目を1つ追加し、全フィールドに値を入力</li>
+                        <li>「保存」ボタンをクリック</li>
+                        <li>成功メッセージが表示されることを確認</li>
+                        <li>表示モードに戻り、入力した値が正しく表示されることを確認</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>期待結果:</strong> データが正常に保存され、表示モードで確認できる
+                </div>
+            </div>
+
+            <div class="test-case">
+                <h5>3.2 複数設備データ保存</h5>
+                <div class="test-steps">
+                    <strong>テスト手順:</strong>
+                    <ol>
+                        <li>複数の設備項目を追加（3つ以上推奨）</li>
+                        <li>各設備に異なる値を入力</li>
+                        <li>「保存」ボタンをクリック</li>
+                        <li>表示モードで全ての設備情報が正しく表示されることを確認</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>期待結果:</strong> 複数の設備データが正常に保存・表示される
+                </div>
+            </div>
+
+            <div class="test-case">
+                <h5>3.3 データ更新</h5>
+                <div class="test-steps">
+                    <strong>テスト手順:</strong>
+                    <ol>
+                        <li>既存のキュービクルデータを編集モードで開く</li>
+                        <li>設備を追加・削除・変更</li>
+                        <li>「保存」ボタンをクリック</li>
+                        <li>変更が正しく反映されることを確認</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>期待結果:</strong> データの更新が正常に行われる
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Case 4: Validation -->
+        <div class="test-section">
+            <h3><span class="status-indicator status-pending"></span>バリデーションテスト</h3>
+            
+            <div class="test-case">
+                <h5>4.1 必須フィールドバリデーション</h5>
+                <div class="test-steps">
+                    <strong>テスト手順:</strong>
+                    <ol>
+                        <li>「有無」を未選択のまま保存を試行</li>
+                        <li>適切なエラーメッセージが表示されることを確認</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>期待結果:</strong> 必須フィールドのバリデーションエラーが表示される
+                </div>
+            </div>
+
+            <div class="test-case">
+                <h5>4.2 文字数制限バリデーション</h5>
+                <div class="test-steps">
+                    <strong>テスト手順:</strong>
+                    <ol>
+                        <li>詳細フィールドに1000文字を超える文字を入力</li>
+                        <li>設備番号に50文字を超える文字を入力</li>
+                        <li>メーカーに255文字を超える文字を入力</li>
+                        <li>保存を試行し、適切なエラーメッセージが表示されることを確認</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>期待結果:</strong> 文字数制限のバリデーションエラーが表示される
+                </div>
+            </div>
+
+            <div class="test-case">
+                <h5>4.3 日付フォーマットバリデーション</h5>
+                <div class="test-steps">
+                    <strong>テスト手順:</strong>
+                    <ol>
+                        <li>更新年月日フィールドに無効な日付を入力</li>
+                        <li>保存を試行し、適切なエラーメッセージが表示されることを確認</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>期待結果:</strong> 日付フォーマットのバリデーションエラーが表示される
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Case 5: UI/UX -->
+        <div class="test-section">
+            <h3><span class="status-indicator status-pending"></span>UI/UXテスト</h3>
+            
+            <div class="test-case">
+                <h5>5.1 レスポンシブデザイン</h5>
+                <div class="test-steps">
+                    <strong>テスト手順:</strong>
+                    <ol>
+                        <li>ブラウザウィンドウのサイズを変更（デスクトップ→タブレット→モバイル）</li>
+                        <li>各画面サイズでキュービクルカードが適切に表示されることを確認</li>
+                        <li>設備リストのレイアウトが適切に調整されることを確認</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>期待結果:</strong> 全ての画面サイズで適切にレイアウトが調整される
+                </div>
+            </div>
+
+            <div class="test-case">
+                <h5>5.2 アニメーション・トランジション</h5>
+                <div class="test-steps">
+                    <strong>テスト手順:</strong>
+                    <ol>
+                        <li>設備追加時のアニメーションを確認</li>
+                        <li>設備削除時のアニメーションを確認</li>
+                        <li>編集モード切り替え時のトランジションを確認</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>期待結果:</strong> スムーズなアニメーションとトランジションが動作する
+                </div>
+            </div>
+
+            <div class="test-case">
+                <h5>5.3 アクセシビリティ</h5>
+                <div class="test-steps">
+                    <strong>テスト手順:</strong>
+                    <ol>
+                        <li>キーボードナビゲーションでフォーカス移動を確認</li>
+                        <li>スクリーンリーダーでaria-labelが適切に読み上げられることを確認</li>
+                        <li>コントラスト比が適切であることを確認</li>
+                    </ol>
+                </div>
+                <div class="expected-result">
+                    <strong>期待結果:</strong> アクセシビリティ要件を満たしている
+                </div>
+            </div>
+        </div>
+
+        <!-- Demo Section -->
+        <div class="test-section">
+            <h3><span class="status-indicator status-pending"></span>デモ・プレビュー</h3>
+            
+            <div class="demo-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cube me-2"></i>キュービクル
+                    </h5>
+                    <div class="card-actions d-flex align-items-center">
+                        <button class="btn btn-outline-light btn-sm me-2">
+                            <i class="fas fa-chevron-up"></i>
+                        </button>
+                        <button class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-comment"></i>
+                            <span class="comment-count">0</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">有無 <span class="text-danger">*</span></label>
+                            <select class="form-select" id="demo-availability">
+                                <option value="">選択してください</option>
+                                <option value="有">有</option>
+                                <option value="無">無</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div id="demo-conditional-fields" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">詳細</label>
+                                <textarea class="form-control" rows="3" placeholder="キュービクルの詳細情報を入力してください"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="equipment-list-section">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="mb-0">設備情報</h6>
+                                <button type="button" class="add-equipment-btn" id="demo-add-equipment">
+                                    <i class="fas fa-plus me-1"></i>設備追加
+                                </button>
+                            </div>
+                            
+                            <div id="demo-equipment-list">
+                                <!-- Equipment items will be added here -->
+                            </div>
+                            
+                            <div id="demo-no-equipment" class="no-equipment-message">
+                                設備情報が登録されていません。「設備追加」ボタンから追加してください。
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions mt-3">
+                        <button type="button" class="btn btn-success btn-sm me-2">
+                            <i class="fas fa-save me-1"></i>保存
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-times me-1"></i>キャンセル
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Results -->
+        <div class="test-section">
+            <h3>テスト結果記録</h3>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>テストケース</th>
+                            <th>実行日時</th>
+                            <th>結果</th>
+                            <th>備考</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1.1 有無ドロップダウンの動作確認</td>
+                            <td>-</td>
+                            <td><span class="status-indicator status-pending"></span>未実行</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>1.2 詳細テキストエリアの動作確認</td>
+                            <td>-</td>
+                            <td><span class="status-indicator status-pending"></span>未実行</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>2.1 設備追加機能</td>
+                            <td>-</td>
+                            <td><span class="status-indicator status-pending"></span>未実行</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>2.2 設備削除機能</td>
+                            <td>-</td>
+                            <td><span class="status-indicator status-pending"></span>未実行</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>2.3 設備フィールドの入力確認</td>
+                            <td>-</td>
+                            <td><span class="status-indicator status-pending"></span>未実行</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Demo functionality
+        let equipmentCounter = 0;
+
+        document.getElementById('demo-availability').addEventListener('change', function() {
+            const conditionalFields = document.getElementById('demo-conditional-fields');
+            if (this.value === '有') {
+                conditionalFields.style.display = 'block';
+            } else {
+                conditionalFields.style.display = 'none';
+            }
+        });
+
+        document.getElementById('demo-add-equipment').addEventListener('click', function() {
+            const equipmentList = document.getElementById('demo-equipment-list');
+            const noEquipmentMessage = document.getElementById('demo-no-equipment');
+            
+            const equipmentHtml = `
+                <div class="equipment-item" data-equipment-index="${equipmentCounter}">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0">設備 ${equipmentCounter + 1}</h6>
+                        <button type="button" class="remove-equipment-btn" onclick="removeEquipment(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label">設備番号</label>
+                            <input type="text" class="form-control" placeholder="例: CB-001">
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label">メーカー</label>
+                            <input type="text" class="form-control" placeholder="例: 三菱電機">
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label">年式</label>
+                            <input type="text" class="form-control" placeholder="例: 2020">
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label">更新年月日</label>
+                            <input type="date" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            equipmentList.insertAdjacentHTML('beforeend', equipmentHtml);
+            noEquipmentMessage.style.display = 'none';
+            equipmentCounter++;
+        });
+
+        function removeEquipment(button) {
+            const equipmentItem = button.closest('.equipment-item');
+            const equipmentList = document.getElementById('demo-equipment-list');
+            const noEquipmentMessage = document.getElementById('demo-no-equipment');
+            
+            equipmentItem.remove();
+            
+            // Reindex remaining items
+            const remainingItems = equipmentList.querySelectorAll('.equipment-item');
+            remainingItems.forEach((item, index) => {
+                item.setAttribute('data-equipment-index', index);
+                const heading = item.querySelector('h6');
+                if (heading) {
+                    heading.textContent = `設備 ${index + 1}`;
+                }
+            });
+            
+            if (remainingItems.length === 0) {
+                noEquipmentMessage.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\FacilityController;
+use App\Http\Controllers\LifelineEquipmentController;
 use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\MyPageController;
 use App\Http\Controllers\NotificationController;
@@ -110,6 +111,21 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('building-info')->name('building-info.')->group(function () {
             Route::get('/edit', [FacilityController::class, 'editBuildingInfo'])->name('edit');
             Route::put('/', [FacilityController::class, 'updateBuildingInfo'])->name('update');
+        });
+
+        // Lifeline Equipment nested routes
+        Route::prefix('lifeline-equipment')->name('lifeline-equipment.')->group(function () {
+            // Comprehensive API endpoints (must come before parameterized routes)
+            Route::get('/', [LifelineEquipmentController::class, 'index'])->name('index');
+            Route::put('/', [LifelineEquipmentController::class, 'bulkUpdate'])->name('bulk-update');
+            Route::get('/summary', [LifelineEquipmentController::class, 'summary'])->name('summary');
+            Route::get('/categories', [LifelineEquipmentController::class, 'categories'])->name('categories');
+            Route::post('/multiple', [LifelineEquipmentController::class, 'getMultipleCategories'])->name('multiple');
+            Route::post('/validate-consistency', [LifelineEquipmentController::class, 'validateConsistency'])->name('validate-consistency');
+            
+            // Individual category routes (must come after specific routes)
+            Route::get('/{category}', [LifelineEquipmentController::class, 'show'])->name('show');
+            Route::put('/{category}', [LifelineEquipmentController::class, 'update'])->name('update');
         });
 
         // Facility-specific comment routes

@@ -1,0 +1,771 @@
+/* ========================================
+   Lifeline Equipment Styles
+   ======================================== */
+
+/* Lifeline Equipment Container */
+.lifeline-equipment-container {
+  margin-top: 1rem;
+}
+
+/* Sub-tab Navigation */
+.lifeline-equipment-container .nav-tabs {
+  border-bottom: 2px solid var(--border-light, #dee2e6);
+  margin-bottom: 1.5rem;
+}
+
+.lifeline-equipment-container .nav-tabs .nav-link {
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: none;
+  color: var(--text-muted, #6c757d);
+  font-weight: 500;
+  padding: 0.75rem 1rem;
+  margin-bottom: -2px;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.lifeline-equipment-container .nav-tabs .nav-link:hover {
+  border-color: transparent;
+  color: var(--text-secondary, #495057);
+  background-color: var(--bg-light, #f8f9fa);
+}
+
+.lifeline-equipment-container .nav-tabs .nav-link.active {
+  color: var(--primary-blue, #0d6efd);
+  border-bottom-color: var(--primary-blue, #0d6efd);
+  background-color: transparent;
+}
+
+.lifeline-equipment-container .nav-tabs .nav-link i {
+  margin-right: 0.5rem;
+  font-size: 0.85rem;
+}
+
+/* Equipment Cards Animation */
+.lifeline-equipment-container .card {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.lifeline-equipment-container .card.animate-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Card Toggle Functionality */
+.equipment-card .card-toggle {
+  transition: transform 0.3s ease;
+}
+
+.equipment-card .card-toggle[aria-expanded="false"] i {
+  transform: rotate(180deg);
+}
+
+.equipment-card .card-body.collapsing,
+.equipment-card .card-body.collapse {
+  transition: height 0.35s ease;
+}
+
+/* Card Actions */
+.equipment-card .card-actions {
+  gap: 0.25rem;
+}
+
+.equipment-card .card-actions .btn {
+  min-width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Equipment Category Icons */
+.lifeline-equipment-container .card-header i {
+  font-size: 1.1rem;
+}
+
+/* Electrical Equipment Specific */
+#electrical .card-header {
+  background: linear-gradient(135deg, #ffc107, #ff8f00);
+}
+
+#electrical .card-header i {
+  color: white !important;
+}
+
+/* Gas Equipment Specific */
+#gas .card-header {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+}
+
+#gas .card-header i {
+  color: white !important;
+}
+
+/* Water Equipment Specific */
+#water .card-header {
+  background: linear-gradient(135deg, #17a2b8, #138496);
+}
+
+#water .card-header i {
+  color: white !important;
+}
+
+/* Elevator Equipment Specific */
+#elevator .card-header {
+  background: linear-gradient(135deg, #6f42c1, #59359a);
+}
+
+#elevator .card-header i {
+  color: white !important;
+}
+
+/* HVAC/Lighting Equipment Specific */
+#hvac-lighting .card-header {
+  background: linear-gradient(135deg, #28a745, #1e7e34);
+}
+
+#hvac-lighting .card-header i {
+  color: white !important;
+}
+
+/* Development Status Indicator */
+.development-status {
+  background-color: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.development-status .fa-4x {
+  opacity: 0.6;
+}
+
+.development-status h4 {
+  color: #6c757d;
+  margin-bottom: 1rem;
+}
+
+.development-status p {
+  color: #6c757d;
+  margin-bottom: 0;
+  line-height: 1.6;
+}
+
+/* Equipment List Styling */
+.equipment-list .equipment-item {
+  background-color: var(--bg-light, #f8f9fa);
+  border: 1px solid var(--border-light, #dee2e6) !important;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
+}
+
+.equipment-list .equipment-item:hover {
+  background-color: var(--bg-white, #ffffff);
+  border-color: var(--primary-blue, #0d6efd) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.equipment-list .equipment-item small {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.equipment-list .equipment-item strong {
+  color: var(--primary-blue, #0d6efd);
+  font-weight: 600;
+}
+
+/* Notes Content Styling */
+.notes-content {
+  line-height: 1.6;
+  color: var(--text-dark, #212529);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* Badge Styling for Availability */
+.detail-value .badge {
+  font-size: 0.8rem;
+  padding: 0.375rem 0.75rem;
+  font-weight: 500;
+}
+
+/* Comment Toggle Buttons */
+.lifeline-equipment-container .comment-toggle {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  transition: all 0.15s ease;
+}
+
+.lifeline-equipment-container .comment-toggle:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.lifeline-equipment-container .comment-count {
+  margin-left: 0.25rem;
+  font-size: 0.75rem;
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 0.125rem 0.375rem;
+  border-radius: 10px;
+}
+
+/* Card Toggle Buttons */
+.lifeline-equipment-container .card-toggle {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  transition: all 0.15s ease;
+}
+
+.lifeline-equipment-container .card-toggle:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .lifeline-equipment-container .nav-tabs .nav-link {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .lifeline-equipment-container .nav-tabs .nav-link i {
+    display: none;
+  }
+
+  /* Equipment cards responsive adjustments */
+  .electrical-equipment-cards .col-lg-6 {
+    margin-bottom: 1rem;
+  }
+
+  .equipment-list .equipment-item .row .col-sm-3 {
+    margin-bottom: 0.5rem;
+  }
+
+  .equipment-card .card-actions {
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  .equipment-card .card-actions .btn {
+    min-width: 2rem;
+    height: 2rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .lifeline-equipment-container .nav-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .lifeline-equipment-container .nav-tabs .nav-item {
+    flex-shrink: 0;
+  }
+
+  .lifeline-equipment-container .nav-tabs .nav-link {
+    white-space: nowrap;
+    padding: 0.5rem;
+  }
+
+  /* Mobile-specific equipment card adjustments */
+  .equipment-list .equipment-item .row {
+    flex-direction: column;
+  }
+
+  .equipment-list .equipment-item .col-sm-3 {
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-light, #dee2e6);
+  }
+
+  .equipment-list .equipment-item .col-sm-3:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+
+  .equipment-card .card-header h5 {
+    font-size: 1rem;
+  }
+
+  .equipment-card .card-header .card-actions {
+    flex-direction: row;
+    gap: 0.25rem;
+  }
+
+  .detail-row {
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+
+  .detail-label {
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .lifeline-equipment-container .card {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Edit Mode Styles */
+.equipment-card .edit-mode {
+  background-color: var(--bg-light, #f8f9fa);
+  border-radius: 0.375rem;
+  padding: 1rem;
+  margin-top: 0.5rem;
+}
+
+.equipment-card .edit-mode .form-label {
+  font-weight: 600;
+  color: var(--text-dark, #212529);
+  margin-bottom: 0.5rem;
+}
+
+.equipment-card .edit-mode .form-control {
+  border: 1px solid var(--border-light, #dee2e6);
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.equipment-card .edit-mode .form-control:focus {
+  border-color: var(--primary-blue, #0d6efd);
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.equipment-card .edit-mode .form-control.is-invalid {
+  border-color: var(--danger, #dc3545);
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.equipment-card .edit-mode .form-text {
+  font-size: 0.8rem;
+  color: var(--text-muted, #6c757d);
+  margin-top: 0.25rem;
+}
+
+.equipment-card .edit-mode .invalid-feedback {
+  display: block;
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  color: var(--danger, #dc3545);
+}
+
+.equipment-card .form-actions {
+  border-top: 1px solid var(--border-light, #dee2e6);
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+
+.equipment-card .form-actions .btn {
+  font-size: 0.875rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: all 0.15s ease-in-out;
+}
+
+.equipment-card .form-actions .btn-success {
+  background-color: var(--success, #198754);
+  border-color: var(--success, #198754);
+}
+
+.equipment-card .form-actions .btn-success:hover {
+  background-color: #157347;
+  border-color: #146c43;
+}
+
+.equipment-card .form-actions .btn-secondary {
+  background-color: var(--secondary, #6c757d);
+  border-color: var(--secondary, #6c757d);
+}
+
+.equipment-card .form-actions .btn-secondary:hover {
+  background-color: #5c636a;
+  border-color: #565e64;
+}
+
+.equipment-card .edit-card-btn {
+  background-color: var(--primary-blue, #0d6efd);
+  border-color: var(--primary-blue, #0d6efd);
+  color: white;
+  font-size: 0.875rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: all 0.15s ease-in-out;
+}
+
+.equipment-card .edit-card-btn:hover {
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
+  color: white;
+}
+
+.equipment-card .loading-indicator {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+  text-align: center;
+  color: var(--text-muted, #6c757d);
+  font-size: 0.875rem;
+}
+
+.equipment-card .loading-indicator .spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Display/Edit Mode Transitions */
+.equipment-card .display-mode,
+.equipment-card .edit-mode {
+  transition: opacity 0.2s ease-in-out;
+}
+
+.equipment-card .display-mode.d-none,
+.equipment-card .edit-mode.d-none {
+  opacity: 0;
+}
+
+/* Form Validation Styling */
+.equipment-card .was-validated .form-control:valid {
+  border-color: var(--success, #198754);
+  box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+}
+
+.equipment-card .was-validated .form-control:invalid {
+  border-color: var(--danger, #dc3545);
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Toast Notifications */
+.alert.position-fixed {
+  z-index: 9999;
+  min-width: 300px;
+  max-width: 500px;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  border: none;
+  border-radius: 0.5rem;
+}
+
+.alert.alert-success {
+  background-color: var(--success, #198754);
+  color: white;
+}
+
+.alert.alert-danger {
+  background-color: var(--danger, #dc3545);
+  color: white;
+}
+
+.alert .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Responsive Edit Mode */
+@media (max-width: 768px) {
+  .equipment-card .edit-mode {
+    padding: 0.75rem;
+  }
+
+  .equipment-card .edit-mode .row .col-md-6 {
+    margin-bottom: 1rem;
+  }
+
+  .equipment-card .form-actions {
+    text-align: center;
+  }
+
+  .equipment-card .form-actions .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  .equipment-card .form-actions .btn:last-child {
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .equipment-card .edit-mode {
+    padding: 0.5rem;
+    margin-top: 0.25rem;
+  }
+
+  .equipment-card .edit-mode .form-label {
+    font-size: 0.875rem;
+  }
+
+  .equipment-card .edit-mode .form-control {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.5rem;
+  }
+
+  .equipment-card .edit-mode .form-text {
+    font-size: 0.75rem;
+  }
+
+  .equipment-card .form-actions .btn {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+/* Dynamic Equipment List Styles */
+.equipment-list-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-light, #dee2e6);
+}
+
+.equipment-list-section h6 {
+  color: var(--text-dark, #212529);
+  font-weight: 600;
+  margin-bottom: 0;
+}
+
+.add-equipment-btn {
+  background-color: var(--primary-blue, #0d6efd);
+  border-color: var(--primary-blue, #0d6efd);
+  color: white;
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  transition: all 0.15s ease-in-out;
+}
+
+.add-equipment-btn:hover {
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.add-equipment-btn i {
+  font-size: 0.75rem;
+}
+
+.equipment-list .equipment-item {
+  background-color: white;
+  border: 1px solid var(--border-light, #dee2e6) !important;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.equipment-list .equipment-item:hover {
+  border-color: var(--primary-blue, #0d6efd) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.equipment-list .equipment-item h6 {
+  color: var(--primary-blue, #0d6efd);
+  font-weight: 600;
+  margin-bottom: 0;
+  font-size: 0.9rem;
+}
+
+.remove-equipment-btn {
+  background-color: transparent;
+  border: 1px solid var(--danger, #dc3545);
+  color: var(--danger, #dc3545);
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  transition: all 0.15s ease-in-out;
+}
+
+.remove-equipment-btn:hover {
+  background-color: var(--danger, #dc3545);
+  border-color: var(--danger, #dc3545);
+  color: white;
+  transform: scale(1.05);
+}
+
+.remove-equipment-btn i {
+  font-size: 0.7rem;
+}
+
+.equipment-list .equipment-item .form-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted, #6c757d);
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.equipment-list .equipment-item .form-control {
+  font-size: 0.85rem;
+  padding: 0.375rem 0.5rem;
+  border: 1px solid var(--border-light, #dee2e6);
+  border-radius: 0.25rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.equipment-list .equipment-item .form-control:focus {
+  border-color: var(--primary-blue, #0d6efd);
+  box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.25);
+}
+
+.equipment-list .equipment-item .form-control::placeholder {
+  color: var(--text-muted, #6c757d);
+  font-size: 0.8rem;
+}
+
+.no-equipment-message {
+  background-color: var(--bg-light, #f8f9fa);
+  border: 2px dashed var(--border-light, #dee2e6);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--text-muted, #6c757d);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+/* Conditional Fields */
+.conditional-fields {
+  background-color: var(--bg-light, #f8f9fa);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-top: 1rem;
+  border: 1px solid var(--border-light, #dee2e6);
+}
+
+.conditional-fields .form-label {
+  font-weight: 600;
+  color: var(--text-dark, #212529);
+}
+
+/* Equipment Item Animation */
+.equipment-item {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 0.3s ease;
+}
+
+.equipment-item.removing {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.equipment-item.adding {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+/* Responsive Equipment List */
+@media (max-width: 768px) {
+  .equipment-list-section {
+    padding-top: 0.75rem;
+  }
+
+  .equipment-list .equipment-item {
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .equipment-list .equipment-item .row {
+    margin: 0;
+  }
+
+  .equipment-list .equipment-item .col-md-3 {
+    padding: 0;
+    margin-bottom: 0.75rem;
+  }
+
+  .equipment-list .equipment-item .col-md-3:last-child {
+    margin-bottom: 0;
+  }
+
+  .add-equipment-btn {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  .equipment-list .equipment-item h6 {
+    font-size: 0.85rem;
+  }
+
+  .remove-equipment-btn {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .equipment-list .equipment-item {
+    padding: 0.5rem;
+  }
+
+  .equipment-list .equipment-item .form-label {
+    font-size: 0.75rem;
+  }
+
+  .equipment-list .equipment-item .form-control {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.375rem;
+  }
+
+  .no-equipment-message {
+    padding: 1rem;
+    font-size: 0.85rem;
+  }
+
+  .conditional-fields {
+    padding: 0.75rem;
+    margin-top: 0.75rem;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .lifeline-equipment-container .nav-tabs {
+    display: none;
+  }
+
+  .lifeline-equipment-container .tab-content .tab-pane {
+    display: block !important;
+    opacity: 1 !important;
+  }
+
+  .lifeline-equipment-container .comment-toggle {
+    display: none;
+  }
+
+  .equipment-card .edit-mode {
+    display: none !important;
+  }
+
+  .equipment-card .edit-card-btn {
+    display: none !important;
+  }
+
+  .add-equipment-btn,
+  .remove-equipment-btn {
+    display: none !important;
+  }
+}

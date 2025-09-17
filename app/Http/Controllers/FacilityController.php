@@ -174,6 +174,11 @@ class FacilityController extends Controller
             },
             'landInfo',
             'buildingInfo',
+            'lifelineEquipment.electricalEquipment',
+            'lifelineEquipment.gasEquipment',
+            'lifelineEquipment.waterEquipment',
+            'lifelineEquipment.elevatorEquipment',
+            'lifelineEquipment.hvacLightingEquipment',
         ]);
 
         $landInfo = $facility->landInfo;

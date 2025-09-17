@@ -30,6 +30,7 @@ import { validateForm, displayFormErrors, clearFormErrors } from './shared/valid
 import { initializeFacilityManager } from './modules/facilities.js';
 import { initializeNotificationManager } from './modules/notifications.js';
 import { initializeExportManager } from './modules/export.js';
+import { initializeLifelineEquipmentManager } from './modules/lifeline-equipment.js';
 
 import { initializeFacilityViewToggle } from './modules/facility-view-toggle.js';
 import { initializeDetailCardController } from './modules/detail-card-controller.js';
@@ -65,7 +66,8 @@ class ApplicationState {
       export: null,
       sidebar: null,
       facilityFormLayout: null,
-      detailCardController: null
+      detailCardController: null,
+      lifelineEquipment: null
     };
     this.components = {
       search: null,
@@ -300,7 +302,12 @@ class Application {
         if (currentPath.match(/\/facilities\/\d+$/)) {
           appState.setModule('viewToggle', initializeFacilityViewToggle());
 
-
+          // Initialize lifeline equipment manager on facility detail pages
+          const lifelineManager = initializeLifelineEquipmentManager();
+          if (lifelineManager) {
+            appState.setModule('lifelineEquipment', lifelineManager);
+            console.log('Lifeline equipment manager initialized');
+          }
         }
       }
     }
@@ -551,6 +558,7 @@ export {
   initializeFacilityManager,
   initializeNotificationManager,
   initializeExportManager,
+  initializeLifelineEquipmentManager,
   initializeFacilityViewToggle,
   initializeFacilityFormLayout,
   initializeSidebar,

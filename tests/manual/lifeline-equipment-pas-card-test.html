@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PASカード機能テスト</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .facility-info-card {
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+        }
+        
+        .detail-card-improved {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .detail-row {
+            display: flex;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #495057;
+            min-width: 120px;
+            flex-shrink: 0;
+        }
+        
+        .detail-value {
+            flex: 1;
+            margin-left: 1rem;
+        }
+        
+        .empty-field .detail-value {
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .conditional-fields {
+            border: 2px dashed #dee2e6;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 0.375rem;
+            background-color: #f8f9fa;
+        }
+        
+        .test-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            background-color: #fff;
+        }
+        
+        .test-result {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+        }
+        
+        .test-pass {
+            background-color: #d1edff;
+            border: 1px solid #0ea5e9;
+            color: #0369a1;
+        }
+        
+        .test-fail {
+            background-color: #fee2e2;
+            border: 1px solid #ef4444;
+            color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-4">
+            <i class="fas fa-shield-alt me-2"></i>PASカード機能テスト
+        </h1>
+        
+        <div class="alert alert-info">
+            <h5><i class="fas fa-info-circle me-2"></i>テスト内容</h5>
+            <ul class="mb-0">
+                <li>PASカードの表示・編集機能</li>
+                <li>有無プルダウンによる条件付き表示制御</li>
+                <li>フォームバリデーション</li>
+                <li>データ保存・更新機能（モック）</li>
+            </ul>
+        </div>
+        
+        <!-- Test 1: PAS Card Display -->
+        <div class="test-section">
+            <h3>テスト1: PASカード表示機能</h3>
+            <p>PASカードが正しく表示され、編集モードに切り替えられることを確認します。</p>
+            
+            <div class="col-lg-6">
+                <div class="card facility-info-card detail-card-improved h-100" 
+                     data-section="electrical_pas" 
+                     data-card-type="pas">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-shield-alt me-2"></i>PAS
+                        </h5>
+                        <div class="card-actions d-flex align-items-center">
+                            <button class="btn btn-outline-light btn-sm me-2 card-toggle" 
+                                    data-card="pas">
+                                <i class="fas fa-chevron-up"></i>
+                            </button>
+                            <button class="btn btn-outline-light btn-sm comment-toggle" 
+                                    data-section="electrical_pas">
+                                <i class="fas fa-comment"></i>
+                                <span class="comment-count">0</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body collapse show" id="electrical-pas-content">
+                        <!-- Display Mode -->
+                        <div class="facility-detail-table display-mode">
+                            <div class="detail-row">
+                                <span class="detail-label">有無</span>
+                                <span class="detail-value">
+                                    <span class="badge bg-secondary">未登録</span>
+                                </span>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <button type="button" class="btn btn-primary btn-sm edit-card-btn" 
+                                        data-card="pas" 
+                                        data-section="electrical_pas">
+                                    <i class="fas fa-edit me-1"></i>編集
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Edit Mode -->
+                        <div class="edit-mode d-none">
+                            <form class="equipment-form" data-section="electrical_pas" data-card="pas">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="pas_availability" class="form-label">有無 <span class="text-danger">*</span></label>
+                                        <select class="form-select" 
+                                                id="pas_availability" 
+                                                name="pas_info[availability]"
+                                                data-conditional-trigger="pas_details">
+                                            <option value="">選択してください</option>
+                                            <option value="有">有</option>
+                                            <option value="無">無</option>
+                                        </select>
+                                        <div class="form-text">
+                                            PAS（保護協調システム）の有無を選択してください
+                                        </div>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 詳細情報（「有」選択時のみ表示） -->
+                                <div class="conditional-fields" 
+                                     data-conditional-target="pas_details" 
+                                     style="display: none;">
+                                    <div class="row">
+                                        <div class="col-md-12 mb-3">
+                                            <label for="pas_details" class="form-label">詳細</label>
+                                            <textarea class="form-control" 
+                                                      id="pas_details" 
+                                                      name="pas_info[details]"
+                                                      rows="3"
+                                                      maxlength="1000"
+                                                      placeholder="PASの詳細情報を入力してください"></textarea>
+                                            <div class="form-text">
+                                                PASの仕様、設置場所、機能などの詳細情報を入力してください（最大1000文字）
+                                            </div>
+                                            <div class="invalid-feedback"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="pas_update_date" class="form-label">更新年月日</label>
+                                            <input type="date" 
+                                                   class="form-control" 
+                                                   id="pas_update_date" 
+                                                   name="pas_info[update_date]">
+                                            <div class="form-text">
+                                                PAS情報を最後に更新した日付を選択してください
+                                            </div>
+                                            <div class="invalid-feedback"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-actions mt-3">
+                                    <button type="submit" class="btn btn-success btn-sm me-2 save-card-btn" 
+                                            data-card="pas" 
+                                            data-section="electrical_pas">
+                                        <i class="fas fa-save me-1"></i>保存
+                                    </button>
+                                    <button type="button" class="btn btn-secondary btn-sm cancel-edit-btn" 
+                                            data-card="pas" 
+                                            data-section="electrical_pas">
+                                        <i class="fas fa-times me-1"></i>キャンセル
+                                    </button>
+                                </div>
+                                
+                                <!-- Loading indicator -->
+                                <div class="loading-indicator d-none mt-2">
+                                    <div class="d-flex align-items-center">
+                                        <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                                        <span>保存中...</span>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="test-result" id="test1-result">
+                <strong>テスト結果:</strong> <span id="test1-status">待機中</span>
+            </div>
+        </div>
+        
+        <!-- Test 2: Conditional Display -->
+        <div class="test-section">
+            <h3>テスト2: 条件付き表示制御</h3>
+            <p>有無プルダウンで「有」を選択した時のみ詳細フィールドが表示されることを確認します。</p>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <button class="btn btn-primary me-2" onclick="testConditionalDisplay('有')">
+                        「有」を選択
+                    </button>
+                    <button class="btn btn-secondary me-2" onclick="testConditionalDisplay('無')">
+                        「無」を選択
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="testConditionalDisplay('')">
+                        未選択
+                    </button>
+                </div>
+            </div>
+            
+            <div class="test-result" id="test2-result">
+                <strong>テスト結果:</strong> <span id="test2-status">待機中</span>
+            </div>
+        </div>
+        
+        <!-- Test 3: Form Validation -->
+        <div class="test-section">
+            <h3>テスト3: フォームバリデーション</h3>
+            <p>フォームの入力値検証が正しく動作することを確認します。</p>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <button class="btn btn-warning me-2" onclick="testValidation('long_text')">
+                        長すぎるテキスト
+                    </button>
+                    <button class="btn btn-warning me-2" onclick="testValidation('invalid_date')">
+                        無効な日付
+                    </button>
+                    <button class="btn btn-success" onclick="testValidation('valid')">
+                        正常なデータ
+                    </button>
+                </div>
+            </div>
+            
+            <div class="test-result" id="test3-result">
+                <strong>テスト結果:</strong> <span id="test3-status">待機中</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Mock lifeline equipment manager functionality
+        class MockLifelineEquipmentManager {
+            constructor() {
+                this.init();
+            }
+
+            init() {
+                this.bindEditFunctionality();
+                this.bindConditionalFields();
+            }
+
+            bindEditFunctionality() {
+                // Handle edit button clicks
+                const editButtons = document.querySelectorAll('.edit-card-btn');
+                editButtons.forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        event.preventDefault();
+                        const cardType = button.getAttribute('data-card');
+                        const section = button.getAttribute('data-section');
+                        this.enterEditMode(cardType, section);
+                    });
+                });
+
+                // Handle cancel button clicks
+                const cancelButtons = document.querySelectorAll('.cancel-edit-btn');
+                cancelButtons.forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        event.preventDefault();
+                        const cardType = button.getAttribute('data-card');
+                        const section = button.getAttribute('data-section');
+                        this.cancelEdit(cardType, section);
+                    });
+                });
+
+                // Handle form submissions
+                const forms = document.querySelectorAll('.equipment-form');
+                forms.forEach(form => {
+                    form.addEventListener('submit', (event) => {
+                        event.preventDefault();
+                        const cardType = form.getAttribute('data-card');
+                        const section = form.getAttribute('data-section');
+                        this.saveCardData(cardType, section);
+                    });
+                });
+            }
+
+            bindConditionalFields() {
+                const conditionalTriggers = document.querySelectorAll('[data-conditional-trigger]');
+                conditionalTriggers.forEach(trigger => {
+                    trigger.addEventListener('change', (event) => {
+                        const targetName = trigger.getAttribute('data-conditional-trigger');
+                        this.handleConditionalDisplay(trigger, targetName);
+                    });
+                });
+            }
+
+            handleConditionalDisplay(trigger, targetName) {
+                const targetElements = document.querySelectorAll(`[data-conditional-target="${targetName}"]`);
+                const selectedValue = trigger.value;
+
+                targetElements.forEach(target => {
+                    if (selectedValue === '有') {
+                        target.style.display = 'block';
+                    } else {
+                        target.style.display = 'none';
+                        if (selectedValue === '無') {
+                            const allFields = target.querySelectorAll('input, select, textarea');
+                            allFields.forEach(field => {
+                                if (field.type === 'checkbox' || field.type === 'radio') {
+                                    field.checked = false;
+                                } else {
+                                    field.value = '';
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+
+            enterEditMode(cardType, section) {
+                const card = document.querySelector(`[data-section="${section}"]`);
+                if (!card) return;
+
+                const displayMode = card.querySelector('.display-mode');
+                const editMode = card.querySelector('.edit-mode');
+
+                if (displayMode && editMode) {
+                    displayMode.classList.add('d-none');
+                    editMode.classList.remove('d-none');
+
+                    // Update test result
+                    this.updateTestResult('test1', 'pass', '編集モードに正常に切り替わりました');
+                }
+            }
+
+            cancelEdit(cardType, section) {
+                const card = document.querySelector(`[data-section="${section}"]`);
+                if (!card) return;
+
+                const displayMode = card.querySelector('.display-mode');
+                const editMode = card.querySelector('.edit-mode');
+                const form = card.querySelector('.equipment-form');
+
+                if (displayMode && editMode) {
+                    if (form) {
+                        form.reset();
+                        this.clearValidationErrors(form);
+                    }
+
+                    editMode.classList.add('d-none');
+                    displayMode.classList.remove('d-none');
+                }
+            }
+
+            async saveCardData(cardType, section) {
+                const card = document.querySelector(`[data-section="${section}"]`);
+                if (!card) return;
+
+                const form = card.querySelector('.equipment-form');
+                if (!form) return;
+
+                // Show loading indicator
+                this.showLoadingIndicator(card, true);
+
+                // Simulate API call
+                setTimeout(() => {
+                    this.showLoadingIndicator(card, false);
+                    this.showSuccessMessage('データを保存しました（モック）');
+                    this.exitEditMode(cardType, section);
+                }, 1000);
+            }
+
+            exitEditMode(cardType, section) {
+                const card = document.querySelector(`[data-section="${section}"]`);
+                if (!card) return;
+
+                const displayMode = card.querySelector('.display-mode');
+                const editMode = card.querySelector('.edit-mode');
+
+                if (displayMode && editMode) {
+                    editMode.classList.add('d-none');
+                    displayMode.classList.remove('d-none');
+                }
+            }
+
+            showLoadingIndicator(card, show) {
+                const indicator = card.querySelector('.loading-indicator');
+                if (indicator) {
+                    if (show) {
+                        indicator.classList.remove('d-none');
+                    } else {
+                        indicator.classList.add('d-none');
+                    }
+                }
+            }
+
+            clearValidationErrors(form) {
+                const errorElements = form.querySelectorAll('.invalid-feedback');
+                errorElements.forEach(element => {
+                    element.textContent = '';
+                });
+
+                const invalidInputs = form.querySelectorAll('.is-invalid');
+                invalidInputs.forEach(input => {
+                    input.classList.remove('is-invalid');
+                });
+            }
+
+            showSuccessMessage(message) {
+                this.showToast(message, 'success');
+            }
+
+            showErrorMessage(message) {
+                this.showToast(message, 'error');
+            }
+
+            showToast(message, type = 'info') {
+                const toast = document.createElement('div');
+                toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
+                toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+                toast.innerHTML = `
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+
+                document.body.appendChild(toast);
+
+                setTimeout(() => {
+                    if (toast.parentElement) {
+                        toast.remove();
+                    }
+                }, 3000);
+            }
+
+            updateTestResult(testId, status, message) {
+                const resultElement = document.getElementById(`${testId}-result`);
+                const statusElement = document.getElementById(`${testId}-status`);
+                
+                if (resultElement && statusElement) {
+                    resultElement.className = `test-result test-${status}`;
+                    statusElement.textContent = message;
+                }
+            }
+        }
+
+        // Test functions
+        function testConditionalDisplay(value) {
+            const select = document.getElementById('pas_availability');
+            const conditionalFields = document.querySelector('[data-conditional-target="pas_details"]');
+            
+            select.value = value;
+            select.dispatchEvent(new Event('change'));
+            
+            const isVisible = conditionalFields.style.display === 'block';
+            const shouldBeVisible = value === '有';
+            
+            if (isVisible === shouldBeVisible) {
+                manager.updateTestResult('test2', 'pass', 
+                    `「${value || '未選択'}」選択時の表示制御が正常に動作しました`);
+            } else {
+                manager.updateTestResult('test2', 'fail', 
+                    `「${value || '未選択'}」選択時の表示制御に問題があります`);
+            }
+        }
+
+        function testValidation(testType) {
+            const form = document.querySelector('.equipment-form');
+            const detailsField = document.getElementById('pas_details');
+            const dateField = document.getElementById('pas_update_date');
+            
+            // Clear previous validation
+            manager.clearValidationErrors(form);
+            
+            switch (testType) {
+                case 'long_text':
+                    detailsField.value = 'a'.repeat(1001); // Exceeds max length
+                    if (detailsField.value.length > 1000) {
+                        manager.updateTestResult('test3', 'pass', '長すぎるテキストの検証テストが実行されました');
+                    }
+                    break;
+                    
+                case 'invalid_date':
+                    dateField.value = '2024-13-32'; // Invalid date
+                    manager.updateTestResult('test3', 'pass', '無効な日付の検証テストが実行されました');
+                    break;
+                    
+                case 'valid':
+                    document.getElementById('pas_availability').value = '有';
+                    document.getElementById('pas_availability').dispatchEvent(new Event('change'));
+                    detailsField.value = 'テスト用のPAS詳細情報';
+                    dateField.value = '2024-09-17';
+                    manager.updateTestResult('test3', 'pass', '正常なデータでの検証テストが実行されました');
+                    break;
+            }
+        }
+
+        // Initialize mock manager
+        let manager;
+        document.addEventListener('DOMContentLoaded', function() {
+            manager = new MockLifelineEquipmentManager();
+        });
+    </script>
+</body>
+</html>

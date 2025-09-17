@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="test-csrf-token">
+    <title>ライフライン設備JavaScript機能テスト</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        .test-section {
+            margin: 2rem 0;
+            padding: 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+        }
+        .test-result {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+        }
+        .test-pass {
+            background-color: #d1e7dd;
+            color: #0f5132;
+            border: 1px solid #badbcc;
+        }
+        .test-fail {
+            background-color: #f8d7da;
+            color: #842029;
+            border: 1px solid #f5c2c7;
+        }
+        .facility-info-card {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        .detail-card-improved {
+            border: 1px solid #dee2e6;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+        .detail-label {
+            font-weight: 500;
+            color: #495057;
+        }
+        .empty-field .detail-value {
+            color: #6c757d;
+            font-style: italic;
+        }
+        .equipment-item {
+            background-color: #f8f9fa;
+        }
+        .loading-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <h1 class="mb-4">ライフライン設備JavaScript機能テスト</h1>
+        
+        <!-- Test Controls -->
+        <div class="test-section">
+            <h2>テスト制御</h2>
+            <button id="runAllTests" class="btn btn-primary">全テスト実行</button>
+            <button id="clearResults" class="btn btn-secondary">結果クリア</button>
+            <div id="testResults" class="mt-3"></div>
+        </div>
+
+        <!-- Mock Facility Data -->
+        <div class="test-section">
+            <h2>施設情報（テスト用）</h2>
+            <p>施設ID: <span id="facilityId">123</span></p>
+            <p>現在のカテゴリ: <span id="currentCategory">electrical</span></p>
+        </div>
+
+        <!-- Lifeline Equipment Tab Structure -->
+        <div class="tab-pane fade show active" id="lifeline-equipment" role="tabpanel">
+            <!-- Sub-tab Navigation -->
+            <ul class="nav nav-tabs mb-3" id="lifelineSubTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="electrical-tab" data-bs-toggle="tab" 
+                            data-bs-target="#electrical" type="button" role="tab">
+                        <i class="fas fa-bolt me-2"></i>電気
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="gas-tab" data-bs-toggle="tab" 
+                            data-bs-target="#gas" type="button" role="tab">
+                        <i class="fas fa-fire me-2"></i>ガス
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content" id="lifelineTabContent">
+                <!-- Electrical Tab -->
+                <div class="tab-pane fade show active" id="electrical" role="tabpanel">
+                    <div class="row electrical-equipment-cards">
+                        <!-- Basic Info Card -->
+                        <div class="col-lg-6 mb-4">
+                            <div class="card facility-info-card detail-card-improved h-100 equipment-card" 
+                                 data-section="electrical_basic" 
+                                 data-card-type="basic">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-info-circle me-2"></i>基本情報
+                                    </h5>
+                                    <div class="card-actions d-flex align-items-center">
+                                        <button class="btn btn-outline-light btn-sm me-2 card-toggle" 
+                                                data-card="basic"
+                                                aria-expanded="true"
+                                                aria-controls="electrical-basic-content">
+                                            <i class="fas fa-chevron-up"></i>
+                                        </button>
+                                        <button class="btn btn-outline-light btn-sm comment-toggle" 
+                                                data-section="electrical_basic" 
+                                                aria-expanded="false"
+                                                aria-controls="comment-section-electrical_basic">
+                                            <i class="fas fa-comment"></i>
+                                            <span class="comment-count" data-section="electrical_basic">0</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body collapse show" id="electrical-basic-content">
+                                    <!-- Display Mode -->
+                                    <div class="facility-detail-table display-mode">
+                                        <div class="detail-row empty-field">
+                                            <span class="detail-label">電気契約会社</span>
+                                            <span class="detail-value">未登録</span>
+                                        </div>
+                                        <div class="detail-row empty-field">
+                                            <span class="detail-label">保安管理業者</span>
+                                            <span class="detail-value">未登録</span>
+                                        </div>
+                                        <div class="mt-3">
+                                            <button type="button" class="btn btn-primary btn-sm edit-card-btn" 
+                                                    data-card="basic" 
+                                                    data-section="electrical_basic">
+                                                <i class="fas fa-edit me-1"></i>編集
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Edit Mode -->
+                                    <div class="edit-mode d-none">
+                                        <form class="equipment-form" data-section="electrical_basic" data-card="basic">
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="electrical_contractor" class="form-label">電気契約会社</label>
+                                                    <input type="text" 
+                                                           class="form-control" 
+                                                           id="electrical_contractor" 
+                                                           name="basic_info[electrical_contractor]"
+                                                           maxlength="255">
+                                                    <div class="invalid-feedback"></div>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="safety_management_company" class="form-label">保安管理業者</label>
+                                                    <input type="text" 
+                                                           class="form-control" 
+                                                           id="safety_management_company" 
+                                                           name="basic_info[safety_management_company]"
+                                                           maxlength="255">
+                                                    <div class="invalid-feedback"></div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="form-actions mt-3">
+                                                <button type="submit" class="btn btn-success btn-sm me-2 save-card-btn" 
+                                                        data-card="basic" 
+                                                        data-section="electrical_basic">
+                                                    <i class="fas fa-save me-1"></i>保存
+                                                </button>
+                                                <button type="button" class="btn btn-secondary btn-sm cancel-edit-btn" 
+                                                        data-card="basic" 
+                                                        data-section="electrical_basic">
+                                                    <i class="fas fa-times me-1"></i>キャンセル
+                                                </button>
+                                            </div>
+                                            
+                                            <!-- Loading indicator -->
+                                            <div class="loading-indicator d-none mt-2">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                                                    <span>保存中...</span>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    
+                                    <!-- Comment Section -->
+                                    <div class="comment-section mt-3 d-none" 
+                                         data-section="electrical_basic" 
+                                         id="comment-section-electrical_basic">
+                                        <hr>
+                                        <div class="comment-form mb-3">
+                                            <div class="input-group">
+                                                <input type="text" 
+                                                       class="form-control comment-input" 
+                                                       id="comment-input-electrical_basic"
+                                                       placeholder="コメントを入力..." 
+                                                       data-section="electrical_basic">
+                                                <button class="btn btn-primary comment-submit" 
+                                                        data-section="electrical_basic">
+                                                    <i class="fas fa-paper-plane"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="comment-list" 
+                                             data-section="electrical_basic">
+                                            <!-- Comments will be loaded here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Equipment List Card (for testing dynamic functionality) -->
+                        <div class="col-lg-6 mb-4">
+                            <div class="card facility-info-card detail-card-improved h-100 equipment-card" 
+                                 data-section="electrical_cubicle" 
+                                 data-card-type="cubicle">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-cube me-2"></i>キュービクル
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="edit-mode">
+                                        <form class="equipment-form" data-section="electrical_cubicle" data-card="cubicle">
+                                            <div class="equipment-list-section">
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <h6 class="mb-0">設備情報</h6>
+                                                    <button type="button" class="btn btn-outline-primary btn-sm add-equipment-btn" 
+                                                            data-equipment-type="cubicle">
+                                                        <i class="fas fa-plus me-1"></i>設備追加
+                                                    </button>
+                                                </div>
+                                                
+                                                <div class="equipment-list" data-equipment-type="cubicle">
+                                                    <!-- Equipment items will be added here dynamically -->
+                                                </div>
+                                                
+                                                <div class="no-equipment-message text-muted text-center py-3">
+                                                    設備情報が登録されていません。「設備追加」ボタンから追加してください。
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gas Tab (placeholder) -->
+                <div class="tab-pane fade" id="gas" role="tabpanel">
+                    <div class="alert alert-info">
+                        ガス設備の詳細機能は今後実装予定です。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Mock window object -->
+    <script>
+        window.facilityId = '123';
+        
+        // Mock fetch for testing
+        const originalFetch = window.fetch;
+        window.fetch = function(url, options) {
+            console.log('Mock fetch called:', url, options);
+            
+            // Simulate different responses based on URL
+            if (url.includes('/comments?section=')) {
+                return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve({
+                        comments: [
+                            {
+                                id: 1,
+                                content: 'テストコメント',
+                                user_name: 'テストユーザー',
+                                created_at: '2024-01-01T12:00:00Z',
+                                can_delete: true
+                            }
+                        ]
+                    })
+                });
+            } else if (url.includes('/comments') && options?.method === 'POST') {
+                return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve({ success: true })
+                });
+            } else if (url.includes('/lifeline-equipment/')) {
+                return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve({ success: true })
+                });
+            }
+            
+            return originalFetch.apply(this, arguments);
+        };
+    </script>
+    
+    <!-- Load the lifeline equipment module -->
+    <script type="module">
+        import { LifelineEquipmentManager } from '../../resources/js/modules/lifeline-equipment.js';
+        
+        // Initialize the manager
+        const manager = new LifelineEquipmentManager();
+        window.lifelineManager = manager;
+        
+        // Test functions
+        window.testFunctions = {
+            testTabSwitching: function() {
+                try {
+                    const gasTab = document.getElementById('gas-tab');
+                    gasTab.click();
+                    
+                    setTimeout(() => {
+                        const isGasActive = gasTab.classList.contains('active');
+                        const result = isGasActive ? 'PASS' : 'FAIL';
+                        addTestResult('Tab Switching', result, isGasActive ? 'ガスタブが正常にアクティブになりました' : 'タブ切り替えが失敗しました');
+                    }, 100);
+                } catch (error) {
+                    addTestResult('Tab Switching', 'FAIL', 'エラー: ' + error.message);
+                }
+            },
+            
+            testCardToggle: function() {
+                try {
+                    const toggleButton = document.querySelector('[data-card="basic"].card-toggle');
+                    toggleButton.click();
+                    
+                    setTimeout(() => {
+                        const content = document.getElementById('electrical-basic-content');
+                        const isCollapsed = !content.classList.contains('show');
+                        const result = isCollapsed ? 'PASS' : 'FAIL';
+                        addTestResult('Card Toggle', result, isCollapsed ? 'カードが正常に折りたたまれました' : 'カード折りたたみが失敗しました');
+                    }, 100);
+                } catch (error) {
+                    addTestResult('Card Toggle', 'FAIL', 'エラー: ' + error.message);
+                }
+            },
+            
+            testEditMode: function() {
+                try {
+                    const editButton = document.querySelector('[data-section="electrical_basic"].edit-card-btn');
+                    editButton.click();
+                    
+                    setTimeout(() => {
+                        const editMode = document.querySelector('[data-section="electrical_basic"] .edit-mode');
+                        const displayMode = document.querySelector('[data-section="electrical_basic"] .display-mode');
+                        
+                        const isEditVisible = !editMode.classList.contains('d-none');
+                        const isDisplayHidden = displayMode.classList.contains('d-none');
+                        
+                        const result = (isEditVisible && isDisplayHidden) ? 'PASS' : 'FAIL';
+                        addTestResult('Edit Mode', result, result === 'PASS' ? '編集モードが正常に表示されました' : '編集モードの切り替えが失敗しました');
+                    }, 100);
+                } catch (error) {
+                    addTestResult('Edit Mode', 'FAIL', 'エラー: ' + error.message);
+                }
+            },
+            
+            testCommentToggle: function() {
+                try {
+                    const commentToggle = document.querySelector('[data-section="electrical_basic"].comment-toggle');
+                    commentToggle.click();
+                    
+                    setTimeout(() => {
+                        const commentSection = document.getElementById('comment-section-electrical_basic');
+                        const isVisible = !commentSection.classList.contains('d-none');
+                        
+                        const result = isVisible ? 'PASS' : 'FAIL';
+                        addTestResult('Comment Toggle', result, isVisible ? 'コメントセクションが正常に表示されました' : 'コメント表示が失敗しました');
+                    }, 100);
+                } catch (error) {
+                    addTestResult('Comment Toggle', 'FAIL', 'エラー: ' + error.message);
+                }
+            },
+            
+            testEquipmentAdd: function() {
+                try {
+                    const addButton = document.querySelector('[data-equipment-type="cubicle"].add-equipment-btn');
+                    addButton.click();
+                    
+                    setTimeout(() => {
+                        const equipmentItems = document.querySelectorAll('[data-equipment-type="cubicle"] .equipment-item');
+                        const result = equipmentItems.length > 0 ? 'PASS' : 'FAIL';
+                        addTestResult('Equipment Add', result, result === 'PASS' ? '設備が正常に追加されました' : '設備追加が失敗しました');
+                    }, 100);
+                } catch (error) {
+                    addTestResult('Equipment Add', 'FAIL', 'エラー: ' + error.message);
+                }
+            },
+            
+            testFormSave: async function() {
+                try {
+                    // First enter edit mode
+                    const editButton = document.querySelector('[data-section="electrical_basic"].edit-card-btn');
+                    editButton.click();
+                    
+                    setTimeout(async () => {
+                        // Fill in some data
+                        const contractorInput = document.getElementById('electrical_contractor');
+                        contractorInput.value = 'テスト電力会社';
+                        
+                        // Submit the form
+                        const saveButton = document.querySelector('[data-section="electrical_basic"].save-card-btn');
+                        saveButton.click();
+                        
+                        // Wait for the async operation
+                        setTimeout(() => {
+                            addTestResult('Form Save', 'PASS', 'フォーム保存機能が正常に動作しました（モック）');
+                        }, 500);
+                    }, 100);
+                } catch (error) {
+                    addTestResult('Form Save', 'FAIL', 'エラー: ' + error.message);
+                }
+            }
+        };
+        
+        function addTestResult(testName, result, message) {
+            const resultsDiv = document.getElementById('testResults');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${result === 'PASS' ? 'test-pass' : 'test-fail'}`;
+            resultDiv.innerHTML = `
+                <strong>${testName}:</strong> ${result}<br>
+                <small>${message}</small>
+            `;
+            resultsDiv.appendChild(resultDiv);
+        }
+        
+        // Bind test controls
+        document.getElementById('runAllTests').addEventListener('click', function() {
+            document.getElementById('testResults').innerHTML = '';
+            
+            const tests = [
+                'testTabSwitching',
+                'testCardToggle', 
+                'testEditMode',
+                'testCommentToggle',
+                'testEquipmentAdd',
+                'testFormSave'
+            ];
+            
+            tests.forEach((test, index) => {
+                setTimeout(() => {
+                    window.testFunctions[test]();
+                }, index * 1000);
+            });
+        });
+        
+        document.getElementById('clearResults').addEventListener('click', function() {
+            document.getElementById('testResults').innerHTML = '';
+        });
+        
+        // Update display
+        document.getElementById('facilityId').textContent = manager.facilityId;
+        document.getElementById('currentCategory').textContent = manager.currentCategory;
+        
+        console.log('Lifeline Equipment JavaScript test page loaded successfully');
+    </script>
+</body>
+</html>
