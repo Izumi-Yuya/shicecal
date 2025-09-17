@@ -44,7 +44,7 @@
                              onerror="this.style.display='none';">
                     </div>
                     <button class="btn btn-outline-light" type="button" id="sidebarToggle">
-                        <i class="fas fa-bars"></i>
+                        <i class="fas fa-times"></i>
                     </button>
                 </div>
                 
