@@ -187,7 +187,7 @@
                                     <label for="contract_start_date" class="form-label">契約開始日</label>
                                     <input type="date" class="form-control @error('contract_start_date') is-invalid @enderror" 
                                            id="contract_start_date" name="contract_start_date" 
-                                           value="{{ old('contract_start_date', $buildingInfo->contract_start_date?->format('Y-m-d') ?? '') }}">
+                                           value="{{ old('contract_start_date', $buildingInfo?->contract_start_date?->format('Y-m-d') ?? '') }}">
                                     @error('contract_start_date')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -198,7 +198,7 @@
                                     <label for="contract_end_date" class="form-label">契約終了日</label>
                                     <input type="date" class="form-control @error('contract_end_date') is-invalid @enderror" 
                                            id="contract_end_date" name="contract_end_date" 
-                                           value="{{ old('contract_end_date', $buildingInfo->contract_end_date?->format('Y-m-d') ?? '') }}">
+                                           value="{{ old('contract_end_date', $buildingInfo?->contract_end_date?->format('Y-m-d') ?? '') }}">
                                     @error('contract_end_date')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -478,7 +478,7 @@
                                     <label for="completion_date" class="form-label">竣工日</label>
                                     <input type="date" class="form-control @error('completion_date') is-invalid @enderror" 
                                            id="completion_date" name="completion_date" 
-                                           value="{{ old('completion_date', $buildingInfo->completion_date?->format('Y-m-d') ?? '') }}">
+                                           value="{{ old('completion_date', $buildingInfo?->completion_date?->format('Y-m-d') ?? '') }}">
                                     @error('completion_date')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -543,7 +543,7 @@
                                     <label for="periodic_inspection_date" class="form-label">実施日</label>
                                     <input type="date" class="form-control @error('periodic_inspection_date') is-invalid @enderror" 
                                            id="periodic_inspection_date" name="periodic_inspection_date" 
-                                           value="{{ old('periodic_inspection_date', $buildingInfo->periodic_inspection_date?->format('Y-m-d') ?? '') }}">
+                                           value="{{ old('periodic_inspection_date', $buildingInfo?->periodic_inspection_date?->format('Y-m-d') ?? '') }}">
                                     @error('periodic_inspection_date')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
