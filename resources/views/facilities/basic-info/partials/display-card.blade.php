@@ -356,25 +356,28 @@
                 <span class="detail-label">サービス種類</span>
                 <span class="detail-value">
                     @if($services && $services->count() > 0)
-                        @foreach($services as $index => $service)
-                            <div class="service-item mb-2">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="service-name fw-bold">{{ $service->service_type }}</div>
-                                    <div class="service-dates">
-                                        <small class="text-muted">有効期限:</small>
-                                        @if($service->renewal_start_date && $service->renewal_end_date)
-                                            <small>{{ \Carbon\Carbon::parse($service->renewal_start_date)->format('Y/m/d') }} 〜 {{ \Carbon\Carbon::parse($service->renewal_end_date)->format('Y/m/d') }}</small>
-                                        @elseif($service->renewal_start_date)
-                                            <small>{{ \Carbon\Carbon::parse($service->renewal_start_date)->format('Y/m/d') }} 〜</small>
-                                        @elseif($service->renewal_end_date)
-                                            <small>〜 {{ \Carbon\Carbon::parse($service->renewal_end_date)->format('Y/m/d') }}</small>
-                                        @else
-                                            <small class="text-muted">未設定</small>
-                                        @endif
+                        <div class="services-list">
+                            @foreach($services as $index => $service)
+                                <div class="service-item">
+                                    <div class="service-inline-display">
+                                        <span class="service-name">{{ $service->service_type }}</span>
+                                        <span class="service-separator">｜</span>
+                                        <span class="service-period">
+                                            <span class="service-period-label">有効期限:</span>
+                                            @if($service->renewal_start_date && $service->renewal_end_date)
+                                                {{ \Carbon\Carbon::parse($service->renewal_start_date)->format('Y/m/d') }} 〜 {{ \Carbon\Carbon::parse($service->renewal_end_date)->format('Y/m/d') }}
+                                            @elseif($service->renewal_start_date)
+                                                {{ \Carbon\Carbon::parse($service->renewal_start_date)->format('Y/m/d') }} 〜
+                                            @elseif($service->renewal_end_date)
+                                                〜 {{ \Carbon\Carbon::parse($service->renewal_end_date)->format('Y/m/d') }}
+                                            @else
+                                                未設定
+                                            @endif
+                                        </span>
                                     </div>
                                 </div>
-                            </div>
-                        @endforeach
+                            @endforeach
+                        </div>
                     @else
                         未設定
                     @endif
