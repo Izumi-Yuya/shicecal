@@ -11,8 +11,10 @@ use App\Exceptions\LifelineEquipmentServiceException;
 use App\Services\Traits\HandlesServiceErrors;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class LifelineEquipmentService
 {
@@ -645,7 +647,7 @@ class LifelineEquipmentService
      */
     private function processBasicInfo(array $basicInfo): array
     {
-        return [
+        $processedData = [
             'electrical_contractor' => isset($basicInfo['electrical_contractor']) 
                 ? ($basicInfo['electrical_contractor'] === null ? null : trim($basicInfo['electrical_contractor']))
                 : null,
@@ -653,10 +655,63 @@ class LifelineEquipmentService
                 ? ($basicInfo['safety_management_company'] === null ? null : trim($basicInfo['safety_management_company']))
                 : null,
             'maintenance_inspection_date' => $basicInfo['maintenance_inspection_date'] ?? null,
-            'inspection_report_pdf' => isset($basicInfo['inspection_report_pdf']) 
-                ? ($basicInfo['inspection_report_pdf'] === null ? null : trim($basicInfo['inspection_report_pdf']))
-                : null,
         ];
+
+        // Handle PDF file upload
+        if (isset($basicInfo['inspection_report_pdf_file']) && $basicInfo['inspection_report_pdf_file'] instanceof UploadedFile) {
+            $uploadedFile = $this->handlePdfUpload($basicInfo['inspection_report_pdf_file'], 'electrical/inspection-reports');
+            if ($uploadedFile) {
+                $processedData['inspection_report_pdf'] = $uploadedFile['filename'];
+                $processedData['inspection_report_pdf_path'] = $uploadedFile['path'];
+            }
+        } elseif (isset($basicInfo['inspection_report_pdf'])) {
+            // Keep existing PDF filename if no new file uploaded
+            $processedData['inspection_report_pdf'] = $basicInfo['inspection_report_pdf'] === null ? null : trim($basicInfo['inspection_report_pdf']);
+        } else {
+            $processedData['inspection_report_pdf'] = null;
+        }
+
+        return $processedData;
+    }
+
+    /**
+     * Handle PDF file upload for inspection reports.
+     */
+    private function handlePdfUpload(UploadedFile $file, string $directory): ?array
+    {
+        try {
+            // Validate file type
+            if (!in_array($file->getClientMimeType(), ['application/pdf'])) {
+                throw new Exception('PDFファイルのみアップロード可能です。');
+            }
+
+            // Validate file size (max 10MB)
+            if ($file->getSize() > 10 * 1024 * 1024) {
+                throw new Exception('ファイルサイズは10MB以下にしてください。');
+            }
+
+            // Generate unique filename
+            $originalName = $file->getClientOriginalName();
+            $extension = $file->getClientOriginalExtension();
+            $filename = pathinfo($originalName, PATHINFO_FILENAME) . '_' . time() . '.' . $extension;
+
+            // Store file
+            $path = $file->storeAs($directory, $filename, 'public');
+
+            return [
+                'filename' => $originalName,
+                'path' => $path,
+                'stored_filename' => $filename,
+            ];
+        } catch (Exception $e) {
+            Log::error('PDF upload failed', [
+                'error' => $e->getMessage(),
+                'file_name' => $file->getClientOriginalName(),
+                'file_size' => $file->getSize(),
+            ]);
+            
+            throw new Exception('PDFファイルのアップロードに失敗しました: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -683,9 +738,6 @@ class LifelineEquipmentService
             foreach ($cubicleInfo['equipment_list'] as $equipment) {
                 if (is_array($equipment) && !empty(array_filter($equipment))) {
                     $equipmentList[] = [
-                        'equipment_number' => isset($equipment['equipment_number']) 
-                            ? ($equipment['equipment_number'] === null ? null : trim($equipment['equipment_number']))
-                            : null,
                         'manufacturer' => isset($equipment['manufacturer']) 
                             ? ($equipment['manufacturer'] === null ? null : trim($equipment['manufacturer']))
                             : null,
@@ -717,9 +769,6 @@ class LifelineEquipmentService
             foreach ($generatorInfo['equipment_list'] as $equipment) {
                 if (is_array($equipment) && !empty(array_filter($equipment))) {
                     $equipmentList[] = [
-                        'equipment_number' => isset($equipment['equipment_number']) 
-                            ? ($equipment['equipment_number'] === null ? null : trim($equipment['equipment_number']))
-                            : null,
                         'manufacturer' => isset($equipment['manufacturer']) 
                             ? ($equipment['manufacturer'] === null ? null : trim($equipment['manufacturer']))
                             : null,

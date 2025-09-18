@@ -91,6 +91,7 @@ class LifelineEquipmentValidationService
             'basic_info.safety_management_company' => 'nullable|string|max:255',
             'basic_info.maintenance_inspection_date' => 'nullable|date|before_or_equal:today',
             'basic_info.inspection_report_pdf' => 'nullable|string|max:255',
+            'basic_info.inspection_report_pdf_file' => 'nullable|file|mimes:pdf|max:10240', // 10MB max
 
             // PAS info validation rules
             'pas_info' => 'nullable|array',
@@ -145,6 +146,9 @@ class LifelineEquipmentValidationService
             'basic_info.maintenance_inspection_date.date' => '電気保守点検実施日は有効な日付を入力してください。',
             'basic_info.maintenance_inspection_date.before_or_equal' => '電気保守点検実施日は今日以前の日付を入力してください。',
             'basic_info.inspection_report_pdf.max' => '点検実施報告書ファイル名は255文字以内で入力してください。',
+            'basic_info.inspection_report_pdf_file.file' => '点検実施報告書は有効なファイルを選択してください。',
+            'basic_info.inspection_report_pdf_file.mimes' => '点検実施報告書はPDFファイルのみアップロード可能です。',
+            'basic_info.inspection_report_pdf_file.max' => '点検実施報告書のファイルサイズは10MB以下にしてください。',
 
             // PAS info messages
             'pas_info.availability.in' => 'PASの有無は「有」または「無」を選択してください。',

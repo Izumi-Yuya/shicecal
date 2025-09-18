@@ -30,6 +30,13 @@ class GasEquipmentFactory extends Factory
                 'safety_management_company' => $this->faker->company() . '保安管理株式会社',
                 'maintenance_inspection_date' => $this->faker->dateTimeBetween('-1 year', 'now')->format('Y-m-d'),
                 'inspection_report_pdf' => 'gas_inspection_report_' . $this->faker->year() . '.pdf',
+                'gas_meter_number' => $this->faker->numerify('GM-########'),
+                'gas_type' => $this->faker->randomElement(['都市ガス', 'プロパンガス', 'LPガス']),
+                'supply_pressure' => $this->faker->randomElement(['低圧', '中圧', '高圧']),
+                'pipe_material' => $this->faker->randomElement(['鋼管', 'ポリエチレン管', '銅管']),
+                'installation_year' => $this->faker->numberBetween(2000, 2024),
+                'emergency_shutoff_valve' => $this->faker->randomElement(['有', '無']),
+                'leak_detector' => $this->faker->randomElement(['設置済み', '未設置']),
             ],
             'notes' => $this->faker->optional(0.7)->text(500),
         ];

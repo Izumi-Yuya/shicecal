@@ -1,5 +1,10 @@
 {{-- 建物情報表示カード --}}
 <div class="building-info-card">
+    {{-- 開発中表示 --}}
+    <div class="alert alert-warning mb-3" role="alert">
+        <i class="fas fa-tools me-2"></i>
+        <strong>開発中</strong> - この機能は現在開発中です。
+    </div>
     @if($buildingInfo)
         {{-- 所有テーブル --}}
         <div class="card facility-info-card detail-card-improved mb-3">
@@ -81,10 +86,6 @@
                                 <td class="detail-value {{ empty($buildingInfo->cost_per_tsubo) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                     @if($buildingInfo->cost_per_tsubo)
                                         ¥{{ number_format($buildingInfo->cost_per_tsubo) }}/坪
-                                        <span class="auto-calc-indicator">
-                                            <i class="fas fa-calculator"></i>
-                                            <small>自動計算</small>
-                                        </span>
                                     @else
                                         未設定
                                     @endif

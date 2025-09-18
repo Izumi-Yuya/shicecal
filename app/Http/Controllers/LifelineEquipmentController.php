@@ -9,6 +9,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class LifelineEquipmentController extends Controller
@@ -58,9 +59,41 @@ class LifelineEquipmentController extends Controller
     }
 
     /**
+     * Show the form for editing the specified lifeline equipment category.
+     */
+    public function edit(Facility $facility, string $category)
+    {
+        try {
+            // Check authorization using LifelineEquipment policy
+            $this->authorize('update', [LifelineEquipment::class, $facility]);
+
+            // Validate category
+            if (!array_key_exists($category, LifelineEquipment::CATEGORIES)) {
+                abort(404, 'Invalid equipment category');
+            }
+
+            // Return the appropriate edit view based on category
+            $viewName = "facilities.lifeline-equipment.{$category}-edit";
+            
+            return view($viewName, compact('facility', 'category'));
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            abort(403, 'この施設のライフライン設備情報を編集する権限がありません。');
+        } catch (Exception $e) {
+            Log::error('Lifeline equipment edit failed', [
+                'facility_id' => $facility->id,
+                'category' => $category,
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage(),
+            ]);
+
+            abort(500, 'システムエラーが発生しました。');
+        }
+    }
+
+    /**
      * Update the specified lifeline equipment category data.
      */
-    public function update(Request $request, Facility $facility, string $category): JsonResponse
+    public function update(Request $request, Facility $facility, string $category)
     {
         try {
             // Check authorization using LifelineEquipment policy
@@ -74,17 +107,35 @@ class LifelineEquipmentController extends Controller
                 auth()->id()
             );
 
-            if (!$result['success']) {
-                $statusCode = isset($result['errors']) ? 422 : 500;
-                return response()->json($result, $statusCode);
+            // Handle AJAX requests
+            if ($request->expectsJson()) {
+                if (!$result['success']) {
+                    $statusCode = isset($result['errors']) ? 422 : 500;
+                    return response()->json($result, $statusCode);
+                }
+                return response()->json($result);
             }
 
-            return response()->json($result);
+            // Handle form submissions
+            if (!$result['success']) {
+                if (isset($result['errors'])) {
+                    return back()->withErrors($result['errors'])->withInput();
+                }
+                return back()->with('error', $result['message'] ?? 'システムエラーが発生しました。')->withInput();
+            }
+
+            return redirect()->route('facilities.show', $facility)
+                           ->with('success', 'ライフライン設備情報を更新しました。')
+                           ->withFragment($category);
+
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'この施設のライフライン設備情報を編集する権限がありません。',
-            ], 403);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'この施設のライフライン設備情報を編集する権限がありません。',
+                ], 403);
+            }
+            abort(403, 'この施設のライフライン設備情報を編集する権限がありません。');
         } catch (Exception $e) {
             Log::error('Lifeline equipment update failed', [
                 'facility_id' => $facility->id,
@@ -94,10 +145,14 @@ class LifelineEquipmentController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'システムエラーが発生しました。',
-            ], 500);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'システムエラーが発生しました。',
+                ], 500);
+            }
+            
+            return back()->with('error', 'システムエラーが発生しました。')->withInput();
         }
     }
 
@@ -350,5 +405,67 @@ class LifelineEquipmentController extends Controller
             'error_code' => 'VALIDATION_ERROR',
             'status_code' => 422,
         ]);
+    }
+
+    /**
+     * Download inspection report PDF.
+     */
+    public function downloadInspectionReport(Facility $facility, string $category, string $filename)
+    {
+        try {
+            $this->authorize('view', [LifelineEquipment::class, $facility]);
+
+            // Validate category
+            if (!array_key_exists($category, LifelineEquipment::CATEGORIES)) {
+                abort(404, 'Invalid equipment category');
+            }
+
+            // Get lifeline equipment
+            $lifelineEquipment = $facility->getLifelineEquipmentByCategory($category);
+            if (!$lifelineEquipment) {
+                abort(404, 'Equipment not found');
+            }
+
+            // Get equipment data to verify file exists
+            $equipmentData = null;
+            switch ($category) {
+                case 'electrical':
+                    $equipmentData = $lifelineEquipment->electricalEquipment;
+                    break;
+                // Add other categories as needed
+            }
+
+            if (!$equipmentData) {
+                abort(404, 'Equipment data not found');
+            }
+
+            $basicInfo = $equipmentData->basic_info ?? [];
+            if (empty($basicInfo['inspection_report_pdf_path'])) {
+                abort(404, 'File not found');
+            }
+
+            $filePath = $basicInfo['inspection_report_pdf_path'];
+            
+            // Check if file exists in storage
+            if (!Storage::disk('public')->exists($filePath)) {
+                abort(404, 'File not found in storage');
+            }
+
+            // Return file download response
+            return Storage::disk('public')->download($filePath, $filename);
+
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            abort(403, 'この施設のファイルをダウンロードする権限がありません。');
+        } catch (Exception $e) {
+            Log::error('Inspection report download failed', [
+                'facility_id' => $facility->id,
+                'category' => $category,
+                'filename' => $filename,
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage(),
+            ]);
+
+            abort(500, 'ファイルのダウンロードに失敗しました。');
+        }
     }
 }

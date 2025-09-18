@@ -125,7 +125,9 @@ Route::middleware(['auth'])->group(function () {
             
             // Individual category routes (must come after specific routes)
             Route::get('/{category}', [LifelineEquipmentController::class, 'show'])->name('show');
+            Route::get('/{category}/edit', [LifelineEquipmentController::class, 'edit'])->name('edit');
             Route::put('/{category}', [LifelineEquipmentController::class, 'update'])->name('update');
+            Route::get('/{category}/download/{filename}', [LifelineEquipmentController::class, 'downloadInspectionReport'])->name('download');
         });
 
         // Facility-specific comment routes

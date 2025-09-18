@@ -41,13 +41,11 @@ class ElectricalEquipmentFactory extends Factory
                 'availability' => $this->faker->randomElement(['有', '無']),
                 'equipment_list' => $this->faker->optional()->randomElements([
                     [
-                        'equipment_number' => '1',
                         'manufacturer' => '三菱電機',
                         'model_year' => $this->faker->year(),
                         'update_date' => $this->faker->date(),
                     ],
                     [
-                        'equipment_number' => '2',
                         'manufacturer' => '東芝',
                         'model_year' => $this->faker->year(),
                         'update_date' => $this->faker->date(),
@@ -59,13 +57,11 @@ class ElectricalEquipmentFactory extends Factory
                 'availability_details' => $this->faker->optional()->sentence(),
                 'equipment_list' => $this->faker->optional()->randomElements([
                     [
-                        'equipment_number' => '1',
                         'manufacturer' => 'ヤンマー',
                         'model_year' => $this->faker->year(),
                         'update_date' => $this->faker->date(),
                     ],
                     [
-                        'equipment_number' => '2',
                         'manufacturer' => 'デンヨー',
                         'model_year' => $this->faker->year(),
                         'update_date' => $this->faker->date(),
@@ -98,7 +94,6 @@ class ElectricalEquipmentFactory extends Factory
                 'availability' => '有',
                 'equipment_list' => [
                     [
-                        'equipment_number' => '1',
                         'manufacturer' => '三菱電機',
                         'model_year' => '2020',
                         'update_date' => '2024-03-15',
@@ -118,7 +113,6 @@ class ElectricalEquipmentFactory extends Factory
                 'availability' => '有',
                 'equipment_list' => [
                     [
-                        'equipment_number' => '1',
                         'manufacturer' => 'ヤンマー',
                         'model_year' => '2021',
                         'update_date' => '2024-03-15',
