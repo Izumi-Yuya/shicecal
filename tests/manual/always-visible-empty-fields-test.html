@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>常時表示未設定項目テスト</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="../../resources/css/pages/facilities.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 2rem 0;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        .test-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            margin-bottom: 2rem;
+        }
+        .test-result {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1 class="h3 mb-3">
+                <i class="fas fa-eye text-primary me-2"></i>
+                常時表示未設定項目テスト
+            </h1>
+            <p class="mb-0 text-muted">
+                このテストページでは、未設定項目が常に表示されることを確認します。
+                以前のようなトグルボタンは表示されません。
+            </p>
+        </div>
+
+        <!-- 施設詳細情報カード群 -->
+        <div class="row">
+            <!-- 基本情報カード -->
+            <div class="col-lg-6 mb-4">
+                <div class="card facility-info-card detail-card-improved h-100" data-section="facility_basic">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle text-primary me-2"></i>基本情報
+                        </h5>
+                        <!-- トグルボタンは表示されません -->
+                    </div>
+                    <div class="card-body">
+                        <div class="facility-detail-table">
+                            <div class="detail-row">
+                                <span class="detail-label">会社名</span>
+                                <span class="detail-value">テスト株式会社</span>
+                            </div>
+                            <div class="detail-row empty-field">
+                                <span class="detail-label">事業所コード</span>
+                                <span class="detail-value">未設定</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">施設名</span>
+                                <span class="detail-value fw-bold">テスト施設</span>
+                            </div>
+                            <div class="detail-row empty-field">
+                                <span class="detail-label">指定番号</span>
+                                <span class="detail-value">未設定</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 住所・連絡先情報カード -->
+            <div class="col-lg-6 mb-4">
+                <div class="card facility-info-card detail-card-improved h-100" data-section="facility_contact">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-map-marker-alt text-success me-2"></i>住所・連絡先
+                        </h5>
+                        <!-- トグルボタンは表示されません -->
+                    </div>
+                    <div class="card-body">
+                        <div class="facility-detail-table">
+                            <div class="detail-row">
+                                <span class="detail-label">郵便番号</span>
+                                <span class="detail-value">123-4567</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">住所</span>
+                                <span class="detail-value">東京都渋谷区テスト1-2-3</span>
+                            </div>
+                            <div class="detail-row empty-field">
+                                <span class="detail-label">建物名</span>
+                                <span class="detail-value">未設定</span>
+                            </div>
+                            <div class="detail-row empty-field">
+                                <span class="detail-label">電話番号</span>
+                                <span class="detail-value">未設定</span>
+                            </div>
+                            <div class="detail-row empty-field">
+                                <span class="detail-label">FAX番号</span>
+                                <span class="detail-value">未設定</span>
+                            </div>
+                            <div class="detail-row empty-field">
+                                <span class="detail-label">メールアドレス</span>
+                                <span class="detail-value">未設定</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 開設・建物情報カード -->
+            <div class="col-lg-6 mb-4">
+                <div class="card facility-info-card detail-card-improved h-100" data-section="facility_building">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-calendar-alt text-warning me-2"></i>開設・建物情報
+                        </h5>
+                        <!-- トグルボタンは表示されません -->
+                    </div>
+                    <div class="card-body">
+                        <div class="facility-detail-table">
+                            <div class="detail-row">
+                                <span class="detail-label">開設日</span>
+                                <span class="detail-value">2020年4月1日</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">開設年数（自動計算）</span>
+                                <span class="detail-value">4年</span>
+                            </div>
+                            <div class="detail-row empty-field">
+                                <span class="detail-label">建物構造</span>
+                                <span class="detail-value">未設定</span>
+                            </div>
+                            <div class="detail-row empty-field">
+                                <span class="detail-label">建物階数</span>
+                                <span class="detail-value">未設定</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 基本施設情報カード -->
+            <div class="col-lg-6 mb-4">
+                <div class="card facility-info-card detail-card-improved h-100" data-section="facility_service">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-home text-info me-2"></i>基本施設情報
+                        </h5>
+                        <!-- トグルボタンは表示されません -->
+                    </div>
+                    <div class="card-body">
+                        <div class="facility-detail-table">
+                            <div class="detail-row">
+                                <span class="detail-label">居室数（有料）</span>
+                                <span class="detail-value">50室</span>
+                            </div>
+                            <div class="detail-row empty-field">
+                                <span class="detail-label">内SS数</span>
+                                <span class="detail-value">未設定</span>
+                            </div>
+                            <div class="detail-row empty-field">
+                                <span class="detail-label">定員数</span>
+                                <span class="detail-value">未設定</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-result">
+            <h6><i class="fas fa-check-circle me-2"></i>テスト結果</h6>
+            <ul class="mb-0">
+                <li>✅ 未設定項目（「未設定」と表示される項目）が常に表示されている</li>
+                <li>✅ 「未設定項目を表示」ボタンが表示されていない</li>
+                <li>✅ 設定済み項目と未設定項目が同じスタイルで表示されている</li>
+                <li>✅ カードのレイアウトが正常に表示されている</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { initializeDetailCardController } from '../../resources/js/modules/detail-card-controller.js';
+        
+        // Initialize the detail card controller
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const controller = await initializeDetailCardController();
+                console.log('Detail card controller initialized:', controller);
+                
+                // Log statistics
+                const stats = controller.getStatistics();
+                console.log('Statistics:', stats);
+                
+                // Verify no toggle buttons exist
+                const toggleButtons = document.querySelectorAll('.empty-fields-toggle');
+                console.log('Toggle buttons found:', toggleButtons.length);
+                
+                // Verify empty fields are visible
+                const emptyFields = document.querySelectorAll('.empty-field');
+                console.log('Empty fields found:', emptyFields.length);
+                
+                emptyFields.forEach((field, index) => {
+                    const isVisible = window.getComputedStyle(field).display !== 'none';
+                    console.log(`Empty field ${index + 1} visible:`, isVisible);
+                });
+                
+            } catch (error) {
+                console.error('Error initializing detail card controller:', error);
+            }
+        });
+    </script>
+</body>
+</html>

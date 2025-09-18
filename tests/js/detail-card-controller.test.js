@@ -1,270 +1,203 @@
 /**
- * Detail Card Controller Tests
+ * Detail Card Controller Tests - Simplified for Always-Visible Empty Fields
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { DetailCardController, initializeDetailCardController } from '../../resources/js/modules/detail-card-controller.js';
 
-// Mock showToast utility
-vi.mock('../../resources/js/shared/utils.js', () => ({
-    showToast: vi.fn()
-}));
-
 describe('DetailCardController', () => {
-    let controller;
+  let controller;
 
-    beforeEach(() => {
-    // Set up DOM structure
-        document.body.innerHTML = `
-      <div class="card facility-info-card detail-card-improved" data-section="facility_basic">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <h5 class="mb-0">基本情報</h5>
-        </div>
-        <div class="card-body">
-          <div class="facility-detail-table">
-            <div class="detail-row">
-              <span class="detail-label">会社名</span>
-              <span class="detail-value">テスト会社</span>
-            </div>
-            <div class="detail-row empty-field">
-              <span class="detail-label">事業所コード</span>
-              <span class="detail-value">未設定</span>
-            </div>
-            <div class="detail-row empty-field">
-              <span class="detail-label">電話番号</span>
-              <span class="detail-value">未設定</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
+  beforeEach(() => {
+    // Set up DOM structure with proper container
+    document.body.innerHTML = `
+            <main>
+                <div class="card facility-info-card detail-card-improved" data-section="facility_basic">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">基本情報</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="facility-detail-table">
+                            <div class="detail-row">
+                                <span class="detail-label">会社名</span>
+                                <span class="detail-value">テスト会社</span>
+                            </div>
+                            <div class="detail-row empty-field">
+                                <span class="detail-label">事業所コード</span>
+                                <span class="detail-value">未設定</span>
+                            </div>
+                            <div class="detail-row empty-field">
+                                <span class="detail-label">電話番号</span>
+                                <span class="detail-value">未設定</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        `;
 
-        // Mock localStorage
-        global.localStorage = {
-            getItem: vi.fn(),
-            setItem: vi.fn(),
-            removeItem: vi.fn()
-        };
+    controller = new DetailCardController();
+  });
 
-        controller = new DetailCardController();
+  afterEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  describe('Initialization', () => {
+    it('should initialize successfully with detail cards present', async () => {
+      const result = await controller.init();
+      expect(result).toBe(true);
+      expect(controller.isInitialized).toBe(true);
     });
 
-    afterEach(() => {
-    // Clean up localStorage mock
-        delete global.localStorage;
+    it('should initialize successfully when no detail cards are found', async () => {
+      // Remove all detail cards
+      const cards = document.querySelectorAll('.detail-card-improved');
+      cards.forEach(card => card.remove());
+
+      const result = await controller.init();
+      expect(result).toBe(true);
+      expect(controller.isInitialized).toBe(true);
     });
 
-    describe('Initialization', () => {
-        it('should initialize successfully with detail cards present', () => {
-            const result = controller.init();
-            expect(result).toBe(true);
-            expect(controller.isInitialized).toBe(true);
-        });
+    it('should find detail cards correctly', () => {
+      controller._findDetailCards();
+      expect(controller.detailCards).toBeTruthy();
+      expect(controller.detailCards.length).toBe(1);
+    });
+  });
 
-        it('should return false when no detail cards are found', () => {
-            // Remove all detail cards
-            const cards = document.querySelectorAll('.detail-card-improved');
-            cards.forEach(card => card.remove());
-
-            const result = controller.init();
-            expect(result).toBe(false);
-            expect(controller.isInitialized).toBe(false);
-        });
-
-        it('should find detail cards correctly', () => {
-            controller.findDetailCards();
-            expect(controller.detailCards).toBeTruthy();
-            expect(controller.detailCards.length).toBe(1);
-        });
+  describe('Accessibility Enhancement', () => {
+    beforeEach(async () => {
+      await controller.init();
     });
 
-    describe('Toggle Button Creation', () => {
-        beforeEach(() => {
-            controller.init();
-        });
+    it('should add screen reader description for empty fields', () => {
+      const card = document.querySelector('.detail-card-improved');
+      const description = card.querySelector('#empty-fields-desc-facility_basic');
 
-        it('should add toggle button to card header', () => {
-            const card = document.querySelector('.detail-card-improved');
-            const header = card.querySelector('.card-header');
-            const button = header.querySelector('.empty-fields-toggle');
-
-            expect(button).toBeTruthy();
-            expect(button.dataset.section).toBe('facility_basic');
-        });
-
-        it('should not add duplicate buttons', () => {
-            const card = document.querySelector('.detail-card-improved');
-
-            // Try to add button again
-            controller.addToggleButton(card);
-
-            const buttons = card.querySelectorAll('.empty-fields-toggle');
-            expect(buttons.length).toBe(1);
-        });
-
-        it('should count empty fields correctly', () => {
-            const card = document.querySelector('.detail-card-improved');
-            const emptyFields = card.querySelectorAll('.empty-field');
-
-            expect(emptyFields.length).toBe(2);
-        });
+      expect(description).toBeTruthy();
+      expect(description.textContent).toContain('このセクションには2件の未設定項目が表示されています');
     });
 
-    describe('Toggle Functionality', () => {
-        beforeEach(() => {
-            controller.init();
-        });
+    it('should enhance detail rows with ARIA attributes', () => {
+      const card = document.querySelector('.detail-card-improved');
+      const detailRows = card.querySelectorAll('.detail-row');
 
-        it('should toggle empty fields visibility', () => {
-            const card = document.querySelector('.detail-card-improved');
-            const section = 'facility_basic';
+      detailRows.forEach((row, index) => {
+        const label = row.querySelector('.detail-label');
+        const value = row.querySelector('.detail-value');
 
-            // Initially should not have show-empty-fields class
-            expect(card.classList.contains('show-empty-fields')).toBe(false);
-
-            // Toggle to show
-            controller.toggleEmptyFields(card, section);
-            expect(card.classList.contains('show-empty-fields')).toBe(true);
-
-            // Toggle to hide
-            controller.toggleEmptyFields(card, section);
-            expect(card.classList.contains('show-empty-fields')).toBe(false);
-        });
-
-        it('should update button state when toggling', () => {
-            const card = document.querySelector('.detail-card-improved');
-            const button = card.querySelector('.empty-fields-toggle');
-            const section = 'facility_basic';
-
-            // Initially should show "show" state
-            expect(button.innerHTML).toContain('未設定項目を表示');
-            expect(button.getAttribute('aria-pressed')).toBe('false');
-
-            // Toggle to show
-            controller.toggleEmptyFields(card, section);
-            expect(button.innerHTML).toContain('未設定項目を非表示');
-            expect(button.getAttribute('aria-pressed')).toBe('true');
-        });
+        expect(row.getAttribute('role')).toBe('row');
+        expect(label.getAttribute('role')).toBe('rowheader');
+        expect(value.getAttribute('role')).toBe('cell');
+        expect(value.getAttribute('aria-labelledby')).toBe(label.id);
+      });
     });
 
-    describe('User Preferences', () => {
-        beforeEach(() => {
-            controller.init();
-        });
+    it('should count empty fields correctly', () => {
+      const card = document.querySelector('.detail-card-improved');
+      const emptyFields = card.querySelectorAll('.empty-field');
 
-        it('should save user preferences to localStorage', () => {
-            const section = 'facility_basic';
-            const showEmptyFields = true;
+      expect(emptyFields.length).toBe(2);
+    });
+  });
 
-            controller.saveUserPreference(section, showEmptyFields);
-
-            expect(global.localStorage.setItem).toHaveBeenCalledWith(
-                'detailCardPreferences',
-                JSON.stringify({
-                    [section]: { showEmptyFields }
-                })
-            );
-        });
-
-        it('should load user preferences from localStorage', () => {
-            const preferences = {
-                facility_basic: { showEmptyFields: true }
-            };
-
-            global.localStorage.getItem.mockReturnValue(JSON.stringify(preferences));
-
-            controller.loadUserPreferences();
-
-            const card = document.querySelector('.detail-card-improved');
-            expect(card.classList.contains('show-empty-fields')).toBe(true);
-        });
-
-        it('should get preference for a section', () => {
-            const preferences = {
-                facility_basic: { showEmptyFields: true }
-            };
-
-            global.localStorage.getItem.mockReturnValue(JSON.stringify(preferences));
-
-            const result = controller.getPreference('facility_basic');
-            expect(result).toBe(true);
-        });
-
-        it('should return default preference when none exists', () => {
-            global.localStorage.getItem.mockReturnValue(null);
-
-            const result = controller.getPreference('nonexistent_section');
-            expect(result).toBe(controller.config.defaultShowEmpty);
-        });
+  describe('Statistics', () => {
+    beforeEach(async () => {
+      await controller.init();
     });
 
-    describe('Statistics', () => {
-        beforeEach(() => {
-            controller.init();
-        });
+    it('should calculate statistics correctly', () => {
+      const stats = controller.getStatistics();
 
-        it('should provide accurate statistics', () => {
-            const stats = controller.getStatistics();
+      expect(stats.totalCards).toBe(1);
+      expect(stats.cardsWithEmptyFields).toBe(1);
+      expect(stats.totalEmptyFields).toBe(2);
+      expect(stats.performance).toBeDefined();
+      expect(stats.performance.memoryUsage).toBeDefined();
+    });
+  });
 
-            expect(stats.totalCards).toBe(1);
-            expect(stats.cardsWithEmptyFields).toBe(1);
-            expect(stats.totalEmptyFields).toBe(2);
-            expect(stats.sectionsHiding).toBe(1);
-            expect(stats.sectionsShowing).toBe(0);
-        });
+  describe('Refresh Functionality', () => {
+    beforeEach(async () => {
+      await controller.init();
     });
 
-    describe('Refresh and Destroy', () => {
-        it('should refresh successfully', () => {
-            controller.init();
-            const result = controller.refresh();
-            expect(result).toBe(true);
-        });
-
-        it('should destroy cleanly', () => {
-            controller.init();
-            controller.destroy();
-
-            expect(controller.isInitialized).toBe(false);
-            expect(controller.detailCards).toBe(null);
-        });
+    it('should refresh successfully', async () => {
+      const result = await controller.refresh();
+      expect(result).toBe(true);
     });
+
+    it('should reinitialize if not already initialized', async () => {
+      const newController = new DetailCardController();
+      const result = await newController.refresh();
+      expect(result).toBe(true);
+      expect(newController.isInitialized).toBe(true);
+    });
+  });
+
+  describe('Cleanup', () => {
+    beforeEach(async () => {
+      await controller.init();
+    });
+
+    it('should cleanup successfully', () => {
+      expect(() => controller.cleanup()).not.toThrow();
+      expect(controller.isInitialized).toBe(false);
+      expect(controller.detailCards.length).toBe(0);
+    });
+  });
+
+  describe('ARIA Landmarks', () => {
+    beforeEach(async () => {
+      await controller.init();
+    });
+
+    it('should add ARIA landmarks to detail cards', () => {
+      const card = document.querySelector('.detail-card-improved');
+      const header = card.querySelector('.card-header h5');
+
+      expect(header.hasAttribute('id')).toBe(true);
+      expect(card.getAttribute('aria-labelledby')).toBe(header.id);
+      expect(card.getAttribute('role')).toBe('region');
+    });
+  });
 });
 
-describe('Module Initialization', () => {
-    beforeEach(() => {
-        document.body.innerHTML = `
-      <div class="detail-card-improved" data-section="test">
-        <div class="card-header">
-          <h5>Test Card</h5>
-        </div>
-        <div class="empty-field">Empty field</div>
-      </div>
-    `;
+describe('initializeDetailCardController', () => {
+  beforeEach(() => {
+    document.body.innerHTML = `
+            <main>
+                <div class="card facility-info-card detail-card-improved" data-section="test">
+                    <div class="card-header">
+                        <h5>Test Card</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="detail-row empty-field">
+                            <span class="detail-label">Test Field</span>
+                            <span class="detail-value">未設定</span>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        `;
+  });
 
-        global.localStorage = {
-            getItem: vi.fn(),
-            setItem: vi.fn(),
-            removeItem: vi.fn()
-        };
-    });
+  afterEach(() => {
+    document.body.innerHTML = '';
+  });
 
-    afterEach(() => {
-        delete global.localStorage;
-    });
+  it('should initialize and return controller instance', async () => {
+    const controller = await initializeDetailCardController();
+    expect(controller).toBeInstanceOf(DetailCardController);
+    expect(controller.isInitialized).toBe(true);
+  });
 
-    it('should initialize and return controller instance', () => {
-        const controller = initializeDetailCardController();
-        expect(controller).toBeInstanceOf(DetailCardController);
-        expect(controller.isInitialized).toBe(true);
-    });
-
-    it('should return null when initialization fails', () => {
-    // Remove all detail cards
-        const cards = document.querySelectorAll('.detail-card-improved');
-        cards.forEach(card => card.remove());
-
-        const controller = initializeDetailCardController();
-        expect(controller).toBe(null);
-    });
+  it('should return controller even when no cards are present', async () => {
+    document.body.innerHTML = '<main></main>';
+    const controller = await initializeDetailCardController();
+    expect(controller).toBeInstanceOf(DetailCardController);
+    expect(controller.isInitialized).toBe(true);
+  });
 });

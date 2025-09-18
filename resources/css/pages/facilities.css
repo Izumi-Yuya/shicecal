@@ -216,12 +216,8 @@
     min-height: 1.5rem;
   }
 
-  /* Empty Fields */
+  /* Empty Fields - Always visible */
   .detail-card-improved .empty-field {
-    display: none;
-  }
-
-  .detail-card-improved.show-empty-fields .empty-field {
     display: flex;
   }
 
@@ -310,45 +306,7 @@
   box-shadow: 0 0 0 0.2rem rgba(13, 202, 240, 0.25) !important;
 }
 
-/* ========================================
-   Toggle Button for Empty Fields
-   ======================================== */
-.empty-fields-toggle {
-  font-size: var(--font-size-sm);
-  padding: var(--spacing-xs) var(--spacing-md);
-  border-radius: 20px;
-  transition: all var(--transition-fast);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  background-color: rgba(255, 255, 255, 0.1);
-  color: white;
-  cursor: pointer;
-  user-select: none;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
 
-.empty-fields-toggle:hover {
-  border-color: rgba(255, 255, 255, 0.5);
-  background-color: rgba(255, 255, 255, 0.2);
-  color: white;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.empty-fields-toggle.active {
-  background-color: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.6);
-}
-
-.empty-fields-toggle i {
-  font-size: var(--font-size-xxs);
-  transition: transform var(--transition-normal);
-}
-
-.empty-fields-toggle.active i {
-  transform: rotate(180deg);
-}
 
 /* ========================================
    Responsive Design
@@ -379,14 +337,7 @@
     color: var(--text-muted);
   }
 
-  .empty-fields-toggle {
-    font-size: var(--font-size-xs);
-    padding: 0.3rem 0.6rem;
-  }
 
-  .empty-fields-toggle .toggle-text {
-    display: none;
-  }
 }
 
 @media (max-width: 576px) {
@@ -405,11 +356,7 @@
     padding: var(--spacing-md);
   }
 
-  .empty-fields-toggle {
-    font-size: var(--font-size-xxs);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border-radius: 15px;
-  }
+
 }
 
 /* ========================================
@@ -443,26 +390,16 @@
     background-color: #ffffff;
   }
 
-  .empty-fields-toggle {
-    border: 2px solid white;
-    background-color: rgba(0, 0, 0, 0.9);
-    color: white;
-  }
+
 }
 
 /* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
 
-  .empty-fields-toggle,
-  .empty-fields-toggle i,
   .detail-card-improved .mb-3,
   .detail-card-improved .detail-row {
     transition: none !important;
     animation: none !important;
-  }
-
-  .empty-fields-toggle.active i {
-    transform: none !important;
   }
 }
 
@@ -482,10 +419,6 @@
     border-right: 1px solid #000 !important;
     font-weight: bold !important;
     color: #000 !important;
-  }
-
-  .detail-card-improved .empty-fields-toggle {
-    display: none !important;
   }
 
   .detail-card-improved .empty-field {
@@ -530,8 +463,4 @@
 /* JavaScript Disabled Fallback */
 .no-js .detail-card-improved .empty-field {
   display: flex !important;
-}
-
-.no-js .empty-fields-toggle {
-  display: none !important;
 }
