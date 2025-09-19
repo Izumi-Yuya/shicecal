@@ -118,6 +118,14 @@ class Facility extends Model
     }
 
     /**
+     * Get the facility basic information associated with this facility
+     */
+    public function facilityBasic(): HasOne
+    {
+        return $this->hasOne(FacilityBasic::class);
+    }
+
+    /**
      * Get the lifeline equipment associated with this facility
      */
     public function lifelineEquipments(): HasMany

@@ -54,10 +54,10 @@ class FacilityController extends Controller
     {
         $query = Facility::query();
 
-        // Service type filter
-        if ($request->filled('service_type')) {
-            $query->whereHas('services', function ($q) use ($request) {
-                $q->where('service_type', $request->service_type);
+        // Section (department) filter
+        if ($request->filled('section')) {
+            $query->whereHas('facilityBasic', function ($q) use ($request) {
+                $q->where('section', $request->section);
             });
         }
 
@@ -85,12 +85,14 @@ class FacilityController extends Controller
 
         $facilities = $query->get();
 
-        // Get unique service types for filter dropdown
-        $serviceTypes = \DB::table('facility_services')
-            ->select('service_type')
+        // Get unique sections (departments) for filter dropdown
+        $sections = \DB::table('facility_basics')
+            ->select('section')
+            ->whereNotNull('section')
+            ->where('section', '!=', '')
             ->distinct()
-            ->orderBy('service_type')
-            ->pluck('service_type');
+            ->orderBy('section')
+            ->pluck('section');
 
         // Get prefectures that have facilities (standard 47 prefectures only)
         $allPrefectures = config('prefectures.codes');
@@ -104,7 +106,7 @@ class FacilityController extends Controller
             })
             ->sort(); // Sort by prefecture name
 
-        return view('facilities.index', compact('facilities', 'serviceTypes', 'prefectures'));
+        return view('facilities.index', compact('facilities', 'sections', 'prefectures'));
     }
 
     /**

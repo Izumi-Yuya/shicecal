@@ -38,6 +38,8 @@ class FacilityServiceFactory extends Factory
             '夜間対応型訪問介護',
         ];
 
+        // 部門情報はFacilityBasicテーブルに移動したため削除
+
         $startDate = $this->faker->dateTimeBetween('-2 years', '+1 year');
         $endDate = $this->faker->dateTimeBetween($startDate, '+5 years');
 
@@ -91,4 +93,6 @@ class FacilityServiceFactory extends Factory
             'service_type' => $serviceType,
         ]);
     }
+
+    // 部門情報はFacilityBasicテーブルに移動したため、ofSectionメソッドは削除
 }
