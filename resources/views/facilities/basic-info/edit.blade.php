@@ -255,7 +255,7 @@
                     <div class="service-row mb-3 p-3 border rounded {{ !$hasData && $i >= 3 ? 'd-none' : '' }}" data-index="{{ $i }}">
                         <div class="row align-items-end">
                             <div class="col-md-5">
-                                <label for="service_type_{{ $i }}" class="form-label">サービス名</label>
+                                <label for="service_type_{{ $i }}" class="form-label">サービス種類</label>
                                 <input type="text" 
                                        class="form-control @error('services.'.$i.'.service_type') is-invalid @enderror" 
                                        id="service_type_{{ $i }}" 

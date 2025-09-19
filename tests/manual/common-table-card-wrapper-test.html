@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Common Table Card Wrapper Manual Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* 既存のCSSクラスをシミュレート */
+        .facility-info-card {
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        
+        .detail-card-improved {
+            background-color: #fff;
+        }
+        
+        .card-body-clean {
+            padding: 0;
+        }
+        
+        .facility-basic-info-table-clean {
+            --bs-table-cell-padding-x: 0;
+            --bs-table-cell-padding-y: 0;
+            margin-bottom: 0;
+        }
+        
+        .detail-label {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            width: 25%;
+            padding: 0.5rem;
+        }
+        
+        .detail-value {
+            padding: 0.5rem;
+        }
+        
+        .empty-field {
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .test-section {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            border: 1px solid #e9ecef;
+            border-radius: 0.375rem;
+        }
+        
+        .test-title {
+            color: #495057;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-4">Common Table Card Wrapper Manual Test</h1>
+        
+        <!-- Test 1: Basic Card Wrapper -->
+        <div class="test-section">
+            <div class="test-title">Test 1: Basic Card Wrapper with Title</div>
+            <div class="facility-info-card detail-card-improved mb-3" role="region" aria-labelledby="card-title-test1">
+                <div class="card-header" id="card-title-test1">
+                    <h5 class="card-title mb-0">基本情報</h5>
+                </div>
+                <div class="card-body card-body-clean">
+                    <div class="table-responsive">
+                        <table class="table table-bordered facility-basic-info-table-clean">
+                            <tbody>
+                                <tr>
+                                    <td class="detail-label">会社名</td>
+                                    <td class="detail-value">テスト会社株式会社</td>
+                                    <td class="detail-label">事業所コード</td>
+                                    <td class="detail-value"><span class="badge bg-primary">TEST001</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="detail-label">メールアドレス</td>
+                                    <td class="detail-value">
+                                        <a href="mailto:test@example.com" class="text-decoration-none">
+                                            <i class="fas fa-envelope me-1"></i>test@example.com
+                                        </a>
+                                    </td>
+                                    <td class="detail-label">電話番号</td>
+                                    <td class="detail-value">03-1234-5678</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test 2: Card Wrapper without Title -->
+        <div class="test-section">
+            <div class="test-title">Test 2: Card Wrapper without Title</div>
+            <div class="facility-info-card detail-card-improved mb-3" role="region">
+                <div class="card-body card-body-clean">
+                    <div class="table-responsive">
+                        <table class="table table-bordered facility-basic-info-table-clean">
+                            <tbody>
+                                <tr>
+                                    <td class="detail-label">施設名</td>
+                                    <td class="detail-value">テスト施設</td>
+                                    <td class="detail-label">住所</td>
+                                    <td class="detail-value">東京都渋谷区テスト1-2-3</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test 3: Custom Classes -->
+        <div class="test-section">
+            <div class="test-title">Test 3: Custom CSS Classes</div>
+            <div class="custom-card-class mb-3" role="region" aria-labelledby="card-title-test3">
+                <div class="custom-header-class bg-info text-white" id="card-title-test3">
+                    <h4 class="custom-title-class mb-0 p-2">カスタムスタイル</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <tbody>
+                                <tr>
+                                    <td class="detail-label">カスタム項目</td>
+                                    <td class="detail-value">カスタム値</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test 4: Accessibility Features -->
+        <div class="test-section">
+            <div class="test-title">Test 4: Accessibility Features</div>
+            <div class="facility-info-card detail-card-improved mb-3" role="region" aria-label="アクセシビリティテストカード" aria-labelledby="card-title-test4">
+                <div class="card-header" id="card-title-test4">
+                    <h5 class="card-title mb-0">アクセシビリティテスト</h5>
+                </div>
+                <div class="card-body card-body-clean">
+                    <div class="table-responsive">
+                        <table class="table table-bordered facility-basic-info-table-clean" role="table" aria-label="施設情報テーブル">
+                            <tbody>
+                                <tr>
+                                    <td class="detail-label">項目1</td>
+                                    <td class="detail-value">値1</td>
+                                    <td class="detail-label">項目2</td>
+                                    <td class="detail-value empty-field">未設定</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test 5: Multiple Cards -->
+        <div class="test-section">
+            <div class="test-title">Test 5: Multiple Cards with Unique IDs</div>
+            <div class="facility-info-card detail-card-improved mb-3" role="region" aria-labelledby="card-title-test5a">
+                <div class="card-header" id="card-title-test5a">
+                    <h5 class="card-title mb-0">カード A</h5>
+                </div>
+                <div class="card-body card-body-clean">
+                    <div class="table-responsive">
+                        <table class="table table-bordered facility-basic-info-table-clean">
+                            <tbody>
+                                <tr>
+                                    <td class="detail-label">データA</td>
+                                    <td class="detail-value">値A</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="facility-info-card detail-card-improved mb-3" role="region" aria-labelledby="card-title-test5b">
+                <div class="card-header" id="card-title-test5b">
+                    <h5 class="card-title mb-0">カード B</h5>
+                </div>
+                <div class="card-body card-body-clean">
+                    <div class="table-responsive">
+                        <table class="table table-bordered facility-basic-info-table-clean">
+                            <tbody>
+                                <tr>
+                                    <td class="detail-label">データB</td>
+                                    <td class="detail-value">値B</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // アクセシビリティテスト用のJavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Card Wrapper Manual Test Loaded');
+            
+            // すべてのカードのIDが一意であることを確認
+            const cardHeaders = document.querySelectorAll('[id^="card-title-"]');
+            const ids = Array.from(cardHeaders).map(header => header.id);
+            const uniqueIds = [...new Set(ids)];
+            
+            if (ids.length === uniqueIds.length) {
+                console.log('✓ All card IDs are unique');
+            } else {
+                console.error('✗ Duplicate card IDs found');
+            }
+            
+            // ARIA属性の確認
+            const cardsWithAria = document.querySelectorAll('[role="region"]');
+            console.log(`Found ${cardsWithAria.length} cards with proper ARIA roles`);
+            
+            // アクセシビリティ関連の属性をログ出力
+            cardsWithAria.forEach((card, index) => {
+                console.log(`Card ${index + 1}:`, {
+                    role: card.getAttribute('role'),
+                    ariaLabel: card.getAttribute('aria-label'),
+                    ariaLabelledby: card.getAttribute('aria-labelledby')
+                });
+            });
+        });
+    </script>
+</body>
+</html>

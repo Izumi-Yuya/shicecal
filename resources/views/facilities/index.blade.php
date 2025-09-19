@@ -27,13 +27,13 @@
                     <form method="GET" action="{{ route('facilities.index') }}" id="search-form">
                         <div class="row g-3">
                             <div class="col-md-3">
-                                <label for="service_type" class="form-label">サービスタイプ</label>
-                                <select class="form-select" id="service_type" name="service_type">
-                                    <option value="">すべてのサービス</option>
-                                    @foreach($serviceTypes as $serviceType)
-                                        <option value="{{ $serviceType }}" 
-                                                {{ request('service_type') == $serviceType ? 'selected' : '' }}>
-                                            {{ $serviceType }}
+                                <label for="section" class="form-label">部門</label>
+                                <select class="form-select" id="section" name="section">
+                                    <option value="">すべての部門</option>
+                                    @foreach($sections as $section)
+                                        <option value="{{ $section }}" 
+                                                {{ request('section') == $section ? 'selected' : '' }}>
+                                            {{ $section }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -67,14 +67,14 @@
                                 </div>
                             </div>
                         </div>
-                        @if(request()->hasAny(['service_type', 'prefecture', 'keyword']))
+                        @if(request()->hasAny(['section', 'prefecture', 'keyword']))
                             <div class="row g-3 mt-2">
                                 <div class="col-12">
                                     <small class="text-muted">
                                         <i class="fas fa-filter me-1"></i>
                                         {{ $facilities->count() }}件の施設が見つかりました
-                                        @if(request('service_type'))
-                                            <span class="badge bg-primary ms-1">{{ request('service_type') }}</span>
+                                        @if(request('section'))
+                                            <span class="badge bg-primary ms-1">{{ request('section') }}</span>
                                         @endif
                                         @if(request('prefecture'))
                                             <span class="badge bg-info ms-1">{{ request('prefecture') }}</span>
@@ -158,7 +158,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Auto-submit form when filters change
-    const filterElements = ['service_type', 'prefecture'];
+    const filterElements = ['section', 'prefecture'];
     
     filterElements.forEach(function(elementId) {
         const element = document.getElementById(elementId);

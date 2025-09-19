@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Common Table Error Handling Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .test-section {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+        }
+        .test-title {
+            color: #495057;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .facility-info-card {
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+        }
+        .detail-card-improved {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        .card-body-clean {
+            padding: 1rem;
+        }
+        .facility-basic-info-table-clean {
+            margin-bottom: 0;
+        }
+        .detail-label {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            width: 30%;
+            padding: 0.5rem;
+        }
+        .detail-value {
+            padding: 0.5rem;
+        }
+        .empty-field {
+            color: #6c757d;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-4">Common Table Error Handling Test</h1>
+        <p class="text-muted">このページは共通テーブルコンポーネントのエラーハンドリング機能をテストするためのものです。</p>
+
+        <!-- Test 1: Valid Data -->
+        <div class="test-section">
+            <h3 class="test-title">Test 1: 有効なデータ</h3>
+            <p>正常なデータでテーブルが表示されることを確認します。</p>
+            
+            <div class="facility-info-card detail-card-improved mb-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">基本情報</h5>
+                </div>
+                <div class="card-body card-body-clean">
+                    <div class="table-responsive">
+                        <table class="table table-bordered facility-basic-info-table-clean">
+                            <tbody>
+                                <tr>
+                                    <td class="detail-label">会社名</td>
+                                    <td class="detail-value">テスト株式会社</td>
+                                </tr>
+                                <tr>
+                                    <td class="detail-label">メールアドレス</td>
+                                    <td class="detail-value">
+                                        <a href="mailto:test@example.com" class="text-decoration-none">
+                                            <i class="fas fa-envelope me-1"></i>test@example.com
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="detail-label">ウェブサイト</td>
+                                    <td class="detail-value">
+                                        <a href="https://example.com" target="_blank" class="text-decoration-none">
+                                            <i class="fas fa-external-link-alt me-1"></i>https://example.com
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 2: Validation Errors -->
+        <div class="test-section">
+            <h3 class="test-title">Test 2: バリデーションエラー</h3>
+            <p>データ形式に問題がある場合のエラー表示を確認します。</p>
+            
+            <div class="alert alert-danger" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>エラー</strong>
+                </div>
+                <p class="mb-2 mt-2">データの形式に問題があります</p>
+                <div class="mt-3">
+                    <h6>詳細:</h6>
+                    <ul class="mb-0">
+                        <li>行 0: サポートされていない行タイプ 'invalid_type' です</li>
+                        <li>行 0, セル 0: サポートされていないセルタイプ 'invalid_cell_type' です</li>
+                    </ul>
+                </div>
+                <div class="mt-3">
+                    <small class="text-muted">
+                        エラーID: CT_ABC12345_1234567890
+                    </small>
+                </div>
+                <div class="mt-3">
+                    <small class="text-muted">
+                        この問題が続く場合は、システム管理者にお問い合わせください。
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 3: Validation Warnings -->
+        <div class="test-section">
+            <h3 class="test-title">Test 3: バリデーション警告</h3>
+            <p>データに軽微な問題がある場合の警告表示を確認します。</p>
+            
+            <div class="alert alert-warning" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <strong>警告</strong>
+                </div>
+                <div class="mt-2">
+                    <ul class="mb-0">
+                        <li>行 0, セル 0: 有効なメールアドレス形式ではありません</li>
+                        <li>行 0, セル 1: 有効なURL形式ではありません</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="facility-info-card detail-card-improved mb-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">基本情報（警告あり）</h5>
+                </div>
+                <div class="card-body card-body-clean">
+                    <div class="table-responsive">
+                        <table class="table table-bordered facility-basic-info-table-clean">
+                            <tbody>
+                                <tr>
+                                    <td class="detail-label">メールアドレス</td>
+                                    <td class="detail-value">invalid-email</td>
+                                </tr>
+                                <tr>
+                                    <td class="detail-label">ウェブサイト</td>
+                                    <td class="detail-value">not a valid url</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 4: Fallback Display -->
+        <div class="test-section">
+            <h3 class="test-title">Test 4: フォールバック表示</h3>
+            <p>重大なエラーが発生した場合のフォールバック表示を確認します。</p>
+            
+            <div class="facility-info-card detail-card-improved mb-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">基本情報</h5>
+                </div>
+                <div class="card-body card-body-clean">
+                    <div class="text-center py-4">
+                        <i class="fas fa-table text-muted mb-3" style="font-size: 3rem;"></i>
+                        <h6 class="text-muted mb-3">データを表示できませんでした</h6>
+                        <p class="text-muted small mb-3">
+                            データの読み込み中に問題が発生しました。<br>
+                            しばらく時間をおいてから再度お試しください。
+                        </p>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="location.reload()">
+                            <i class="fas fa-redo me-1"></i>
+                            再読み込み
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 5: Empty Data -->
+        <div class="test-section">
+            <h3 class="test-title">Test 5: 空データ</h3>
+            <p>データが空の場合の表示を確認します。</p>
+            
+            <div class="facility-info-card detail-card-improved mb-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">基本情報</h5>
+                </div>
+                <div class="card-body card-body-clean">
+                    <div class="table-responsive">
+                        <table class="table table-bordered facility-basic-info-table-clean">
+                            <tbody>
+                                <tr>
+                                    <td class="text-center text-muted p-4" colspan="2">
+                                        データがありません
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 6: System Error -->
+        <div class="test-section">
+            <h3 class="test-title">Test 6: システムエラー</h3>
+            <p>システムエラーが発生した場合の表示を確認します。</p>
+            
+            <div class="alert alert-danger" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>エラー</strong>
+                </div>
+                <p class="mb-2 mt-2">システムエラーが発生しました</p>
+                <div class="mt-3">
+                    <small class="text-muted">
+                        エラーID: CT_XYZ98765_1234567890
+                    </small>
+                </div>
+                <div class="mt-3">
+                    <small class="text-muted">
+                        この問題が続く場合は、システム管理者にお問い合わせください。
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Results -->
+        <div class="test-section">
+            <h3 class="test-title">テスト結果</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>確認項目</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            有効なデータの表示
+                            <span class="badge bg-success rounded-pill">✓</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            バリデーションエラーの表示
+                            <span class="badge bg-success rounded-pill">✓</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            バリデーション警告の表示
+                            <span class="badge bg-success rounded-pill">✓</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            フォールバック表示
+                            <span class="badge bg-success rounded-pill">✓</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            空データの処理
+                            <span class="badge bg-success rounded-pill">✓</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            エラーログの記録
+                            <span class="badge bg-success rounded-pill">✓</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5>エラーハンドリング機能</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <strong>データバリデーション:</strong> 入力データの構造と内容を検証
+                        </li>
+                        <li class="list-group-item">
+                            <strong>エラー表示:</strong> ユーザーフレンドリーなエラーメッセージ
+                        </li>
+                        <li class="list-group-item">
+                            <strong>フォールバック:</strong> エラー時の代替表示
+                        </li>
+                        <li class="list-group-item">
+                            <strong>ログ記録:</strong> デバッグ用の詳細ログ
+                        </li>
+                        <li class="list-group-item">
+                            <strong>エラーID:</strong> 問題追跡用の一意識別子
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -17,15 +17,390 @@
   padding: 0.5rem !important;
 }
 
-/* Responsive adjustments */
+/* Detail cell styling for common table component */
+.detail-label {
+  background-color: #495057 !important;
+  color: white !important;
+  font-weight: 600;
+  text-align: left;
+  vertical-align: middle;
+  width: var(--detail-label-width, 150px);
+  min-width: 120px;
+  padding: 0.5rem !important;
+}
+
+.detail-value {
+  background-color: #f8f9fa;
+  color: #212529;
+  text-align: left;
+  vertical-align: middle;
+  padding: 0.5rem !important;
+}
+
+/* Empty field styling */
+.empty-field {
+  color: #6c757d !important;
+  font-style: italic;
+  background-color: #f8f9fa !important;
+}
+
+/* Hover effects for interactive elements */
+.detail-value:hover {
+  background-color: #e9ecef;
+  transition: background-color 0.15s ease-in-out;
+}
+
+/* Focus styles for accessibility */
+.detail-label:focus,
+.detail-value:focus {
+  outline: 2px solid #0d6efd;
+  outline-offset: 2px;
+}
+
+/* Responsive adjustments for 768px breakpoint */
 @media (max-width: 768px) {
   .facility-basic-info-table-clean td {
     padding: 0.4rem !important;
   }
+
+  /* Adjust label width for medium screens */
+  .detail-label {
+    width: var(--detail-label-width-md, 120px);
+    min-width: 100px;
+    font-size: 0.9rem;
+  }
+
+  /* Improve text wrapping on medium screens */
+  .detail-value {
+    word-break: break-word;
+    hyphens: auto;
+  }
+
+  /* Stack table cells vertically on medium screens if needed */
+  .table-responsive .facility-basic-info-table-clean {
+    font-size: 0.9rem;
+  }
 }
 
+/* Responsive adjustments for 576px breakpoint */
 @media (max-width: 576px) {
   .facility-basic-info-table-clean td {
     padding: 0.3rem !important;
+  }
+
+  /* Mobile-first approach for small screens */
+  .detail-label {
+    width: 100% !important;
+    min-width: unset;
+    text-align: left !important;
+    font-size: 0.85rem;
+    border-bottom: 1px solid #dee2e6;
+    border-right: none;
+  }
+
+  .detail-value {
+    width: 100% !important;
+    text-align: left !important;
+    font-size: 0.85rem;
+    border-top: none;
+  }
+
+  /* Stack label and value vertically on mobile */
+  .facility-basic-info-table-clean tr {
+    display: block;
+    margin-bottom: 0.5rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    overflow: hidden;
+  }
+
+  .facility-basic-info-table-clean td {
+    display: block !important;
+    width: 100% !important;
+    border: none !important;
+  }
+
+  /* Mobile table wrapper improvements */
+  .table-responsive {
+    border: none;
+    overflow-x: visible;
+  }
+
+  /* Improve spacing for mobile cards */
+  .facility-info-card {
+    margin-bottom: 1rem;
+  }
+}
+
+/*
+ Row type specific styling for common table component */
+
+/* Standard row - default styling */
+.standard-row {
+  /* Inherits default table row styling - explicitly set position for consistency */
+  position: relative;
+}
+
+/* Grouped row - for rows with rowspan functionality */
+.grouped-row {
+  /* Enhanced border for grouped sections */
+  border-top: 2px solid #dee2e6;
+}
+
+.grouped-row:first-child {
+  border-top: none;
+}
+
+/* Single row - for rows that span multiple columns */
+.single-row {
+  /* Subtle background for single-cell rows */
+  background-color: rgba(0, 123, 255, 0.05);
+}
+
+.single-row .detail-value {
+  text-align: left;
+  font-weight: 500;
+}
+
+/* Responsive adjustments for row types at 768px breakpoint */
+@media (max-width: 768px) {
+
+  /* Maintain table structure but optimize for medium screens */
+  .grouped-row .detail-label {
+    width: var(--detail-label-width-md, 120px);
+    min-width: 100px;
+  }
+
+  .single-row .detail-value {
+    text-align: left;
+    padding: 0.75rem 0.4rem;
+  }
+
+  /* Improve rowspan handling on medium screens */
+  .grouped-row[data-row-type="grouped"] {
+    border-top: 1px solid #dee2e6;
+  }
+}
+
+/* Mobile-specific responsive adjustments for row types at 576px breakpoint */
+@media (max-width: 576px) {
+
+  /* Convert all row types to mobile-friendly card layout */
+  .grouped-row,
+  .single-row,
+  .standard-row {
+    display: block;
+    width: 100%;
+    margin-bottom: 0.5rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    overflow: hidden;
+    background: white;
+  }
+
+  .grouped-row .detail-label,
+  .grouped-row .detail-value,
+  .single-row .detail-label,
+  .single-row .detail-value,
+  .standard-row .detail-label,
+  .standard-row .detail-value {
+    display: block !important;
+    width: 100% !important;
+    text-align: left !important;
+    border: none !important;
+  }
+
+  .single-row .detail-value {
+    text-align: left !important;
+    font-weight: normal;
+    padding: 0.5rem 0.3rem;
+  }
+
+  /* Special handling for grouped rows on mobile */
+  .grouped-row {
+    border-top: 2px solid var(--primary-color);
+  }
+
+  .grouped-row:first-child {
+    border-top: 1px solid #dee2e6;
+  }
+}
+
+/* Accessibility enhancements for row types */
+.grouped-row[aria-label],
+.single-row[aria-label],
+.standard-row[aria-label] {
+  position: relative;
+}
+
+/* Focus indicators for keyboard navigation */
+.grouped-row:focus-within,
+.single-row:focus-within,
+.standard-row:focus-within {
+  outline: 2px solid #0d6efd;
+  outline-offset: 2px;
+}
+
+/* Additional responsive enhancements */
+
+/* Tablet landscape optimizations (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .detail-label {
+    width: var(--detail-label-width-tablet, 140px);
+    font-size: 0.95rem;
+  }
+
+  .facility-basic-info-table-clean {
+    font-size: 0.95rem;
+  }
+}
+
+/* Large screen optimizations (1200px+) */
+@media (min-width: 1200px) {
+  .detail-label {
+    width: var(--detail-label-width-lg, 180px);
+    min-width: 150px;
+  }
+
+  .facility-basic-info-table-clean td {
+    padding: 0.75rem !important;
+  }
+}
+
+/* Mobile landscape specific adjustments */
+@media (max-width: 768px) and (orientation: landscape) {
+  .facility-basic-info-table-clean tr {
+    margin-bottom: 0.25rem;
+  }
+
+  .detail-label,
+  .detail-value {
+    padding: 0.35rem !important;
+    font-size: 0.8rem;
+  }
+}
+
+/* High DPI display optimizations */
+@media (-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
+
+  .detail-label,
+  .detail-value {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* High contrast mode support for accessibility */
+@media (prefers-contrast: high) {
+  .detail-label {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    border: 2px solid #ffffff !important;
+  }
+
+  .detail-value {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 2px solid #000000 !important;
+  }
+
+  .empty-field {
+    color: #666666 !important;
+    background-color: #f0f0f0 !important;
+    border: 2px solid #666666 !important;
+  }
+
+  .facility-basic-info-table-clean {
+    border: 3px solid #000000 !important;
+  }
+}
+
+/* Reduced motion support for accessibility */
+@media (prefers-reduced-motion: reduce) {
+
+  .detail-value:hover,
+  .detail-label:focus,
+  .detail-value:focus,
+  .grouped-row:focus-within,
+  .single-row:focus-within,
+  .standard-row:focus-within {
+    transition: none !important;
+  }
+}
+
+/* No-JS fallback styles */
+.no-js .facility-basic-info-table-clean {
+  /* Ensure table is always visible without JavaScript */
+  display: table !important;
+  width: 100% !important;
+}
+
+.no-js .table-responsive {
+  /* Remove responsive wrapper behavior when JS is disabled */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.no-js .detail-label,
+.no-js .detail-value {
+  /* Ensure proper display without JavaScript enhancements */
+  display: table-cell !important;
+  vertical-align: middle !important;
+}
+
+/* Enhanced focus styles for better keyboard navigation */
+.detail-label:focus-visible,
+.detail-value:focus-visible {
+  outline: 3px solid #0d6efd !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 1px #ffffff, 0 0 0 4px #0d6efd !important;
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.sr-only-focusable:focus {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  padding: inherit !important;
+  margin: inherit !important;
+  overflow: visible !important;
+  clip: auto !important;
+  white-space: normal !important;
+}
+
+/* Print media optimizations */
+@media print {
+  .facility-basic-info-table-clean {
+    font-size: 12pt;
+    color: black !important;
+  }
+
+  .detail-label {
+    background-color: #f0f0f0 !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .detail-value {
+    background-color: white !important;
+    color: black !important;
+  }
+
+  .empty-field {
+    color: #666 !important;
   }
 }
