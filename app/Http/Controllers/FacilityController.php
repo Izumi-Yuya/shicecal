@@ -1270,10 +1270,44 @@ class FacilityController extends Controller
                 'completion_date' => 'nullable|date',
                 'useful_life' => 'nullable|integer|min:0',
                 'periodic_inspection_type' => 'nullable|in:自社,他社',
+                'periodic_inspection_company_phone' => 'nullable|string|max:20',
                 'periodic_inspection_date' => 'nullable|date',
                 'periodic_inspection_notes' => 'nullable|string|max:1000',
                 'notes' => 'nullable|string|max:2000',
+                // PDF file uploads
+                'construction_contract_pdf' => 'nullable|file|mimes:pdf|max:10240',
+                'lease_contract_pdf' => 'nullable|file|mimes:pdf|max:10240',
+                'registry_pdf' => 'nullable|file|mimes:pdf|max:10240',
+                'building_permit_pdf' => 'nullable|file|mimes:pdf|max:10240',
+                'building_inspection_pdf' => 'nullable|file|mimes:pdf|max:10240',
+                'fire_equipment_inspection_pdf' => 'nullable|file|mimes:pdf|max:10240',
+                'periodic_inspection_pdf' => 'nullable|file|mimes:pdf|max:10240',
             ]);
+
+            // Handle PDF file uploads
+            $pdfFields = [
+                'construction_contract_pdf',
+                'lease_contract_pdf',
+                'registry_pdf',
+                'building_permit_pdf',
+                'building_inspection_pdf',
+                'fire_equipment_inspection_pdf',
+                'periodic_inspection_pdf'
+            ];
+
+            foreach ($pdfFields as $field) {
+                if ($request->hasFile($field)) {
+                    // Delete old file if exists
+                    $buildingInfo = $facility->buildingInfo;
+                    if ($buildingInfo && $buildingInfo->$field) {
+                        Storage::disk('public')->delete($buildingInfo->$field);
+                    }
+                    
+                    // Store new file
+                    $path = $request->file($field)->store('building-info/pdfs', 'public');
+                    $validated[$field] = $path;
+                }
+            }
 
             // Create or update building info
             $buildingInfo = $facility->buildingInfo;

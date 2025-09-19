@@ -112,7 +112,11 @@
                                 </td>
                                 <td class="detail-label" style="padding: 0.5rem;">年式</td>
                                 <td class="detail-value {{ empty($equipment['model_year']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
-                                    {{ $equipment['model_year'] ?? '未設定' }}
+                                    @if(!empty($equipment['model_year']))
+                                        {{ $equipment['model_year'] }}年式
+                                    @else
+                                        未設定
+                                    @endif
                                 </td>
                                 <td class="detail-label" style="padding: 0.5rem;">更新年月日</td>
                                 <td class="detail-value {{ empty($equipment['update_date']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
@@ -173,7 +177,11 @@
                                 </td>
                                 <td class="detail-label" style="padding: 0.5rem;">年式</td>
                                 <td class="detail-value {{ empty($equipment['model_year']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
-                                    {{ $equipment['model_year'] ?? '未設定' }}
+                                    @if(!empty($equipment['model_year']))
+                                        {{ $equipment['model_year'] }}年式
+                                    @else
+                                        未設定
+                                    @endif
                                 </td>
                                 <td class="detail-label" style="padding: 0.5rem;">更新年月日</td>
                                 <td class="detail-value {{ empty($equipment['update_date']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">

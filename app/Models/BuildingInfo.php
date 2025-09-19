@@ -53,6 +53,7 @@ class BuildingInfo extends Model
         'building_inspection_pdf',
         'fire_equipment_inspection_pdf',
         'periodic_inspection_type',
+        'periodic_inspection_company_phone',
         'periodic_inspection_date',
         'periodic_inspection_pdf',
         'periodic_inspection_notes',

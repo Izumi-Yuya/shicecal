@@ -524,7 +524,7 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="mb-3">
                                     <label for="periodic_inspection_type" class="form-label">調査実施者</label>
                                     <select class="form-select @error('periodic_inspection_type') is-invalid @enderror" 
@@ -538,9 +538,20 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label for="periodic_inspection_date" class="form-label">実施日</label>
+                                    <label for="periodic_inspection_company_phone" class="form-label">連絡先</label>
+                                    <input type="tel" class="form-control @error('periodic_inspection_company_phone') is-invalid @enderror" 
+                                           id="periodic_inspection_company_phone" name="periodic_inspection_company_phone" 
+                                           value="{{ old('periodic_inspection_company_phone', $buildingInfo->periodic_inspection_company_phone ?? '') }}">
+                                    @error('periodic_inspection_company_phone')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="periodic_inspection_date" class="form-label">調査日</label>
                                     <input type="date" class="form-control @error('periodic_inspection_date') is-invalid @enderror" 
                                            id="periodic_inspection_date" name="periodic_inspection_date" 
                                            value="{{ old('periodic_inspection_date', $buildingInfo?->periodic_inspection_date?->format('Y-m-d') ?? '') }}">
@@ -558,6 +569,137 @@
                                               id="periodic_inspection_notes" name="periodic_inspection_notes" 
                                               rows="3">{{ old('periodic_inspection_notes', $buildingInfo->periodic_inspection_notes ?? '') }}</textarea>
                                     @error('periodic_inspection_notes')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- PDF書類アップロード --}}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-file-pdf me-2"></i>PDF書類アップロード
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="construction_contract_pdf" class="form-label">工事請負契約書</label>
+                                    <input type="file" class="form-control @error('construction_contract_pdf') is-invalid @enderror" 
+                                           id="construction_contract_pdf" name="construction_contract_pdf" accept=".pdf">
+                                    @if($buildingInfo && $buildingInfo->construction_contract_pdf)
+                                        <div class="form-text">
+                                            <i class="fas fa-file-pdf text-info me-1"></i>
+                                            現在のファイル: <a href="{{ asset('storage/' . $buildingInfo->construction_contract_pdf) }}" target="_blank">表示</a>
+                                        </div>
+                                    @endif
+                                    @error('construction_contract_pdf')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="lease_contract_pdf" class="form-label">賃貸借契約書・覚書</label>
+                                    <input type="file" class="form-control @error('lease_contract_pdf') is-invalid @enderror" 
+                                           id="lease_contract_pdf" name="lease_contract_pdf" accept=".pdf">
+                                    @if($buildingInfo && $buildingInfo->lease_contract_pdf)
+                                        <div class="form-text">
+                                            <i class="fas fa-file-contract text-warning me-1"></i>
+                                            現在のファイル: <a href="{{ asset('storage/' . $buildingInfo->lease_contract_pdf) }}" target="_blank">表示</a>
+                                        </div>
+                                    @endif
+                                    @error('lease_contract_pdf')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="registry_pdf" class="form-label">謄本</label>
+                                    <input type="file" class="form-control @error('registry_pdf') is-invalid @enderror" 
+                                           id="registry_pdf" name="registry_pdf" accept=".pdf">
+                                    @if($buildingInfo && $buildingInfo->registry_pdf)
+                                        <div class="form-text">
+                                            <i class="fas fa-file-alt text-info me-1"></i>
+                                            現在のファイル: <a href="{{ asset('storage/' . $buildingInfo->registry_pdf) }}" target="_blank">表示</a>
+                                        </div>
+                                    @endif
+                                    @error('registry_pdf')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="building_permit_pdf" class="form-label">建築確認済証</label>
+                                    <input type="file" class="form-control @error('building_permit_pdf') is-invalid @enderror" 
+                                           id="building_permit_pdf" name="building_permit_pdf" accept=".pdf">
+                                    @if($buildingInfo && $buildingInfo->building_permit_pdf)
+                                        <div class="form-text">
+                                            <i class="fas fa-file-pdf text-info me-1"></i>
+                                            現在のファイル: <a href="{{ asset('storage/' . $buildingInfo->building_permit_pdf) }}" target="_blank">表示</a>
+                                        </div>
+                                    @endif
+                                    @error('building_permit_pdf')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="building_inspection_pdf" class="form-label">建築検査済証</label>
+                                    <input type="file" class="form-control @error('building_inspection_pdf') is-invalid @enderror" 
+                                           id="building_inspection_pdf" name="building_inspection_pdf" accept=".pdf">
+                                    @if($buildingInfo && $buildingInfo->building_inspection_pdf)
+                                        <div class="form-text">
+                                            <i class="fas fa-file-pdf text-info me-1"></i>
+                                            現在のファイル: <a href="{{ asset('storage/' . $buildingInfo->building_inspection_pdf) }}" target="_blank">表示</a>
+                                        </div>
+                                    @endif
+                                    @error('building_inspection_pdf')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="fire_equipment_inspection_pdf" class="form-label">消防用設備等検査</label>
+                                    <input type="file" class="form-control @error('fire_equipment_inspection_pdf') is-invalid @enderror" 
+                                           id="fire_equipment_inspection_pdf" name="fire_equipment_inspection_pdf" accept=".pdf">
+                                    @if($buildingInfo && $buildingInfo->fire_equipment_inspection_pdf)
+                                        <div class="form-text">
+                                            <i class="fas fa-file-pdf text-info me-1"></i>
+                                            現在のファイル: <a href="{{ asset('storage/' . $buildingInfo->fire_equipment_inspection_pdf) }}" target="_blank">表示</a>
+                                        </div>
+                                    @endif
+                                    @error('fire_equipment_inspection_pdf')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="periodic_inspection_pdf" class="form-label">調査結果</label>
+                                    <input type="file" class="form-control @error('periodic_inspection_pdf') is-invalid @enderror" 
+                                           id="periodic_inspection_pdf" name="periodic_inspection_pdf" accept=".pdf">
+                                    @if($buildingInfo && $buildingInfo->periodic_inspection_pdf)
+                                        <div class="form-text">
+                                            <i class="fas fa-file-pdf text-info me-1"></i>
+                                            現在のファイル: <a href="{{ asset('storage/' . $buildingInfo->periodic_inspection_pdf) }}" target="_blank">表示</a>
+                                        </div>
+                                    @endif
+                                    @error('periodic_inspection_pdf')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
