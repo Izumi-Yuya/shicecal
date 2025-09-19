@@ -442,7 +442,7 @@ class LifelineEquipmentValidationTest extends TestCase
     /** @test */
     public function validation_handles_under_development_categories()
     {
-        $categories = ['gas', 'water', 'elevator', 'hvac_lighting'];
+        $categories = ['water', 'gas', 'elevator', 'hvac_lighting'];
 
         foreach ($categories as $category) {
             $response = $this->putJson("/facilities/{$this->facility->id}/lifeline-equipment/{$category}", [

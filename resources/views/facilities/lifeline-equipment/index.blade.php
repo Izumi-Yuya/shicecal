@@ -11,13 +11,13 @@
                 </button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="gas-tab" data-bs-toggle="tab" data-bs-target="#gas" type="button" role="tab" aria-controls="gas" aria-selected="false">
-                    <i class="fas fa-fire me-2"></i>ガス
+                <button class="nav-link" id="water-tab" data-bs-toggle="tab" data-bs-target="#water" type="button" role="tab" aria-controls="water" aria-selected="false">
+                    <i class="fas fa-tint me-2"></i>水道
                 </button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="water-tab" data-bs-toggle="tab" data-bs-target="#water" type="button" role="tab" aria-controls="water" aria-selected="false">
-                    <i class="fas fa-tint me-2"></i>水道
+                <button class="nav-link" id="gas-tab" data-bs-toggle="tab" data-bs-target="#gas" type="button" role="tab" aria-controls="gas" aria-selected="false">
+                    <i class="fas fa-fire me-2"></i>ガス
                 </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -47,6 +47,23 @@
                 @include('facilities.lifeline-equipment.electrical', ['facility' => $facility])
             </div>
             
+            <div class="tab-pane fade" id="water" role="tabpanel" aria-labelledby="water-tab">
+                <div class="card facility-info-card detail-card-improved">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="flex-grow-1"></div>
+                            @if(auth()->user()->canEditFacility($facility->id))
+                                <a href="{{ route('facilities.lifeline-equipment.edit', [$facility, 'water']) }}" 
+                                   class="btn btn-primary btn-sm">
+                                    <i class="fas fa-edit me-2"></i>編集
+                                </a>
+                            @endif
+                        </div>
+                        @include('facilities.lifeline-equipment.water', ['facility' => $facility])
+                    </div>
+                </div>
+            </div>
+            
             <!-- 他のタブはカード内に残す -->
             <div class="tab-pane fade" id="gas" role="tabpanel" aria-labelledby="gas-tab">
                 <div class="card facility-info-card detail-card-improved">
@@ -61,23 +78,6 @@
                             @endif
                         </div>
                         @include('facilities.lifeline-equipment.gas', ['facility' => $facility])
-                    </div>
-                </div>
-            </div>
-            
-            <div class="tab-pane fade" id="water" role="tabpanel" aria-labelledby="water-tab">
-                <div class="card facility-info-card detail-card-improved">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div class="flex-grow-1"></div>
-                            @if(auth()->user()->canEditFacility($facility->id))
-                                <a href="{{ route('facilities.lifeline-equipment.edit', [$facility, 'water']) }}" 
-                                   class="btn btn-primary btn-sm">
-                                    <i class="fas fa-edit me-2"></i>編集
-                                </a>
-                            @endif
-                        </div>
-                        @include('facilities.lifeline-equipment.water', ['facility' => $facility])
                     </div>
                 </div>
             </div>

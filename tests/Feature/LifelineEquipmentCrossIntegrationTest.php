@@ -43,7 +43,7 @@ class LifelineEquipmentCrossIntegrationTest extends TestCase
         $this->actingAs($this->admin);
 
         // Create lifeline equipment for all categories
-        $categories = ['electrical', 'gas', 'water', 'elevator', 'hvac_lighting'];
+        $categories = ['electrical', 'water', 'gas', 'elevator', 'hvac_lighting'];
         $lifelineEquipments = [];
 
         foreach ($categories as $category) {
@@ -233,7 +233,7 @@ class LifelineEquipmentCrossIntegrationTest extends TestCase
     {
         $this->actingAs($this->admin);
 
-        $categories = ['electrical', 'gas', 'water', 'elevator', 'hvac_lighting'];
+        $categories = ['electrical', 'water', 'gas', 'elevator', 'hvac_lighting'];
         $equipmentData = [];
 
         // Bulk create lifeline equipment

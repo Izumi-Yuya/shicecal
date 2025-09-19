@@ -458,7 +458,7 @@ class LifelineEquipmentBrowserTest extends DuskTestCase
     public function user_can_navigate_all_equipment_categories_comprehensively()
     {
         // Create test data for all categories
-        $categories = ['electrical', 'gas', 'water', 'elevator', 'hvac_lighting'];
+        $categories = ['electrical', 'water', 'gas', 'elevator', 'hvac_lighting'];
         
         foreach ($categories as $category) {
             $lifelineEquipment = LifelineEquipment::factory()->create([

@@ -45,7 +45,7 @@ class LifelineEquipmentPerformanceTest extends TestCase
         $startTime = microtime(true);
         
         foreach ($this->facilities as $facility) {
-            $categories = ['electrical', 'gas', 'water', 'elevator', 'hvac_lighting'];
+            $categories = ['electrical', 'water', 'gas', 'elevator', 'hvac_lighting'];
             
             foreach ($categories as $category) {
                 $lifelineEquipment = LifelineEquipment::factory()->create([
@@ -110,7 +110,7 @@ class LifelineEquipmentPerformanceTest extends TestCase
         // Verify data integrity
         foreach ($allEquipment as $equipment) {
             $this->assertNotNull($equipment->facility);
-            $this->assertContains($equipment->category, ['electrical', 'gas', 'water', 'elevator', 'hvac_lighting']);
+            $this->assertContains($equipment->category, ['electrical', 'water', 'gas', 'elevator', 'hvac_lighting']);
         }
     }
 
@@ -121,7 +121,7 @@ class LifelineEquipmentPerformanceTest extends TestCase
 
         // Create test data
         $facility = Facility::factory()->create();
-        $categories = ['electrical', 'gas', 'water'];
+        $categories = ['electrical', 'water', 'gas'];
 
         foreach ($categories as $category) {
             $lifelineEquipment = LifelineEquipment::factory()->create([

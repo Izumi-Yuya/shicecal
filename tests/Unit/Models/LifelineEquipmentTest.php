@@ -203,7 +203,7 @@ class LifelineEquipmentTest extends TestCase
     /** @test */
     public function it_validates_category_values()
     {
-        $validCategories = ['electrical', 'gas', 'water', 'elevator', 'hvac_lighting'];
+        $validCategories = ['electrical', 'water', 'gas', 'elevator', 'hvac_lighting'];
         
         foreach ($validCategories as $category) {
             $equipment = LifelineEquipment::factory()->create(['category' => $category]);

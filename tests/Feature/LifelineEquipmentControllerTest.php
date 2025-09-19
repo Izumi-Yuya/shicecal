@@ -161,7 +161,7 @@ class LifelineEquipmentControllerTest extends TestCase
 
     public function test_returns_under_development_for_non_electrical_categories()
     {
-        $categories = ['gas', 'water', 'elevator', 'hvac_lighting'];
+        $categories = ['water', 'gas', 'elevator', 'hvac_lighting'];
 
         foreach ($categories as $category) {
             $response = $this->actingAs($this->user)

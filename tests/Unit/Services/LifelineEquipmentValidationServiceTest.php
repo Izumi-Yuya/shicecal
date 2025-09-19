@@ -206,7 +206,7 @@ class LifelineEquipmentValidationServiceTest extends TestCase
         $this->assertEquals(['status' => 'under_development'], $result['data']);
 
         // Test other categories with basic data
-        $categories = ['gas', 'water', 'hvac_lighting'];
+        $categories = ['water', 'gas', 'hvac_lighting'];
 
         foreach ($categories as $category) {
             $data = ['notes' => 'テスト備考'];

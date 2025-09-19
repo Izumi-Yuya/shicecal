@@ -325,6 +325,6 @@ class LifelineEquipmentIntegrationTest extends TestCase
         $response = $this->get("/facilities/{$this->facility->id}");
 
         $response->assertStatus(200)
-            ->assertSee('開発中です'); // Should appear in gas, water, elevator, hvac-lighting tabs
+            ->assertSee('開発中です'); // Should appear in water, gas, elevator, hvac-lighting tabs
     }
 }

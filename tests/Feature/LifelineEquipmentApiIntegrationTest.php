@@ -231,7 +231,7 @@ class LifelineEquipmentApiIntegrationTest extends TestCase
 
         // Verify all expected categories are present
         $categories = $response->json('data.categories');
-        $expectedCategories = ['electrical', 'gas', 'water', 'elevator', 'hvac_lighting'];
+        $expectedCategories = ['electrical', 'water', 'gas', 'elevator', 'hvac_lighting'];
         
         foreach ($expectedCategories as $category) {
             $this->assertArrayHasKey($category, $categories);
