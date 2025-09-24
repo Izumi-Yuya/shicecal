@@ -5,7 +5,7 @@
             'type' => 'standard',
             'cells' => [
                 ['label' => '会社名', 'value' => $facility->company_name, 'type' => 'text'],
-                ['label' => '事業所コード', 'value' => $facility->office_code, 'type' => 'badge'],
+                ['label' => '事業所コード', 'value' => $facility->office_code, 'type' => 'text'],
             ]
         ],
         [

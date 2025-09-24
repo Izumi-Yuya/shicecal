@@ -1,6 +1,6 @@
 /* ========================================
    Facility Detail Page Styles
-   Optimized and Refactored Version
+   Organized and Optimized Version
    ======================================== */
 
 /* ========================================
@@ -20,7 +20,7 @@
   /* Background Colors */
   --bg-light: #f8f9fa;
   --bg-hover: #f5f5f5;
-  --bg-stripe: #fbfbfb;
+  --bg-white: #ffffff;
 
   /* Text Colors */
   --text-primary: #212529;
@@ -43,7 +43,6 @@
 
   /* Component Specific */
   --detail-label-width: 150px;
-  --detail-min-height: 0.5rem;
   --border-radius: 0.5rem;
   --box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
   --box-shadow-hover: 0 0.25rem 2rem 0 rgba(58, 59, 69, 0.2);
@@ -51,12 +50,13 @@
   /* Transitions */
   --transition-fast: 0.15s ease;
   --transition-normal: 0.3s ease;
-  --transition-slow: 0.5s ease;
 }
 
 /* ========================================
-   Base Card Styles
+   Card Components
    ======================================== */
+
+/* Base Card Styles */
 .facility-info-card,
 .building-info-card {
   border: 1px solid var(--border-light);
@@ -115,6 +115,11 @@
   background-color: rgba(255, 255, 255, 0.2);
 }
 
+/* Card Body */
+.card-body-clean {
+  padding: 1rem !important;
+}
+
 /* ========================================
    Tab Navigation
    ======================================== */
@@ -163,8 +168,10 @@
 }
 
 /* ========================================
-   Detail Card Layout (PC Optimized)
+   Detail Card Layout
    ======================================== */
+
+/* Desktop Layout (PC Optimized) */
 @media (min-width: 1024px) {
 
   .detail-card-improved .mb-3,
@@ -174,7 +181,6 @@
     border-bottom: 1px solid var(--border-lighter);
     display: flex;
     align-items: flex-start;
-    min-height: var(--detail-min-height);
   }
 
   .detail-card-improved .mb-3:last-child,
@@ -216,23 +222,6 @@
     min-height: 1.5rem;
   }
 
-  /* Empty Fields - Always visible */
-  .detail-card-improved .empty-field {
-    display: flex;
-  }
-
-  .detail-card-improved .empty-field .form-control-plaintext,
-  .detail-card-improved .empty-field .detail-value {
-    color: var(--text-muted);
-    font-style: italic;
-  }
-
-  .detail-card-improved .empty-field .form-control-plaintext::before {
-    content: "未設定";
-    color: var(--text-muted);
-    font-style: italic;
-  }
-
   /* Hover Effects */
   .detail-card-improved .mb-3:hover {
     background-color: var(--primary-blue-light);
@@ -246,8 +235,25 @@
   }
 }
 
+/* Empty Fields - Always visible */
+.detail-card-improved .empty-field {
+  display: flex;
+}
+
+.detail-card-improved .empty-field .form-control-plaintext,
+.detail-card-improved .empty-field .detail-value {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.detail-card-improved .empty-field .form-control-plaintext::before {
+  content: "未設定";
+  color: var(--text-muted);
+  font-style: italic;
+}
+
 /* ========================================
-   Building Info Specific Styles
+   Building Info Components
    ======================================== */
 .building-info-card .info-grid {
   display: grid;
@@ -311,6 +317,8 @@
 /* ========================================
    Responsive Design
    ======================================== */
+
+/* Tablet and Mobile */
 @media (max-width: 768px) {
   .facility-detail-container .nav-tabs .nav-link {
     padding: var(--spacing-md) var(--spacing-lg);
@@ -337,9 +345,59 @@
     color: var(--text-muted);
   }
 
+  /* Table Responsive */
+  .facility-basic-info-table .detail-label,
+  .facility-basic-info-table .detail-value {
+    display: block;
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
 
+  .facility-basic-info-table .detail-label {
+    border-right: none;
+    border-bottom: 1px solid var(--border-lighter);
+    font-size: var(--font-size-sm);
+  }
+
+  /* Service Display */
+  .service-inline-display {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+
+  .service-inline-display .service-name {
+    min-width: auto;
+  }
+
+  .service-inline-display .service-separator {
+    display: none;
+  }
+
+  .service-inline-display .service-period {
+    white-space: normal;
+    padding-left: var(--spacing-md);
+    font-style: italic;
+  }
+
+  /* Services Table */
+  .facility-services-table .service-type-label,
+  .facility-services-table .service-period-label {
+    width: 80px;
+    min-width: 80px;
+    font-size: var(--font-size-xs);
+    padding: var(--spacing-sm);
+  }
+
+  .facility-services-table .service-type-value,
+  .facility-services-table .service-period-value {
+    font-size: var(--font-size-sm);
+    padding: var(--spacing-sm);
+    padding-left: var(--spacing-md);
+  }
 }
 
+/* Small Mobile */
 @media (max-width: 576px) {
   .facility-detail-container .nav-tabs {
     flex-wrap: nowrap;
@@ -356,88 +414,31 @@
     padding: var(--spacing-md);
   }
 
-
-}
-
-/* ========================================
-   Accessibility & Print Styles
-   ======================================== */
-
-/* Focus States */
-.detail-card-improved .detail-row:focus-within {
-  background-color: var(--primary-blue-light);
-  outline: 2px solid rgba(13, 110, 253, 0.25);
-  outline-offset: -2px;
-  border-radius: 4px;
-}
-
-.detail-card-improved .detail-value a:focus {
-  outline: 2px solid var(--primary-blue);
-  outline-offset: 2px;
-  border-radius: 3px;
-  background-color: var(--primary-blue-light);
-}
-
-/* High Contrast Mode */
-@media (prefers-contrast: high) {
-  .detail-card-improved .detail-label {
-    color: #000000;
-    font-weight: 700;
+  .facility-services-table {
+    font-size: var(--font-size-xs);
   }
 
-  .detail-card-improved .detail-value {
-    color: #000000;
-    background-color: #ffffff;
+  .facility-services-table td {
+    padding: var(--spacing-sm);
   }
 
-
-}
-
-/* Reduced Motion */
-@media (prefers-reduced-motion: reduce) {
-
-  .detail-card-improved .mb-3,
-  .detail-card-improved .detail-row {
-    transition: none !important;
-    animation: none !important;
-  }
-}
-
-/* Print Styles */
-@media print {
-
-  .detail-card-improved .mb-3,
-  .detail-card-improved .detail-row {
-    border-bottom: 1px solid #000 !important;
-    padding: 0.25rem 0 !important;
-    page-break-inside: avoid;
-    background: white !important;
-  }
-
-  .detail-card-improved .form-label,
-  .detail-card-improved .detail-label {
-    border-right: 1px solid #000 !important;
-    font-weight: bold !important;
-    color: #000 !important;
-  }
-
-  .detail-card-improved .empty-field {
-    display: flex !important;
+  .facility-services-table .service-type-label,
+  .facility-services-table .service-period-label {
+    width: 70px;
+    min-width: 70px;
+    font-size: var(--font-size-xxs);
   }
 }
 
 /* ========================================
-   Service Display Styles
+   Service Display Components
    ======================================== */
-
-/* Services List Container */
 .services-list {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
 }
 
-/* Service Item */
 .service-item {
   padding: var(--spacing-sm) 0;
   border-bottom: 1px solid var(--border-lightest);
@@ -448,7 +449,6 @@
   margin-bottom: 0 !important;
 }
 
-/* Service Inline Display */
 .service-inline-display {
   display: flex;
   align-items: center;
@@ -483,34 +483,79 @@
   margin-right: var(--spacing-xs);
 }
 
-/* Responsive adjustments for service display */
-@media (max-width: 768px) {
-  .service-inline-display {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-xs);
+/* ========================================
+   Accessibility & Browser Support
+   ======================================== */
+
+/* Focus States */
+.detail-card-improved .detail-row:focus-within {
+  background-color: var(--primary-blue-light);
+  outline: 2px solid rgba(13, 110, 253, 0.25);
+  outline-offset: -2px;
+  border-radius: 4px;
+}
+
+.detail-card-improved .detail-value a:focus {
+  outline: 2px solid var(--primary-blue);
+  outline-offset: 2px;
+  border-radius: 3px;
+  background-color: var(--primary-blue-light);
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+
+  .detail-card-improved .detail-label,
+  .facility-services-table .service-type-label,
+  .facility-services-table .service-period-label {
+    color: #000000;
+    font-weight: 700;
+    background-color: #f0f0f0;
   }
 
-  .service-inline-display .service-name {
-    min-width: auto;
-  }
-
-  .service-inline-display .service-separator {
-    display: none;
-  }
-
-  .service-inline-display .service-period {
-    white-space: normal;
-    padding-left: var(--spacing-md);
-    font-style: italic;
+  .detail-card-improved .detail-value,
+  .facility-services-table .service-type-value,
+  .facility-services-table .service-period-value {
+    color: #000000;
+    background-color: #ffffff;
   }
 }
 
-/* ========================================
-   Legacy Browser Support
-   ======================================== */
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
 
-/* CSS Variables Fallback */
+  .detail-card-improved .mb-3,
+  .detail-card-improved .detail-row,
+  .facility-services-table td {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Print Styles */
+@media print {
+
+  .detail-card-improved .mb-3,
+  .detail-card-improved .detail-row {
+    border-bottom: 1px solid #000 !important;
+    padding: 0.25rem 0 !important;
+    page-break-inside: avoid;
+    background: white !important;
+  }
+
+  .detail-card-improved .form-label,
+  .detail-card-improved .detail-label {
+    border-right: 1px solid #000 !important;
+    font-weight: bold !important;
+    color: #000 !important;
+  }
+
+  .detail-card-improved .empty-field {
+    display: flex !important;
+  }
+}
+
+/* Legacy Browser Support */
 .no-css-variables .detail-card-improved .mb-3 {
   margin-bottom: 0.75rem !important;
   padding: 0.5rem 0;
@@ -525,7 +570,6 @@
   margin-right: 1rem;
 }
 
-/* Flexbox Fallback */
 .no-flexbox .detail-card-improved .mb-3 {
   display: block;
   overflow: hidden;
@@ -540,80 +584,15 @@
   margin-left: 160px;
 }
 
-/* JavaScript Disabled Fallback */
 .no-js .detail-card-improved .empty-field {
   display: flex !important;
 }
 
-/* ===
-=====================================
+/* ========================================
    Table Layout Styles
    ======================================== */
 
-/* 基本情報テーブル */
-.facility-basic-info-table {
-  margin-bottom: 0;
-}
-
-.facility-basic-info-table .detail-label {
-  background-color: var(--bg-light);
-  font-weight: 600;
-  color: var(--text-secondary);
-  width: 25%;
-  padding: var(--spacing-md) var(--spacing-lg);
-  border-right: 2px solid var(--border-light);
-  vertical-align: middle;
-}
-
-.facility-basic-info-table .detail-value {
-  padding: var(--spacing-md) var(--spacing-lg);
-  vertical-align: middle;
-  color: var(--text-primary);
-}
-
-.facility-basic-info-table .detail-value.empty-field {
-  color: var(--text-muted);
-  font-style: italic;
-}
-
-.facility-basic-info-table .detail-value.fw-bold {
-  font-weight: 700;
-  color: var(--primary-blue-dark);
-}
-
-/* サービス種類テーブル */
-.facility-services-table {
-  margin-bottom: 0;
-}
-
-.facility-services-table thead th {
-  background-color: var(--primary-blue);
-  color: white;
-  font-weight: 600;
-  text-align: center;
-  padding: var(--spacing-lg);
-  border: none;
-}
-
-.facility-services-table .service-type {
-  font-weight: 600;
-  color: var(--text-primary);
-  padding: var(--spacing-md) var(--spacing-lg);
-  vertical-align: middle;
-}
-
-.facility-services-table .service-period {
-  color: var(--text-secondary);
-  padding: var(--spacing-md) var(--spacing-lg);
-  vertical-align: middle;
-}
-
-.facility-services-table .empty-field {
-  padding: var(--spacing-xl);
-  font-style: italic;
-}
-
-/* テーブル共通スタイル */
+/* Base Table Styles */
 .table-bordered {
   border: 2px solid var(--border-light);
 }
@@ -623,166 +602,7 @@
   border: 1px solid var(--border-lighter);
 }
 
-/* 基本情報テーブル - 2列レイアウト */
-.card .table-responsive .facility-basic-info-table {
-  margin-bottom: 0 !important;
-  table-layout: fixed !important;
-  width: 100% !important;
-  display: table !important;
-  border-collapse: collapse !important;
-}
-
-.card .table-responsive .facility-basic-info-table tbody {
-  display: table-row-group !important;
-}
-
-.card .table-responsive .facility-basic-info-table tr {
-  display: table-row !important;
-}
-
-.card .table-responsive .facility-basic-info-table td {
-  display: table-cell !important;
-  vertical-align: middle !important;
-  padding: 12px 16px !important;
-  border: 1px solid #dee2e6 !important;
-}
-
-.card .table-responsive .facility-basic-info-table td.detail-label {
-  background-color: #f8f9fa !important;
-  font-weight: 600 !important;
-  color: #495057 !important;
-  width: 20% !important;
-  min-width: 120px !important;
-  white-space: nowrap !important;
-}
-
-.card .table-responsive .facility-basic-info-table td.detail-value {
-  background-color: white !important;
-  color: #212529 !important;
-  width: 30% !important;
-  word-wrap: break-word !important;
-}
-
-.facility-basic-info-table .detail-value.empty-field {
-  color: var(--text-muted);
-  font-style: italic;
-}
-
-.facility-basic-info-table .detail-value.fw-bold {
-  font-weight: 700;
-  color: var(--primary-blue-dark);
-}
-
-/* サービス種類テーブル */
-.facility-services-table {
-  margin-bottom: 0;
-}
-
-.facility-services-table th {
-  background-color: var(--bg-light);
-  font-weight: 600;
-  color: var(--text-secondary);
-  padding: var(--spacing-lg);
-}
-
-.facility-services-table td {
-  padding: var(--spacing-md) var(--spacing-lg);
-  vertical-align: middle;
-}
-
-.facility-services-table .service-type {
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.facility-services-table .service-period {
-  color: var(--text-secondary);
-  font-family: 'Courier New', monospace;
-}
-
-.facility-services-table .empty-field {
-  color: var(--text-muted);
-  font-style: italic;
-}
-
-/* レスポンシブ対応 */
-@media (max-width: 768px) {
-
-  .facility-basic-info-table .detail-label,
-  .facility-basic-info-table .detail-value {
-    display: block;
-    width: 100%;
-    padding: var(--spacing-sm) var(--spacing-md);
-  }
-
-  .facility-basic-info-table .detail-label {
-    border-right: none;
-    border-bottom: 1px solid var(--border-lighter);
-    font-size: var(--font-size-sm);
-  }
-}
-
-/* 強制的に
-2列レイアウトを適用 */
-.facility-basic-info-table tr {
-  display: table-row !important;
-}
-
-.facility-basic-info-table td:nth-child(1),
-.facility-basic-info-table td:nth-child(3) {
-  background-color: var(--bg-light) !important;
-  font-weight: 600 !important;
-  color: var(--text-secondary) !important;
-  width: 20% !important;
-}
-
-.facility-basic-info-table td:nth-child(2),
-.facility-basic-info-table td:nth-child(4) {
-  background-color: white !important;
-  color: var(--text-primary) !important;
-  width: 30% !important;
-}
-
-/* テーブルの表示を確実にする */
-.facility-basic-info-table {
-  display: table !important;
-  border-collapse: collapse !important;
-}
-
-/*
- 追加の2列レイアウト強制スタイル */
-.facility-basic-info-table {
-  border-collapse: separate !important;
-  border-spacing: 0 !important;
-}
-
-.facility-basic-info-table tr {
-  width: 100% !important;
-}
-
-.facility-basic-info-table td:nth-child(1) {
-  background-color: #f8f9fa !important;
-  font-weight: 600 !important;
-  width: 20% !important;
-}
-
-.facility-basic-info-table td:nth-child(2) {
-  background-color: white !important;
-  width: 30% !important;
-}
-
-.facility-basic-info-table td:nth-child(3) {
-  background-color: #f8f9fa !important;
-  font-weight: 600 !important;
-  width: 20% !important;
-}
-
-.facility-basic-info-table td:nth-child(4) {
-  background-color: white !important;
-  width: 30% !important;
-}
-
-/* Bootstrap overrides */
+/* Bootstrap Table Overrides */
 .table> :not(caption)>*>* {
   padding: 12px 16px !important;
   background-color: var(--bs-table-bg) !important;
@@ -794,28 +614,52 @@
   box-shadow: none !important;
 }
 
-/* =====
-===================================
-   Clean Table Styles (without inline styles)
+/* ========================================
+   Basic Info Table
    ======================================== */
-
-/* 基本情報テーブル - クリーンバージョン */
+.facility-basic-info-table,
 .facility-basic-info-table-clean {
-  table-layout: auto !important;
   width: 100% !important;
+  margin-bottom: 0 !important;
   border-collapse: collapse !important;
   display: table !important;
-  margin-bottom: 0;
 }
 
+.facility-basic-info-table tbody,
 .facility-basic-info-table-clean tbody {
   display: table-row-group !important;
 }
 
+.facility-basic-info-table tr,
 .facility-basic-info-table-clean tr {
   display: table-row !important;
 }
 
+/* Basic Info Table - Standard Layout */
+.facility-basic-info-table td {
+  display: table-cell !important;
+  vertical-align: middle !important;
+  padding: 12px 16px !important;
+  border: 1px solid var(--border-light) !important;
+}
+
+.facility-basic-info-table .detail-label {
+  background-color: var(--bg-light) !important;
+  font-weight: 600 !important;
+  color: var(--text-secondary) !important;
+  width: 20% !important;
+  min-width: 120px !important;
+  white-space: nowrap !important;
+}
+
+.facility-basic-info-table .detail-value {
+  background-color: var(--bg-white) !important;
+  color: var(--text-primary) !important;
+  width: 30% !important;
+  word-wrap: break-word !important;
+}
+
+/* Basic Info Table - Clean Layout */
 .facility-basic-info-table-clean .detail-label {
   display: table-cell !important;
   background-color: var(--bg-light) !important;
@@ -830,7 +674,7 @@
 
 .facility-basic-info-table-clean .detail-value {
   display: table-cell !important;
-  background-color: var(--bs-white) !important;
+  background-color: var(--bg-white) !important;
   padding: var(--spacing-sm) !important;
   font-size: var(--font-size-sm) !important;
   border: 1px solid var(--border-light) !important;
@@ -838,24 +682,12 @@
   color: var(--text-primary) !important;
 }
 
-/* 2列目（1つ目の値）により多くのスペースを確保 */
-.facility-basic-info-table-clean tbody tr td:nth-child(2),
+/* Column Width Adjustments */
 .facility-basic-info-table-clean tr td:nth-child(2) {
   width: auto !important;
   min-width: 200px !important;
 }
 
-.facility-basic-info-table-clean .detail-value.fw-bold {
-  font-weight: bold !important;
-}
-
-.facility-basic-info-table-clean .detail-value.empty-field {
-  font-style: italic !important;
-  color: var(--text-muted) !important;
-}
-
-/* 3列目（ラベル）を文字数に応じた自動幅 - 左寄せ、余白狭く */
-.facility-basic-info-table-clean tbody tr td:nth-child(3),
 .facility-basic-info-table-clean tr td:nth-child(3) {
   width: 1% !important;
   white-space: nowrap !important;
@@ -863,202 +695,102 @@
   padding: 2px 4px !important;
 }
 
-/* 4列目（値）を文字数に応じた自動幅 */
-.facility-basic-info-table-clean tbody tr td:nth-child(4),
 .facility-basic-info-table-clean tr td:nth-child(4) {
   width: auto !important;
   white-space: nowrap !important;
   padding-left: var(--spacing-sm) !important;
 }
 
-/* サービス種類テーブル - クリーンバージョン */
-.facility-services-table-clean {
-  table-layout: fixed !important;
-  width: 100% !important;
-  border-collapse: collapse !important;
-  display: table !important;
-  margin-bottom: 0;
-}
-
-.facility-services-table-clean tbody {
-  display: table-row-group !important;
-}
-
-.facility-services-table-clean tr {
-  display: table-row !important;
-}
-
-.facility-services-table-clean .service-label {
-  display: table-cell !important;
-  background-color: #f8f9fa !important;
-  font-weight: 600 !important;
-  width: 40% !important;
-  padding: 6px 8px !important;
-  font-size: 0.875rem !important;
-  border: 1px solid #dee2e6 !important;
-  vertical-align: middle !important;
-}
-
-.facility-services-table-clean .service-period-label {
-  display: table-cell !important;
-  background-color: #f8f9fa !important;
-  font-weight: 600 !important;
-  width: 20% !important;
-  padding: 6px 8px !important;
-  font-size: 0.875rem !important;
-  border: 1px solid #dee2e6 !important;
-  vertical-align: middle !important;
-}
-
-.facility-services-table-clean .service-value {
-  display: table-cell !important;
-  background-color: white !important;
-  width: 40% !important;
-  padding: 6px 8px !important;
-  font-size: 0.875rem !important;
-  border: 1px solid #dee2e6 !important;
-  vertical-align: middle !important;
-}
-
-.facility-services-table-clean .service-value.empty-field {
+/* Common Value Styles */
+.facility-basic-info-table .detail-value.empty-field,
+.facility-basic-info-table-clean .detail-value.empty-field {
+  color: var(--text-muted) !important;
   font-style: italic !important;
-  color: #6c757d !important;
 }
 
-/* カードボディのクリーンスタイル */
-.card-body-clean {
-  padding: 1rem !important;
+.facility-basic-info-table .detail-value.fw-bold,
+.facility-basic-info-table-clean .detail-value.fw-bold {
+  font-weight: 700 !important;
+  color: var(--primary-blue-dark) !important;
 }
 
-/* ==
-======================================
-   Service Types Table Styles
+/* ========================================
+   Services Table
    ======================================== */
-.facility-services-table {
+.facility-services-table,
+.facility-services-table-clean {
   width: 100%;
   margin-bottom: 0;
   background-color: transparent;
   border-collapse: collapse;
 }
 
-.facility-services-table td {
+.facility-services-table td,
+.facility-services-table-clean td {
   padding: 6px 8px !important;
   vertical-align: middle !important;
-  border: 1px solid #dee2e6 !important;
-  font-size: 0.875rem !important;
+  border: 1px solid var(--border-light) !important;
+  font-size: var(--font-size-sm) !important;
 }
 
-/* Service Type Label */
-.facility-services-table .service-type-label {
+/* Service Labels */
+.facility-services-table .service-type-label,
+.facility-services-table .service-period-label,
+.facility-services-table-clean .service-label,
+.facility-services-table-clean .service-period-label {
   display: table-cell !important;
-  background-color: #f8f9fa !important;
+  background-color: var(--bg-light) !important;
   font-weight: 600 !important;
-  color: #495057;
-  width: 20% !important;
+  color: var(--text-secondary) !important;
   text-align: left;
 }
 
-/* Service Type Value */
-.facility-services-table .service-type-value {
-  display: table-cell !important;
-  background-color: white !important;
-  color: #212529;
-  width: 30% !important;
-  word-break: break-word;
-}
-
-/* Service Period Label */
+.facility-services-table .service-type-label,
 .facility-services-table .service-period-label {
-  display: table-cell !important;
-  background-color: #f8f9fa !important;
-  font-weight: 600 !important;
-  color: #495057;
   width: 20% !important;
-  text-align: left;
 }
 
-/* Service Period Value */
-.facility-services-table .service-period-value {
+.facility-services-table-clean .service-label {
+  width: 40% !important;
+}
+
+.facility-services-table-clean .service-period-label {
+  width: 20% !important;
+}
+
+/* Service Values */
+.facility-services-table .service-type-value,
+.facility-services-table .service-period-value,
+.facility-services-table-clean .service-value {
   display: table-cell !important;
-  background-color: white !important;
-  color: #212529;
-  width: 30% !important;
+  background-color: var(--bg-white) !important;
+  color: var(--text-primary) !important;
   word-break: break-word;
 }
 
-/* Empty Field Styling for Services */
-.facility-services-table .empty-field {
-  font-style: italic !important;
-  color: #6c757d !important;
+.facility-services-table .service-type-value,
+.facility-services-table .service-period-value {
+  width: 30% !important;
 }
 
-/* Hover Effects - Match basic info table */
+.facility-services-table-clean .service-value {
+  width: 40% !important;
+}
+
+/* Empty Fields */
+.facility-services-table .empty-field,
+.facility-services-table-clean .service-value.empty-field {
+  font-style: italic !important;
+  color: var(--text-muted) !important;
+}
+
+/* Hover Effects */
 .facility-services-table tr:hover .service-type-label,
 .facility-services-table tr:hover .service-period-label {
-  background-color: #e9ecef !important;
+  background-color: var(--border-lighter) !important;
 }
 
 .facility-services-table tr:hover .service-type-value,
 .facility-services-table tr:hover .service-period-value {
-  background-color: #f8f9fa !important;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-
-  .facility-services-table .service-type-label,
-  .facility-services-table .service-period-label {
-    width: 80px;
-    min-width: 80px;
-    font-size: var(--font-size-xs);
-    padding: var(--spacing-sm);
-  }
-
-  .facility-services-table .service-type-value,
-  .facility-services-table .service-period-value {
-    font-size: var(--font-size-sm);
-    padding: var(--spacing-sm);
-    padding-left: var(--spacing-md);
-  }
-}
-
-@media (max-width: 576px) {
-  .facility-services-table {
-    font-size: var(--font-size-xs);
-  }
-
-  .facility-services-table td {
-    padding: var(--spacing-sm);
-  }
-
-  .facility-services-table .service-type-label,
-  .facility-services-table .service-period-label {
-    width: 70px;
-    min-width: 70px;
-    font-size: var(--font-size-xxs);
-  }
-}
-
-/* High Contrast Mode Support */
-@media (prefers-contrast: high) {
-
-  .facility-services-table .service-type-label,
-  .facility-services-table .service-period-label {
-    color: #000000;
-    font-weight: 700;
-    background-color: #f0f0f0;
-  }
-
-  .facility-services-table .service-type-value,
-  .facility-services-table .service-period-value {
-    color: #000000;
-    background-color: #ffffff;
-  }
-}
-
-/* Reduced Motion Support */
-@media (prefers-reduced-motion: reduce) {
-  .facility-services-table td {
-    transition: none !important;
-  }
+  background-color: var(--bg-light) !important;
 }
