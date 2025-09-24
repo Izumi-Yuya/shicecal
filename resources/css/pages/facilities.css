@@ -602,6 +602,78 @@
   border: 1px solid var(--border-lighter);
 }
 
+/* Unified Column Layout for Facility Tables */
+.facility-unified-layout {
+  table-layout: fixed !important;
+  width: 100% !important;
+}
+
+.facility-unified-layout td:nth-child(1) {
+  width: 15% !important;
+  min-width: 120px !important;
+}
+
+.facility-unified-layout td:nth-child(2) {
+  width: 35% !important;
+  min-width: 200px !important;
+}
+
+.facility-unified-layout td:nth-child(3) {
+  width: 15% !important;
+  min-width: 120px !important;
+}
+
+.facility-unified-layout td:nth-child(4) {
+  width: 35% !important;
+}
+
+/* Responsive adjustments for unified layout */
+@media (max-width: 1200px) {
+  .facility-unified-layout td:nth-child(1),
+  .facility-unified-layout td:nth-child(3) {
+    width: 18% !important;
+    min-width: 100px !important;
+  }
+  
+  .facility-unified-layout td:nth-child(2),
+  .facility-unified-layout td:nth-child(4) {
+    width: 32% !important;
+    min-width: 150px !important;
+  }
+}
+
+@media (max-width: 992px) {
+  .facility-unified-layout td:nth-child(1),
+  .facility-unified-layout td:nth-child(3) {
+    width: 20% !important;
+    min-width: 90px !important;
+  }
+  
+  .facility-unified-layout td:nth-child(2),
+  .facility-unified-layout td:nth-child(4) {
+    width: 30% !important;
+    min-width: 120px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .facility-unified-layout {
+    table-layout: auto !important;
+  }
+  
+  .facility-unified-layout td:nth-child(1),
+  .facility-unified-layout td:nth-child(3) {
+    width: 25% !important;
+    min-width: 80px !important;
+  }
+  
+  .facility-unified-layout td:nth-child(2),
+  .facility-unified-layout td:nth-child(4) {
+    width: 25% !important;
+    min-width: 100px !important;
+  }
+}
+
 /* Bootstrap Table Overrides */
 .table> :not(caption)>*>* {
   padding: 12px 16px !important;
@@ -682,21 +754,26 @@
   color: var(--text-primary) !important;
 }
 
-/* Column Width Adjustments */
+/* Column Width Adjustments - Consistent across all tables */
+.facility-basic-info-table-clean tr td:nth-child(1) {
+  width: 15% !important;
+  min-width: 120px !important;
+}
+
 .facility-basic-info-table-clean tr td:nth-child(2) {
-  width: auto !important;
+  width: 35% !important;
   min-width: 200px !important;
 }
 
 .facility-basic-info-table-clean tr td:nth-child(3) {
-  width: 1% !important;
+  width: 15% !important;
+  min-width: 120px !important;
   white-space: nowrap !important;
   text-align: left !important;
-  padding: 2px 4px !important;
 }
 
 .facility-basic-info-table-clean tr td:nth-child(4) {
-  width: auto !important;
+  width: 35% !important;
   white-space: nowrap !important;
   padding-left: var(--spacing-sm) !important;
 }
@@ -733,7 +810,7 @@
   font-size: var(--font-size-sm) !important;
 }
 
-/* Service Labels */
+/* Service Labels - Match basic info table column widths */
 .facility-services-table .service-type-label,
 .facility-services-table .service-period-label,
 .facility-services-table-clean .service-label,
@@ -745,17 +822,31 @@
   text-align: left;
 }
 
-.facility-services-table .service-type-label,
-.facility-services-table .service-period-label {
-  width: 20% !important;
+/* First column - Service type label (matches basic info first column) */
+.facility-services-table .service-type-label:first-child,
+.facility-services-table-clean .service-label:first-child {
+  width: 15% !important;
+  min-width: 120px !important;
 }
 
-.facility-services-table-clean .service-label {
-  width: 40% !important;
+/* Second column - Service type value (matches basic info second column) */
+.facility-services-table .service-type-value:nth-child(2),
+.facility-services-table-clean .service-value:nth-child(2) {
+  width: 35% !important;
+  min-width: 200px !important;
 }
 
-.facility-services-table-clean .service-period-label {
-  width: 20% !important;
+/* Third column - Period label (matches basic info third column) */
+.facility-services-table .service-period-label:nth-child(3),
+.facility-services-table-clean .service-period-label:nth-child(3) {
+  width: 15% !important;
+  min-width: 120px !important;
+}
+
+/* Fourth column - Period value (matches basic info fourth column) */
+.facility-services-table .service-period-value:nth-child(4),
+.facility-services-table-clean .service-value:nth-child(4) {
+  width: 35% !important;
 }
 
 /* Service Values */
@@ -766,15 +857,6 @@
   background-color: var(--bg-white) !important;
   color: var(--text-primary) !important;
   word-break: break-word;
-}
-
-.facility-services-table .service-type-value,
-.facility-services-table .service-period-value {
-  width: 30% !important;
-}
-
-.facility-services-table-clean .service-value {
-  width: 40% !important;
 }
 
 /* Empty Fields */

@@ -71,6 +71,13 @@ Usage:
         // テーブル属性の処理
         $tableAttrs = is_array($tableAttributes) ? $tableAttributes : [];
         
+        // クラス属性の処理（既存のtableClassと統合）
+        $finalTableClass = $tableClass;
+        if (isset($tableAttrs['class'])) {
+            $finalTableClass = $tableClass . ' ' . $tableAttrs['class'];
+            unset($tableAttrs['class']); // 重複を避けるため削除
+        }
+        
         // アクセシビリティ属性の設定（レスポンシブ対応強化）
         if ($ariaLabel) {
             $tableAttrs['aria-label'] = $ariaLabel;

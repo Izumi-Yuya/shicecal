@@ -78,6 +78,7 @@
     :data="$basicInfoData"
     :showHeader="false"
     :tableAttributes="['style' => '--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0;']"
+    tableClass="table table-bordered facility-basic-info-table-clean facility-unified-layout"
     bodyClass="p-0"
 />
 
@@ -141,6 +142,7 @@
         :data="$servicesData"
         :showHeader="false"
         :tableAttributes="['style' => '--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0;']"
+        tableClass="table table-bordered facility-basic-info-table-clean facility-unified-layout"
         bodyClass="p-0"
     />
 </div>
