@@ -28,7 +28,7 @@
                 [
                     'label' => '所有', 
                     'value' => $ownershipBadge, 
-                    'type' => 'badge',
+                    'type' => 'text',
                     'colspan' => 3,
                     'options' => ['badge_class' => $ownershipBadgeClass]
                 ],
@@ -108,7 +108,7 @@
             [
                 'label' => '自動更新の有無', 
                 'value' => $autoRenewalBadge, 
-                'type' => 'badge',
+                'type' => 'text',
                 'options' => ['badge_class' => $autoRenewalBadgeClass]
             ],
             ['label' => '契約年数', 'value' => $landInfo->contract_period_text, 'type' => 'text'],
