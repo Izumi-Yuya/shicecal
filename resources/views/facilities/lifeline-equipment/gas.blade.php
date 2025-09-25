@@ -45,6 +45,19 @@
         }
     }
 
+    // 床暖房テーブルデータの構築
+    $floorHeatingInfo = $basicInfo['floor_heating_info'] ?? [];
+    $floorHeatingData = [
+        [
+            'type' => 'standard',
+            'cells' => [
+                ['label' => 'メーカー', 'value' => $floorHeatingInfo['manufacturer'] ?? null, 'type' => 'text'],
+                ['label' => '年式', 'value' => !empty($floorHeatingInfo['model_year']) ? $floorHeatingInfo['model_year'] . '年式' : null, 'type' => 'text'],
+                ['label' => '更新年月日', 'value' => $floorHeatingInfo['update_date'] ?? null, 'type' => 'date'],
+            ]
+        ],
+    ];
+
     // 備考テーブルデータの構築
     $notesData = [
         [
@@ -114,7 +127,7 @@
     <div class="equipment-section mb-4">
         <div class="section-header d-flex justify-content-between align-items-center mb-3">
             <h6 class="section-title mb-0">
-                <i class="fas fa-fire-flame-curved me-2 text-warning"></i>給湯器
+                給湯器
             </h6>
             @can('update', $facility)
                 <a href="{{ route('facilities.lifeline-equipment.edit', [$facility, 'gas']) }}" 
@@ -138,10 +151,7 @@
         @if(($waterHeaterInfo['availability'] ?? '') === '有')
             @if(!empty($waterHeaterEquipmentData))
                 <div class="equipment-list mt-3">
-                    <h6 class="equipment-list-title mb-3">
-                        <i class="fas fa-list me-2"></i>給湯器設備一覧
-                    </h6>
-                    
+                   
                     @foreach($waterHeaterEquipmentData as $equipmentItem)
                         <div class="equipment-item mb-3">
                             <div class="equipment-header d-flex align-items-center mb-2">
@@ -169,6 +179,31 @@
                 </div>
             @endif
         @endif
+    </div>
+
+
+    <!-- 床暖房セクション -->
+    <div class="equipment-section mb-4">
+        <div class="section-header d-flex justify-content-between align-items-center mb-3">
+            <h6 class="section-title mb-0">
+                床暖房
+            </h6>
+            @can('update', $facility)
+                <a href="{{ route('facilities.lifeline-equipment.edit', [$facility, 'gas']) }}" 
+                   class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-edit me-1"></i>編集
+                </a>
+            @endcan
+        </div>
+
+        <x-common-table 
+            :data="$floorHeatingData"
+            :showHeader="false"
+            :tableAttributes="['class' => 'table table-bordered floor-heating-info-table']"
+            bodyClass=""
+            cardClass=""
+            tableClass="table table-bordered facility-basic-info-table-clean"
+        />
     </div>
 
     <!-- 備考セクション -->

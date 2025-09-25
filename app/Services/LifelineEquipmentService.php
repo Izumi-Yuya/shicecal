@@ -305,6 +305,19 @@ class LifelineEquipmentService
             }
         }
 
+        // Process floor heating info
+        if (isset($basicInfo['floor_heating_info']) && is_array($basicInfo['floor_heating_info'])) {
+            $floorHeatingInfo = $basicInfo['floor_heating_info'];
+            
+            $processedData['floor_heating_info'] = [
+                'manufacturer' => isset($floorHeatingInfo['manufacturer']) 
+                    ? ($floorHeatingInfo['manufacturer'] === null ? null : trim($floorHeatingInfo['manufacturer']))
+                    : null,
+                'model_year' => $floorHeatingInfo['model_year'] ?? null,
+                'update_date' => $floorHeatingInfo['update_date'] ?? null,
+            ];
+        }
+
         return $processedData;
     }
 
@@ -320,6 +333,11 @@ class LifelineEquipmentService
                 'water_heater_info' => [
                     'availability' => '',
                     'water_heaters' => [],
+                ],
+                'floor_heating_info' => [
+                    'manufacturer' => '',
+                    'model_year' => '',
+                    'update_date' => '',
                 ],
             ],
             'notes' => '',

@@ -1358,3 +1358,34 @@
     margin-bottom: 0.25rem;
   }
 }
+
+/* 
+Floor Heating Styles / 床暖房スタイル */
+.gas-equipment-sections .floor-heating-info-table {
+  margin-bottom: 0;
+}
+
+.gas-equipment-sections .floor-heating-info-table .detail-row {
+  border-left: 4px solid #dc3545;
+}
+
+.gas-equipment-sections .section-header .text-danger {
+  color: #dc3545 !important;
+}
+
+/* Floor Heating Equipment Item Styles */
+.floor-heating-equipment-item {
+  border-left: 4px solid #dc3545;
+}
+
+.floor-heating-equipment-item .equipment-number {
+  background-color: #dc3545 !important;
+  color: white !important;
+}
+
+/* Responsive Design for Floor Heating */
+@media (max-width: 768px) {
+  .gas-equipment-sections .floor-heating-info-table {
+    font-size: 0.9rem;
+  }
+}

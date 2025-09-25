@@ -210,6 +210,12 @@ class LifelineEquipmentValidationService
             'basic_info.water_heater_info.water_heaters.*.model_year' => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
             'basic_info.water_heater_info.water_heaters.*.update_date' => 'nullable|date',
             
+            // Floor heating validation rules
+            'basic_info.floor_heating_info' => 'sometimes|array',
+            'basic_info.floor_heating_info.manufacturer' => 'nullable|string|max:255',
+            'basic_info.floor_heating_info.model_year' => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
+            'basic_info.floor_heating_info.update_date' => 'nullable|date',
+            
             // Notes validation rules
             'notes' => 'nullable|string|max:2000',
         ];
@@ -258,6 +264,15 @@ class LifelineEquipmentValidationService
             'basic_info.water_heater_info.water_heaters.*.model_year.min' => '給湯器の年式は1900年以降を入力してください。',
             'basic_info.water_heater_info.water_heaters.*.model_year.max' => '給湯器の年式は来年以前を入力してください。',
             'basic_info.water_heater_info.water_heaters.*.update_date.date' => '給湯器の更新年月日は有効な日付を入力してください。',
+            
+            // Floor heating messages
+            'basic_info.floor_heating_info.array' => '床暖房情報は配列形式である必要があります。',
+            'basic_info.floor_heating_info.manufacturer.string' => '床暖房のメーカーは文字列で入力してください。',
+            'basic_info.floor_heating_info.manufacturer.max' => '床暖房のメーカーは255文字以内で入力してください。',
+            'basic_info.floor_heating_info.model_year.integer' => '床暖房の年式は数値で入力してください。',
+            'basic_info.floor_heating_info.model_year.min' => '床暖房の年式は1900年以降を入力してください。',
+            'basic_info.floor_heating_info.model_year.max' => '床暖房の年式は来年以前を入力してください。',
+            'basic_info.floor_heating_info.update_date.date' => '床暖房の更新年月日は有効な日付を入力してください。',
             
             // Notes messages
             'notes.string' => '備考は文字列で入力してください。',

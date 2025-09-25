@@ -177,18 +177,72 @@
                             </div>
                         </div>
 
-                        <!-- 備考欄セクション -->
+                        @php
+                            $floorHeatingInfo = $basicInfo['floor_heating_info'] ?? [];
+                        @endphp
+
+                        <!-- 床暖房セクション -->
                         <div class="row mb-4 mt-5">
                             <div class="col-12">
                                 <h6 class="section-title border-bottom pb-2 mb-3">
-                                    <i class="fas fa-sticky-note me-2"></i>備考欄
+                                    <i class="fas fa-thermometer-half me-2"></i>床暖房
+                                </h6>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4 mb-3">
+                                <label for="floor_heating_manufacturer" class="form-label">メーカー</label>
+                                <input type="text" 
+                                       class="form-control @error('basic_info.floor_heating_info.manufacturer') is-invalid @enderror" 
+                                       id="floor_heating_manufacturer" 
+                                       name="basic_info[floor_heating_info][manufacturer]" 
+                                       value="{{ old('basic_info.floor_heating_info.manufacturer', $floorHeatingInfo['manufacturer'] ?? '') }}"
+                                       placeholder="例：リンナイ">
+                                @error('basic_info.floor_heating_info.manufacturer')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="floor_heating_model_year" class="form-label">年式</label>
+                                <input type="number" 
+                                       class="form-control @error('basic_info.floor_heating_info.model_year') is-invalid @enderror" 
+                                       id="floor_heating_model_year" 
+                                       name="basic_info[floor_heating_info][model_year]" 
+                                       value="{{ old('basic_info.floor_heating_info.model_year', $floorHeatingInfo['model_year'] ?? '') }}"
+                                       placeholder="例：2020"
+                                       min="1900" max="{{ date('Y') + 1 }}">
+                                @error('basic_info.floor_heating_info.model_year')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="floor_heating_update_date" class="form-label">更新年月日</label>
+                                <input type="date" 
+                                       class="form-control @error('basic_info.floor_heating_info.update_date') is-invalid @enderror" 
+                                       id="floor_heating_update_date" 
+                                       name="basic_info[floor_heating_info][update_date]" 
+                                       value="{{ old('basic_info.floor_heating_info.update_date', $floorHeatingInfo['update_date'] ?? '') }}">
+                                @error('basic_info.floor_heating_info.update_date')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <!-- 備考セクション -->
+                        <div class="row mb-4 mt-5">
+                            <div class="col-12">
+                                <h6 class="section-title border-bottom pb-2 mb-3">
+                                    <i class="fas fa-sticky-note me-2"></i>備考
                                 </h6>
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <div class="col-12">
-                                <label for="notes" class="form-label">備考欄</label>
+                                <label for="notes" class="form-label">備考</label>
                                 <textarea class="form-control @error('notes') is-invalid @enderror" 
                                           id="notes" 
                                           name="notes" 
