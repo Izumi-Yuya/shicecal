@@ -7,7 +7,7 @@ The `detail-card-controller.js` file has been refactored to improve code maintai
 
 ### 1. Method Organization and Naming
 - **Private Methods**: All internal methods are now prefixed with `_` to clearly distinguish them from public API methods
-- **Consistent Naming**: Method names follow a consistent pattern and are more descriptive
+- **Consistent Naming**: Method names now follow consistent patterns and are more descriptive
 - **Logical Grouping**: Related methods are grouped together for better code organization
 
 ### 2. Code Structure Improvements

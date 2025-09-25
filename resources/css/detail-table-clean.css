@@ -29,12 +29,101 @@
   padding: 0.5rem !important;
 }
 
+/* Override label width for equal column layouts */
+.three-column-equal .detail-label {
+  width: 33.333% !important;
+  min-width: unset !important;
+}
+
+.six-column-equal .detail-label {
+  width: 16.667% !important;
+  min-width: unset !important;
+}
+
+/* Force equal width with highest priority */
+div.three-column-equal table td,
+div.three-column-equal table th,
+div.three-column-equal .table td,
+div.three-column-equal .table th {
+  width: 33.333% !important;
+  max-width: 33.333% !important;
+  min-width: 33.333% !important;
+  box-sizing: border-box !important;
+}
+
+div.six-column-equal table td,
+div.six-column-equal table th,
+div.six-column-equal .table td,
+div.six-column-equal .table th {
+  width: 16.667% !important;
+  max-width: 16.667% !important;
+  min-width: 16.667% !important;
+  box-sizing: border-box !important;
+}
+
+/* Bootstrap table override */
+div.three-column-equal .table> :not(caption)>*>* {
+  width: 33.333% !important;
+}
+
+div.six-column-equal .table> :not(caption)>*>* {
+  width: 16.667% !important;
+}
+
 .detail-value {
   background-color: #f8f9fa;
   color: #212529;
   text-align: left;
   vertical-align: middle;
   padding: 0.5rem !important;
+}
+
+/* Equal width columns for multi-column layouts */
+.equal-width-columns table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.equal-width-columns .detail-value {
+  width: calc(100% / var(--column-count, 3));
+}
+
+/* 3-column equal width layout */
+.three-column-equal table {
+  table-layout: fixed !important;
+  width: 100% !important;
+}
+
+.three-column-equal td {
+  width: 33.333% !important;
+  max-width: 33.333% !important;
+  min-width: 33.333% !important;
+}
+
+.three-column-equal .detail-label,
+.three-column-equal .detail-value {
+  width: 33.333% !important;
+  max-width: 33.333% !important;
+  min-width: 33.333% !important;
+}
+
+/* 6-column equal width layout */
+.six-column-equal table {
+  table-layout: fixed !important;
+  width: 100% !important;
+}
+
+.six-column-equal td {
+  width: 16.667% !important;
+  max-width: 16.667% !important;
+  min-width: 16.667% !important;
+}
+
+.six-column-equal .detail-label,
+.six-column-equal .detail-value {
+  width: 16.667% !important;
+  max-width: 16.667% !important;
+  min-width: 16.667% !important;
 }
 
 /* Empty field styling */
@@ -68,6 +157,31 @@
     width: var(--detail-label-width-md, 120px);
     min-width: 100px;
     font-size: 0.9rem;
+  }
+
+  /* Override for equal column layouts on medium screens */
+  .three-column-equal table {
+    table-layout: fixed !important;
+  }
+
+  .three-column-equal td,
+  .three-column-equal .detail-label,
+  .three-column-equal .detail-value {
+    width: 33.333% !important;
+    max-width: 33.333% !important;
+    min-width: 33.333% !important;
+  }
+
+  .six-column-equal table {
+    table-layout: fixed !important;
+  }
+
+  .six-column-equal td,
+  .six-column-equal .detail-label,
+  .six-column-equal .detail-value {
+    width: 16.667% !important;
+    max-width: 16.667% !important;
+    min-width: 16.667% !important;
   }
 
   /* Improve text wrapping on medium screens */
@@ -250,6 +364,31 @@
     font-size: 0.95rem;
   }
 
+  /* Override for equal column layouts on tablet */
+  .three-column-equal table {
+    table-layout: fixed !important;
+  }
+
+  .three-column-equal td,
+  .three-column-equal .detail-label,
+  .three-column-equal .detail-value {
+    width: 33.333% !important;
+    max-width: 33.333% !important;
+    min-width: 33.333% !important;
+  }
+
+  .six-column-equal table {
+    table-layout: fixed !important;
+  }
+
+  .six-column-equal td,
+  .six-column-equal .detail-label,
+  .six-column-equal .detail-value {
+    width: 16.667% !important;
+    max-width: 16.667% !important;
+    min-width: 16.667% !important;
+  }
+
   .facility-basic-info-table-clean {
     font-size: 0.95rem;
   }
@@ -260,6 +399,31 @@
   .detail-label {
     width: var(--detail-label-width-lg, 180px);
     min-width: 150px;
+  }
+
+  /* Override for equal column layouts on large screens */
+  .three-column-equal table {
+    table-layout: fixed !important;
+  }
+
+  .three-column-equal td,
+  .three-column-equal .detail-label,
+  .three-column-equal .detail-value {
+    width: 33.333% !important;
+    max-width: 33.333% !important;
+    min-width: 33.333% !important;
+  }
+
+  .six-column-equal table {
+    table-layout: fixed !important;
+  }
+
+  .six-column-equal td,
+  .six-column-equal .detail-label,
+  .six-column-equal .detail-value {
+    width: 16.667% !important;
+    max-width: 16.667% !important;
+    min-width: 16.667% !important;
   }
 
   .facility-basic-info-table-clean td {
@@ -403,4 +567,29 @@
   .empty-field {
     color: #666 !important;
   }
+}
+
+/* Ultimate override for equal width layouts */
+body div.three-column-equal table td,
+body div.three-column-equal table th,
+body div.three-column-equal .table td,
+body div.three-column-equal .table th,
+body .three-column-equal table td,
+body .three-column-equal table th {
+  width: 33.333% !important;
+  max-width: 33.333% !important;
+  min-width: 33.333% !important;
+  flex: 0 0 33.333% !important;
+}
+
+body div.six-column-equal table td,
+body div.six-column-equal table th,
+body div.six-column-equal .table td,
+body div.six-column-equal .table th,
+body .six-column-equal table td,
+body .six-column-equal table th {
+  width: 16.667% !important;
+  max-width: 16.667% !important;
+  min-width: 16.667% !important;
+  flex: 0 0 16.667% !important;
 }

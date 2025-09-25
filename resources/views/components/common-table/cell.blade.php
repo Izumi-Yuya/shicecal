@@ -8,12 +8,13 @@ Cell Component
     'value' => null,        // 値
     'type' => 'text',       // セルタイプ
     'colspan' => 1,         // カラムスパン
-    'rowspan' => 1,         // ローススパン
+    'rowspan' => 1,         // ロースパン
     'isLabel' => false,     // ラベルセルかどうか
     'isEmpty' => null,      // 空フィールドかどうか（nullの場合は自動判定）
     'class' => '',          // 追加CSSクラス
     'key' => null,          // セルの一意キー
     'options' => [],        // フォーマッターオプション
+    'groupNumber' => null,  // グループ番号（grouped行タイプ用）
 ])
 
 @php
@@ -91,7 +92,14 @@ Cell Component
     $attributes['data-is-empty'] = $isEmpty ? 'true' : 'false';
 @endphp
 
-<td class="{{ $cellClass }}" @foreach($attributes as $attr => $val) {{ $attr }}="{{ $val }}" @endforeach>
+<td class="{{ $cellClass }}" @foreach($attributes as $attr => $val) {{ $attr }}="{{ $val }}" @endforeach style="@if($groupNumber && $isLabel) position: relative; @endif padding: 0.5rem;">
+    @if($groupNumber && $isLabel)
+        {{-- グループ番号の表示（grouped行タイプ用） --}}
+        <div style="position: absolute; left: -30px; top: 50%; transform: translateY(-50%); z-index: 1000;">
+            <span style="background: #007bff; color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $groupNumber }}</span>
+        </div>
+    @endif
+    
     @if($isLabel)
         {{-- ラベルセルの表示 --}}
         {{ $displayValue }}

@@ -1,11 +1,12 @@
 /**
  * Detail Card Controller Module
- * Handles accessibility and ARIA attributes for detail cards
- * Simplified version - empty fields are always visible
+ * Handles accessibility and ARIA attributes for detail cards.
+ * This is a simplified version where empty fields are always visible.
  */
 
 /**
- * Detail Card Controller Class - Simplified for always-visible empty fields
+ * Detail Card Controller Class
+ * Simplified implementation that keeps empty fields always visible.
  */
 class DetailCardController {
   constructor() {

@@ -2,9 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\LifelineEquipment;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class LifelineEquipmentValidationService
 {
@@ -60,7 +58,7 @@ class LifelineEquipmentValidationService
             'water' => $this->getWaterValidationRules(),
             'elevator' => $this->getElevatorValidationRules(),
             'hvac_lighting' => $this->getHvacLightingValidationRules(),
-            default => throw new \InvalidArgumentException('無効なカテゴリです: ' . $category),
+            default => throw new \InvalidArgumentException('無効なカテゴリです: '.$category),
         };
     }
 
@@ -216,16 +214,40 @@ class LifelineEquipmentValidationService
     }
 
     /**
-     * Get validation rules for water equipment (basic structure).
+     * Get validation rules for water equipment.
      */
     private function getWaterValidationRules(): array
     {
         return [
+            // Basic info validation rules
             'basic_info' => 'sometimes|array',
             'basic_info.water_contractor' => 'nullable|string|max:255',
-            'basic_info.maintenance_company' => 'nullable|string|max:255',
-            'basic_info.maintenance_date' => 'nullable|date|before_or_equal:today',
-            'basic_info.inspection_report' => 'nullable|string|max:255',
+            'basic_info.tank_cleaning_company' => 'nullable|string|max:255',
+            'basic_info.tank_cleaning_date' => 'nullable|date|before_or_equal:today',
+            'basic_info.tank_cleaning_report_pdf' => 'nullable|file|mimes:pdf|max:10240', // 10MB max
+
+            // Tank info validation rules
+            'basic_info.tank_info' => 'sometimes|array',
+            'basic_info.tank_info.availability' => 'nullable|in:有,無',
+            'basic_info.tank_info.manufacturer' => 'nullable|string|max:255',
+            'basic_info.tank_info.model_year' => 'nullable|integer|min:1900|max:'.(date('Y') + 5),
+
+            // Filter info validation rules
+            'basic_info.filter_info' => 'sometimes|array',
+            'basic_info.filter_info.bath_system' => 'nullable|in:循環式,掛け流し式',
+            'basic_info.filter_info.availability' => 'nullable|in:有,無',
+            'basic_info.filter_info.manufacturer' => 'nullable|string|max:255',
+            'basic_info.filter_info.model_year' => 'nullable|integer|min:1900|max:'.(date('Y') + 5),
+
+            // Pump info validation rules
+            'basic_info.pump_info' => 'sometimes|array',
+            'basic_info.pump_info.pumps' => 'sometimes|array',
+            'basic_info.pump_info.pumps.*' => 'array',
+            'basic_info.pump_info.pumps.*.manufacturer' => 'nullable|string|max:255',
+            'basic_info.pump_info.pumps.*.model_year' => 'nullable|integer|min:1900|max:'.(date('Y') + 5),
+            'basic_info.pump_info.pumps.*.update_date' => 'nullable|date|before_or_equal:today',
+
+            // Notes
             'notes' => 'nullable|string|max:2000',
         ];
     }
@@ -236,15 +258,52 @@ class LifelineEquipmentValidationService
     private function getWaterValidationMessages(): array
     {
         return [
+            // Basic info messages
             'basic_info.array' => '基本情報は配列形式である必要があります。',
             'basic_info.water_contractor.string' => '水道契約会社は文字列で入力してください。',
             'basic_info.water_contractor.max' => '水道契約会社は255文字以内で入力してください。',
-            'basic_info.maintenance_company.string' => '水道保守点検業者は文字列で入力してください。',
-            'basic_info.maintenance_company.max' => '水道保守点検業者は255文字以内で入力してください。',
-            'basic_info.maintenance_date.date' => '水道保守点検実施日は有効な日付を入力してください。',
-            'basic_info.maintenance_date.before_or_equal' => '水道保守点検実施日は今日以前の日付を入力してください。',
-            'basic_info.inspection_report.string' => '点検実施報告書は文字列で入力してください。',
-            'basic_info.inspection_report.max' => '点検実施報告書は255文字以内で入力してください。',
+            'basic_info.tank_cleaning_company.string' => '受水槽・配管清掃業者は文字列で入力してください。',
+            'basic_info.tank_cleaning_company.max' => '受水槽・配管清掃業者は255文字以内で入力してください。',
+            'basic_info.tank_cleaning_date.date' => '受水槽・配管清掃実施日は有効な日付を入力してください。',
+            'basic_info.tank_cleaning_date.before_or_equal' => '受水槽・配管清掃実施日は今日以前の日付を入力してください。',
+            'basic_info.tank_cleaning_report_pdf.file' => '受水槽・配管清掃実施報告書はファイルをアップロードしてください。',
+            'basic_info.tank_cleaning_report_pdf.mimes' => '受水槽・配管清掃実施報告書はPDFファイルをアップロードしてください。',
+            'basic_info.tank_cleaning_report_pdf.max' => '受水槽・配管清掃実施報告書は10MB以下のファイルをアップロードしてください。',
+
+            // Tank info messages
+            'basic_info.tank_info.array' => '受水槽情報は配列形式である必要があります。',
+            'basic_info.tank_info.availability.in' => '受水槽の有無は「有」または「無」を選択してください。',
+            'basic_info.tank_info.manufacturer.string' => 'メーカーは文字列で入力してください。',
+            'basic_info.tank_info.manufacturer.max' => 'メーカーは255文字以内で入力してください。',
+            'basic_info.tank_info.model_year.integer' => '年式は数値で入力してください。',
+            'basic_info.tank_info.model_year.min' => '年式は1900年以降を入力してください。',
+            'basic_info.tank_info.model_year.max' => '年式は'.(date('Y') + 5).'年以前を入力してください。',
+
+            // Filter info messages
+            'basic_info.filter_info.array' => 'ろ過器情報は配列形式である必要があります。',
+            'basic_info.filter_info.bath_system.in' => '浴槽方式は「循環式」または「掛け流し式」を選択してください。',
+            'basic_info.filter_info.availability.in' => 'ろ過器の有無は「有」または「無」を選択してください。',
+            'basic_info.filter_info.manufacturer.string' => 'メーカーは文字列で入力してください。',
+            'basic_info.filter_info.manufacturer.max' => 'メーカーは255文字以内で入力してください。',
+            'basic_info.filter_info.model_year.integer' => '年式は数値で入力してください。',
+            'basic_info.filter_info.model_year.min' => '年式は1900年以降を入力してください。',
+            'basic_info.filter_info.model_year.max' => '年式は'.(date('Y') + 5).'年以前を入力してください。',
+
+            // Pump info messages
+            'basic_info.pump_info.array' => '加圧ポンプ情報は配列形式である必要があります。',
+            'basic_info.pump_info.pumps.array' => '加圧ポンプリストは配列形式である必要があります。',
+            'basic_info.pump_info.pumps.*.array' => '各加圧ポンプ情報は配列形式である必要があります。',
+            'basic_info.pump_info.pumps.*.manufacturer.string' => 'メーカーは文字列で入力してください。',
+            'basic_info.pump_info.pumps.*.manufacturer.max' => 'メーカーは255文字以内で入力してください。',
+            'basic_info.pump_info.pumps.*.model_year.integer' => '年式は数値で入力してください。',
+            'basic_info.pump_info.pumps.*.model_year.min' => '年式は1900年以降を入力してください。',
+            'basic_info.pump_info.pumps.*.model_year.max' => '年式は'.(date('Y') + 5).'年以前を入力してください。',
+            'basic_info.pump_info.pumps.*.update_date.date' => '更新年月日は有効な日付を入力してください。',
+            'basic_info.pump_info.pumps.*.update_date.before_or_equal' => '更新年月日は今日以前の日付を入力してください。',
+            'basic_info.filter_info.model_year.min' => '年式は1900年以降を入力してください。',
+            'basic_info.filter_info.model_year.max' => '年式は'.(date('Y') + 5).'年以前を入力してください。',
+
+            // Notes messages
             'notes.string' => '備考は文字列で入力してください。',
             'notes.max' => '備考は2000文字以内で入力してください。',
         ];
@@ -381,7 +440,7 @@ class LifelineEquipmentValidationService
             'notes' => [
                 'notes' => 'nullable|string|max:2000',
             ],
-            default => throw new \InvalidArgumentException('無効なカードタイプです: ' . $cardType),
+            default => throw new \InvalidArgumentException('無効なカードタイプです: '.$cardType),
         };
     }
 

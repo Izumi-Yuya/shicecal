@@ -1,8 +1,11 @@
 # ライフライン設備管理 - ユーザーガイド
+# Lifeline Equipment Management - User Guide
 
-## 概要
+## 概要 / Overview
 
 ライフライン設備管理機能は、施設のライフライン設備（電気、ガス、水道、エレベーター、空調・照明）の情報を一元管理するための機能です。
+
+The Lifeline Equipment Management feature provides centralized management of facility lifeline equipment information, including electrical, gas, water, elevator, and HVAC/lighting systems.
 
 ## アクセス方法
 

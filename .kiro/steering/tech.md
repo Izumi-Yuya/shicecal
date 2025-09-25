@@ -1,103 +1,103 @@
-# Technology Stack & Build System
+# 技術スタックとビルドシステム
 
-## Backend Framework
-- **Laravel 9.x** - PHP web application framework
-- **PHP 8.2+** - Server-side programming language
-- **MySQL 8.0** - Primary database (SQLite for testing)
-- **Redis** - Caching layer
+## バックエンドフレームワーク
+- **Laravel 9.x** - PHP Webアプリケーションフレームワーク
+- **PHP 8.2+** - サーバーサイドプログラミング言語
+- **MySQL 8.0** - プライマリデータベース（テスト用はSQLite）
+- **Redis** - キャッシュ層
 
-## Frontend Technologies
-- **Blade Templates** - Laravel's templating engine
-- **Bootstrap 5.1.3** - CSS framework with custom styling
-- **ES6 Modules** - Modern JavaScript module system
-- **Vanilla JavaScript (ES6+)** - Client-side scripting with modular architecture
-- **Font Awesome 6.0.0** - Icon library
-- **Vite 4.x** - Modern build tool and dev server with ES6 module support
+## フロントエンド技術
+- **Blade Templates** - Laravelのテンプレートエンジン
+- **Bootstrap 5.1.3** - カスタムスタイリング付きCSSフレームワーク
+- **ES6 Modules** - モダンJavaScriptモジュールシステム
+- **Vanilla JavaScript (ES6+)** - モジュラーアーキテクチャによるクライアントサイドスクリプト
+- **Font Awesome 6.0.0** - アイコンライブラリ
+- **Vite 4.x** - ES6モジュールサポート付きモダンビルドツールと開発サーバー
 
-## Key Dependencies
-- **barryvdh/laravel-dompdf** - PDF generation
-- **elibyy/tcpdf-laravel** - Advanced PDF features
-- **spatie/laravel-activitylog** - Activity logging
-- **laravel/sanctum** - API authentication
+## 主要依存関係
+- **barryvdh/laravel-dompdf** - PDF生成
+- **elibyy/tcpdf-laravel** - 高度なPDF機能
+- **spatie/laravel-activitylog** - アクティビティログ
+- **laravel/sanctum** - API認証
 
-## Development Tools
-- **Laravel Pint** - Code formatting
-- **PHPUnit** - PHP testing framework
-- **Vitest** - JavaScript testing framework
-- **Docker** - Containerization (optional)
-- **Composer** - PHP dependency management
-- **npm** - Node.js package management
+## 開発ツール
+- **Laravel Pint** - コードフォーマット
+- **PHPUnit** - PHPテストフレームワーク
+- **Vitest** - JavaScriptテストフレームワーク
+- **Docker** - コンテナ化（オプション）
+- **Composer** - PHP依存関係管理
+- **npm** - Node.jsパッケージ管理
 
-## Common Commands
+## 共通コマンド
 
-### Development Setup
+### 開発セットアップ
 ```bash
-# Initial setup
+# 初期セットアップ
 composer install
 npm install
 cp .env.example .env
 php artisan key:generate
 php artisan migrate --seed
 
-# Start development
-php artisan serve          # Backend server (port 8000)
-npm run dev               # Frontend dev server with HMR
+# 開発開始
+php artisan serve          # バックエンドサーバー（ポート8000）
+npm run dev               # HMR付きフロントエンド開発サーバー
 ```
 
-### Database Operations
+### データベース操作
 ```bash
-php artisan migrate              # Run migrations
-php artisan migrate:fresh --seed # Fresh DB with test data
-php artisan db:seed             # Seed test data only
+php artisan migrate              # マイグレーション実行
+php artisan migrate:fresh --seed # テストデータ付きフレッシュDB
+php artisan db:seed             # テストデータのみシード
 ```
 
-### Testing
+### テスト
 ```bash
-php artisan test                # Run all PHP tests
-php artisan test --coverage    # With coverage report
-npm run test                    # Run JavaScript tests
-npm run test:watch             # Watch mode for JS tests
+php artisan test                # 全PHPテスト実行
+php artisan test --coverage    # カバレッジレポート付き
+npm run test                    # JavaScriptテスト実行
+npm run test:watch             # JSテストのウォッチモード
 ```
 
-### Build & Deployment
+### ビルドとデプロイメント
 ```bash
-npm run build                   # Build production assets
-php artisan config:cache        # Cache configuration
-php artisan route:cache         # Cache routes
-php artisan view:cache          # Cache views
-php artisan optimize:clear      # Clear all caches
+npm run build                   # 本番アセットビルド
+php artisan config:cache        # 設定キャッシュ
+php artisan route:cache         # ルートキャッシュ
+php artisan view:cache          # ビューキャッシュ
+php artisan optimize:clear      # 全キャッシュクリア
 ```
 
-### Docker Development (Optional)
+### Docker開発（オプション）
 ```bash
-make setup                      # Initial Docker setup
-make start                      # Start containers
-make shell                      # Access app container
-make test                       # Run tests in container
-make logs                       # View container logs
+make setup                      # 初期Dockerセットアップ
+make start                      # コンテナ開始
+make shell                      # アプリコンテナアクセス
+make test                       # コンテナ内テスト実行
+make logs                       # コンテナログ表示
 ```
 
-## File Structure Conventions
-- Controllers follow Laravel conventions in `app/Http/Controllers/`
-- Services in `app/Services/` for business logic
-- Models in `app/Models/` with proper relationships
-- Policies in `app/Policies/` for authorization
-- CSS organized by purpose in `resources/css/` (shared/, pages/ subdirectories)
-- JavaScript ES6 modules in `resources/js/` (modules/, shared/ subdirectories)
-- Blade views organized by feature in `resources/views/`
+## ファイル構造規約
+- Controllers は `app/Http/Controllers/` でLaravel規約に従う
+- ビジネスロジック用のServices は `app/Services/` に配置
+- 適切なリレーションシップを持つModels は `app/Models/` に配置
+- 認可用のPolicies は `app/Policies/` に配置
+- CSS は `resources/css/` で目的別に整理（shared/, pages/ サブディレクトリ）
+- JavaScript ES6モジュールは `resources/js/` に配置（modules/, shared/ サブディレクトリ）
+- Bladeビューは `resources/views/` で機能別に整理
 
-## Frontend Architecture
-- **Entry Point**: `resources/js/app.js` - Main ES6 module entry point
-- **Feature Modules**: `resources/js/modules/` - Feature-specific functionality
-- **Shared Modules**: `resources/js/shared/` - Reusable utilities and components
-- **Module Pattern**: Each feature exports initialization functions
-- **State Management**: ApplicationState class for global state
-- **Backward Compatibility**: Legacy API via `window.ShiseCal` object
+## フロントエンドアーキテクチャ
+- **エントリーポイント**: `resources/js/app.js` - メインES6モジュールエントリーポイント
+- **機能モジュール**: `resources/js/modules/` - 機能固有の機能
+- **共有モジュール**: `resources/js/shared/` - 再利用可能なユーティリティとコンポーネント
+- **モジュールパターン**: 各機能は初期化関数をエクスポート
+- **状態管理**: グローバル状態用のApplicationStateクラス
+- **後方互換性**: `window.ShiseCal` オブジェクト経由のレガシーAPI
 
-## Code Quality
-- Use Laravel Pint for consistent PHP formatting
-- Follow PSR-12 coding standards
-- Write comprehensive tests (Feature and Unit)
-- Use type hints and return types in PHP
-- Implement proper error handling and logging
-- Follow Laravel best practices for security
+## コード品質
+- 一貫したPHPフォーマットにLaravel Pintを使用
+- PSR-12コーディング標準に従う
+- 包括的なテスト（機能テストと単体テスト）を記述
+- PHPで型ヒントと戻り値の型を使用
+- 適切なエラーハンドリングとログを実装
+- セキュリティのためのLaravelベストプラクティスに従う

@@ -9,8 +9,8 @@ use Illuminate\Support\Facades\Cache;
 /**
  * ValueFormatter - 共通テーブルレイアウトコンポーネント用の値フォーマッター
  * 
- * 様々なデータタイプを適切にフォーマットし、空値の判定を行う
- * パフォーマンス最適化のためのキャッシュ機能を含む
+ * 様々なデータタイプを適切にフォーマットし、空値の判定を行います。
+ * パフォーマンス最適化のためのキャッシュ機能を含みます。
  */
 class ValueFormatter
 {
@@ -254,9 +254,9 @@ class ValueFormatter
     {
         $text = self::formatText($value, $options);
         
-        // バッジクラスの決定（優先順位: 明示的指定 > 自動判定 > デフォルト）
+        // バッジクラスの決定（優先順位: 明示的指定 > 特別なタイプ > 自動判定 > デフォルト）
         if (isset($options['badge_class'])) {
-            $badgeClass = $options['badge_class'];
+            $badgeClass = self::getSpecialBadgeClass($options['badge_class'], (string) $value);
         } elseif (isset($options['auto_class']) && $options['auto_class']) {
             $badgeClass = self::getBadgeClass((string) $value);
         } else {
@@ -397,18 +397,29 @@ class ValueFormatter
             return '未設定';
         }
 
-        $filePath = (string) $value;
-        $fileName = $options['display_name'] ?? basename($filePath);
-        $fileExtension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+        $fileName = (string) $value;
+        $displayName = $options['display_name'] ?? $fileName;
+        $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
         
         // ファイルタイプに基づいてアイコンを決定
         $icon = self::getFileIcon($fileExtension);
         
+        // ルートとパラメータが指定されている場合はLaravelルートを使用
+        if (isset($options['route']) && isset($options['params'])) {
+            $params = array_merge($options['params'], [$fileName]);
+            $url = route($options['route'], $params);
+        } else {
+            $url = $fileName;
+        }
+        
+        $ariaLabel = $options['aria_label'] ?? $displayName . 'をダウンロード';
+        
         return sprintf(
-            '<a href="%s" class="text-decoration-none" target="_blank">%s %s</a>',
-            htmlspecialchars($filePath, ENT_QUOTES, 'UTF-8'),
+            '<a href="%s" class="text-decoration-none" aria-label="%s" target="_blank">%s%s</a>',
+            htmlspecialchars($url, ENT_QUOTES, 'UTF-8'),
+            htmlspecialchars($ariaLabel, ENT_QUOTES, 'UTF-8'),
             $icon,
-            htmlspecialchars($fileName, ENT_QUOTES, 'UTF-8')
+            htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8')
         );
     }
 
@@ -449,6 +460,30 @@ class ValueFormatter
             'secondary', 'draft', '下書き' => 'badge bg-secondary',
             'primary', 'default' => 'badge bg-primary',
             default => 'badge bg-primary',
+        };
+    }
+
+    /**
+     * 特別なバッジクラスタイプに基づいてCSSクラスを取得する
+     *
+     * @param string $badgeType
+     * @param string $value
+     * @return string
+     */
+    private static function getSpecialBadgeClass(string $badgeType, string $value): string
+    {
+        return match ($badgeType) {
+            'availability' => match ($value) {
+                '有' => 'badge bg-success',
+                '無' => 'badge bg-secondary',
+                default => 'badge bg-secondary',
+            },
+            'legionella_result' => match ($value) {
+                '陰性' => 'badge bg-success',
+                '陽性' => 'badge bg-warning',
+                default => 'badge bg-secondary',
+            },
+            default => $badgeType, // 通常のCSSクラスとして扱う
         };
     }
 

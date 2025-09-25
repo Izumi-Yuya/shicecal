@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Centralized validation service for enhanced security
+ * A centralized validation service for enhanced security
  */
 class ValidationService
 {

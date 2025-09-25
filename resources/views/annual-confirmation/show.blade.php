@@ -47,7 +47,7 @@
                                     <span class="detail-value">
                                         @switch($annualConfirmation->status)
                                             @case('pending')
-                                                <span class="badge bg-warning">確認待ち</span>
+                                                <span class="badge bg-warning">確認中</span>
                                                 @break
                                             @case('confirmed')
                                                 <span class="badge bg-success">確認完了</span>
@@ -175,9 +175,9 @@
 
                             <div id="discrepancyDetails" style="display: none;">
                                 <div class="mb-3">
-                                    <label for="discrepancy_details" class="form-label">相違内容の詳細 <span class="text-danger">*</span></label>
+                                    <label for="discrepancy_details" class="form-label">相違内容の詳細説明 <span class="text-danger">*</span></label>
                                     <textarea name="discrepancy_details" id="discrepancy_details" class="form-control" rows="4" 
-                                              placeholder="どの項目にどのような相違があるか、具体的にご記入ください。"></textarea>
+                                              placeholder="どの項目にどのような相違があるか、具体的にご記入いただけますでしょうか。"></textarea>
                                 </div>
                             </div>
 

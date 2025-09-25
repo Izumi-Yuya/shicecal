@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 trait HandlesServiceErrors
 {
     /**
-     * Log error with service context
+     * Log error with service context.
      */
     protected function logError(string $message, array $context = []): void
     {
@@ -21,7 +21,7 @@ trait HandlesServiceErrors
     }
 
     /**
-     * Log warning with service context
+     * Log warning with service context.
      */
     protected function logWarning(string $message, array $context = []): void
     {
@@ -33,7 +33,7 @@ trait HandlesServiceErrors
     }
 
     /**
-     * Log info with service context
+     * Log info with service context.
      */
     protected function logInfo(string $message, array $context = []): void
     {
@@ -45,7 +45,7 @@ trait HandlesServiceErrors
     }
 
     /**
-     * Throw service-specific exception
+     * Throw service-specific exception.
      *
      * @throws ServiceException
      */
@@ -63,7 +63,7 @@ trait HandlesServiceErrors
     }
 
     /**
-     * Handle and re-throw exceptions with service context
+     * Handle and re-throw exceptions with service context.
      *
      * @throws ServiceException
      */
@@ -83,7 +83,7 @@ trait HandlesServiceErrors
     }
 
     /**
-     * Validate required parameters and throw exception if missing
+     * Validate required parameters and throw exception if missing.
      *
      * @throws ServiceException
      */
@@ -112,7 +112,7 @@ trait HandlesServiceErrors
     }
 
     /**
-     * Execute operation with error handling
+     * Execute operation with error handling.
      *
      * @throws ServiceException
      */
@@ -136,8 +136,8 @@ trait HandlesServiceErrors
     }
 
     /**
-     * Get the service-specific exception class
-     * Must be implemented by each service using this trait
+     * Get the service-specific exception class.
+     * Must be implemented by each service using this trait.
      */
     abstract protected function getServiceExceptionClass(): string;
 }

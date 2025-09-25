@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "name": "Grammar Check on Implementation Complete",
+  "description": "Automatically performs grammar checking when implementation work is completed",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "app/**/*.php",
+      "resources/views/**/*.blade.php",
+      "resources/js/**/*.js",
+      "resources/css/**/*.css"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Implementation files have been updated. Please perform a comprehensive grammar check on all text content including:\n\n1. PHP code comments and documentation\n2. Blade template text content and labels\n3. JavaScript comments and user-facing strings\n4. CSS comments\n5. Error messages and validation text\n6. User interface labels and descriptions\n\nFocus on:\n- Japanese text accuracy and natural expression\n- English technical documentation clarity\n- Consistent terminology usage\n- Proper grammar and spelling\n- Professional tone and style\n\nPlease review and suggest corrections for any grammar, spelling, or language issues found."
+  }
+}

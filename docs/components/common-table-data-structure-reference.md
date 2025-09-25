@@ -29,7 +29,7 @@ $tableData = [
     'value' => mixed,          // 表示値（必須、ただしnull可）
     'type' => string,          // セルタイプ（必須）
     'colspan' => int,          // カラムスパン（オプション、デフォルト: 1）
-    'rowspan' => int,          // ローススパン（オプション、デフォルト: 1）
+    'rowspan' => int,          // ロースパン（オプション、デフォルト: 1）
     'class' => string,         // 追加CSSクラス（オプション）
     'attributes' => array,     // 追加HTML属性（オプション）
 ]

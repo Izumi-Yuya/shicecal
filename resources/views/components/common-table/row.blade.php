@@ -114,6 +114,7 @@ Row Component
                         :rowspan="$rowspan"
                         :isLabel="true"
                         :class="$cellClass"
+                        :groupNumber="$cellData['options']['group_number'] ?? null"
                         key="cell-grouped-label-{{ $rowIndex }}-{{ $cellIndex }}"
                     />
                 @endif

@@ -57,7 +57,7 @@
    ======================================== */
 
 /* Base Card Styles */
-.facility-info-card,
+/* .facility-info-card,
 .building-info-card {
   border: 1px solid var(--border-light);
   box-shadow: var(--box-shadow);
@@ -282,6 +282,8 @@
   color: var(--text-primary);
   font-weight: 400;
 }
+
+*/
 
 /* ========================================
    Auto-Calculation Fields
@@ -629,12 +631,13 @@
 
 /* Responsive adjustments for unified layout */
 @media (max-width: 1200px) {
+
   .facility-unified-layout td:nth-child(1),
   .facility-unified-layout td:nth-child(3) {
     width: 18% !important;
     min-width: 100px !important;
   }
-  
+
   .facility-unified-layout td:nth-child(2),
   .facility-unified-layout td:nth-child(4) {
     width: 32% !important;
@@ -643,12 +646,13 @@
 }
 
 @media (max-width: 992px) {
+
   .facility-unified-layout td:nth-child(1),
   .facility-unified-layout td:nth-child(3) {
     width: 20% !important;
     min-width: 90px !important;
   }
-  
+
   .facility-unified-layout td:nth-child(2),
   .facility-unified-layout td:nth-child(4) {
     width: 30% !important;
@@ -660,13 +664,13 @@
   .facility-unified-layout {
     table-layout: auto !important;
   }
-  
+
   .facility-unified-layout td:nth-child(1),
   .facility-unified-layout td:nth-child(3) {
     width: 25% !important;
     min-width: 80px !important;
   }
-  
+
   .facility-unified-layout td:nth-child(2),
   .facility-unified-layout td:nth-child(4) {
     width: 25% !important;

@@ -48,8 +48,8 @@
             </div>
             
             <div class="tab-pane fade" id="water" role="tabpanel" aria-labelledby="water-tab">
-                <div class="card facility-info-card detail-card-improved">
-                    <div class="card-body">
+                {{-- <div class="card facility-info-card detail-card-improved">
+                    <div class="card-body"> --}}
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div class="flex-grow-1"></div>
                             @if(auth()->user()->canEditFacility($facility->id))
@@ -60,8 +60,8 @@
                             @endif
                         </div>
                         @include('facilities.lifeline-equipment.water', ['facility' => $facility])
-                    </div>
-                </div>
+                    {{-- </div>
+                </div> --}}
             </div>
             
             <!-- 他のタブはカード内に残す -->

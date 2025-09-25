@@ -32,7 +32,7 @@ class LifelineEquipmentService
     }
 
     /**
-     * Get lifeline equipment data for a specific facility and category.
+     * Retrieve lifeline equipment data for a specific facility and category.
      */
     public function getEquipmentData(Facility $facility, string $category): array
     {
@@ -80,7 +80,7 @@ class LifelineEquipmentService
     }
 
     /**
-     * Update lifeline equipment data for a specific facility and category.
+     * Update lifeline equipment data for the specified facility and category.
      */
     public function updateEquipmentData(
         Facility $facility,
@@ -314,7 +314,7 @@ class LifelineEquipmentService
 
         // Update only the sections that are provided in the request
         if (array_key_exists('basic_info', $validatedData)) {
-            $waterEquipment->basic_info = $validatedData['basic_info'];
+            $waterEquipment->basic_info = $this->processWaterBasicInfo($validatedData['basic_info']);
         }
 
         if (array_key_exists('notes', $validatedData)) {
@@ -325,6 +325,74 @@ class LifelineEquipmentService
     }
 
     /**
+     * Process water equipment basic info data before saving.
+     * Handles data sanitization, validation, and structure normalization.
+     */
+    private function processWaterBasicInfo(array $basicInfo): array
+    {
+        $processedData = [
+            'water_contractor' => isset($basicInfo['water_contractor']) 
+                ? ($basicInfo['water_contractor'] === null ? null : trim($basicInfo['water_contractor']))
+                : null,
+            'tank_cleaning_company' => isset($basicInfo['tank_cleaning_company']) 
+                ? ($basicInfo['tank_cleaning_company'] === null ? null : trim($basicInfo['tank_cleaning_company']))
+                : null,
+            'tank_cleaning_date' => $basicInfo['tank_cleaning_date'] ?? null,
+            'tank_cleaning_report_pdf' => $basicInfo['tank_cleaning_report_pdf'] ?? null,
+        ];
+
+        // Process filter info
+        if (isset($basicInfo['filter_info']) && is_array($basicInfo['filter_info'])) {
+            $processedData['filter_info'] = [
+                'bath_system' => isset($basicInfo['filter_info']['bath_system']) 
+                    ? ($basicInfo['filter_info']['bath_system'] === null ? null : trim($basicInfo['filter_info']['bath_system']))
+                    : null,
+                'availability' => $basicInfo['filter_info']['availability'] ?? null,
+                'manufacturer' => isset($basicInfo['filter_info']['manufacturer']) 
+                    ? ($basicInfo['filter_info']['manufacturer'] === null ? null : trim($basicInfo['filter_info']['manufacturer']))
+                    : null,
+                'model_year' => $basicInfo['filter_info']['model_year'] ?? null,
+            ];
+        }
+
+        // Process tank info
+        if (isset($basicInfo['tank_info']) && is_array($basicInfo['tank_info'])) {
+            $processedData['tank_info'] = [
+                'availability' => $basicInfo['tank_info']['availability'] ?? null,
+                'manufacturer' => isset($basicInfo['tank_info']['manufacturer']) 
+                    ? ($basicInfo['tank_info']['manufacturer'] === null ? null : trim($basicInfo['tank_info']['manufacturer']))
+                    : null,
+                'model_year' => $basicInfo['tank_info']['model_year'] ?? null,
+            ];
+        }
+
+        // Process pump info (multiple pumps support)
+        if (isset($basicInfo['pump_info']) && is_array($basicInfo['pump_info'])) {
+            $pumpList = [];
+            
+            if (isset($basicInfo['pump_info']['pumps']) && is_array($basicInfo['pump_info']['pumps'])) {
+                foreach ($basicInfo['pump_info']['pumps'] as $pump) {
+                    if (is_array($pump) && !empty(array_filter($pump))) {
+                        $pumpList[] = [
+                            'manufacturer' => isset($pump['manufacturer']) 
+                                ? ($pump['manufacturer'] === null ? null : trim($pump['manufacturer']))
+                                : null,
+                            'model_year' => $pump['model_year'] ?? null,
+                            'update_date' => $pump['update_date'] ?? null,
+                        ];
+                    }
+                }
+            }
+            
+            $processedData['pump_info'] = [
+                'pumps' => $pumpList,
+            ];
+        }
+
+        return $processedData;
+    }
+
+    /**
      * Get default water equipment structure.
      */
     private function getDefaultWaterEquipmentStructure(): array
@@ -332,9 +400,23 @@ class LifelineEquipmentService
         return [
             'basic_info' => [
                 'water_contractor' => '',
-                'maintenance_company' => '',
-                'maintenance_date' => '',
-                'inspection_report' => '',
+                'tank_cleaning_company' => '',
+                'tank_cleaning_date' => '',
+                'tank_cleaning_report_pdf' => '',
+                'filter_info' => [
+                    'bath_system' => '',
+                    'availability' => '',
+                    'manufacturer' => '',
+                    'model_year' => '',
+                ],
+                'tank_info' => [
+                    'availability' => '',
+                    'manufacturer' => '',
+                    'model_year' => '',
+                ],
+                'pump_info' => [
+                    'pumps' => [],
+                ],
             ],
             'notes' => '',
         ];

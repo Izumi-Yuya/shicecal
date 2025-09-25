@@ -1,39 +1,38 @@
-# Product Overview
+# 製品概要
 
-## Shise-Cal (シセカル) - Facility Management System
+## Shise-Cal (シセカル) - 施設管理システム
 
-Shise-Cal is a comprehensive facility information management web application designed for Japanese organizations. The system provides centralized facility data management with role-based access control and approval workflows to ensure data integrity and operational efficiency.
+Shise-Calは、日本の組織向けに設計された包括的な施設情報管理Webアプリケーションです。このシステムは、データの整合性と運用効率を確保するため、ロールベースのアクセス制御と承認ワークフローを備えた集中的な施設データ管理を提供します。
 
-### Core Purpose
-- Centralized management of facility information including basic details, land information, and maintenance records
-- Role-based access control with approval workflows for data changes
-- Document management for facility-related files (PDFs, images)
-- Export capabilities for reports and data analysis
-- Activity logging and audit trails for compliance
+### 主要目的
+- 基本情報、土地情報、保守記録を含む施設情報の集中管理
+- データ変更に対する承認ワークフローを備えたロールベースアクセス制御
+- 施設関連ファイル（PDF、画像）の文書管理
+- レポートとデータ分析のためのエクスポート機能
+- コンプライアンスのための活動ログと監査証跡
 
-### Key Features
-- **Facility Management**: Registration, updates, and deletion of facility basic information
-- **Land Information**: Detailed land ownership, contract, and financial data management
-- **File Management**: Upload/download of facility documents with security controls
-- **Role-Based Access**: Admin, Editor, Primary Responder, Approver, and Viewer roles
-- **Approval Workflows**: Change approval and rejection system with notifications
-- **Export Functions**: PDF reports and CSV data exports with customizable fields
-- **Comment System**: Facility-specific comments with assignment and notification features
-- **Maintenance History**: Tracking of facility maintenance and repairs
-- **Annual Confirmation**: Periodic facility information verification process
-- **Activity Logging**: Comprehensive audit trails for all system actions
+### 主要機能
+- **施設管理**: 施設基本情報の登録、更新、削除
+- **土地情報**: 詳細な土地所有権、契約、財務データ管理
+- **ファイル管理**: セキュリティ制御を備えた施設文書のアップロード/ダウンロード
+- **ロールベースアクセス**: 管理者、編集者、承認者、閲覧者の役割
+- **承認ワークフロー**: 通知機能付きの変更承認・却下システム
+- **エクスポート機能**: カスタマイズ可能なフィールドを持つCSVデータエクスポート
+- **コメントシステム**: 割り当てと通知機能を備えた施設固有のコメント
+- **保守履歴**: 施設の保守・修理の追跡
+- **年次確認**: 定期的な施設情報検証プロセス
+- **活動ログ**: すべてのシステムアクションの包括的な監査証跡
 
-### Target Users
-- **Administrators**: Full system access and user management
-- **Editors**: Facility data entry and modification
-- **Primary Responders**: Facility-specific editing permissions
-- **Approvers**: Review and approve facility changes
-- **Viewers**: Read-only access with optional scope restrictions
+### 対象ユーザー
+- **管理者**: システム全体へのアクセスとユーザー管理
+- **編集者**: 施設データの入力と修正
+- **承認者**: 施設変更の確認と承認
+- **閲覧者**: オプションのスコープ制限付き読み取り専用アクセス
 
-### Business Context
-The system is designed for Japanese business environments with:
-- Japanese language interface and documentation
-- Japanese date formats and business practices
-- Role-based organizational structures
-- Compliance and audit requirements
-- Security considerations for sensitive facility data
+### ビジネスコンテキスト
+このシステムは日本のビジネス環境向けに設計されており、以下の特徴があります：
+- 日本語インターフェースと文書
+- 日本の日付形式とビジネス慣行
+- ロールベースの組織構造
+- コンプライアンスと監査要件
+- 機密施設データのセキュリティ考慮事項

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>水道詳細画面タイトル表示テスト</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .water-detail-titles {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 0.5rem;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .water-detail-titles .title-line-1 {
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 0.75rem;
+        }
+
+        .water-detail-titles .water-contractor-title {
+            color: #17a2b8;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .water-detail-titles .contractor-name {
+            color: #212529;
+            font-weight: 500;
+        }
+
+        .water-detail-titles .title-line-2 {
+            padding-top: 0.75rem;
+        }
+
+        .water-detail-titles .cleaning-info-titles > div {
+            display: flex;
+            flex-direction: column;
+            min-width: 200px;
+        }
+
+        .water-detail-titles .cleaning-info-titles strong {
+            color: #495057;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .water-detail-titles .cleaning-info-titles span {
+            color: #212529;
+            font-size: 0.9rem;
+        }
+
+        .water-detail-titles .text-muted {
+            color: #6c757d !important;
+            font-style: italic;
+        }
+
+        .water-detail-titles .btn-outline-primary {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>水道詳細画面タイトル表示テスト</h2>
+        
+        <div class="water-detail-titles">
+            <div class="title-line-1 mb-2">
+                <h6 class="water-contractor-title">
+                    <strong>水道契約会社:</strong> 
+                    <span class="contractor-name">東京都水道局</span>
+                </h6>
+            </div>
+            <div class="title-line-2">
+                <div class="cleaning-info-titles d-flex flex-wrap gap-3">
+                    <div class="cleaning-company">
+                        <strong>受水槽・配管清掃業者:</strong> 
+                        <span>株式会社清掃サービス</span>
+                    </div>
+                    <div class="cleaning-date">
+                        <strong>受水槽・配管清掃実施日:</strong> 
+                        <span>2024年3月15日</span>
+                    </div>
+                    <div class="cleaning-report">
+                        <strong>受水槽・配管清掃実施報告書:</strong> 
+                        <a href="#" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-download"></i> ダウンロード
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

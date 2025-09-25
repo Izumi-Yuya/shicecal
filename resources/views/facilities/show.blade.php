@@ -365,6 +365,61 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     @endif
     
+    // Handle URL fragments for lifeline equipment tabs
+    function handleLifelineFragment() {
+        const hash = window.location.hash.substring(1); // Remove #
+        const lifelineCategories = ['electrical', 'water', 'gas', 'elevator', 'hvac-lighting'];
+        
+        if (lifelineCategories.includes(hash)) {
+            // First activate the lifeline equipment main tab
+            const lifelineTab = document.getElementById('lifeline-tab');
+            const lifelinePane = document.getElementById('lifeline-equipment');
+            
+            if (lifelineTab && lifelinePane) {
+                // Activate main lifeline tab
+                document.querySelectorAll('.nav-tabs .nav-link').forEach(tab => {
+                    tab.classList.remove('active');
+                    tab.setAttribute('aria-selected', 'false');
+                });
+                document.querySelectorAll('.tab-pane').forEach(pane => {
+                    pane.classList.remove('active', 'show');
+                });
+                
+                lifelineTab.classList.add('active');
+                lifelineTab.setAttribute('aria-selected', 'true');
+                lifelinePane.classList.add('active', 'show');
+                
+                // Then activate the specific sub-tab
+                setTimeout(() => {
+                    const subTabButton = document.getElementById(hash + '-tab');
+                    const subTabPane = document.getElementById(hash);
+                    
+                    if (subTabButton && subTabPane) {
+                        // Deactivate all sub-tabs
+                        document.querySelectorAll('#lifelineSubTabs .nav-link').forEach(tab => {
+                            tab.classList.remove('active');
+                            tab.setAttribute('aria-selected', 'false');
+                        });
+                        document.querySelectorAll('#lifelineSubTabContent .tab-pane').forEach(pane => {
+                            pane.classList.remove('active', 'show');
+                        });
+                        
+                        // Activate target sub-tab
+                        subTabButton.classList.add('active');
+                        subTabButton.setAttribute('aria-selected', 'true');
+                        subTabPane.classList.add('active', 'show');
+                    }
+                }, 100);
+            }
+        }
+    }
+    
+    // Handle fragment on page load
+    handleLifelineFragment();
+    
+    // Handle fragment changes
+    window.addEventListener('hashchange', handleLifelineFragment);
+
     // Lifeline Equipment Tab Functionality
     const lifelineTab = document.getElementById('lifeline-tab');
     if (lifelineTab) {

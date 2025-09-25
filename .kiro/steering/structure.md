@@ -1,160 +1,160 @@
-# Project Structure & Organization
+# プロジェクト構造と組織
 
-## Root Directory Layout
+## ルートディレクトリレイアウト
 ```
 shicecal/
-├── app/                    # Application code
-├── bootstrap/              # Framework bootstrap files
-├── config/                 # Configuration files
-├── database/               # Migrations, seeders, factories
-├── docs/                   # Project documentation
-├── public/                 # Web server document root
-├── resources/              # Views, CSS, JS, language files
-├── routes/                 # Route definitions
-├── storage/                # File storage and logs
-├── tests/                  # Test files
-└── vendor/                 # Composer dependencies
+├── app/                    # アプリケーションコード
+├── bootstrap/              # フレームワークブートストラップファイル
+├── config/                 # 設定ファイル
+├── database/               # マイグレーション、シーダー、ファクトリー
+├── docs/                   # プロジェクトドキュメント
+├── public/                 # Webサーバードキュメントルート
+├── resources/              # ビュー、CSS、JS、言語ファイル
+├── routes/                 # ルート定義
+├── storage/                # ファイルストレージとログ
+├── tests/                  # テストファイル
+└── vendor/                 # Composer依存関係
 ```
 
-## Application Structure (`app/`)
+## アプリケーション構造 (`app/`)
 ```
 app/
-├── Console/                # Artisan commands
-├── Exceptions/             # Exception handlers
-├── Helpers/                # Helper classes and utilities
+├── Console/                # Artisanコマンド
+├── Exceptions/             # 例外ハンドラー
+├── Helpers/                # ヘルパークラスとユーティリティ
 ├── Http/
-│   ├── Controllers/        # HTTP controllers
-│   │   └── Admin/          # Admin-specific controllers
-│   ├── Middleware/         # HTTP middleware
-│   └── Requests/           # Form request validation
-├── Models/                 # Eloquent models
-├── Policies/               # Authorization policies
-├── Providers/              # Service providers
-└── Services/               # Business logic services
+│   ├── Controllers/        # HTTPコントローラー
+│   │   └── Admin/          # 管理者専用コントローラー
+│   ├── Middleware/         # HTTPミドルウェア
+│   └── Requests/           # フォームリクエストバリデーション
+├── Models/                 # Eloquentモデル
+├── Policies/               # 認可ポリシー
+├── Providers/              # サービスプロバイダー
+└── Services/               # ビジネスロジックサービス
 ```
 
-## Frontend Structure (`resources/`)
+## フロントエンド構造 (`resources/`)
 ```
 resources/
 ├── css/
-│   ├── app.css             # Main application styles
-│   ├── auth.css            # Authentication pages
-│   ├── admin.css           # Admin interface styles
-│   ├── land-info.css       # Land information specific styles
-│   ├── base.css            # Base styles and resets
-│   ├── components.css      # Reusable components
-│   ├── layout.css          # Layout and grid systems
-│   ├── pages.css           # Page-specific styles
-│   ├── utilities.css       # Utility classes
-│   ├── variables.css       # CSS custom properties
-│   └── animations.css      # Animation definitions
+│   ├── app.css             # メインアプリケーションスタイル
+│   ├── auth.css            # 認証ページ
+│   ├── admin.css           # 管理者インターフェーススタイル
+│   ├── land-info.css       # 土地情報専用スタイル
+│   ├── base.css            # ベーススタイルとリセット
+│   ├── components.css      # 再利用可能コンポーネント
+│   ├── layout.css          # レイアウトとグリッドシステム
+│   ├── pages.css           # ページ固有スタイル
+│   ├── utilities.css       # ユーティリティクラス
+│   ├── variables.css       # CSSカスタムプロパティ
+│   └── animations.css      # アニメーション定義
 ├── js/
-│   ├── app.js              # Main application JavaScript
-│   ├── admin.js            # Admin interface functionality
-│   ├── land-info.js        # Land information form handling
-│   └── bootstrap.js        # Framework initialization
+│   ├── app.js              # メインアプリケーションJavaScript
+│   ├── admin.js            # 管理者インターフェース機能
+│   ├── land-info.js        # 土地情報フォーム処理
+│   └── bootstrap.js        # フレームワーク初期化
 └── views/
-    ├── admin/              # Admin interface views
-    ├── auth/               # Authentication views
-    ├── comments/           # Comment system views
-    ├── export/             # Export functionality views
-    ├── facilities/         # Facility management views
-    ├── layouts/            # Layout templates
-    ├── maintenance/        # Maintenance views
-    ├── my-page/            # User dashboard views
-    └── notifications/      # Notification views
+    ├── admin/              # 管理者インターフェースビュー
+    ├── auth/               # 認証ビュー
+    ├── comments/           # コメントシステムビュー
+    ├── export/             # エクスポート機能ビュー
+    ├── facilities/         # 施設管理ビュー
+    ├── layouts/            # レイアウトテンプレート
+    ├── maintenance/        # メンテナンスビュー
+    ├── my-page/            # ユーザーダッシュボードビュー
+    └── notifications/      # 通知ビュー
 ```
 
-## Database Structure (`database/`)
+## データベース構造 (`database/`)
 ```
 database/
-├── factories/              # Model factories for testing
-├── migrations/             # Database schema migrations
-├── seeders/                # Database seeders
-├── database.sqlite         # SQLite database (development)
-└── testing.sqlite          # SQLite database (testing)
+├── factories/              # テスト用モデルファクトリー
+├── migrations/             # データベーススキーママイグレーション
+├── seeders/                # データベースシーダー
+├── database.sqlite         # SQLiteデータベース（開発用）
+└── testing.sqlite          # SQLiteデータベース（テスト用）
 ```
 
-## Testing Structure (`tests/`)
+## テスト構造 (`tests/`)
 ```
 tests/
-├── Feature/                # Feature/integration tests
-├── Unit/                   # Unit tests
-│   ├── Helpers/            # Helper class tests
-│   ├── Models/             # Model tests
-│   ├── Policies/           # Policy tests
-│   └── Services/           # Service tests
-├── js/                     # JavaScript tests
-└── TestCase.php            # Base test case
+├── Feature/                # 機能/統合テスト
+├── Unit/                   # 単体テスト
+│   ├── Helpers/            # ヘルパークラステスト
+│   ├── Models/             # モデルテスト
+│   ├── Policies/           # ポリシーテスト
+│   └── Services/           # サービステスト
+├── js/                     # JavaScriptテスト
+└── TestCase.php            # ベーステストケース
 ```
 
-## Configuration Files (`config/`)
-- `app.php` - Application configuration
-- `database.php` - Database connections
-- `auth.php` - Authentication settings
-- `facility.php` - Facility-specific settings
-- `dompdf.php` - PDF generation settings
-- `tcpdf.php` - Advanced PDF settings
+## 設定ファイル (`config/`)
+- `app.php` - アプリケーション設定
+- `database.php` - データベース接続
+- `auth.php` - 認証設定
+- `facility.php` - 施設固有設定
+- `dompdf.php` - PDF生成設定
+- `tcpdf.php` - 高度なPDF設定
 
-## Key Architectural Patterns
+## 主要なアーキテクチャパターン
 
-### MVC Pattern
-- **Models**: Data layer with Eloquent ORM
-- **Views**: Blade templates for presentation
-- **Controllers**: HTTP request handling and response
+### MVCパターン
+- **Models**: Eloquent ORMを使用したデータ層
+- **Views**: プレゼンテーション用Bladeテンプレート
+- **Controllers**: HTTPリクエスト処理とレスポンス
 
-### Service Layer Pattern
-- Business logic separated into service classes
-- Controllers remain thin, delegating to services
-- Services handle complex operations and calculations
+### サービス層パターン
+- ビジネスロジックをサービスクラスに分離
+- コントローラーは薄く保ち、サービスに委譲
+- サービスが複雑な操作と計算を処理
 
-### Repository Pattern (Implicit)
-- Eloquent models act as repositories
-- Complex queries encapsulated in model methods
-- Relationships defined at model level
+### リポジトリパターン（暗黙的）
+- Eloquentモデルがリポジトリとして機能
+- 複雑なクエリをモデルメソッドにカプセル化
+- モデルレベルでリレーションシップを定義
 
-### Policy-Based Authorization
-- Authorization logic in dedicated Policy classes
-- Gate-based permissions for fine-grained control
-- Role-based access control (RBAC) implementation
+### ポリシーベース認可
+- 専用のPolicyクラスに認可ロジック
+- きめ細かい制御のためのゲートベース権限
+- ロールベースアクセス制御（RBAC）実装
 
-## Naming Conventions
+## 命名規則
 
-### PHP Classes
-- Controllers: `PascalCase` + `Controller` suffix
-- Models: `PascalCase` (singular)
-- Services: `PascalCase` + `Service` suffix
-- Policies: `PascalCase` + `Policy` suffix
+### PHPクラス
+- Controllers: `PascalCase` + `Controller` 接尾辞
+- Models: `PascalCase` (単数形)
+- Services: `PascalCase` + `Service` 接尾辞
+- Policies: `PascalCase` + `Policy` 接尾辞
 
-### Database
-- Tables: `snake_case` (plural)
+### データベース
+- Tables: `snake_case` (複数形)
 - Columns: `snake_case`
 - Foreign keys: `{table}_id`
-- Pivot tables: `{table1}_{table2}` (alphabetical)
+- Pivot tables: `{table1}_{table2}` (アルファベット順)
 
-### Files & Directories
+### ファイルとディレクトリ
 - Blade views: `kebab-case.blade.php`
-- CSS/JS files: `kebab-case`
-- Migration files: Laravel timestamp format
+- CSS/JSファイル: `kebab-case`
+- Migrationファイル: Laravelタイムスタンプ形式
 
-### Routes
-- Route names: `dot.notation` (e.g., `facilities.show`)
-- URL paths: `kebab-case` with resource conventions
+### ルート
+- Route names: `dot.notation` (例: `facilities.show`)
+- URL paths: リソース規約に従った `kebab-case`
 
-## Feature Organization
-Each major feature follows a consistent structure:
-- Controller for HTTP handling
-- Service for business logic
-- Model for data access
-- Policy for authorization
-- Request classes for validation
-- Blade views in feature subdirectory
-- Feature-specific CSS/JS files
-- Comprehensive test coverage
+## 機能組織
+各主要機能は一貫した構造に従います：
+- HTTP処理用のController
+- ビジネスロジック用のService
+- データアクセス用のModel
+- 認可用のPolicy
+- バリデーション用のRequestクラス
+- 機能サブディレクトリ内のBladeビュー
+- 機能固有のCSS/JSファイル
+- 包括的なテストカバレッジ
 
-## Documentation Structure (`docs/`)
-- `requirements/` - System requirements and specifications
-- `setup/` - Development and deployment setup guides
-- `implementation/` - Technical implementation details
-- `deployment/` - Production deployment documentation
-- `troubleshooting/` - Common issues and solutions
+## ドキュメント構造 (`docs/`)
+- `requirements/` - システム要件と仕様
+- `setup/` - 開発とデプロイメントセットアップガイド
+- `implementation/` - 技術実装詳細
+- `deployment/` - 本番デプロイメントドキュメント
+- `troubleshooting/` - 一般的な問題と解決策

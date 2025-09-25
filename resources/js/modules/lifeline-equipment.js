@@ -1,6 +1,7 @@
 /**
- * Lifeline Equipment Management Module
+ * Lifeline Equipment Management Module / ライフライン設備管理モジュール
  * Handles tab switching, card editing, saving, and error handling for lifeline equipment
+ * タブ切り替え、カード編集、保存、エラーハンドリングを管理
  * Implements requirements 1.8 and 1.9 from the lifeline equipment management spec
  */
 
@@ -33,12 +34,13 @@ class LifelineEquipmentManager {
       console.log('LifelineEquipmentManager initialized successfully');
     } catch (error) {
       console.error('Failed to initialize LifelineEquipmentManager:', error);
-      this.showErrorMessage('ライフライン設備管理機能の初期化に失敗しました');
+      this.showErrorMessage('ライフライン設備の初期化に失敗しました。');
     }
   }
 
   /**
    * Initialize comment system integration
+   * Connects with the existing Shise-Cal comment system for equipment-specific discussions
    */
   initializeCommentSystem() {
     // Check if comment system is available
@@ -244,7 +246,7 @@ class LifelineEquipmentManager {
       }
     } catch (error) {
       console.error('Failed to load comments:', error);
-      this.showErrorMessage('コメントの読み込みに失敗しました');
+      this.showErrorMessage('コメントの読み込みに失敗しました。');
     }
   }
 
@@ -330,11 +332,11 @@ class LifelineEquipmentManager {
         this.showSuccessMessage('コメントを投稿しました');
       } else {
         const errorData = await response.json();
-        this.showErrorMessage(errorData.message || 'コメントの投稿に失敗しました');
+        this.showErrorMessage(errorData.message || 'コメントの投稿に失敗しました。');
       }
     } catch (error) {
       console.error('Failed to submit comment:', error);
-      this.showErrorMessage('コメントの投稿に失敗しました');
+      this.showErrorMessage('コメントの投稿に失敗しました。');
     } finally {
       // Re-enable input
       commentInput.disabled = false;
@@ -362,11 +364,11 @@ class LifelineEquipmentManager {
         this.loadComments(section); // Reload comments
         this.showSuccessMessage('コメントを削除しました');
       } else {
-        this.showErrorMessage('コメントの削除に失敗しました');
+        this.showErrorMessage('コメントの削除に失敗しました。');
       }
     } catch (error) {
       console.error('Failed to delete comment:', error);
-      this.showErrorMessage('コメントの削除に失敗しました');
+      this.showErrorMessage('コメントの削除に失敗しました。');
     }
   }
 

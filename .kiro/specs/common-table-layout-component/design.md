@@ -83,7 +83,7 @@ $data = [
     'value' => null,        // 値
     'type' => 'text',       // セルタイプ
     'colspan' => 1,         // カラムスパン
-    'rowspan' => 1,         // ローススパン
+    'rowspan' => 1,         // ロースパン
     'isLabel' => false,     // ラベルセルかどうか
     'isEmpty' => false,     // 空フィールドかどうか
     'class' => '',          // 追加CSSクラス
@@ -134,7 +134,7 @@ interface CellData {
     mixed $value;          // 値
     string $type;          // セルタイプ
     int $colspan;          // カラムスパン
-    int $rowspan;          // ローススパン
+    int $rowspan;          // ロースパン
     array $attributes;     // 追加属性
 }
 ```
