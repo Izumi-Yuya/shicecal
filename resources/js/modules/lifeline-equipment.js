@@ -1,7 +1,6 @@
 /**
- * Lifeline Equipment Management Module / ライフライン設備管理モジュール
- * Handles tab switching, card editing, saving, and error handling for lifeline equipment
- * タブ切り替え、カード編集、保存、エラーハンドリングを管理
+ * Lifeline Equipment Management Module
+ * Handles tab switching, card editing, saving, and error handling for the lifeline equipment
  * Implements requirements 1.8 and 1.9 from the lifeline equipment management spec
  */
 

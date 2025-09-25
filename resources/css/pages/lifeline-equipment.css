@@ -1258,3 +1258,134 @@
   font-weight: 600;
   margin-bottom: 0;
 }
+
+/*
+ Gas Equipment Water Heater Styles / ガス設備給湯器スタイル */
+.gas-equipment-sections .section-header {
+  background-color: #f8f9fa;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  border: 1px solid #dee2e6;
+  margin-bottom: 1rem;
+}
+
+.gas-equipment-sections .section-title {
+  color: #495057;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.gas-equipment-sections .equipment-list {
+  background-color: #fefefe;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  border: 1px solid #e9ecef;
+}
+
+.gas-equipment-sections .equipment-list-title {
+  color: #495057;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 0.5rem;
+}
+
+.gas-equipment-sections .equipment-item {
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  background-color: #fff;
+  border-left: 4px solid #ffc107;
+}
+
+.gas-equipment-sections .equipment-header {
+  margin-bottom: 0.75rem;
+}
+
+.gas-equipment-sections .equipment-number {
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: #ffc107 !important;
+  color: #000 !important;
+}
+
+.gas-equipment-sections .equipment-title {
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.gas-equipment-sections .no-equipment-message {
+  margin-top: 1rem;
+}
+
+.gas-equipment-sections .no-equipment-message .alert {
+  border-left: 4px solid #17a2b8;
+  background-color: #d1ecf1;
+  border-color: #bee5eb;
+  color: #0c5460;
+}
+
+/* Water Heater Table Specific Styles */
+.water-heater-info-table,
+.water-heater-equipment-table {
+  margin-bottom: 0;
+}
+
+.water-heater-info-table .badge.availability {
+  background-color: #28a745 !important;
+  color: white;
+}
+
+.water-heater-info-table .badge.availability:empty::after {
+  content: "未設定";
+  background-color: #6c757d !important;
+}
+
+/* Responsive Design for Water Heater Equipment */
+@media (max-width: 768px) {
+  .gas-equipment-sections .equipment-item {
+    padding: 0.75rem;
+  }
+
+  .gas-equipment-sections .equipment-header {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.5rem;
+  }
+
+  .gas-equipment-sections .equipment-number {
+    margin-bottom: 0.25rem;
+  }
+}
+
+/* 
+Floor Heating Styles / 床暖房スタイル */
+.gas-equipment-sections .floor-heating-info-table {
+  margin-bottom: 0;
+}
+
+.gas-equipment-sections .floor-heating-info-table .detail-row {
+  border-left: 4px solid #dc3545;
+}
+
+.gas-equipment-sections .section-header .text-danger {
+  color: #dc3545 !important;
+}
+
+/* Floor Heating Equipment Item Styles */
+.floor-heating-equipment-item {
+  border-left: 4px solid #dc3545;
+}
+
+.floor-heating-equipment-item .equipment-number {
+  background-color: #dc3545 !important;
+  color: white !important;
+}
+
+/* Responsive Design for Floor Heating */
+@media (max-width: 768px) {
+  .gas-equipment-sections .floor-heating-info-table {
+    font-size: 0.9rem;
+  }
+}
