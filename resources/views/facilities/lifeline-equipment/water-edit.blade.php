@@ -387,7 +387,7 @@
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">検査結果（２回目）</label>
+                                <label class="form-label">検査結果（2回目）</label>
                                 <select class="form-select" 
                                         name="basic_info[legionella_info][inspections][{{ $index }}][second_result]">
                                     <option value="">選択してください</option>
@@ -699,7 +699,7 @@ function initializeLegionellaEquipment() {
             
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">検査結果（２回目）</label>
+                    <label class="form-label">検査結果（2回目）</label>
                     <select class="form-select" 
                             name="basic_info[legionella_info][inspections][${legionellaIndex}][second_result]">
                         <option value="">選択してください</option>

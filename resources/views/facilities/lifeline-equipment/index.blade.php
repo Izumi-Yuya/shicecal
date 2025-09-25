@@ -66,8 +66,8 @@
             
             <!-- 他のタブはカード内に残す -->
             <div class="tab-pane fade" id="gas" role="tabpanel" aria-labelledby="gas-tab">
-                <div class="card facility-info-card detail-card-improved">
-                    <div class="card-body">
+                {{-- <div class="card facility-info-card detail-card-improved">
+                    <div class="card-body"> --}}
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div class="flex-grow-1"></div>
                             @if(auth()->user()->canEditFacility($facility->id))
@@ -78,13 +78,13 @@
                             @endif
                         </div>
                         @include('facilities.lifeline-equipment.gas', ['facility' => $facility])
-                    </div>
-                </div>
+                    {{-- </div>
+                </div> --}}
             </div>
             
             <div class="tab-pane fade" id="elevator" role="tabpanel" aria-labelledby="elevator-tab">
-                <div class="card facility-info-card detail-card-improved">
-                    <div class="card-body">
+                {{-- <div class="card facility-info-card detail-card-improved">
+                    <div class="card-body"> --}}
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div class="flex-grow-1"></div>
                             @if(auth()->user()->canEditFacility($facility->id))
@@ -98,13 +98,13 @@
                             'facility' => $facility,
                             'elevatorEquipment' => $facility->getElevatorEquipment()
                         ])
-                    </div>
-                </div>
+                    {{-- </div>
+                </div> --}}
             </div>
             
             <div class="tab-pane fade" id="hvac-lighting" role="tabpanel" aria-labelledby="hvac-lighting-tab">
-                <div class="card facility-info-card detail-card-improved">
-                    <div class="card-body">
+                {{-- <div class="card facility-info-card detail-card-improved">
+                    <div class="card-body"> --}}
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div class="flex-grow-1"></div>
                             @if(auth()->user()->canEditFacility($facility->id))
@@ -120,8 +120,8 @@
                         ])
                     </div>
                 </div>
-            </div>
-        </div>
+            {{-- </div>
+        </div> --}}
     </div>
     
     <!-- コメントセクション -->

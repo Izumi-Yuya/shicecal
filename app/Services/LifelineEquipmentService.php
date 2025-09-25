@@ -254,7 +254,7 @@ class LifelineEquipmentService
 
         // Update only the sections that are provided in the request
         if (array_key_exists('basic_info', $validatedData)) {
-            $gasEquipment->basic_info = $validatedData['basic_info'];
+            $gasEquipment->basic_info = $this->processGasBasicInfo($validatedData['basic_info']);
         }
 
         if (array_key_exists('notes', $validatedData)) {
@@ -265,6 +265,50 @@ class LifelineEquipmentService
     }
 
     /**
+     * Process gas equipment basic info data before saving.
+     * Handles data sanitization, validation, and structure normalization.
+     */
+    private function processGasBasicInfo(array $basicInfo): array
+    {
+        $processedData = [
+            'gas_supplier' => isset($basicInfo['gas_supplier']) 
+                ? ($basicInfo['gas_supplier'] === null ? null : trim($basicInfo['gas_supplier']))
+                : null,
+            'gas_type' => $basicInfo['gas_type'] ?? null,
+        ];
+
+        // Process water heater info (multiple water heaters support)
+        if (isset($basicInfo['water_heater_info']) && is_array($basicInfo['water_heater_info'])) {
+            $waterHeaterInfo = $basicInfo['water_heater_info'];
+            
+            $processedData['water_heater_info'] = [
+                'availability' => $waterHeaterInfo['availability'] ?? null,
+            ];
+            
+            // Process water heaters list if availability is '有'
+            if (($waterHeaterInfo['availability'] ?? '') === '有' && isset($waterHeaterInfo['water_heaters']) && is_array($waterHeaterInfo['water_heaters'])) {
+                $waterHeaterList = [];
+                
+                foreach ($waterHeaterInfo['water_heaters'] as $heater) {
+                    if (is_array($heater) && !empty(array_filter($heater))) {
+                        $waterHeaterList[] = [
+                            'manufacturer' => isset($heater['manufacturer']) 
+                                ? ($heater['manufacturer'] === null ? null : trim($heater['manufacturer']))
+                                : null,
+                            'model_year' => $heater['model_year'] ?? null,
+                            'update_date' => $heater['update_date'] ?? null,
+                        ];
+                    }
+                }
+                
+                $processedData['water_heater_info']['water_heaters'] = $waterHeaterList;
+            }
+        }
+
+        return $processedData;
+    }
+
+    /**
      * Get default gas equipment structure.
      */
     private function getDefaultGasEquipmentStructure(): array
@@ -272,9 +316,11 @@ class LifelineEquipmentService
         return [
             'basic_info' => [
                 'gas_supplier' => '',
-                'safety_management_company' => '',
-                'maintenance_inspection_date' => '',
-                'inspection_report_pdf' => '',
+                'gas_type' => '',
+                'water_heater_info' => [
+                    'availability' => '',
+                    'water_heaters' => [],
+                ],
             ],
             'notes' => '',
         ];

@@ -180,16 +180,37 @@ class LifelineEquipmentValidationService
     }
 
     /**
-     * Get validation rules for gas equipment (basic structure).
+     * Get validation rules for the gas equipment.
      */
     private function getGasValidationRules(): array
     {
         return [
+            // Basic information validation rules
             'basic_info' => 'sometimes|array',
             'basic_info.gas_supplier' => 'nullable|string|max:255',
             'basic_info.safety_management_company' => 'nullable|string|max:255',
-            'basic_info.maintenance_inspection_date' => 'nullable|date',
+            'basic_info.maintenance_inspection_date' => 'nullable|date|before_or_equal:today',
             'basic_info.inspection_report_pdf' => 'nullable|string|max:255',
+            'basic_info.inspection_report_pdf_file' => 'nullable|file|mimes:pdf|max:10240', // 10MB max
+            
+            // Gas equipment detail validation rules
+            'basic_info.gas_meter_number' => 'nullable|string|max:100',
+            'basic_info.gas_type' => 'nullable|string|max:100',
+            'basic_info.supply_pressure' => 'nullable|in:低圧,中圧,高圧',
+            'basic_info.pipe_material' => 'nullable|in:鋼管,ポリエチレン管,銅管',
+            'basic_info.installation_year' => 'nullable|integer|min:1900|max:' . date('Y'),
+            'basic_info.emergency_shutoff_valve' => 'nullable|in:有,無',
+            'basic_info.leak_detector' => 'nullable|in:設置済み,未設置',
+            
+            // Water heater validation rules
+            'basic_info.water_heater_info' => 'sometimes|array',
+            'basic_info.water_heater_info.availability' => 'nullable|in:有,無',
+            'basic_info.water_heater_info.water_heaters' => 'sometimes|array',
+            'basic_info.water_heater_info.water_heaters.*.manufacturer' => 'nullable|string|max:255',
+            'basic_info.water_heater_info.water_heaters.*.model_year' => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
+            'basic_info.water_heater_info.water_heaters.*.update_date' => 'nullable|date',
+            
+            // Notes validation rules
             'notes' => 'nullable|string|max:2000',
         ];
     }
@@ -200,14 +221,45 @@ class LifelineEquipmentValidationService
     private function getGasValidationMessages(): array
     {
         return [
+            // Basic info messages
             'basic_info.array' => '基本情報は配列形式である必要があります。',
             'basic_info.gas_supplier.string' => 'ガス供給会社は文字列で入力してください。',
             'basic_info.gas_supplier.max' => 'ガス供給会社は255文字以内で入力してください。',
-            'basic_info.safety_management_company.string' => '保安管理業者は文字列で入力してください。',
-            'basic_info.safety_management_company.max' => '保安管理業者は255文字以内で入力してください。',
-            'basic_info.maintenance_inspection_date.date' => 'ガス保守点検実施日は有効な日付を入力してください。',
-            'basic_info.inspection_report_pdf.string' => '点検実施報告書は文字列で入力してください。',
-            'basic_info.inspection_report_pdf.max' => '点検実施報告書は255文字以内で入力してください。',
+            'basic_info.safety_management_company.string' => '保安管理会社は文字列で入力してください。',
+            'basic_info.safety_management_company.max' => '保安管理会社は255文字以内で入力してください。',
+            'basic_info.maintenance_inspection_date.date' => '保守点検実施日は有効な日付を入力してください。',
+            'basic_info.maintenance_inspection_date.before_or_equal' => '保守点検実施日は今日以前の日付を入力してください。',
+            'basic_info.inspection_report_pdf.string' => '点検報告書は文字列で入力してください。',
+            'basic_info.inspection_report_pdf.max' => '点検報告書は255文字以内で入力してください。',
+            'basic_info.inspection_report_pdf_file.file' => '点検報告書は有効なファイルを選択してください。',
+            'basic_info.inspection_report_pdf_file.mimes' => '点検報告書はPDFファイルのみアップロード可能です。',
+            'basic_info.inspection_report_pdf_file.max' => '点検報告書のファイルサイズは10MB以下にしてください。',
+            
+            // Gas equipment details messages
+            'basic_info.gas_meter_number.string' => 'ガスメーター番号は文字列で入力してください。',
+            'basic_info.gas_meter_number.max' => 'ガスメーター番号は100文字以内で入力してください。',
+            'basic_info.gas_type.string' => 'ガス種別は文字列で入力してください。',
+            'basic_info.gas_type.max' => 'ガス種別は100文字以内で入力してください。',
+            'basic_info.supply_pressure.in' => '供給圧力は「低圧」「中圧」「高圧」のいずれかを選択してください。',
+            'basic_info.pipe_material.in' => '配管材質は「鋼管」「ポリエチレン管」「銅管」のいずれかを選択してください。',
+            'basic_info.installation_year.integer' => '設置年は数値で入力してください。',
+            'basic_info.installation_year.min' => '設置年は1900年以降を入力してください。',
+            'basic_info.installation_year.max' => '設置年は今年以前を入力してください。',
+            'basic_info.emergency_shutoff_valve.in' => '緊急遮断弁は「有」「無」のいずれかを選択してください。',
+            'basic_info.leak_detector.in' => 'ガス漏れ検知器は「設置済み」「未設置」のいずれかを選択してください。',
+            
+            // Water heater messages
+            'basic_info.water_heater_info.array' => '給湯器情報は配列形式である必要があります。',
+            'basic_info.water_heater_info.availability.in' => '給湯器の有無は「有」「無」のいずれかを選択してください。',
+            'basic_info.water_heater_info.water_heaters.array' => '給湯器設備は配列形式である必要があります。',
+            'basic_info.water_heater_info.water_heaters.*.manufacturer.string' => '給湯器のメーカーは文字列で入力してください。',
+            'basic_info.water_heater_info.water_heaters.*.manufacturer.max' => '給湯器のメーカーは255文字以内で入力してください。',
+            'basic_info.water_heater_info.water_heaters.*.model_year.integer' => '給湯器の年式は数値で入力してください。',
+            'basic_info.water_heater_info.water_heaters.*.model_year.min' => '給湯器の年式は1900年以降を入力してください。',
+            'basic_info.water_heater_info.water_heaters.*.model_year.max' => '給湯器の年式は来年以前を入力してください。',
+            'basic_info.water_heater_info.water_heaters.*.update_date.date' => '給湯器の更新年月日は有効な日付を入力してください。',
+            
+            // Notes messages
             'notes.string' => '備考は文字列で入力してください。',
             'notes.max' => '備考は2000文字以内で入力してください。',
         ];

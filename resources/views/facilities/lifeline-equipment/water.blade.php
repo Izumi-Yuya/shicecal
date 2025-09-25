@@ -9,14 +9,14 @@
 
     // 基本情報テーブルデータの構築
     $basicInfoData = [
-        // 1行目：1カラム（水道契約会社）
+        // 第1行：1カラム（水道契約会社）
         [
             'type' => 'standard',
             'cells' => [
                 ['label' => '水道契約会社', 'value' => $basicInfo['water_contractor'] ?? null, 'type' => 'text'],
             ]
         ],
-        // 2行目：3カラム（受水槽清掃関連）
+        // 第2行：3カラム（受水槽清掃関連）
         [
             'type' => 'standard',
             'cells' => [
@@ -29,14 +29,14 @@
 
     // ろ過器テーブルデータの構築
     $filterData = [
-        // 1行目：1カラム（浴槽方式）
+        // 第1行：1カラム（浴槽方式）
         [
             'type' => 'standard',
             'cells' => [
                 ['label' => '浴槽循環方式', 'value' => $filterInfo['bath_system'] ?? null, 'type' => 'badge', 'options' => ['badge_class' => 'bg-info']],
             ]
         ],
-        // 2行目：3カラム（有無、メーカー、年式）
+        // 第2行：3カラム（有無、メーカー、年式）
         [
             'type' => 'standard',
             'cells' => [
@@ -49,7 +49,7 @@
 
     // 受水槽テーブルデータの構築
     $tankData = [
-        // 1行目：3カラム（有無、メーカー、年式）
+        // 第1行：3カラム（有無、メーカー、年式）
         [
             'type' => 'standard',
             'cells' => [
@@ -62,7 +62,7 @@
 
     // 浄化槽テーブルデータの構築
     $septicTankData = [
-        // 1行目：3カラム（有無、メーカー、年式）
+        // 第1行：3カラム（有無、メーカー、年式）
         [
             'type' => 'standard',
             'cells' => [
@@ -71,7 +71,7 @@
                 ['label' => '年式', 'value' => !empty($septicTankInfo['model_year']) ? $septicTankInfo['model_year'] . '年式' : null, 'type' => 'text'],
             ]
         ],
-        // 2行目：3カラム（点検・清掃業者、実施日、実施報告書）
+        // 第2行：3カラム（点検・清掃業者、実施日、実施報告書）
         [
             'type' => 'standard',
             'cells' => [
@@ -128,7 +128,7 @@
             $legionellaDataSets[] = [
                 'number' => $index + 1,
                 'data' => [
-                    // 1行目：実施日、検査結果報告書
+                    // 第1行：実施日、検査結果報告書
                     [
                         'type' => 'standard',
                         'cells' => [
@@ -136,7 +136,7 @@
                             ['label' => '検査結果報告書', 'value' => $inspection['report_pdf'] ?? null, 'type' => 'file', 'options' => ['route' => 'facilities.lifeline-equipment.download', 'params' => [$facility, 'water'], 'display_name' => 'ダウンロード']],
                         ]
                     ],
-                    // 2行目：検査結果（初回）、数値（陽性の場合）
+                    // 第2行：検査結果（初回）、数値（陽性の場合）
                     [
                         'type' => 'standard',
                         'cells' => [
@@ -144,7 +144,7 @@
                             ['label' => '数値（陽性の場合）', 'value' => $inspection['first_value'] ?? null, 'type' => 'text'],
                         ]
                     ],
-                    // 3行目：検査結果（2回目）、数値（陽性の場合）
+                    // 第3行：検査結果（2回目）、数値（陽性の場合）
                     [
                         'type' => 'standard',
                         'cells' => [
@@ -160,7 +160,7 @@
         $legionellaDataSets[] = [
             'number' => null, // 単一の場合は番号なし
             'data' => [
-                // 1行目：実施日、検査結果報告書
+                // 第1行：実施日、検査結果報告書
                 [
                     'type' => 'standard',
                     'cells' => [
@@ -168,7 +168,7 @@
                         ['label' => '検査結果報告書', 'value' => $legionellaInfo['report_pdf'] ?? null, 'type' => 'file', 'options' => ['route' => 'facilities.lifeline-equipment.download', 'params' => [$facility, 'water'], 'display_name' => 'ダウンロード']],
                     ]
                 ],
-                // 2行目：検査結果（初回）、数値（陽性の場合）
+                // 第2行：検査結果（初回）、数値（陽性の場合）
                 [
                     'type' => 'standard',
                     'cells' => [
@@ -176,11 +176,11 @@
                         ['label' => '数値（陽性の場合）', 'value' => $legionellaInfo['first_value'] ?? null, 'type' => 'text'],
                     ]
                 ],
-                // 3行目：検査結果（２回目）、数値（陽性の場合）
+                // 第3行：検査結果（2回目）、数値（陽性の場合）
                 [
                     'type' => 'standard',
                     'cells' => [
-                        ['label' => '検査結果（２回目）', 'value' => $legionellaInfo['second_result'] ?? null, 'type' => 'badge', 'options' => ['badge_class' => ($legionellaInfo['second_result'] ?? '') === '陽性' ? 'bg-danger' : 'bg-success']],
+                        ['label' => '検査結果（2回目）', 'value' => $legionellaInfo['second_result'] ?? null, 'type' => 'badge', 'options' => ['badge_class' => ($legionellaInfo['second_result'] ?? '') === '陽性' ? 'bg-danger' : 'bg-success']],
                         ['label' => '数値（陽性の場合）', 'value' => $legionellaInfo['second_value'] ?? null, 'type' => 'text'],
                     ]
                 ],
@@ -190,7 +190,7 @@
 
     // 備考テーブルデータの構築
     $notesData = [
-        // 1行目：1カラム（備考欄）
+        // 第1行：1カラム（備考欄）
         [
             'type' => 'standard',
             'cells' => [
