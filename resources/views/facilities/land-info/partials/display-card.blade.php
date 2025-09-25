@@ -73,7 +73,7 @@
             'type' => 'standard',
             'cells' => [
                 ['label' => '家賃', 'value' => $landInfo->monthly_rent, 'type' => 'currency'],
-                ['label' => '', 'value' => '-', 'type' => 'text', 'class' => 'text-center'],
+                ['label' => '-', 'value' => '-', 'type' => 'text'],
                 [
                     'label' => '契約書・覚書', 
                     'value' => $landInfo->lease_contract_pdf_name ? route('facilities.land-info.download', ['facility' => $facility, 'type' => 'lease_contract']) : null, 
@@ -250,6 +250,21 @@
 @endphp
 
 <!-- 管理会社情報・オーナー情報テーブル -->
+<style>
+    .row .col-md-6 .facility-info-card.detail-card-improved .card-header {
+        background: #f8f9fa !important;
+        background-color: #f8f9fa !important;
+        color: #212529 !important;
+    }
+
+    .row .col-md-6 .facility-info-card .card-header h5 {
+        color: #212529 !important;
+    }
+
+    .facility-basic-info-table-clean tbody tr:nth-child(3) td:nth-child(3) {
+        background-color: #f8f9fa !important;
+    }
+</style>
 <div class="row mb-3">
     <!-- 管理会社情報テーブル -->
     <div class="col-md-6">
