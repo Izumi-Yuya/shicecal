@@ -1,13 +1,88 @@
 {{-- 建物情報表示カード --}}
+<style>
+    /* 所有テーブルの幅調整 */
+    .building-ownership-table {
+        width: 400px !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .building-ownership-table .facility-basic-info-table-clean {
+        table-layout: fixed !important;
+        width: 200px !important;
+    }
+
+    .building-ownership-table .facility-basic-info-table-clean td.detail-label {
+        width: 100px !important;
+        min-width: 100px !important;
+        max-width: 100px !important;
+    }
+
+    .building-ownership-table .facility-basic-info-table-clean td.detail-value {
+        width: 300px !important;
+        min-width: 300px !important;
+        max-width: 300px !important;
+    }
+
+    /* 基本情報テーブルの6列均等幅設定 */
+    .building-basic-info-table .facility-basic-info-table-clean {
+        table-layout: fixed !important;
+        width: 100% !important;
+    }
+
+    .building-basic-info-table .facility-basic-info-table-clean tbody tr td {
+        width: 16.6667% !important;
+        min-width: 16.6667% !important;
+        max-width: 16.6667% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 各列を個別に指定して確実に均等にする */
+    .building-basic-info-table .facility-basic-info-table-clean tbody tr td:nth-child(1) {
+        width: 16.6667% !important;
+    }
+
+    .building-basic-info-table .facility-basic-info-table-clean tbody tr td:nth-child(2) {
+        width: 16.6667% !important;
+    }
+
+    .building-basic-info-table .facility-basic-info-table-clean tbody tr td:nth-child(3) {
+        width: 16.6667% !important;
+    }
+
+    .building-basic-info-table .facility-basic-info-table-clean tbody tr td:nth-child(4) {
+        width: 16.6667% !important;
+    }
+
+    .building-basic-info-table .facility-basic-info-table-clean tbody tr td:nth-child(5) {
+        width: 16.6667% !important;
+    }
+
+    .building-basic-info-table .facility-basic-info-table-clean tbody tr td:nth-child(6) {
+        width: 16.6667% !important;
+    }
+
+    /* スクロールバーを無効化 */
+    .building-basic-info-table .table-responsive,
+    .building-basic-info-table .table-responsive-md,
+    .building-ownership-table .table-responsive,
+    .building-ownership-table .table-responsive-md {
+        overflow-x: visible !important;
+        overflow-y: visible !important;
+    }
+
+    .building-basic-info-table .table-responsive::-webkit-scrollbar,
+    .building-basic-info-table .table-responsive-md::-webkit-scrollbar,
+    .building-ownership-table .table-responsive::-webkit-scrollbar,
+    .building-ownership-table .table-responsive-md::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+</style>
 <div class="building-info-card">
-    {{-- 開発中表示 --}}
-    <div class="alert alert-warning mb-3" role="alert">
-        <i class="fas fa-tools me-2"></i>
-        <strong>開発中</strong> - 建物情報の詳細機能は現在開発中です。
-    </div>
     @if($buildingInfo)
         {{-- 所有テーブル --}}
-        <div class="card facility-info-card detail-card-improved mb-3">
+        <div class="card facility-info-card detail-card-improved building-ownership-table">
             <div class="card-body card-body-clean" style="padding: 0;">
                 <div class="table-responsive">
                     <table class="table table-bordered facility-basic-info-table-clean" style="--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0;">
@@ -16,7 +91,7 @@
                                 <td class="detail-label" style="padding: 0.5rem;">所有</td>
                                 <td class="detail-value {{ empty($buildingInfo->ownership_type) ? 'empty-field' : '' }}" colspan="5" style="padding: 0.5rem;">
                                     @if($buildingInfo->ownership_type)
-                                        <span class="badge 
+                                        <span
                                             @if($buildingInfo->ownership_type === '自社') bg-success
                                             @elseif($buildingInfo->ownership_type === '賃借') bg-primary
                                             @elseif($buildingInfo->ownership_type === '賃貸') bg-info
@@ -36,7 +111,7 @@
         </div>
 
         {{-- 基本情報テーブル --}}
-        <div class="card facility-info-card detail-card-improved mb-3">
+        <div class="card facility-info-card detail-card-improved building-basic-info-table mb-3">
             <div class="card-body card-body-clean" style="padding: 0;">
                 <div class="table-responsive">
                     <table class="table table-bordered facility-basic-info-table-clean" style="--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0;">
@@ -100,7 +175,7 @@
                                 <td class="detail-value {{ empty($buildingInfo->construction_cooperation_fee) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                     {{ $buildingInfo->construction_cooperation_fee ? '¥' . number_format($buildingInfo->construction_cooperation_fee) : '未設定' }}
                                 </td>
-                                <td class="detail-label" style="background-color: #495057 !important; color: white !important; padding: 0.5rem;"></td>
+                                <td class="detail-label" style="padding: 0.5rem;">-</td>
                                 <td class="detail-value" style="padding: 0.5rem;">-</td>
                                 <td class="detail-label" style="padding: 0.5rem;">工事請負契約書</td>
                                 <td class="detail-value {{ empty($buildingInfo->construction_contract_pdf) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
@@ -153,9 +228,7 @@
                                 <td class="detail-label" style="padding: 0.5rem;">自動更新の有無</td>
                                 <td class="detail-value {{ $buildingInfo->auto_renewal === null ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                     @if($buildingInfo->auto_renewal !== null)
-                                        <span class="badge {{ $buildingInfo->auto_renewal ? 'bg-success' : 'bg-warning' }}">
-                                            {{ $buildingInfo->auto_renewal ? 'あり' : 'なし' }}
-                                        </span>
+                                        {{ $buildingInfo->auto_renewal ? 'あり' : 'なし' }}
                                     @else
                                         未設定
                                     @endif
