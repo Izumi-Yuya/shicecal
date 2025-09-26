@@ -37,13 +37,110 @@
     ];
 @endphp
 
-<!-- 所有テーブル（共通コンポーネント使用） -->
-<x-common-table 
-    :data="$ownershipData"
-    :showHeader="false"
-    :tableAttributes="['style' => '--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0;']"
-    bodyClass="p-0"
-/>
+<!-- 所有テーブル（共通デザイン適用版） -->
+<style>
+    .ownership-table-wrapper {
+        width: 400px !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .ownership-table-wrapper .facility-info-card {
+        width: 400px !important;
+        max-width: 400px !important;
+    }
+
+    .ownership-table-wrapper .facility-basic-info-table-clean {
+        table-layout: fixed !important;
+        width: 400px !important;
+    }
+
+    .ownership-table-wrapper .facility-basic-info-table-clean td {
+        width: 206px !important;
+        min-width: 206px !important;
+        max-width: 206px !important;
+    }
+
+    /* 所有テーブルのスクロールバーも無効化 */
+    .ownership-table-wrapper .table-responsive,
+    .ownership-table-wrapper .table-responsive-md {
+        overflow-x: visible !important;
+        overflow-y: visible !important;
+    }
+
+    .ownership-table-wrapper .table-responsive::-webkit-scrollbar,
+    .ownership-table-wrapper .table-responsive-md::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+
+        /* 基本情報テーブルの6列均等幅設定 */
+    div.basic-info-table table.facility-basic-info-table-clean {
+        table-layout: fixed !important;
+        width: 100% !important;
+    }
+
+    div.basic-info-table table.facility-basic-info-table-clean tbody tr td {
+        width: 16.6667% !important;
+        min-width: 16.6667% !important;
+        max-width: 16.6667% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 各列を個別に指定して確実に均等にする */
+    div.basic-info-table table.facility-basic-info-table-clean tbody tr td:nth-child(1) {
+        width: 16.6667% !important;
+    }
+
+    div.basic-info-table table.facility-basic-info-table-clean tbody tr td:nth-child(2) {
+        width: 16.6667% !important;
+    }
+
+    div.basic-info-table table.facility-basic-info-table-clean tbody tr td:nth-child(3) {
+        width: 16.6667% !important;
+    }
+
+    div.basic-info-table table.facility-basic-info-table-clean tbody tr td:nth-child(4) {
+        width: 16.6667% !important;
+    }
+
+    div.basic-info-table table.facility-basic-info-table-clean tbody tr td:nth-child(5) {
+        width: 16.6667% !important;
+    }
+
+    div.basic-info-table table.facility-basic-info-table-clean tbody tr td:nth-child(6) {
+        width: 16.6667% !important;
+    }
+
+    /* この画面でのみスクロールバーを無効化 */
+    div.basic-info-table .table-responsive,
+    div.basic-info-table .table-responsive-md {
+        overflow-x: visible !important;
+        overflow-y: visible !important;
+        -webkit-overflow-scrolling: auto !important;
+    }
+
+    div.basic-info-table .table-responsive::-webkit-scrollbar,
+    div.basic-info-table .table-responsive-md::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+
+    div.basic-info-table {
+        overflow: visible !important;
+    }
+</style>
+
+<div class="ownership-table-wrapper">
+    <!-- 所有テーブル（共通コンポーネント使用） -->
+    <x-common-table
+        :data="$ownershipData"
+        :showHeader="false"
+        cardClass="facility-info-card detail-card-improved"
+        :tableAttributes="['style' => '--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0; table-layout: fixed; width: 400px;']"
+        bodyClass="p-0" />
+</div>
 
 @php
     // 基本情報テーブルデータの構築
@@ -124,12 +221,13 @@
 @endphp
 
 <!-- 基本情報テーブル（共通コンポーネント使用） -->
-<x-common-table 
-    :data="$basicInfoData"
-    :showHeader="false"
-    :tableAttributes="['style' => '--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0;']"
-    bodyClass="p-0"
-/>
+<div class="basic-info-table">
+    <x-common-table
+        :data="$basicInfoData"
+        :showHeader="false"
+        :tableAttributes="['style' => '--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0; table-layout: fixed; width: 100%;']"
+        bodyClass="p-0" />
+</div>
 
 @php
     // 管理会社情報データ
