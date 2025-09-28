@@ -431,7 +431,7 @@ document.getElementById('createUserForm').addEventListener('submit', function(e)
         if (data.success) {
             location.reload();
         } else {
-            alert('エラーが発生しました: ' + data.message);
+            alert('エラーが発生しました：' + data.message);
         }
     })
     .catch(error => {

@@ -73,7 +73,7 @@
                             <div id="elevator-equipment-list" class="equipment-list">
                                 @if(empty($elevators))
                                     <div class="no-equipment-message">
-                                        エレベーターが登録されていません。「エレベーター追加」ボタンで追加してください。
+                                        エレベーターが登録されていません。「エレベーター追加」ボタンをクリックして追加してください。
                                     </div>
                                 @else
                                     @foreach($elevators as $index => $elevator)
@@ -131,7 +131,7 @@
                                                     <input type="number" class="form-control" 
                                                            name="basic_info[elevators][{{ $index }}][model_year]" 
                                                            value="{{ old('basic_info.elevators.' . $index . '.model_year', $elevator['model_year'] ?? '') }}"
-                                                           placeholder="例：2020"
+                                                           placeholder="例：2020年"
                                                            min="1900" max="{{ date('Y') + 1 }}">
                                                 </div>
                                                 
@@ -454,7 +454,7 @@ function initializeElevatorEquipment() {
                         <label class="form-label">年式</label>
                         <input type="number" class="form-control" 
                                name="basic_info[elevators][${elevatorIndex}][model_year]" 
-                               placeholder="例：2020"
+                               placeholder="例：2020年"
                                min="1900" max="${new Date().getFullYear() + 1}">
                     </div>
                     

@@ -104,7 +104,7 @@
                                     <input type="text" class="form-control" 
                                            id="warranty_period" 
                                            name="basic_info[lighting][warranty_period]" 
-                                           placeholder="例：5年間">
+                                           placeholder="例：5年">
                                 </div>
 
                                 <div class="mb-3">

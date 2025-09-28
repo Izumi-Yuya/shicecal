@@ -90,7 +90,7 @@ class SettingsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'キャッシュのクリアに失敗しました: '.$e->getMessage(),
+                'message' => 'キャッシュのクリアに失敗しました：'.$e->getMessage(),
             ]);
         }
     }
@@ -106,7 +106,7 @@ class SettingsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'データベースの最適化に失敗しました: '.$e->getMessage(),
+                'message' => 'データベースの最適化に失敗しました：'.$e->getMessage(),
             ]);
         }
     }

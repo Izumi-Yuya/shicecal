@@ -584,7 +584,7 @@ function saveAllSettings() {
             // Show success message
             showAlert('設定が正常に保存されました', 'success');
         } else {
-            showAlert('設定の保存に失敗しました: ' + data.message, 'danger');
+            showAlert('設定の保存に失敗しました：' + data.message, 'danger');
         }
     })
     .catch(error => {

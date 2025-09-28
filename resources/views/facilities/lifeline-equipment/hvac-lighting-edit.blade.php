@@ -74,7 +74,7 @@
                             </div>
                             <div class="card-body">
                                 <div class="mb-3">
-                                    <label for="freon_inspector" class="form-label">フロンガス点検業者</label>
+                                    <label for="freon_inspector" class="form-label">フロン点検業者</label>
                                     <input type="text" class="form-control @error('basic_info.hvac.freon_inspector') is-invalid @enderror" 
                                            id="freon_inspector" 
                                            name="basic_info[hvac][freon_inspector]" 
@@ -185,7 +185,7 @@
                                            id="warranty_period" 
                                            name="basic_info[lighting][warranty_period]" 
                                            value="{{ old('basic_info.lighting.warranty_period', $lightingInfo['warranty_period'] ?? '') }}"
-                                           placeholder="例：5年間">
+                                           placeholder="例：5年">
                                     @error('basic_info.lighting.warranty_period')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror

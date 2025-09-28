@@ -39,7 +39,7 @@ $testData = [
 @if(View::exists('components.common-table'))
     <x-common-table :data="$testData" />
 @else
-    <p>Common Table Component が見つかりません</p>
+    <p>Common Table Component が見つかりません。</p>
 @endif
 ```
 

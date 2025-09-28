@@ -121,7 +121,7 @@ class LifelineEquipmentManager {
   }
 
   onLifelineTabShown() {
-    console.log('Lifeline equipment tab activated');
+    console.log('Lifeline Equipment tab activated');
 
     // Trigger animation for cards in the active sub-tab
     this.animateActiveCards();
@@ -134,7 +134,7 @@ class LifelineEquipmentManager {
     const targetId = event.target.getAttribute('data-bs-target');
     this.currentCategory = targetId.replace('#', '');
 
-    console.log(`Switched to ${this.currentCategory} equipment`);
+    console.log(`Switched to ${this.currentCategory} Equipment`);
 
     // Animate cards in the newly active tab
     setTimeout(() => {
@@ -158,7 +158,7 @@ class LifelineEquipmentManager {
 
   loadEquipmentData(category) {
     // Placeholder for future API calls to load equipment data
-    console.log(`Loading ${category} equipment data for facility ${this.facilityId}`);
+    console.log(`Loading ${category} Equipment data for facility ${this.facilityId}`);
 
     // This will be implemented in future tasks when the backend is ready
     // Example:
@@ -1062,7 +1062,7 @@ class LifelineEquipmentManager {
       this.showErrorMessage('サーバーエラーが発生しました。しばらく時間をおいてから再試行してください。', retryCallback);
     } else {
       // Generic error
-      this.showErrorMessage(`エラーが発生しました: ${error.message || '不明なエラー'}`, retryCallback);
+      this.showErrorMessage(`エラーが発生しました：${error.message || '不明なエラー'}`, retryCallback);
     }
   }
 

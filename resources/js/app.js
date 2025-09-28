@@ -306,7 +306,7 @@ class Application {
           const lifelineManager = initializeLifelineEquipmentManager();
           if (lifelineManager) {
             appState.setModule('lifelineEquipment', lifelineManager);
-            console.log('Lifeline equipment manager initialized');
+            console.log('Lifeline Equipment manager initialized');
           }
         }
       }

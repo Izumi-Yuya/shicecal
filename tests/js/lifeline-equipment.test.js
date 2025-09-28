@@ -1,6 +1,7 @@
 /**
  * Lifeline Equipment JavaScript Module Tests
- * Tests for tab switching, card editing, saving, and error handling functionality
+ * Comprehensive tests for tab switching, card editing, data saving, and error handling functionality
+ * Covers user interactions, DOM manipulation, and API communication
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';

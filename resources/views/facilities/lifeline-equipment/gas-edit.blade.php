@@ -96,7 +96,7 @@
                         <div class="row mb-4 mt-5">
                             <div class="col-12">
                                 <h6 class="section-title border-bottom pb-2 mb-3">
-                                    <i class="fas fa-fire-flame-curved me-2"></i>給湯器
+                                    <i class="fas fa-fire me-2"></i>給湯器
                                 </h6>
                             </div>
                         </div>
@@ -131,7 +131,7 @@
                             <div id="water-heater-equipment-list" class="equipment-list">
                                 @if(empty($waterHeaters))
                                     <div class="no-equipment-message">
-                                        給湯器設備が登録されていません。「給湯器追加」ボタンで追加してください。
+                                        給湯器設備が登録されていません。「給湯器追加」ボタンをクリックして追加してください。
                                     </div>
                                 @else
                                     @foreach($waterHeaters as $index => $heater)
@@ -160,7 +160,7 @@
                                                     <input type="number" class="form-control" 
                                                            name="basic_info[water_heater_info][water_heaters][{{ $index }}][model_year]" 
                                                            value="{{ old('basic_info.water_heater_info.water_heaters.' . $index . '.model_year', $heater['model_year'] ?? '') }}"
-                                                           placeholder="例：2020"
+                                                           placeholder="例：2020年"
                                                            min="1900" max="{{ date('Y') + 1 }}">
                                                 </div>
                                                 
@@ -211,7 +211,7 @@
                                        id="floor_heating_model_year" 
                                        name="basic_info[floor_heating_info][model_year]" 
                                        value="{{ old('basic_info.floor_heating_info.model_year', $floorHeatingInfo['model_year'] ?? '') }}"
-                                       placeholder="例：2020"
+                                       placeholder="例：2020年"
                                        min="1900" max="{{ date('Y') + 1 }}">
                                 @error('basic_info.floor_heating_info.model_year')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -247,7 +247,7 @@
                                           id="notes" 
                                           name="notes" 
                                           rows="4"
-                                          placeholder="ガス設備に関する追加情報や特記事項があれば記入してください">{{ old('notes', $gasEquipment?->notes ?? '') }}</textarea>
+                                          placeholder="ガス設備に関する特記事項があれば記入してください">{{ old('notes', $gasEquipment?->notes ?? '') }}</textarea>
                                 @error('notes')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -455,7 +455,7 @@ function initializeWaterHeaterEquipment() {
                         <label class="form-label">年式</label>
                         <input type="number" class="form-control" 
                                name="basic_info[water_heater_info][water_heaters][${waterHeaterIndex}][model_year]" 
-                               placeholder="例：2020"
+                               placeholder="例：2020年"
                                min="1900" max="${new Date().getFullYear() + 1}">
                     </div>
                     

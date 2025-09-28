@@ -199,7 +199,7 @@
         <div id="pump-equipment-list" class="equipment-list">
             @if(empty($pumps))
                 <div class="no-equipment-message">
-                    加圧ポンプが登録されていません。「設備を追加」ボタンから追加してください。
+                    加圧ポンプが登録されていません。「設備を追加」ボタンをクリックして追加してください。
                 </div>
             @else
                 @foreach($pumps as $index => $pump)
@@ -331,7 +331,7 @@
         <div id="legionella-equipment-list" class="equipment-list">
             @if(empty($legionellaInspections))
                 <div class="no-legionella-message">
-                    レジオネラ検査が登録されていません。「検査を追加」ボタンから追加してください。
+                    レジオネラ検査が登録されていません。「検査を追加」ボタンをクリックして追加してください。
                 </div>
             @else
                 @foreach($legionellaInspections as $index => $inspection)
