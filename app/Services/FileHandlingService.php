@@ -12,7 +12,15 @@ use Illuminate\Support\Facades\Storage;
  * 
  * A unified file processing service for facility and lifeline equipment operations.
  * Provides consistent handling of file uploads, downloads, and display operations
- * throughout the application with security validation and error handling.
+ * throughout the application with comprehensive security validation and error handling.
+ * 
+ * Features:
+ * - File type validation (MIME type and extension checking)
+ * - File size validation with configurable limits
+ * - Unique filename generation to prevent conflicts
+ * - Secure file storage with proper directory structure
+ * - Comprehensive error logging and exception handling
+ * - Support for multiple file types (PDF, images, documents)
  */
 class FileHandlingService
 {
@@ -89,7 +97,7 @@ class FileHandlingService
                 'directory' => $directory,
             ]);
 
-            throw new Exception('ファイルのアップロードに失敗しました: '.$e->getMessage());
+            throw new Exception('ファイルのアップロードに失敗しました：'.$e->getMessage());
         }
     }
 
@@ -120,7 +128,6 @@ class FileHandlingService
     /**
      * Generates file display data for UI components based on specified parameters and facility context.
      * This method formats file information for consistent display throughout the application.
-     * 施設コンテキストに基づいてUI表示用のファイルデータを生成します。
      *
      * @param  array  $fileData  File information array containing path and filename
      * @param  string  $category  Equipment category (electrical, gas, water, etc.)

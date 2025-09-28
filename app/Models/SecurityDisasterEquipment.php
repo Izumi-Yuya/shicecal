@@ -24,6 +24,7 @@ class SecurityDisasterEquipment extends Model
         'security_systems',
         'disaster_prevention',
         'emergency_equipment',
+        'fire_disaster_prevention',
         'maintenance_records',
         'notes',
         'created_by',
@@ -38,6 +39,7 @@ class SecurityDisasterEquipment extends Model
         'security_systems' => 'array',
         'disaster_prevention' => 'array',
         'emergency_equipment' => 'array',
+        'fire_disaster_prevention' => 'array',
         'maintenance_records' => 'array',
     ];
 
@@ -95,6 +97,14 @@ class SecurityDisasterEquipment extends Model
     public function hasEmergencyEquipment(): bool
     {
         return !empty($this->emergency_equipment) && is_array($this->emergency_equipment);
+    }
+
+    /**
+     * Check if fire and disaster prevention systems are configured.
+     */
+    public function hasFireDisasterPrevention(): bool
+    {
+        return !empty($this->fire_disaster_prevention) && is_array($this->fire_disaster_prevention);
     }
 
     /**

@@ -166,7 +166,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="maintenance_contractor" class="form-label">保守業者</label>
+                                    <label for="maintenance_contractor" class="form-label">保守点検業者</label>
                                     <input type="text" class="form-control @error('basic_info.inspection.maintenance_contractor') is-invalid @enderror" 
                                            id="maintenance_contractor" 
                                            name="basic_info[inspection][maintenance_contractor]" 

@@ -783,7 +783,7 @@ class LifelineEquipmentService
             $securityDisasterEquipment->updated_by = auth()->id();
         }
 
-        // Update camera and lock system information only
+        // Update camera and lock system information
         if (array_key_exists('security_systems', $validatedData)) {
             Log::info('LifelineEquipmentService: Processing security_systems');
             $processedSecuritySystems = $this->processSecuritySystems($validatedData['security_systems']);
@@ -796,6 +796,21 @@ class LifelineEquipmentService
             );
             
             $securityDisasterEquipment->security_systems = $processedSecuritySystems;
+        }
+
+        // Update fire/disaster prevention information
+        if (array_key_exists('fire_disaster_prevention', $validatedData)) {
+            Log::info('LifelineEquipmentService: Processing fire_disaster_prevention');
+            $processedFireDisasterPrevention = $this->processFireDisasterPrevention($validatedData['fire_disaster_prevention']);
+            
+            // Handle file uploads for fire/disaster prevention PDFs
+            $processedFireDisasterPrevention = $this->handleFireDisasterFileUploads(
+                $processedFireDisasterPrevention,
+                $allData,
+                $securityDisasterEquipment->fire_disaster_prevention ?? []
+            );
+            
+            $securityDisasterEquipment->fire_disaster_prevention = $processedFireDisasterPrevention;
         }
 
         $securityDisasterEquipment->save();
@@ -894,6 +909,243 @@ class LifelineEquipmentService
         }
 
         return $processedSecuritySystems;
+    }
+
+    /**
+     * Process fire/disaster prevention data before saving.
+     */
+    private function processFireDisasterPrevention(array $fireDisasterPrevention): array
+    {
+        $processed = [];
+
+        // Process basic info
+        if (isset($fireDisasterPrevention['basic_info'])) {
+            $processed['basic_info'] = [];
+        }
+
+        // Process fire prevention
+        if (isset($fireDisasterPrevention['fire_prevention'])) {
+            $processed['fire_prevention'] = [
+                'fire_manager' => trim($fireDisasterPrevention['fire_prevention']['fire_manager'] ?? ''),
+                'training_date' => $fireDisasterPrevention['fire_prevention']['training_date'] ?? null,
+                'inspection_company' => trim($fireDisasterPrevention['fire_prevention']['inspection_company'] ?? ''),
+                'inspection_date' => $fireDisasterPrevention['fire_prevention']['inspection_date'] ?? null,
+            ];
+        }
+
+        // Process disaster prevention
+        if (isset($fireDisasterPrevention['disaster_prevention'])) {
+            $processed['disaster_prevention'] = [
+                'practical_training_date' => $fireDisasterPrevention['disaster_prevention']['practical_training_date'] ?? null,
+                'riding_training_date' => $fireDisasterPrevention['disaster_prevention']['riding_training_date'] ?? null,
+            ];
+        }
+
+        // Process notes
+        $processed['notes'] = trim($fireDisasterPrevention['notes'] ?? '');
+
+        return $processed;
+    }
+
+    /**
+     * Handle file uploads for fire/disaster prevention PDFs.
+     */
+    private function handleFireDisasterFileUploads(array $processedFireDisasterPrevention, array $allData, array $existingFireDisasterPrevention): array
+    {
+        $existingBasicInfo = $existingFireDisasterPrevention['basic_info'] ?? [];
+        $existingFirePrevention = $existingFireDisasterPrevention['fire_prevention'] ?? [];
+        $existingDisasterPrevention = $existingFireDisasterPrevention['disaster_prevention'] ?? [];
+
+        // Handle hazard map PDF
+        if (isset($allData['fire_disaster_prevention']['basic_info']['hazard_map_pdf']) && 
+            $allData['fire_disaster_prevention']['basic_info']['hazard_map_pdf'] instanceof \Illuminate\Http\UploadedFile) {
+            
+            if (isset($existingBasicInfo['hazard_map_pdf_path'])) {
+                $this->fileHandlingService->deleteFile($existingBasicInfo['hazard_map_pdf_path']);
+            }
+
+            $uploadResult = $this->handleFileUpload($allData['fire_disaster_prevention']['basic_info']['hazard_map_pdf'], 'fire-disaster/hazard-maps');
+            if ($uploadResult) {
+                $processedFireDisasterPrevention['basic_info']['hazard_map_pdf_name'] = $uploadResult['filename'];
+                $processedFireDisasterPrevention['basic_info']['hazard_map_pdf_path'] = $uploadResult['path'];
+            }
+        } elseif (isset($existingBasicInfo['hazard_map_pdf_name'])) {
+            $processedFireDisasterPrevention['basic_info']['hazard_map_pdf_name'] = $existingBasicInfo['hazard_map_pdf_name'];
+            $processedFireDisasterPrevention['basic_info']['hazard_map_pdf_path'] = $existingBasicInfo['hazard_map_pdf_path'];
+        }
+
+        // Handle hazard map PDF deletion
+        if (isset($allData['delete_hazard_map_pdf']) && $allData['delete_hazard_map_pdf'] === '1') {
+            if (isset($existingBasicInfo['hazard_map_pdf_path'])) {
+                $this->fileHandlingService->deleteFile($existingBasicInfo['hazard_map_pdf_path']);
+            }
+            $processedFireDisasterPrevention['basic_info']['hazard_map_pdf_name'] = null;
+            $processedFireDisasterPrevention['basic_info']['hazard_map_pdf_path'] = null;
+        }
+
+        // Handle evacuation route PDF
+        if (isset($allData['fire_disaster_prevention']['basic_info']['evacuation_route_pdf']) && 
+            $allData['fire_disaster_prevention']['basic_info']['evacuation_route_pdf'] instanceof \Illuminate\Http\UploadedFile) {
+            
+            if (isset($existingBasicInfo['evacuation_route_pdf_path'])) {
+                $this->fileHandlingService->deleteFile($existingBasicInfo['evacuation_route_pdf_path']);
+            }
+
+            $uploadResult = $this->handleFileUpload($allData['fire_disaster_prevention']['basic_info']['evacuation_route_pdf'], 'fire-disaster/evacuation-routes');
+            if ($uploadResult) {
+                $processedFireDisasterPrevention['basic_info']['evacuation_route_pdf_name'] = $uploadResult['filename'];
+                $processedFireDisasterPrevention['basic_info']['evacuation_route_pdf_path'] = $uploadResult['path'];
+            }
+        } elseif (isset($existingBasicInfo['evacuation_route_pdf_name'])) {
+            $processedFireDisasterPrevention['basic_info']['evacuation_route_pdf_name'] = $existingBasicInfo['evacuation_route_pdf_name'];
+            $processedFireDisasterPrevention['basic_info']['evacuation_route_pdf_path'] = $existingBasicInfo['evacuation_route_pdf_path'];
+        }
+
+        // Handle evacuation route PDF deletion
+        if (isset($allData['delete_evacuation_route_pdf']) && $allData['delete_evacuation_route_pdf'] === '1') {
+            if (isset($existingBasicInfo['evacuation_route_pdf_path'])) {
+                $this->fileHandlingService->deleteFile($existingBasicInfo['evacuation_route_pdf_path']);
+            }
+            $processedFireDisasterPrevention['basic_info']['evacuation_route_pdf_name'] = null;
+            $processedFireDisasterPrevention['basic_info']['evacuation_route_pdf_path'] = null;
+        }
+
+        // Handle fire training report PDF
+        if (isset($allData['fire_disaster_prevention']['fire_prevention']['training_report_pdf']) && 
+            $allData['fire_disaster_prevention']['fire_prevention']['training_report_pdf'] instanceof \Illuminate\Http\UploadedFile) {
+            
+            if (isset($existingFirePrevention['training_report_pdf_path'])) {
+                $this->fileHandlingService->deleteFile($existingFirePrevention['training_report_pdf_path']);
+            }
+
+            $uploadResult = $this->handleFileUpload($allData['fire_disaster_prevention']['fire_prevention']['training_report_pdf'], 'fire-disaster/fire-training-reports');
+            if ($uploadResult) {
+                $processedFireDisasterPrevention['fire_prevention']['training_report_pdf_name'] = $uploadResult['filename'];
+                $processedFireDisasterPrevention['fire_prevention']['training_report_pdf_path'] = $uploadResult['path'];
+            }
+        } elseif (isset($existingFirePrevention['training_report_pdf_name'])) {
+            $processedFireDisasterPrevention['fire_prevention']['training_report_pdf_name'] = $existingFirePrevention['training_report_pdf_name'];
+            $processedFireDisasterPrevention['fire_prevention']['training_report_pdf_path'] = $existingFirePrevention['training_report_pdf_path'];
+        }
+
+        // Handle fire training report PDF deletion
+        if (isset($allData['delete_fire_training_report_pdf']) && $allData['delete_fire_training_report_pdf'] === '1') {
+            if (isset($existingFirePrevention['training_report_pdf_path'])) {
+                $this->fileHandlingService->deleteFile($existingFirePrevention['training_report_pdf_path']);
+            }
+            $processedFireDisasterPrevention['fire_prevention']['training_report_pdf_name'] = null;
+            $processedFireDisasterPrevention['fire_prevention']['training_report_pdf_path'] = null;
+        }
+
+        // Handle fire inspection report PDF
+        if (isset($allData['fire_disaster_prevention']['fire_prevention']['inspection_report_pdf']) && 
+            $allData['fire_disaster_prevention']['fire_prevention']['inspection_report_pdf'] instanceof \Illuminate\Http\UploadedFile) {
+            
+            if (isset($existingFirePrevention['inspection_report_pdf_path'])) {
+                $this->fileHandlingService->deleteFile($existingFirePrevention['inspection_report_pdf_path']);
+            }
+
+            $uploadResult = $this->handleFileUpload($allData['fire_disaster_prevention']['fire_prevention']['inspection_report_pdf'], 'fire-disaster/fire-inspection-reports');
+            if ($uploadResult) {
+                $processedFireDisasterPrevention['fire_prevention']['inspection_report_pdf_name'] = $uploadResult['filename'];
+                $processedFireDisasterPrevention['fire_prevention']['inspection_report_pdf_path'] = $uploadResult['path'];
+            }
+        } elseif (isset($existingFirePrevention['inspection_report_pdf_name'])) {
+            $processedFireDisasterPrevention['fire_prevention']['inspection_report_pdf_name'] = $existingFirePrevention['inspection_report_pdf_name'];
+            $processedFireDisasterPrevention['fire_prevention']['inspection_report_pdf_path'] = $existingFirePrevention['inspection_report_pdf_path'];
+        }
+
+        // Handle fire inspection report PDF deletion
+        if (isset($allData['delete_fire_inspection_report_pdf']) && $allData['delete_fire_inspection_report_pdf'] === '1') {
+            if (isset($existingFirePrevention['inspection_report_pdf_path'])) {
+                $this->fileHandlingService->deleteFile($existingFirePrevention['inspection_report_pdf_path']);
+            }
+            $processedFireDisasterPrevention['fire_prevention']['inspection_report_pdf_name'] = null;
+            $processedFireDisasterPrevention['fire_prevention']['inspection_report_pdf_path'] = null;
+        }
+
+        // Handle practical training report PDF
+        if (isset($allData['fire_disaster_prevention']['disaster_prevention']['practical_training_report_pdf']) && 
+            $allData['fire_disaster_prevention']['disaster_prevention']['practical_training_report_pdf'] instanceof \Illuminate\Http\UploadedFile) {
+            
+            if (isset($existingDisasterPrevention['practical_training_report_pdf_path'])) {
+                $this->fileHandlingService->deleteFile($existingDisasterPrevention['practical_training_report_pdf_path']);
+            }
+
+            $uploadResult = $this->handleFileUpload($allData['fire_disaster_prevention']['disaster_prevention']['practical_training_report_pdf'], 'fire-disaster/practical-training-reports');
+            if ($uploadResult) {
+                $processedFireDisasterPrevention['disaster_prevention']['practical_training_report_pdf_name'] = $uploadResult['filename'];
+                $processedFireDisasterPrevention['disaster_prevention']['practical_training_report_pdf_path'] = $uploadResult['path'];
+            }
+        } elseif (isset($existingDisasterPrevention['practical_training_report_pdf_name'])) {
+            $processedFireDisasterPrevention['disaster_prevention']['practical_training_report_pdf_name'] = $existingDisasterPrevention['practical_training_report_pdf_name'];
+            $processedFireDisasterPrevention['disaster_prevention']['practical_training_report_pdf_path'] = $existingDisasterPrevention['practical_training_report_pdf_path'];
+        }
+
+        // Handle practical training report PDF deletion
+        if (isset($allData['delete_practical_training_report_pdf']) && $allData['delete_practical_training_report_pdf'] === '1') {
+            if (isset($existingDisasterPrevention['practical_training_report_pdf_path'])) {
+                $this->fileHandlingService->deleteFile($existingDisasterPrevention['practical_training_report_pdf_path']);
+            }
+            $processedFireDisasterPrevention['disaster_prevention']['practical_training_report_pdf_name'] = null;
+            $processedFireDisasterPrevention['disaster_prevention']['practical_training_report_pdf_path'] = null;
+        }
+
+        // Handle riding training report PDF
+        if (isset($allData['fire_disaster_prevention']['disaster_prevention']['riding_training_report_pdf']) && 
+            $allData['fire_disaster_prevention']['disaster_prevention']['riding_training_report_pdf'] instanceof \Illuminate\Http\UploadedFile) {
+            
+            if (isset($existingDisasterPrevention['riding_training_report_pdf_path'])) {
+                $this->fileHandlingService->deleteFile($existingDisasterPrevention['riding_training_report_pdf_path']);
+            }
+
+            $uploadResult = $this->handleFileUpload($allData['fire_disaster_prevention']['disaster_prevention']['riding_training_report_pdf'], 'fire-disaster/riding-training-reports');
+            if ($uploadResult) {
+                $processedFireDisasterPrevention['disaster_prevention']['riding_training_report_pdf_name'] = $uploadResult['filename'];
+                $processedFireDisasterPrevention['disaster_prevention']['riding_training_report_pdf_path'] = $uploadResult['path'];
+            }
+        } elseif (isset($existingDisasterPrevention['riding_training_report_pdf_name'])) {
+            $processedFireDisasterPrevention['disaster_prevention']['riding_training_report_pdf_name'] = $existingDisasterPrevention['riding_training_report_pdf_name'];
+            $processedFireDisasterPrevention['disaster_prevention']['riding_training_report_pdf_path'] = $existingDisasterPrevention['riding_training_report_pdf_path'];
+        }
+
+        // Handle riding training report PDF deletion
+        if (isset($allData['delete_riding_training_report_pdf']) && $allData['delete_riding_training_report_pdf'] === '1') {
+            if (isset($existingDisasterPrevention['riding_training_report_pdf_path'])) {
+                $this->fileHandlingService->deleteFile($existingDisasterPrevention['riding_training_report_pdf_path']);
+            }
+            $processedFireDisasterPrevention['disaster_prevention']['riding_training_report_pdf_name'] = null;
+            $processedFireDisasterPrevention['disaster_prevention']['riding_training_report_pdf_path'] = null;
+        }
+
+        // Handle emergency supplies PDF
+        if (isset($allData['fire_disaster_prevention']['disaster_prevention']['emergency_supplies_pdf']) && 
+            $allData['fire_disaster_prevention']['disaster_prevention']['emergency_supplies_pdf'] instanceof \Illuminate\Http\UploadedFile) {
+            
+            if (isset($existingDisasterPrevention['emergency_supplies_pdf_path'])) {
+                $this->fileHandlingService->deleteFile($existingDisasterPrevention['emergency_supplies_pdf_path']);
+            }
+
+            $uploadResult = $this->handleFileUpload($allData['fire_disaster_prevention']['disaster_prevention']['emergency_supplies_pdf'], 'fire-disaster/emergency-supplies');
+            if ($uploadResult) {
+                $processedFireDisasterPrevention['disaster_prevention']['emergency_supplies_pdf_name'] = $uploadResult['filename'];
+                $processedFireDisasterPrevention['disaster_prevention']['emergency_supplies_pdf_path'] = $uploadResult['path'];
+            }
+        } elseif (isset($existingDisasterPrevention['emergency_supplies_pdf_name'])) {
+            $processedFireDisasterPrevention['disaster_prevention']['emergency_supplies_pdf_name'] = $existingDisasterPrevention['emergency_supplies_pdf_name'];
+            $processedFireDisasterPrevention['disaster_prevention']['emergency_supplies_pdf_path'] = $existingDisasterPrevention['emergency_supplies_pdf_path'];
+        }
+
+        // Handle emergency supplies PDF deletion
+        if (isset($allData['delete_emergency_supplies_pdf']) && $allData['delete_emergency_supplies_pdf'] === '1') {
+            if (isset($existingDisasterPrevention['emergency_supplies_pdf_path'])) {
+                $this->fileHandlingService->deleteFile($existingDisasterPrevention['emergency_supplies_pdf_path']);
+            }
+            $processedFireDisasterPrevention['disaster_prevention']['emergency_supplies_pdf_name'] = null;
+            $processedFireDisasterPrevention['disaster_prevention']['emergency_supplies_pdf_path'] = null;
+        }
+
+        return $processedFireDisasterPrevention;
     }
 
     /**

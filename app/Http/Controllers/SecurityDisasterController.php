@@ -45,6 +45,7 @@ class SecurityDisasterController extends Controller
             $this->authorize('update', [LifelineEquipment::class, $facility]);
 
             $validatedData = $request->validate([
+                // 防犯カメラ・電子錠
                 'security_systems.camera_lock.camera.management_company' => 'nullable|string|max:255',
                 'security_systems.camera_lock.camera.model_year' => 'nullable|string|max:255',
                 'security_systems.camera_lock.camera.notes' => 'nullable|string',
@@ -55,6 +56,30 @@ class SecurityDisasterController extends Controller
                 'lock_layout_pdf' => 'nullable|file|mimes:pdf|max:10240',
                 'delete_camera_layout_pdf' => 'nullable|boolean',
                 'delete_lock_layout_pdf' => 'nullable|boolean',
+                
+                // 消防・防災
+                'fire_disaster_prevention.basic_info.hazard_map_pdf' => 'nullable|file|mimes:pdf|max:10240',
+                'fire_disaster_prevention.basic_info.evacuation_route_pdf' => 'nullable|file|mimes:pdf|max:10240',
+                'fire_disaster_prevention.fire_prevention.fire_manager' => 'nullable|string|max:255',
+                'fire_disaster_prevention.fire_prevention.training_date' => 'nullable|date',
+                'fire_disaster_prevention.fire_prevention.training_report_pdf' => 'nullable|file|mimes:pdf|max:10240',
+                'fire_disaster_prevention.fire_prevention.inspection_company' => 'nullable|string|max:255',
+                'fire_disaster_prevention.fire_prevention.inspection_date' => 'nullable|date',
+                'fire_disaster_prevention.fire_prevention.inspection_report_pdf' => 'nullable|file|mimes:pdf|max:10240',
+                'fire_disaster_prevention.disaster_prevention.practical_training_date' => 'nullable|date',
+                'fire_disaster_prevention.disaster_prevention.practical_training_report_pdf' => 'nullable|file|mimes:pdf|max:10240',
+                'fire_disaster_prevention.disaster_prevention.riding_training_date' => 'nullable|date',
+                'fire_disaster_prevention.disaster_prevention.riding_training_report_pdf' => 'nullable|file|mimes:pdf|max:10240',
+                'fire_disaster_prevention.disaster_prevention.emergency_supplies_pdf' => 'nullable|file|mimes:pdf|max:10240',
+                'fire_disaster_prevention.notes' => 'nullable|string',
+                'delete_hazard_map_pdf' => 'nullable|boolean',
+                'delete_evacuation_route_pdf' => 'nullable|boolean',
+                'delete_fire_training_report_pdf' => 'nullable|boolean',
+                'delete_fire_inspection_report_pdf' => 'nullable|boolean',
+                'delete_practical_training_report_pdf' => 'nullable|boolean',
+                'delete_riding_training_report_pdf' => 'nullable|boolean',
+                'delete_emergency_supplies_pdf' => 'nullable|boolean',
+                'active_sub_tab' => 'nullable|string',
             ]);
 
             DB::transaction(function () use ($facility, $validatedData, $request) {
@@ -70,10 +95,15 @@ class SecurityDisasterController extends Controller
                 );
             });
 
-            return redirect(route('facilities.show', $facility) . '#camera-lock')
+            $activeSubTab = $request->input('active_sub_tab', 'camera-lock');
+            
+            // サブタブに応じて適切なハッシュフラグメントを設定
+            $hashFragment = $activeSubTab === 'fire-disaster' ? 'fire-disaster' : 'camera-lock';
+            
+            return redirect(route('facilities.show', $facility) . '#' . $hashFragment)
                 ->with('success', '防犯・防災情報を更新しました。')
                 ->with('activeTab', 'security-disaster')
-                ->with('activeSubTab', 'camera-lock');
+                ->with('activeSubTab', $activeSubTab);
 
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             abort(403, 'この施設の防犯・防災情報を更新する権限がありません。');
@@ -100,10 +130,12 @@ class SecurityDisasterController extends Controller
             }
 
             $cameraLockInfo = $securityDisasterEquipment->security_systems['camera_lock'] ?? [];
+            $fireDisasterInfo = $securityDisasterEquipment->fire_disaster_prevention ?? [];
             $filePath = null;
             $fileName = null;
 
             switch ($type) {
+                // 防犯カメラ・電子錠
                 case 'camera_layout':
                     $filePath = $cameraLockInfo['camera']['layout_pdf_path'] ?? null;
                     $fileName = $cameraLockInfo['camera']['layout_pdf_name'] ?? null;
@@ -111,6 +143,36 @@ class SecurityDisasterController extends Controller
                 case 'lock_layout':
                     $filePath = $cameraLockInfo['lock']['layout_pdf_path'] ?? null;
                     $fileName = $cameraLockInfo['lock']['layout_pdf_name'] ?? null;
+                    break;
+                
+                // 消防・防災
+                case 'hazard_map':
+                    $filePath = $fireDisasterInfo['basic_info']['hazard_map_pdf_path'] ?? null;
+                    $fileName = $fireDisasterInfo['basic_info']['hazard_map_pdf_name'] ?? null;
+                    break;
+                case 'evacuation_route':
+                    $filePath = $fireDisasterInfo['basic_info']['evacuation_route_pdf_path'] ?? null;
+                    $fileName = $fireDisasterInfo['basic_info']['evacuation_route_pdf_name'] ?? null;
+                    break;
+                case 'fire_training_report':
+                    $filePath = $fireDisasterInfo['fire_prevention']['training_report_pdf_path'] ?? null;
+                    $fileName = $fireDisasterInfo['fire_prevention']['training_report_pdf_name'] ?? null;
+                    break;
+                case 'fire_inspection_report':
+                    $filePath = $fireDisasterInfo['fire_prevention']['inspection_report_pdf_path'] ?? null;
+                    $fileName = $fireDisasterInfo['fire_prevention']['inspection_report_pdf_name'] ?? null;
+                    break;
+                case 'practical_training_report':
+                    $filePath = $fireDisasterInfo['disaster_prevention']['practical_training_report_pdf_path'] ?? null;
+                    $fileName = $fireDisasterInfo['disaster_prevention']['practical_training_report_pdf_name'] ?? null;
+                    break;
+                case 'riding_training_report':
+                    $filePath = $fireDisasterInfo['disaster_prevention']['riding_training_report_pdf_path'] ?? null;
+                    $fileName = $fireDisasterInfo['disaster_prevention']['riding_training_report_pdf_name'] ?? null;
+                    break;
+                case 'emergency_supplies':
+                    $filePath = $fireDisasterInfo['disaster_prevention']['emergency_supplies_pdf_path'] ?? null;
+                    $fileName = $fireDisasterInfo['disaster_prevention']['emergency_supplies_pdf_name'] ?? null;
                     break;
                 default:
                     abort(404, '指定されたファイルタイプが無効です。');

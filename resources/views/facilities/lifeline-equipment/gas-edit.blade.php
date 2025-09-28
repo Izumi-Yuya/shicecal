@@ -426,7 +426,7 @@ function initializeWaterHeaterEquipment() {
     
     // 給湯器追加関数
     function addWaterHeaterEquipment() {
-        // メッセージを非表示
+        // 「設備なし」メッセージを非表示にする
         if (noEquipmentMessage) {
             noEquipmentMessage.style.display = 'none';
         }
