@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Models\FacilityInfo;
 use App\Models\FacilityBasic;
+use App\Models\FacilityInfo;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -30,16 +30,18 @@ class ImportFacilityBasicFromMaster extends Command
     public function handle()
     {
         $filePath = $this->argument('file');
-        
-        if (!file_exists($filePath)) {
+
+        if (! file_exists($filePath)) {
             $this->error("File not found: {$filePath}");
+
             return 1;
         }
 
         // Get the first admin user for created_by and updated_by
         $adminUser = User::where('role', 'admin')->first();
-        if (!$adminUser) {
+        if (! $adminUser) {
             $this->error('No admin user found. Please create an admin user first.');
+
             return 1;
         }
 
@@ -47,8 +49,9 @@ class ImportFacilityBasicFromMaster extends Command
         $this->info("Using admin user ID: {$adminUser->id} ({$adminUser->name})");
 
         $handle = fopen($filePath, 'r');
-        if (!$handle) {
+        if (! $handle) {
             $this->error("Could not open file: {$filePath}");
+
             return 1;
         }
 
@@ -65,6 +68,7 @@ class ImportFacilityBasicFromMaster extends Command
             while (($row = fgetcsv($handle)) !== false) {
                 if (count($row) < 3) {
                     $skipped++;
+
                     continue;
                 }
 
@@ -73,14 +77,16 @@ class ImportFacilityBasicFromMaster extends Command
                 // Skip if facility_code is empty
                 if (empty($facilityCode)) {
                     $skipped++;
+
                     continue;
                 }
 
                 // Find the corresponding facility info
                 $facilityInfo = FacilityInfo::where('office_code', $facilityCode)->first();
-                if (!$facilityInfo) {
+                if (! $facilityInfo) {
                     $this->warn("Facility not found with code {$facilityCode}: {$facilityName}");
                     $skipped++;
+
                     continue;
                 }
 
@@ -89,6 +95,7 @@ class ImportFacilityBasicFromMaster extends Command
                 if ($existingBasic) {
                     $this->warn("Basic info already exists for facility {$facilityCode}: {$facilityName}");
                     $skipped++;
+
                     continue;
                 }
 
@@ -120,7 +127,7 @@ class ImportFacilityBasicFromMaster extends Command
                     $this->info("Created basic info for: {$facilityCode} - {$facilityName} (Section: {$standardizedSection})");
 
                 } catch (\Exception $e) {
-                    $this->error("Error creating basic info for {$facilityCode} - {$facilityName}: " . $e->getMessage());
+                    $this->error("Error creating basic info for {$facilityCode} - {$facilityName}: ".$e->getMessage());
                     $errors++;
                 }
             }
@@ -132,14 +139,15 @@ class ImportFacilityBasicFromMaster extends Command
             $this->info("Imported: {$imported}");
             $this->info("Skipped: {$skipped}");
             $this->info("Errors: {$errors}");
-            $this->info("Total processed: " . ($imported + $skipped + $errors));
+            $this->info('Total processed: '.($imported + $skipped + $errors));
 
             return 0;
 
         } catch (\Exception $e) {
             DB::rollBack();
             fclose($handle);
-            $this->error("Import failed: " . $e->getMessage());
+            $this->error('Import failed: '.$e->getMessage());
+
             return 1;
         }
     }

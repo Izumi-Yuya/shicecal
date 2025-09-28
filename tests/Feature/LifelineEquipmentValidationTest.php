@@ -12,12 +12,13 @@ class LifelineEquipmentValidationTest extends TestCase
     use RefreshDatabase;
 
     protected User $user;
+
     protected Facility $facility;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->user = User::factory()->create(['role' => 'editor']);
         $this->facility = Facility::factory()->create();
         $this->actingAs($this->user);
@@ -221,7 +222,7 @@ class LifelineEquipmentValidationTest extends TestCase
         for ($i = 0; $i < 21; $i++) { // More than 20 items
             $equipmentList[] = [
                 'equipment_number' => sprintf('%03d', $i),
-                'manufacturer' => 'メーカー' . $i,
+                'manufacturer' => 'メーカー'.$i,
                 'model_year' => '2024',
                 'update_date' => '2024-01-15',
             ];
@@ -408,11 +409,11 @@ class LifelineEquipmentValidationTest extends TestCase
             ->assertJson(['success' => false]);
 
         $responseData = $response->json();
-        
+
         // Check that error messages are in Japanese
         $this->assertStringContainsString('入力内容に誤りがあります', $responseData['message']);
         $this->assertArrayHasKey('errors', $responseData);
-        
+
         // Check specific error messages contain Japanese text
         $this->assertArrayHasKey('basic_info.electrical_contractor', $responseData['errors']);
         $this->assertStringContainsString('文字以内', $responseData['errors']['basic_info.electrical_contractor'][0]);
@@ -431,7 +432,7 @@ class LifelineEquipmentValidationTest extends TestCase
 
         // Should return 404 for invalid route or 422 for validation error
         $this->assertTrue(in_array($response->status(), [404, 422, 500]));
-        
+
         if ($response->status() === 422) {
             $response->assertJson([
                 'success' => false,
@@ -451,7 +452,7 @@ class LifelineEquipmentValidationTest extends TestCase
 
             // Should return error status for under development categories
             $this->assertTrue(in_array($response->status(), [404, 422, 500]));
-            
+
             if ($response->status() === 422) {
                 $response->assertJson([
                     'success' => false,
@@ -485,7 +486,7 @@ class LifelineEquipmentValidationTest extends TestCase
 
         // The validation might be more lenient than expected, so check for success or validation errors
         $this->assertTrue(in_array($response->status(), [200, 422]));
-        
+
         if ($response->status() === 422) {
             $response->assertJson(['success' => false]);
         } else {

@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Components;
 
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class CommonTableBasicTest extends TestCase
 {
@@ -13,7 +13,7 @@ class CommonTableBasicTest extends TestCase
     public function it_can_render_empty_common_table_component()
     {
         $view = $this->blade('<x-common-table />');
-        
+
         $view->assertSee('データがありません');
         $view->assertSeeInOrder(['table', 'tbody'], false);
     }
@@ -22,7 +22,7 @@ class CommonTableBasicTest extends TestCase
     public function it_can_render_common_table_with_title()
     {
         $view = $this->blade('<x-common-table title="テストタイトル" />');
-        
+
         $view->assertSee('テストタイトル');
         $view->assertSee('データがありません');
     }
@@ -35,12 +35,12 @@ class CommonTableBasicTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'テストラベル', 'value' => 'テスト値', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = $this->blade('<x-common-table :data="$data" />', ['data' => $data]);
-        
+
         $view->assertSee('テストラベル');
         $view->assertSee('テスト値');
         $view->assertDontSee('データがありません');
@@ -54,12 +54,12 @@ class CommonTableBasicTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '空フィールド', 'value' => null, 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = $this->blade('<x-common-table :data="$data" />', ['data' => $data]);
-        
+
         $view->assertSee('空フィールド');
         $view->assertSee('未設定');
         $view->assertSee('empty-field');
@@ -73,12 +73,12 @@ class CommonTableBasicTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'ラベル', 'value' => '値', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = $this->blade('<x-common-table :data="$data" />', ['data' => $data]);
-        
+
         $view->assertSee('detail-label');
         $view->assertSee('detail-value');
         $view->assertSee('facility-basic-info-table-clean');
@@ -94,12 +94,12 @@ class CommonTableBasicTest extends TestCase
                     ['label' => 'バッジ', 'value' => 'テストバッジ', 'type' => 'badge'],
                     ['label' => 'メール', 'value' => 'test@example.com', 'type' => 'email'],
                     ['label' => 'URL', 'value' => 'https://example.com', 'type' => 'url'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = $this->blade('<x-common-table :data="$data" />', ['data' => $data]);
-        
+
         $view->assertSee('badge bg-primary');
         $view->assertSee('mailto:test@example.com');
         $view->assertSee('https://example.com');

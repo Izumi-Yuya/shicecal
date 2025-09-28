@@ -2,10 +2,10 @@
 
 namespace Tests\Unit\Services;
 
-use Tests\TestCase;
 use App\Services\CommonTableErrorHandler;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Tests\TestCase;
 
 class CommonTableErrorHandlerTest extends TestCase
 {
@@ -29,7 +29,7 @@ class CommonTableErrorHandlerTest extends TestCase
         $this->assertArrayHasKey('type', $result);
         $this->assertArrayHasKey('level', $result);
 
-        $this->assertEquals('システムエラーが発生しました', $result['user_message']);
+        $this->assertEquals('システムエラーが発生しました。', $result['user_message']);
         $this->assertEquals('テストエラー', $result['technical_message']);
         $this->assertEquals(CommonTableErrorHandler::TYPE_SYSTEM, $result['type']);
         $this->assertEquals(CommonTableErrorHandler::LEVEL_ERROR, $result['level']);
@@ -46,7 +46,7 @@ class CommonTableErrorHandlerTest extends TestCase
         $error = 'テスト文字列エラー';
         $result = CommonTableErrorHandler::handleError($error, CommonTableErrorHandler::TYPE_DATA);
 
-        $this->assertEquals('データの読み込み中にエラーが発生しました', $result['user_message']);
+        $this->assertEquals('データの読み込み中にエラーが発生しました。', $result['user_message']);
         $this->assertEquals('テスト文字列エラー', $result['technical_message']);
         $this->assertEquals(CommonTableErrorHandler::TYPE_DATA, $result['type']);
 
@@ -62,11 +62,11 @@ class CommonTableErrorHandlerTest extends TestCase
             'valid' => false,
             'errors' => [
                 'エラー1',
-                'エラー2'
+                'エラー2',
             ],
             'warnings' => [
-                '警告1'
-            ]
+                '警告1',
+            ],
         ];
 
         $result = CommonTableErrorHandler::handleValidationErrors($validationResult);
@@ -91,8 +91,8 @@ class CommonTableErrorHandlerTest extends TestCase
             'errors' => [],
             'warnings' => [
                 '警告1',
-                '警告2'
-            ]
+                '警告2',
+            ],
         ];
 
         $result = CommonTableErrorHandler::handleValidationErrors($validationResult);
@@ -115,7 +115,7 @@ class CommonTableErrorHandlerTest extends TestCase
 
         $result = CommonTableErrorHandler::handleRenderingError($exception, $data, $options);
 
-        $this->assertEquals('テーブルの表示中にエラーが発生しました', $result['user_message']);
+        $this->assertEquals('テーブルの表示中にエラーが発生しました。', $result['user_message']);
         $this->assertEquals(CommonTableErrorHandler::TYPE_RENDERING, $result['type']);
         $this->assertArrayHasKey('data_count', $result['context']);
         $this->assertArrayHasKey('options', $result['context']);
@@ -132,12 +132,12 @@ class CommonTableErrorHandlerTest extends TestCase
         $message = 'データエラーメッセージ';
         $data = [
             ['type' => 'standard', 'cells' => [['label' => 'test', 'value' => 'value']]],
-            ['type' => 'single', 'cells' => []]
+            ['type' => 'single', 'cells' => []],
         ];
 
         $result = CommonTableErrorHandler::handleDataError($message, $data);
 
-        $this->assertEquals('データの読み込み中にエラーが発生しました', $result['user_message']);
+        $this->assertEquals('データの読み込み中にエラーが発生しました。', $result['user_message']);
         $this->assertEquals(CommonTableErrorHandler::TYPE_DATA, $result['type']);
         $this->assertArrayHasKey('data_structure', $result['context']);
 
@@ -177,7 +177,7 @@ class CommonTableErrorHandlerTest extends TestCase
             'level' => CommonTableErrorHandler::LEVEL_ERROR,
             'user_message' => 'ユーザーメッセージ',
             'technical_message' => '技術的メッセージ',
-            'context' => ['key' => 'value']
+            'context' => ['key' => 'value'],
         ];
 
         $result = CommonTableErrorHandler::formatForDebug($errorData);
@@ -244,19 +244,19 @@ class CommonTableErrorHandlerTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['type' => 'text', 'label' => 'Label1', 'value' => 'Value1'],
-                    ['type' => 'email', 'label' => 'Label2', 'value' => 'test@example.com']
-                ]
+                    ['type' => 'email', 'label' => 'Label2', 'value' => 'test@example.com'],
+                ],
             ],
             [
                 'type' => 'single',
                 'cells' => [
-                    ['type' => 'url', 'label' => 'Label3', 'value' => 'https://example.com']
-                ]
+                    ['type' => 'url', 'label' => 'Label3', 'value' => 'https://example.com'],
+                ],
             ],
             [
                 'type' => 'standard',
-                'cells' => [] // 空のセル配列
-            ]
+                'cells' => [], // 空のセル配列
+            ],
         ];
 
         $result = CommonTableErrorHandler::handleDataError('テスト', $data);

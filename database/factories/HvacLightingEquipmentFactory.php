@@ -34,7 +34,7 @@ class HvacLightingEquipmentFactory extends Factory
                 'next_inspection_date' => $this->faker->dateTimeBetween('+1 month', '+1 year')->format('Y-m-d'),
                 'system_type' => $this->faker->randomElement(['中央空調', '個別空調', 'ハイブリッド']),
                 'lighting_type' => $this->faker->randomElement(['LED', '蛍光灯', 'ハロゲン', 'ミックス']),
-                'hvac_capacity' => $this->faker->numberBetween(10, 500) . 'kW',
+                'hvac_capacity' => $this->faker->numberBetween(10, 500).'kW',
                 'cooling_method' => $this->faker->randomElement(['空冷式', '水冷式', '地中熱']),
                 'heating_method' => $this->faker->randomElement(['電気', 'ガス', '灯油', 'ヒートポンプ']),
                 'ventilation_type' => $this->faker->randomElement(['機械換気', '自然換気', '混合換気']),

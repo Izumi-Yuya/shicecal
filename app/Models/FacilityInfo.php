@@ -24,7 +24,7 @@ class FacilityInfo extends Model
         'office_code',
         'designation_number',
         'facility_name',
-        
+
         // 連絡先情報
         'postal_code',
         'address',
@@ -34,7 +34,7 @@ class FacilityInfo extends Model
         'toll_free_number',
         'email',
         'website_url',
-        
+
         // システム管理
         'status',
         'approved_at',
@@ -150,8 +150,9 @@ class FacilityInfo extends Model
     {
         $address = $this->address ?? '';
         if ($this->building_name) {
-            $address .= ' ' . $this->building_name;
+            $address .= ' '.$this->building_name;
         }
+
         return trim($address);
     }
 
@@ -160,14 +161,14 @@ class FacilityInfo extends Model
      */
     public function getFormattedPostalCodeAttribute(): ?string
     {
-        if (!$this->postal_code) {
+        if (! $this->postal_code) {
             return null;
         }
 
         // Format as XXX-XXXX if it's 7 digits
         $code = preg_replace('/[^0-9]/', '', $this->postal_code);
         if (strlen($code) === 7) {
-            return substr($code, 0, 3) . '-' . substr($code, 3);
+            return substr($code, 0, 3).'-'.substr($code, 3);
         }
 
         return $this->postal_code;

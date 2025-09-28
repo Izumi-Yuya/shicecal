@@ -2,15 +2,15 @@
 
 namespace Tests\Unit\Services;
 
-use Tests\TestCase;
 use App\Services\CommonTableErrorHandler;
-use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
+use Tests\TestCase;
 
 /**
  * CommonTableErrorHandler単体テスト
- * 
+ *
  * エラーハンドリング機能の詳細なテスト
  * 要件: 設計書のテスト戦略
  */
@@ -20,7 +20,7 @@ class CommonTableErrorHandlerUnitTest extends TestCase
      * @test
      * 基本的なエラーハンドリング
      */
-    public function test_handleError_基本的なエラー処理()
+    public function test_handle_error_基本的なエラー処理()
     {
         Log::shouldReceive('error')->once();
 
@@ -33,7 +33,7 @@ class CommonTableErrorHandlerUnitTest extends TestCase
         $this->assertArrayHasKey('type', $result);
         $this->assertArrayHasKey('level', $result);
 
-        $this->assertEquals('システムエラーが発生しました', $result['user_message']);
+        $this->assertEquals('システムエラーが発生しました。', $result['user_message']);
         $this->assertEquals('テストエラー', $result['technical_message']);
         $this->assertEquals(CommonTableErrorHandler::TYPE_SYSTEM, $result['type']);
         $this->assertEquals(CommonTableErrorHandler::LEVEL_ERROR, $result['level']);
@@ -43,14 +43,14 @@ class CommonTableErrorHandlerUnitTest extends TestCase
      * @test
      * 文字列エラーのハンドリング
      */
-    public function test_handleError_文字列エラー処理()
+    public function test_handle_error_文字列エラー処理()
     {
         Log::shouldReceive('error')->once();
 
         $errorMessage = 'カスタムエラーメッセージ';
         $result = CommonTableErrorHandler::handleError($errorMessage, CommonTableErrorHandler::TYPE_DATA);
 
-        $this->assertEquals('データの読み込み中にエラーが発生しました', $result['user_message']);
+        $this->assertEquals('データの読み込み中にエラーが発生しました。', $result['user_message']);
         $this->assertEquals($errorMessage, $result['technical_message']);
         $this->assertEquals(CommonTableErrorHandler::TYPE_DATA, $result['type']);
     }
@@ -59,7 +59,7 @@ class CommonTableErrorHandlerUnitTest extends TestCase
      * @test
      * エラータイプ別のユーザーメッセージ
      */
-    public function test_handleError_エラータイプ別メッセージ()
+    public function test_handle_error_エラータイプ別メッセージ()
     {
         Log::shouldReceive('error')->times(4);
 
@@ -69,22 +69,22 @@ class CommonTableErrorHandlerUnitTest extends TestCase
 
         // レンダリングエラー
         $result = CommonTableErrorHandler::handleError('test', CommonTableErrorHandler::TYPE_RENDERING);
-        $this->assertEquals('テーブルの表示中にエラーが発生しました', $result['user_message']);
+        $this->assertEquals('テーブルの表示中にエラーが発生しました。', $result['user_message']);
 
         // データエラー
         $result = CommonTableErrorHandler::handleError('test', CommonTableErrorHandler::TYPE_DATA);
-        $this->assertEquals('データの読み込み中にエラーが発生しました', $result['user_message']);
+        $this->assertEquals('データの読み込み中にエラーが発生しました。', $result['user_message']);
 
         // システムエラー
         $result = CommonTableErrorHandler::handleError('test', CommonTableErrorHandler::TYPE_SYSTEM);
-        $this->assertEquals('システムエラーが発生しました', $result['user_message']);
+        $this->assertEquals('システムエラーが発生しました。', $result['user_message']);
     }
 
     /**
      * @test
      * ログレベル別の処理
      */
-    public function test_handleError_ログレベル別処理()
+    public function test_handle_error_ログレベル別処理()
     {
         // エラーレベル
         Log::shouldReceive('error')->once();
@@ -106,14 +106,14 @@ class CommonTableErrorHandlerUnitTest extends TestCase
      * @test
      * バリデーションエラーのハンドリング
      */
-    public function test_handleValidationErrors_エラーありの場合()
+    public function test_handle_validation_errors_エラーありの場合()
     {
         Log::shouldReceive('warning')->once();
 
         $validationResult = [
             'valid' => false,
             'errors' => ['エラー1', 'エラー2'],
-            'warnings' => ['警告1']
+            'warnings' => ['警告1'],
         ];
 
         $result = CommonTableErrorHandler::handleValidationErrors($validationResult);
@@ -130,14 +130,14 @@ class CommonTableErrorHandlerUnitTest extends TestCase
      * @test
      * バリデーション警告のみの場合
      */
-    public function test_handleValidationErrors_警告のみの場合()
+    public function test_handle_validation_errors_警告のみの場合()
     {
         Log::shouldReceive('info')->once();
 
         $validationResult = [
             'valid' => true,
             'errors' => [],
-            'warnings' => ['警告1', '警告2']
+            'warnings' => ['警告1', '警告2'],
         ];
 
         $result = CommonTableErrorHandler::handleValidationErrors($validationResult);
@@ -151,7 +151,7 @@ class CommonTableErrorHandlerUnitTest extends TestCase
      * @test
      * レンダリングエラーのハンドリング
      */
-    public function test_handleRenderingError_例外処理()
+    public function test_handle_rendering_error_例外処理()
     {
         Log::shouldReceive('error')->once();
 
@@ -162,9 +162,9 @@ class CommonTableErrorHandlerUnitTest extends TestCase
         $result = CommonTableErrorHandler::handleRenderingError($exception, $data, $options);
 
         $this->assertEquals(CommonTableErrorHandler::TYPE_RENDERING, $result['type']);
-        $this->assertEquals('テーブルの表示中にエラーが発生しました', $result['user_message']);
+        $this->assertEquals('テーブルの表示中にエラーが発生しました。', $result['user_message']);
         $this->assertEquals('レンダリングエラー', $result['technical_message']);
-        
+
         // コンテキストの確認
         $this->assertArrayHasKey('context', $result);
         $this->assertEquals(1, $result['context']['data_count']);
@@ -176,7 +176,7 @@ class CommonTableErrorHandlerUnitTest extends TestCase
      * @test
      * データエラーのハンドリング
      */
-    public function test_handleDataError_データ分析付き()
+    public function test_handle_data_error_データ分析付き()
     {
         Log::shouldReceive('error')->once();
 
@@ -189,13 +189,13 @@ class CommonTableErrorHandlerUnitTest extends TestCase
         $result = CommonTableErrorHandler::handleDataError($message, $data);
 
         $this->assertEquals(CommonTableErrorHandler::TYPE_DATA, $result['type']);
-        $this->assertEquals('データの読み込み中にエラーが発生しました', $result['user_message']);
+        $this->assertEquals('データの読み込み中にエラーが発生しました。', $result['user_message']);
         $this->assertEquals($message, $result['technical_message']);
-        
+
         // データ構造分析の確認
         $this->assertArrayHasKey('context', $result);
         $this->assertArrayHasKey('data_structure', $result['context']);
-        
+
         $structure = $result['context']['data_structure'];
         $this->assertEquals(2, $structure['total_rows']);
         $this->assertContains('standard', $structure['row_types']);
@@ -207,7 +207,7 @@ class CommonTableErrorHandlerUnitTest extends TestCase
      * @test
      * フォールバックデータの生成
      */
-    public function test_generateFallbackData_基本的な生成()
+    public function test_generate_fallback_data_基本的な生成()
     {
         $result = CommonTableErrorHandler::generateFallbackData();
 
@@ -225,7 +225,7 @@ class CommonTableErrorHandlerUnitTest extends TestCase
      * @test
      * カスタムフォールバックデータの生成
      */
-    public function test_generateFallbackData_カスタム設定()
+    public function test_generate_fallback_data_カスタム設定()
     {
         $result = CommonTableErrorHandler::generateFallbackData(
             'カスタムタイトル',
@@ -242,7 +242,7 @@ class CommonTableErrorHandlerUnitTest extends TestCase
      * @test
      * デバッグ用フォーマット
      */
-    public function test_formatForDebug_完全なフォーマット()
+    public function test_format_for_debug_完全なフォーマット()
     {
         $errorData = [
             'error_id' => 'TEST_12345',
@@ -250,7 +250,7 @@ class CommonTableErrorHandlerUnitTest extends TestCase
             'level' => CommonTableErrorHandler::LEVEL_ERROR,
             'user_message' => 'ユーザーメッセージ',
             'technical_message' => '技術的メッセージ',
-            'context' => ['key' => 'value']
+            'context' => ['key' => 'value'],
         ];
 
         $result = CommonTableErrorHandler::formatForDebug($errorData);
@@ -268,7 +268,7 @@ class CommonTableErrorHandlerUnitTest extends TestCase
      * @test
      * 不完全なエラーデータのデバッグフォーマット
      */
-    public function test_formatForDebug_不完全なデータ()
+    public function test_format_for_debug_不完全なデータ()
     {
         $errorData = ['error_id' => 'TEST_12345'];
 
@@ -286,7 +286,7 @@ class CommonTableErrorHandlerUnitTest extends TestCase
      * @test
      * アラートクラスの取得
      */
-    public function test_getAlertClass_レベル別クラス()
+    public function test_get_alert_class_レベル別クラス()
     {
         $this->assertEquals('alert-danger', CommonTableErrorHandler::getAlertClass(CommonTableErrorHandler::LEVEL_ERROR));
         $this->assertEquals('alert-warning', CommonTableErrorHandler::getAlertClass(CommonTableErrorHandler::LEVEL_WARNING));
@@ -298,7 +298,7 @@ class CommonTableErrorHandlerUnitTest extends TestCase
      * @test
      * アイコンクラスの取得
      */
-    public function test_getIconClass_レベル別アイコン()
+    public function test_get_icon_class_レベル別アイコン()
     {
         $this->assertEquals('fas fa-exclamation-triangle', CommonTableErrorHandler::getIconClass(CommonTableErrorHandler::LEVEL_ERROR));
         $this->assertEquals('fas fa-exclamation-circle', CommonTableErrorHandler::getIconClass(CommonTableErrorHandler::LEVEL_WARNING));
@@ -310,7 +310,7 @@ class CommonTableErrorHandlerUnitTest extends TestCase
      * @test
      * エラーIDの生成
      */
-    public function test_handleError_エラーID生成()
+    public function test_handle_error_エラー_i_d生成()
     {
         Log::shouldReceive('error')->twice();
 
@@ -321,7 +321,7 @@ class CommonTableErrorHandlerUnitTest extends TestCase
         $this->assertArrayHasKey('error_id', $result1);
         $this->assertArrayHasKey('error_id', $result2);
         $this->assertNotEquals($result1['error_id'], $result2['error_id']);
-        
+
         // エラーIDの形式確認（CT_で始まる）
         $this->assertStringStartsWith('CT_', $result1['error_id']);
         $this->assertStringStartsWith('CT_', $result2['error_id']);
@@ -331,14 +331,14 @@ class CommonTableErrorHandlerUnitTest extends TestCase
      * @test
      * コンテキスト情報の処理
      */
-    public function test_handleError_コンテキスト情報()
+    public function test_handle_error_コンテキスト情報()
     {
         Log::shouldReceive('error')->once();
 
         $context = [
             'user_id' => 123,
             'action' => 'table_render',
-            'data_size' => 100
+            'data_size' => 100,
         ];
 
         $result = CommonTableErrorHandler::handleError('test', CommonTableErrorHandler::TYPE_SYSTEM, $context);
@@ -350,7 +350,7 @@ class CommonTableErrorHandlerUnitTest extends TestCase
      * @test
      * デバッグモードの影響
      */
-    public function test_handleError_デバッグモード設定()
+    public function test_handle_error_デバッグモード設定()
     {
         Log::shouldReceive('error')->twice();
 

@@ -9,6 +9,7 @@ use App\Models\LandInfo;
 use App\Services\ActivityLogService;
 use App\Services\ExportService;
 use App\Services\FacilityService;
+use App\Services\FileHandlingService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,14 +26,18 @@ class FacilityController extends Controller
 
     protected ExportService $exportService;
 
+    protected FileHandlingService $fileHandlingService;
+
     public function __construct(
         ActivityLogService $activityLogService,
         FacilityService $facilityService,
-        ExportService $exportService
+        ExportService $exportService,
+        FileHandlingService $fileHandlingService
     ) {
         $this->activityLogService = $activityLogService;
         $this->facilityService = $facilityService;
         $this->exportService = $exportService;
+        $this->fileHandlingService = $fileHandlingService;
     }
 
     // View mode session management constants (deprecated - use FacilityViewModeController)
@@ -187,7 +192,33 @@ class FacilityController extends Controller
         $buildingInfo = $facility->buildingInfo;
         $viewMode = $this->getViewMode();
 
-        return view('facilities.show', compact('facility', 'landInfo', 'buildingInfo', 'viewMode'));
+        // 土地情報のファイル表示データを事前に準備
+        $landInfoFileData = [];
+        if ($landInfo) {
+            if ($landInfo->lease_contract_pdf_name && $landInfo->lease_contract_pdf_path) {
+                $landInfoFileData['lease_contract'] = $this->fileHandlingService->generateFileDisplayData(
+                    ['filename' => $landInfo->lease_contract_pdf_name, 'path' => $landInfo->lease_contract_pdf_path],
+                    'land-info',
+                    $facility
+                );
+                if ($landInfoFileData['lease_contract']) {
+                    $landInfoFileData['lease_contract']['download_url'] = route('facilities.land-info.download', ['facility' => $facility, 'type' => 'lease_contract']);
+                }
+            }
+
+            if ($landInfo->registry_pdf_name && $landInfo->registry_pdf_path) {
+                $landInfoFileData['registry'] = $this->fileHandlingService->generateFileDisplayData(
+                    ['filename' => $landInfo->registry_pdf_name, 'path' => $landInfo->registry_pdf_path],
+                    'land-info',
+                    $facility
+                );
+                if ($landInfoFileData['registry']) {
+                    $landInfoFileData['registry']['download_url'] = route('facilities.land-info.download', ['facility' => $facility, 'type' => 'registry']);
+                }
+            }
+        }
+
+        return view('facilities.show', compact('facility', 'landInfo', 'buildingInfo', 'viewMode', 'landInfoFileData'));
     }
 
     /**
@@ -396,7 +427,33 @@ class FacilityController extends Controller
 
             $landInfo = $this->facilityService->getLandInfo($facility);
 
-            return view('facilities.land-info.edit', compact('facility', 'landInfo'));
+            // 土地情報のファイル表示データを事前に準備する
+            $landInfoFileData = [];
+            if ($landInfo) {
+                if ($landInfo->lease_contract_pdf_name && $landInfo->lease_contract_pdf_path) {
+                    $landInfoFileData['lease_contract'] = $this->fileHandlingService->generateFileDisplayData(
+                        ['filename' => $landInfo->lease_contract_pdf_name, 'path' => $landInfo->lease_contract_pdf_path],
+                        'land-info',
+                        $facility
+                    );
+                    if ($landInfoFileData['lease_contract']) {
+                        $landInfoFileData['lease_contract']['download_url'] = route('facilities.land-info.download', ['facility' => $facility, 'type' => 'lease_contract']);
+                    }
+                }
+
+                if ($landInfo->registry_pdf_name && $landInfo->registry_pdf_path) {
+                    $landInfoFileData['registry'] = $this->fileHandlingService->generateFileDisplayData(
+                        ['filename' => $landInfo->registry_pdf_name, 'path' => $landInfo->registry_pdf_path],
+                        'land-info',
+                        $facility
+                    );
+                    if ($landInfoFileData['registry']) {
+                        $landInfoFileData['registry']['download_url'] = route('facilities.land-info.download', ['facility' => $facility, 'type' => 'registry']);
+                    }
+                }
+            }
+
+            return view('facilities.land-info.edit', compact('facility', 'landInfo', 'landInfoFileData'));
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             return redirect()->route('facilities.show', $facility)
                 ->with('error', 'この施設の土地情報を編集する権限がありません。');
@@ -1008,7 +1065,7 @@ class FacilityController extends Controller
     }
 
     /**
-     * Download land info PDF file
+     * Download land info PDF file using FileHandlingService
      */
     public function downloadLandInfoPdf(Facility $facility, string $type)
     {
@@ -1037,7 +1094,7 @@ class FacilityController extends Controller
                     abort(404, '指定されたファイルタイプが無効です。');
             }
 
-            if (! $filePath || ! Storage::disk('public')->exists($filePath)) {
+            if (! $filePath || ! $this->fileHandlingService->fileExists($filePath)) {
                 abort(404, 'ファイルが見つかりません。');
             }
 
@@ -1049,7 +1106,8 @@ class FacilityController extends Controller
                 'file_name' => $fileName,
             ]);
 
-            return Storage::disk('public')->download($filePath, $fileName);
+            // Use FileHandlingService for download
+            return $this->fileHandlingService->downloadFile($filePath, $fileName);
 
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             abort(403, 'このファイルにアクセスする権限がありません。');
@@ -1065,7 +1123,7 @@ class FacilityController extends Controller
     }
 
     /**
-     * Handle PDF file uploads
+     * Handle PDF file uploads using FileHandlingService
      */
     private function handlePdfUploads(Request $request, LandInfo $landInfo): void
     {
@@ -1073,7 +1131,7 @@ class FacilityController extends Controller
             // Handle file deletions first
             if ($request->input('delete_lease_contract_pdf')) {
                 if ($landInfo->lease_contract_pdf_path) {
-                    Storage::disk('public')->delete($landInfo->lease_contract_pdf_path);
+                    $this->fileHandlingService->deleteFile($landInfo->lease_contract_pdf_path);
                     $landInfo->update([
                         'lease_contract_pdf_path' => null,
                         'lease_contract_pdf_name' => null,
@@ -1087,7 +1145,7 @@ class FacilityController extends Controller
 
             if ($request->input('delete_registry_pdf')) {
                 if ($landInfo->registry_pdf_path) {
-                    Storage::disk('public')->delete($landInfo->registry_pdf_path);
+                    $this->fileHandlingService->deleteFile($landInfo->registry_pdf_path);
                     $landInfo->update([
                         'registry_pdf_path' => null,
                         'registry_pdf_name' => null,
@@ -1103,41 +1161,32 @@ class FacilityController extends Controller
             if ($request->hasFile('lease_contract_pdf')) {
                 $file = $request->file('lease_contract_pdf');
 
-                // Validate file
-                if (! $file->isValid()) {
-                    throw new \Exception('アップロードされたファイルが無効です: '.$file->getErrorMessage());
-                }
-
-                if ($file->getSize() > 2097152) { // 2MB (PHP upload_max_filesize limit)
-                    throw new \Exception('ファイルサイズが大きすぎます。2MB以下のファイルを選択してください。');
-                }
-
-                if ($file->getMimeType() !== 'application/pdf') {
-                    throw new \Exception('PDFファイルのみアップロード可能です。');
-                }
-
                 // Delete old file if exists
                 if ($landInfo->lease_contract_pdf_path) {
-                    Storage::disk('public')->delete($landInfo->lease_contract_pdf_path);
+                    $this->fileHandlingService->deleteFile($landInfo->lease_contract_pdf_path);
                 }
 
-                // Store new file
-                $path = $file->store('land_documents/lease_contracts', 'public');
+                // Upload new file using FileHandlingService
+                $uploadResult = $this->fileHandlingService->uploadFile(
+                    $file,
+                    'land_documents/lease_contracts',
+                    'pdf'
+                );
 
-                if (! $path) {
-                    throw new \Exception('ファイルの保存に失敗しました。');
+                if (! $uploadResult['success']) {
+                    throw new \Exception('ファイルのアップロードに失敗しました。');
                 }
 
                 $landInfo->update([
-                    'lease_contract_pdf_path' => $path,
-                    'lease_contract_pdf_name' => $file->getClientOriginalName(),
+                    'lease_contract_pdf_path' => $uploadResult['path'],
+                    'lease_contract_pdf_name' => $uploadResult['filename'],
                 ]);
 
                 Log::info('Lease contract PDF uploaded', [
                     'facility_id' => $landInfo->facility_id,
                     'user_id' => auth()->id(),
-                    'file_name' => $file->getClientOriginalName(),
-                    'file_path' => $path,
+                    'file_name' => $uploadResult['filename'],
+                    'file_path' => $uploadResult['path'],
                 ]);
             }
 
@@ -1145,46 +1194,37 @@ class FacilityController extends Controller
             if ($request->hasFile('registry_pdf')) {
                 $file = $request->file('registry_pdf');
 
-                // Validate file
-                if (! $file->isValid()) {
-                    throw new \Exception('アップロードされたファイルが無効です: '.$file->getErrorMessage());
-                }
-
-                if ($file->getSize() > 2097152) { // 2MB (PHP upload_max_filesize limit)
-                    throw new \Exception('ファイルサイズが大きすぎます。2MB以下のファイルを選択してください。');
-                }
-
-                if ($file->getMimeType() !== 'application/pdf') {
-                    throw new \Exception('PDFファイルのみアップロード可能です。');
-                }
-
                 // Delete old file if exists
                 if ($landInfo->registry_pdf_path) {
-                    Storage::disk('public')->delete($landInfo->registry_pdf_path);
+                    $this->fileHandlingService->deleteFile($landInfo->registry_pdf_path);
                 }
 
-                // Store new file
-                $path = $file->store('land_documents/registry', 'public');
+                // Upload new file using FileHandlingService
+                $uploadResult = $this->fileHandlingService->uploadFile(
+                    $file,
+                    'land_documents/registry',
+                    'pdf'
+                );
 
-                if (! $path) {
-                    throw new \Exception('ファイルの保存に失敗しました。');
+                if (! $uploadResult['success']) {
+                    throw new \Exception('ファイルのアップロードに失敗しました。');
                 }
 
                 $landInfo->update([
-                    'registry_pdf_path' => $path,
-                    'registry_pdf_name' => $file->getClientOriginalName(),
+                    'registry_pdf_path' => $uploadResult['path'],
+                    'registry_pdf_name' => $uploadResult['filename'],
                 ]);
 
                 Log::info('Registry PDF uploaded', [
                     'facility_id' => $landInfo->facility_id,
                     'user_id' => auth()->id(),
-                    'file_name' => $file->getClientOriginalName(),
-                    'file_path' => $path,
+                    'file_name' => $uploadResult['filename'],
+                    'file_path' => $uploadResult['path'],
                 ]);
             }
 
         } catch (\Exception $e) {
-            Log::error('PDF upload failed', [
+            Log::error('Land info PDF upload failed', [
                 'facility_id' => $landInfo->facility_id,
                 'user_id' => auth()->id(),
                 'error' => $e->getMessage(),
@@ -1294,7 +1334,7 @@ class FacilityController extends Controller
                 'building_permit_pdf',
                 'building_inspection_pdf',
                 'fire_equipment_inspection_pdf',
-                'periodic_inspection_pdf'
+                'periodic_inspection_pdf',
             ];
 
             foreach ($pdfFields as $field) {
@@ -1304,7 +1344,7 @@ class FacilityController extends Controller
                     if ($buildingInfo && $buildingInfo->$field) {
                         Storage::disk('public')->delete($buildingInfo->$field);
                     }
-                    
+
                     // Store new file
                     $path = $request->file($field)->store('building-info/pdfs', 'public');
                     $validated[$field] = $path;

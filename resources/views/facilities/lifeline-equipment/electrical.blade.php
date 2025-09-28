@@ -14,7 +14,7 @@
     <table class="table table-bordered facility-basic-info-table-clean" style="--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0;">
         <tbody>
             <tr>
-                <td class="detail-label" style="padding: 0.5rem;">電気契約会社</td>
+                <td class="detail-label" style="padding: 0.5rem;">電力会社</td>
                 <td class="detail-value {{ empty($basicInfo['electrical_contractor']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                     {{ $basicInfo['electrical_contractor'] ?? '未設定' }}
                 </td>
@@ -24,7 +24,7 @@
                 </td>
             </tr>
             <tr>
-                <td class="detail-label" style="padding: 0.5rem;">電気保守点検実施日</td>
+                <td class="detail-label" style="padding: 0.5rem;">保守点検実施日</td>
                 <td class="detail-value {{ empty($basicInfo['maintenance_inspection_date']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                     @if(!empty($basicInfo['maintenance_inspection_date']))
                         {{ \Carbon\Carbon::parse($basicInfo['maintenance_inspection_date'])->format('Y年m月d日') }}
@@ -32,14 +32,14 @@
                         未設定
                     @endif
                 </td>
-                <td class="detail-label" style="padding: 0.5rem;">点検実施報告書</td>
-                <td class="detail-value {{ empty($basicInfo['inspection_report_pdf']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
-                    @if(!empty($basicInfo['inspection_report_pdf']))
-                        <a href="{{ route('facilities.lifeline-equipment.download', [$facility, 'electrical', $basicInfo['inspection_report_pdf']]) }}" 
+                <td class="detail-label" style="padding: 0.5rem;">点検報告書</td>
+                <td class="detail-value {{ empty($basicInfo['inspection']['inspection_report_pdf']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                    @if(!empty($basicInfo['inspection']['inspection_report_pdf']))
+                        <a href="{{ route('facilities.lifeline-equipment.download-file', [$facility, 'electrical', 'inspection_report']) }}" 
                            class="text-decoration-none" 
-                           aria-label="点検実施報告書PDFをダウンロード"
+                           aria-label="点検報告書PDFをダウンロード"
                            target="_blank">
-                            <i class="fas fa-file-pdf me-1 text-danger" aria-hidden="true"></i>{{ $basicInfo['inspection_report_pdf'] }}
+                            <i class="fas fa-file-pdf me-1 text-danger" aria-hidden="true"></i>{{ $basicInfo['inspection']['inspection_report_pdf'] }}
                         </a>
                     @else
                         未設定
@@ -69,7 +69,7 @@
                     <td class="detail-label" style="padding: 0.5rem;">更新年月日</td>
                     <td class="detail-value {{ empty($pasInfo['update_date']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                         @if(!empty($pasInfo['update_date']))
-                            {{ \Carbon\Carbon::parse($pasInfo['update_date'])->format('Y年n月j日') }}
+                            {{ \Carbon\Carbon::parse($pasInfo['update_date'])->format('Y年m月d日') }}
                         @else
                             未設定
                         @endif
@@ -121,7 +121,7 @@
                                 <td class="detail-label" style="padding: 0.5rem;">更新年月日</td>
                                 <td class="detail-value {{ empty($equipment['update_date']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                     @if(!empty($equipment['update_date']))
-                                        {{ \Carbon\Carbon::parse($equipment['update_date'])->format('Y年n月j日') }}
+                                        {{ \Carbon\Carbon::parse($equipment['update_date'])->format('Y年m月d日') }}
                                     @else
                                         未設定
                                     @endif
@@ -186,7 +186,7 @@
                                 <td class="detail-label" style="padding: 0.5rem;">更新年月日</td>
                                 <td class="detail-value {{ empty($equipment['update_date']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                     @if(!empty($equipment['update_date']))
-                                        {{ \Carbon\Carbon::parse($equipment['update_date'])->format('Y年n月j日') }}
+                                        {{ \Carbon\Carbon::parse($equipment['update_date'])->format('Y年m月d日') }}
                                     @else
                                         未設定
                                     @endif

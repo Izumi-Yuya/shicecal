@@ -279,6 +279,239 @@
   color: white !important;
 }
 
+/* Elevator Equipment Table Styles */
+.elevator-equipment-sections .elevator-info-table,
+.elevator-equipment-sections .elevator-equipment-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+/* 基本情報テーブル（設置の有無）- 2列構成 */
+.elevator-equipment-sections .elevator-info-table td {
+  vertical-align: middle;
+  padding: 0.75rem;
+}
+
+.elevator-equipment-sections .elevator-info-table .detail-label {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #495057;
+  text-align: center;
+  width: 30%;
+}
+
+.elevator-equipment-sections .elevator-info-table .detail-value {
+  background-color: #ffffff;
+  color: #212529;
+  text-align: center;
+  width: 70%;
+}
+
+/* エレベーター設備詳細テーブル（8列構成）- 均等幅 */
+.elevator-equipment-sections .elevator-equipment-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.elevator-equipment-sections .elevator-equipment-table td {
+  width: 12.5%;
+  /* 8列なので 100% / 8 = 12.5% */
+  word-wrap: break-word;
+  vertical-align: middle;
+  padding: 0.5rem;
+  text-align: center;
+  border: 1px solid #dee2e6;
+  font-size: 0.85rem;
+}
+
+/* ラベルセルのスタイル */
+.elevator-equipment-sections .elevator-equipment-table .detail-label {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #495057;
+}
+
+/* 値セルのスタイル */
+.elevator-equipment-sections .elevator-equipment-table .detail-value {
+  background-color: #ffffff;
+  color: #212529;
+}
+
+.elevator-equipment-sections .elevator-equipment-table .detail-value.empty-field {
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Equipment Number Badge for Elevator */
+.elevator-equipment-sections .equipment-number {
+  font-size: 0.75rem;
+  font-weight: 600;
+  min-width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.elevator-equipment-sections .equipment-item {
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  background-color: #fff;
+  border-left: 4px solid #6f42c1;
+}
+
+/* Responsive Design for Elevator Equipment */
+@media (max-width: 768px) {
+  .elevator-equipment-sections .elevator-info-table td {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .elevator-equipment-sections .elevator-equipment-table td {
+    width: 12.5%;
+    /* 8列を維持 */
+    padding: 0.375rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .elevator-equipment-sections .elevator-equipment-table td {
+    width: 12.5%;
+    /* 小さな画面でも8列を維持 */
+    padding: 0.25rem;
+    font-size: 0.75rem;
+  }
+
+  .elevator-equipment-sections .elevator-equipment-table .detail-label {
+    font-size: 0.7rem;
+  }
+
+  .elevator-equipment-sections .elevator-equipment-table .detail-value {
+    font-size: 0.75rem;
+  }
+}
+
+/* Elevator Equipment Table Styles */
+.elevator-equipment-sections .elevator-info-table,
+.elevator-equipment-sections .elevator-equipment-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+/* 基本情報テーブル（設置の有無）- 2列構成 */
+.elevator-equipment-sections .elevator-info-table td {
+  vertical-align: middle;
+  padding: 0.75rem;
+}
+
+.elevator-equipment-sections .elevator-info-table .detail-label {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #495057;
+  text-align: center;
+  width: 30%;
+}
+
+.elevator-equipment-sections .elevator-info-table .detail-value {
+  background-color: #ffffff;
+  color: #212529;
+  text-align: center;
+  width: 70%;
+}
+
+/* エレベーター設備詳細テーブル（4列構成）- 均等幅 */
+.elevator-equipment-sections .elevator-equipment-table td {
+  width: 12.5%;
+  /* 8列（4つのラベル + 4つの値）なので 100% / 8 = 12.5% */
+  word-wrap: break-word;
+  vertical-align: middle;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.elevator-equipment-sections .elevator-equipment-table .detail-label {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.elevator-equipment-sections .elevator-equipment-table .detail-value {
+  background-color: #ffffff;
+  color: #212529;
+  font-size: 0.9rem;
+}
+
+/* Equipment Number Badge for Elevator */
+.elevator-equipment-sections .equipment-number {
+  font-size: 0.75rem;
+  font-weight: 600;
+  min-width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.elevator-equipment-sections .equipment-item {
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  background-color: #fff;
+  border-left: 4px solid #6f42c1;
+}
+
+/* Responsive Design for Elevator Equipment */
+@media (max-width: 768px) {
+
+  .elevator-equipment-sections .elevator-info-table td,
+  .elevator-equipment-sections .elevator-equipment-table td {
+    width: 50%;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .elevator-equipment-sections .elevator-info-table .detail-label,
+  .elevator-equipment-sections .elevator-equipment-table .detail-label {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 576px) {
+
+  .elevator-equipment-sections .elevator-info-table,
+  .elevator-equipment-sections .elevator-equipment-table {
+    table-layout: auto;
+  }
+
+  .elevator-equipment-sections .elevator-info-table td,
+  .elevator-equipment-sections .elevator-equipment-table td {
+    width: auto;
+    display: block;
+    padding: 0.375rem;
+    border: none;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .elevator-equipment-sections .elevator-info-table .detail-label,
+  .elevator-equipment-sections .elevator-equipment-table .detail-label {
+    font-weight: 600;
+    background-color: transparent;
+    text-align: left;
+    padding-bottom: 0.25rem;
+  }
+
+  .elevator-equipment-sections .elevator-info-table .detail-value,
+  .elevator-equipment-sections .elevator-equipment-table .detail-value {
+    background-color: transparent;
+    text-align: left;
+    padding-top: 0;
+    margin-bottom: 0.75rem;
+  }
+}
+
 /* HVAC/Lighting Equipment Specific */
 #hvac-lighting .card-header {
   background: linear-gradient(135deg, #28a745, #1e7e34);

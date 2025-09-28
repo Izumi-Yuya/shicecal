@@ -14,12 +14,13 @@ class LifelineEquipmentIntegrationTest extends TestCase
     use RefreshDatabase;
 
     protected User $user;
+
     protected Facility $facility;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->user = User::factory()->create(['role' => 'editor']);
         $this->facility = Facility::factory()->create();
         $this->actingAs($this->user);
@@ -149,7 +150,7 @@ class LifelineEquipmentIntegrationTest extends TestCase
         $response = $this->get("/facilities/{$this->facility->id}");
 
         $response->assertStatus(200);
-        
+
         // Check that lifeline equipment styles are present
         $response->assertSee('lifeline-equipment-container');
     }
@@ -160,7 +161,7 @@ class LifelineEquipmentIntegrationTest extends TestCase
         $response = $this->get("/facilities/{$this->facility->id}");
 
         $response->assertStatus(200);
-        
+
         // Check that the facility page loads correctly with lifeline equipment
         $response->assertSee('ライフライン設備');
     }

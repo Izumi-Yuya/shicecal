@@ -14,15 +14,11 @@ class ElevatorEquipment extends Model
     protected $fillable = [
         'lifeline_equipment_id',
         'basic_info',
-        'maintenance_info',
-        'safety_info',
         'notes',
     ];
 
     protected $casts = [
         'basic_info' => 'array',
-        'maintenance_info' => 'array',
-        'safety_info' => 'array',
     ];
 
     /**

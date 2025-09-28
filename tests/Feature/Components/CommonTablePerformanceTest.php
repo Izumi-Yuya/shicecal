@@ -2,19 +2,18 @@
 
 namespace Tests\Feature\Components;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use App\Models\Facility;
 use App\Models\User;
-use App\Services\CommonTablePerformanceOptimizer;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\View;
+use Tests\TestCase;
 
 /**
  * CommonTableパフォーマンステスト
- * 
+ *
  * レンダリング性能、メモリ使用量、キャッシュ効果のテスト
  * 要件: 設計書のパフォーマンス要件
  */
@@ -23,14 +22,15 @@ class CommonTablePerformanceTest extends TestCase
     use RefreshDatabase;
 
     protected $user;
+
     protected $facilities;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->user = User::factory()->create();
-        
+
         // パフォーマンステスト用のファシリティを作成
         $this->facilities = Facility::factory()->count(10)->create();
     }
@@ -48,14 +48,14 @@ class CommonTablePerformanceTest extends TestCase
 
         $view = View::make('components.common-table', [
             'data' => $smallData,
-            'title' => '小規模データテスト'
+            'title' => '小規模データテスト',
         ]);
 
         $rendered = $view->render();
-        
+
         $endTime = microtime(true);
         $endMemory = memory_get_usage();
-        
+
         $renderTime = $endTime - $startTime;
         $memoryUsage = $endMemory - $startMemory;
 
@@ -70,7 +70,7 @@ class CommonTablePerformanceTest extends TestCase
         Log::info('Small Data Performance Test', [
             'rows' => 10,
             'render_time' => $renderTime,
-            'memory_usage_mb' => round($memoryUsage / 1024 / 1024, 2)
+            'memory_usage_mb' => round($memoryUsage / 1024 / 1024, 2),
         ]);
     }
 
@@ -87,14 +87,14 @@ class CommonTablePerformanceTest extends TestCase
 
         $view = View::make('components.common-table', [
             'data' => $mediumData,
-            'title' => '中規模データテスト'
+            'title' => '中規模データテスト',
         ]);
 
         $rendered = $view->render();
-        
+
         $endTime = microtime(true);
         $endMemory = memory_get_usage();
-        
+
         $renderTime = $endTime - $startTime;
         $memoryUsage = $endMemory - $startMemory;
 
@@ -109,7 +109,7 @@ class CommonTablePerformanceTest extends TestCase
         Log::info('Medium Data Performance Test', [
             'rows' => 50,
             'render_time' => $renderTime,
-            'memory_usage_mb' => round($memoryUsage / 1024 / 1024, 2)
+            'memory_usage_mb' => round($memoryUsage / 1024 / 1024, 2),
         ]);
     }
 
@@ -126,14 +126,14 @@ class CommonTablePerformanceTest extends TestCase
 
         $view = View::make('components.common-table', [
             'data' => $largeData,
-            'title' => '大規模データテスト'
+            'title' => '大規模データテスト',
         ]);
 
         $rendered = $view->render();
-        
+
         $endTime = microtime(true);
         $endMemory = memory_get_usage();
-        
+
         $renderTime = $endTime - $startTime;
         $memoryUsage = $endMemory - $startMemory;
 
@@ -148,7 +148,7 @@ class CommonTablePerformanceTest extends TestCase
         Log::info('Large Data Performance Test', [
             'rows' => 100,
             'render_time' => $renderTime,
-            'memory_usage_mb' => round($memoryUsage / 1024 / 1024, 2)
+            'memory_usage_mb' => round($memoryUsage / 1024 / 1024, 2),
         ]);
     }
 
@@ -165,14 +165,14 @@ class CommonTablePerformanceTest extends TestCase
 
         $view = View::make('components.common-table', [
             'data' => $extraLargeData,
-            'title' => '超大規模データテスト'
+            'title' => '超大規模データテスト',
         ]);
 
         $rendered = $view->render();
-        
+
         $endTime = microtime(true);
         $endMemory = memory_get_usage();
-        
+
         $renderTime = $endTime - $startTime;
         $memoryUsage = $endMemory - $startMemory;
 
@@ -187,7 +187,7 @@ class CommonTablePerformanceTest extends TestCase
         Log::info('Extra Large Data Performance Test', [
             'rows' => 200,
             'render_time' => $renderTime,
-            'memory_usage_mb' => round($memoryUsage / 1024 / 1024, 2)
+            'memory_usage_mb' => round($memoryUsage / 1024 / 1024, 2),
         ]);
     }
 
@@ -204,14 +204,14 @@ class CommonTablePerformanceTest extends TestCase
 
         $view = View::make('components.common-table', [
             'data' => $complexData,
-            'title' => '複雑なデータ構造テスト'
+            'title' => '複雑なデータ構造テスト',
         ]);
 
         $rendered = $view->render();
-        
+
         $endTime = microtime(true);
         $endMemory = memory_get_usage();
-        
+
         $renderTime = $endTime - $startTime;
         $memoryUsage = $endMemory - $startMemory;
 
@@ -228,7 +228,7 @@ class CommonTablePerformanceTest extends TestCase
         Log::info('Complex Data Performance Test', [
             'rows' => count($complexData),
             'render_time' => $renderTime,
-            'memory_usage_mb' => round($memoryUsage / 1024 / 1024, 2)
+            'memory_usage_mb' => round($memoryUsage / 1024 / 1024, 2),
         ]);
     }
 
@@ -239,7 +239,7 @@ class CommonTablePerformanceTest extends TestCase
     public function test_performance_キャッシュ効果()
     {
         $cacheableData = $this->generateTestData(50);
-        $cacheKey = 'performance_test_' . md5(json_encode($cacheableData));
+        $cacheKey = 'performance_test_'.md5(json_encode($cacheableData));
 
         // キャッシュをクリア
         Cache::forget($cacheKey);
@@ -250,7 +250,7 @@ class CommonTablePerformanceTest extends TestCase
             'data' => $cacheableData,
             'title' => 'キャッシュパフォーマンステスト',
             'enableCache' => true,
-            'cacheKey' => $cacheKey
+            'cacheKey' => $cacheKey,
         ]);
         $rendered1 = $view1->render();
         $endTime1 = microtime(true);
@@ -262,7 +262,7 @@ class CommonTablePerformanceTest extends TestCase
             'data' => $cacheableData,
             'title' => 'キャッシュパフォーマンステスト',
             'enableCache' => true,
-            'cacheKey' => $cacheKey
+            'cacheKey' => $cacheKey,
         ]);
         $rendered2 = $view2->render();
         $endTime2 = microtime(true);
@@ -274,7 +274,7 @@ class CommonTablePerformanceTest extends TestCase
             'data' => $cacheableData,
             'title' => 'キャッシュパフォーマンステスト',
             'enableCache' => true,
-            'cacheKey' => $cacheKey
+            'cacheKey' => $cacheKey,
         ]);
         $rendered3 = $view3->render();
         $endTime3 = microtime(true);
@@ -292,7 +292,7 @@ class CommonTablePerformanceTest extends TestCase
             'second_render_time' => $renderTime2,
             'third_render_time' => $renderTime3,
             'cache_effective' => $cacheEffective,
-            'improvement_ratio' => $renderTime1 > 0 ? ($renderTime1 - $renderTime2) / $renderTime1 : 0
+            'improvement_ratio' => $renderTime1 > 0 ? ($renderTime1 - $renderTime2) / $renderTime1 : 0,
         ]);
 
         // キャッシュが設定されていることを確認
@@ -311,14 +311,14 @@ class CommonTablePerformanceTest extends TestCase
         // 複数回のレンダリングを実行
         for ($i = 0; $i < 5; $i++) {
             $startTime = microtime(true);
-            
+
             $view = View::make('components.common-table', [
                 'data' => $testData,
-                'title' => "並行テスト{$i}"
+                'title' => "並行テスト{$i}",
             ]);
-            
+
             $rendered = $view->render();
-            
+
             $endTime = microtime(true);
             $renderTimes[] = $endTime - $startTime;
 
@@ -340,7 +340,7 @@ class CommonTablePerformanceTest extends TestCase
             'avg_render_time' => $avgRenderTime,
             'max_render_time' => $maxRenderTime,
             'min_render_time' => $minRenderTime,
-            'render_times' => $renderTimes
+            'render_times' => $renderTimes,
         ]);
     }
 
@@ -356,14 +356,14 @@ class CommonTablePerformanceTest extends TestCase
         // 複数回のレンダリングでメモリ使用量を測定
         for ($i = 0; $i < 10; $i++) {
             $startMemory = memory_get_usage();
-            
+
             $view = View::make('components.common-table', [
                 'data' => $testData,
-                'title' => "メモリテスト{$i}"
+                'title' => "メモリテスト{$i}",
             ]);
-            
+
             $rendered = $view->render();
-            
+
             $endMemory = memory_get_usage();
             $memoryUsages[] = $endMemory - $startMemory;
 
@@ -386,7 +386,7 @@ class CommonTablePerformanceTest extends TestCase
             'avg_memory_usage_mb' => round($avgMemoryUsage / 1024 / 1024, 2),
             'max_memory_usage_mb' => round($maxMemoryUsage / 1024 / 1024, 2),
             'min_memory_usage_mb' => round($minMemoryUsage / 1024 / 1024, 2),
-            'memory_variation_mb' => round($memoryVariation / 1024 / 1024, 2)
+            'memory_variation_mb' => round($memoryVariation / 1024 / 1024, 2),
         ]);
     }
 
@@ -413,12 +413,12 @@ class CommonTablePerformanceTest extends TestCase
         Log::info('Database Query Optimization Test', [
             'query_count' => $queryCount,
             'total_query_time_ms' => $totalQueryTime,
-            'queries' => array_map(function($query) {
+            'queries' => array_map(function ($query) {
                 return [
                     'sql' => $query['query'],
-                    'time' => $query['time']
+                    'time' => $query['time'],
                 ];
-            }, $queries)
+            }, $queries),
         ]);
 
         DB::disableQueryLog();
@@ -438,7 +438,7 @@ class CommonTablePerformanceTest extends TestCase
             'data' => $responsiveData,
             'title' => 'レスポンシブテスト',
             'responsive' => true,
-            'viewportWidth' => 1200
+            'viewportWidth' => 1200,
         ]);
         $rendered1 = $view1->render();
         $endTime1 = microtime(true);
@@ -450,7 +450,7 @@ class CommonTablePerformanceTest extends TestCase
             'data' => $responsiveData,
             'title' => 'レスポンシブテスト',
             'responsive' => true,
-            'viewportWidth' => 375
+            'viewportWidth' => 375,
         ]);
         $rendered2 = $view2->render();
         $endTime2 = microtime(true);
@@ -467,7 +467,7 @@ class CommonTablePerformanceTest extends TestCase
 
         Log::info('Responsive Rendering Performance Test', [
             'desktop_render_time' => $desktopRenderTime,
-            'mobile_render_time' => $mobileRenderTime
+            'mobile_render_time' => $mobileRenderTime,
         ]);
     }
 
@@ -477,27 +477,27 @@ class CommonTablePerformanceTest extends TestCase
     private function generateTestData(int $rowCount): array
     {
         $data = [];
-        
+
         for ($i = 0; $i < $rowCount; $i++) {
             $data[] = [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => "項目{$i}", 'value' => "値{$i}", 'type' => 'text'],
                     ['label' => "メール{$i}", 'value' => "test{$i}@example.com", 'type' => 'email'],
-                ]
+                ],
             ];
-            
+
             // 10行ごとにURLリンクを追加
             if ($i % 10 === 0) {
                 $data[] = [
                     'type' => 'single',
                     'cells' => [
                         ['label' => "URL{$i}", 'value' => "https://example{$i}.com", 'type' => 'url', 'colspan' => 2],
-                    ]
+                    ],
                 ];
             }
         }
-        
+
         return $data;
     }
 
@@ -507,7 +507,7 @@ class CommonTablePerformanceTest extends TestCase
     private function generateComplexTestData(int $groupCount): array
     {
         $data = [];
-        
+
         for ($i = 0; $i < $groupCount; $i++) {
             // グループヘッダー
             $data[] = [
@@ -518,43 +518,43 @@ class CommonTablePerformanceTest extends TestCase
                         'value' => null,
                         'type' => 'text',
                         'rowspan' => 3,
-                        'label_colspan' => 1
-                    ]
-                ]
+                        'label_colspan' => 1,
+                    ],
+                ],
             ];
-            
+
             // グループ内のデータ
             $data[] = [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '名前', 'value' => "名前{$i}", 'type' => 'text'],
-                ]
+                ],
             ];
-            
+
             $data[] = [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'メール', 'value' => "group{$i}@example.com", 'type' => 'email'],
-                ]
+                ],
             ];
-            
+
             $data[] = [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'URL', 'value' => "https://group{$i}.example.com", 'type' => 'url'],
-                ]
+                ],
             ];
-            
+
             // 数値データ
             $data[] = [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '金額', 'value' => ($i + 1) * 100000, 'type' => 'currency'],
-                    ['label' => '日付', 'value' => '2023-' . str_pad(($i % 12) + 1, 2, '0', STR_PAD_LEFT) . '-01', 'type' => 'date'],
-                ]
+                    ['label' => '日付', 'value' => '2023-'.str_pad(($i % 12) + 1, 2, '0', STR_PAD_LEFT).'-01', 'type' => 'date'],
+                ],
             ];
         }
-        
+
         return $data;
     }
 }

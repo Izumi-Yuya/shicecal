@@ -178,7 +178,7 @@
                                                       maxlength="1000"
                                                       placeholder="PASの詳細情報を入力してください"></textarea>
                                             <div class="form-text">
-                                                PASの仕様、設置場所、機能などの詳細情報を入力してください（最大1000文字）
+                                                PASの仕様、設置場所、機能などの詳細情報を入力してください。（最大1000文字）
                                             </div>
                                             <div class="invalid-feedback"></div>
                                         </div>
@@ -192,7 +192,7 @@
                                                    id="pas_update_date" 
                                                    name="pas_info[update_date]">
                                             <div class="form-text">
-                                                PAS情報を最後に更新した日付を選択してください
+                                                PAS情報を最後に更新した日付を選択してください。
                                             </div>
                                             <div class="invalid-feedback"></div>
                                         </div>
@@ -233,15 +233,15 @@
         <!-- Test 2: Conditional Display -->
         <div class="test-section">
             <h3>テスト2: 条件付き表示制御</h3>
-            <p>有無プルダウンで「有」を選択した時のみ詳細フィールドが表示されることを確認します。</p>
+            <p>有無プルダウンで「有」を選択した場合のみ詳細フィールドが表示されることを確認します。</p>
             
             <div class="row">
                 <div class="col-md-6">
                     <button class="btn btn-primary me-2" onclick="testConditionalDisplay('有')">
-                        「有」を選択
+                        「有」を選択する
                     </button>
                     <button class="btn btn-secondary me-2" onclick="testConditionalDisplay('無')">
-                        「無」を選択
+                        「無」を選択する
                     </button>
                     <button class="btn btn-outline-secondary" onclick="testConditionalDisplay('')">
                         未選択

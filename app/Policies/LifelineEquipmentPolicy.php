@@ -16,7 +16,7 @@ class LifelineEquipmentPolicy
     public function view(User $user, Facility $facility): bool
     {
         // Check if user can access the facility
-        if (!$user->canAccessFacility($facility->id)) {
+        if (! $user->canAccessFacility($facility->id)) {
             return false;
         }
 
@@ -57,7 +57,7 @@ class LifelineEquipmentPolicy
     public function create(User $user, Facility $facility): bool
     {
         // Only editors and above can create lifeline equipment information
-        if (!$user->canEdit()) {
+        if (! $user->canEdit()) {
             return false;
         }
 
@@ -71,7 +71,7 @@ class LifelineEquipmentPolicy
     public function update(User $user, Facility $facility): bool
     {
         // Only editors and above can update lifeline equipment information
-        if (!$user->canEdit()) {
+        if (! $user->canEdit()) {
             return false;
         }
 
@@ -85,7 +85,7 @@ class LifelineEquipmentPolicy
     public function delete(User $user, Facility $facility): bool
     {
         // Only admins can delete lifeline equipment information
-        if (!$user->isAdmin()) {
+        if (! $user->isAdmin()) {
             return false;
         }
 
@@ -99,7 +99,7 @@ class LifelineEquipmentPolicy
     public function approve(User $user, Facility $facility): bool
     {
         // Only approvers and admins can approve changes
-        if (!$user->canApprove()) {
+        if (! $user->canApprove()) {
             return false;
         }
 
@@ -113,7 +113,7 @@ class LifelineEquipmentPolicy
     public function reject(User $user, Facility $facility): bool
     {
         // Only approvers and admins can reject changes
-        if (!$user->canApprove()) {
+        if (! $user->canApprove()) {
             return false;
         }
 
@@ -142,7 +142,7 @@ class LifelineEquipmentPolicy
     public function viewAuditLogs(User $user, Facility $facility): bool
     {
         // Only admins and approvers can view audit logs
-        if (!in_array($user->role, ['admin', 'approver'])) {
+        if (! in_array($user->role, ['admin', 'approver'])) {
             return false;
         }
 

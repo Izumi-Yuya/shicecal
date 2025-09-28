@@ -14,6 +14,7 @@ class LifelineEquipmentApiIntegrationTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Facility $facility;
 
     protected function setUp(): void
@@ -232,7 +233,7 @@ class LifelineEquipmentApiIntegrationTest extends TestCase
         // Verify all expected categories are present
         $categories = $response->json('data.categories');
         $expectedCategories = ['electrical', 'water', 'gas', 'elevator', 'hvac_lighting'];
-        
+
         foreach ($expectedCategories as $category) {
             $this->assertArrayHasKey($category, $categories);
             $this->assertArrayHasKey('name', $categories[$category]);
@@ -333,7 +334,7 @@ class LifelineEquipmentApiIntegrationTest extends TestCase
         ];
 
         foreach ($endpoints as $endpoint) {
-            $response = $this->{$endpoint['method'] . 'Json'}(
+            $response = $this->{$endpoint['method'].'Json'}(
                 route($endpoint['route'], $this->facility)
             );
 

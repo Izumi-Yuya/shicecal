@@ -25,7 +25,7 @@ Cell Component
     $rowspan = max(1, min(10, (int) $rowspan)); // 最大10行
     
     // サポートされるセルタイプの検証
-    $supportedTypes = ['text', 'badge', 'email', 'url', 'date', 'currency', 'number', 'file', 'label'];
+    $supportedTypes = ['text', 'badge', 'email', 'url', 'date', 'currency', 'number', 'file', 'file_display', 'label'];
     $type = in_array($type, $supportedTypes) ? $type : 'text';
     
     // 表示値の決定
@@ -72,16 +72,18 @@ Cell Component
             $attributes['aria-label'] = '未設定の項目';
         } else {
             // セルタイプに応じたaria-labelの設定
+            $ariaLabelValue = is_array($displayValue) ? ($displayValue['filename'] ?? 'データ') : (string) $displayValue;
             $ariaLabel = match($type) {
-                'email' => 'メールアドレス: ' . $displayValue,
-                'url' => 'ウェブサイト: ' . $displayValue,
-                'date' => '日付: ' . $displayValue,
-                'currency' => '金額: ' . $displayValue,
-                'number' => '数値: ' . $displayValue,
-                'file' => 'ファイル: ' . $displayValue,
-                'badge' => 'ステータス: ' . $displayValue,
-                'label' => 'ラベル: ' . $displayValue,
-                default => $displayValue
+                'email' => 'メールアドレス: ' . $ariaLabelValue,
+                'url' => 'ウェブサイト: ' . $ariaLabelValue,
+                'date' => '日付: ' . $ariaLabelValue,
+                'currency' => '金額: ' . $ariaLabelValue,
+                'number' => '数値: ' . $ariaLabelValue,
+                'file' => 'ファイル: ' . $ariaLabelValue,
+                'file_display' => 'ファイル: ' . $ariaLabelValue,
+                'badge' => 'ステータス: ' . $ariaLabelValue,
+                'label' => 'ラベル: ' . $ariaLabelValue,
+                default => $ariaLabelValue
             };
             $attributes['aria-label'] = $ariaLabel;
         }

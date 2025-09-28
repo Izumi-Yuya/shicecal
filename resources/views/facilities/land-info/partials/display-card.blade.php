@@ -63,9 +63,9 @@
                 ['label' => '坪単価', 'value' => $landInfo->unit_price_per_tsubo !== null ? number_format($landInfo->unit_price_per_tsubo) . '円/坪' : null, 'type' => 'text'],
                 [
                     'label' => '謄本', 
-                    'value' => $landInfo->registry_pdf_name ? route('facilities.land-info.download', ['facility' => $facility, 'type' => 'registry']) : null, 
-                    'type' => 'file',
-                    'options' => ['display_name' => $landInfo->registry_pdf_name]
+                    'value' => $landInfoFileData['registry'] ?? null, 
+                    'type' => 'file_display',
+                    'options' => []
                 ],
             ]
         ],
@@ -76,9 +76,9 @@
                 ['label' => '-', 'value' => '-', 'type' => 'text'],
                 [
                     'label' => '契約書・覚書', 
-                    'value' => $landInfo->lease_contract_pdf_name ? route('facilities.land-info.download', ['facility' => $facility, 'type' => 'lease_contract']) : null, 
-                    'type' => 'file',
-                    'options' => ['display_name' => $landInfo->lease_contract_pdf_name]
+                    'value' => $landInfoFileData['lease_contract'] ?? null, 
+                    'type' => 'file_display',
+                    'options' => []
                 ],
             ]
         ],

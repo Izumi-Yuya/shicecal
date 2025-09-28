@@ -2,11 +2,9 @@
 
 namespace Tests\Feature\Components;
 
-use Tests\TestCase;
 use App\Models\Facility;
-use App\Models\FacilityService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Carbon\Carbon;
+use Tests\TestCase;
 
 /**
  * 基本情報表示カードの簡単な移行テスト
@@ -33,7 +31,7 @@ class BasicInfoDisplayCardSimpleTest extends TestCase
         $this->assertStringContainsString('テスト施設', $html);
         $this->assertStringContainsString('テスト会社', $html);
         $this->assertStringContainsString('TEST001', $html);
-        
+
         // 共通テーブルコンポーネントが使用されているかチェック
         $this->assertStringContainsString('facility-info-card', $html);
         $this->assertStringContainsString('detail-label', $html);
@@ -56,7 +54,7 @@ class BasicInfoDisplayCardSimpleTest extends TestCase
 
         // 未設定が表示されることを確認
         $this->assertStringContainsString('未設定', $html);
-        
+
         // empty-fieldクラスが適用されることを確認
         $this->assertStringContainsString('empty-field', $html);
     }
@@ -94,7 +92,7 @@ class BasicInfoDisplayCardSimpleTest extends TestCase
     }
 
     /** @test */
-    public function URLがリンクとして表示されること()
+    public function ur_lがリンクとして表示されること()
     {
         $facility = Facility::factory()->create([
             'facility_name' => 'テスト施設',

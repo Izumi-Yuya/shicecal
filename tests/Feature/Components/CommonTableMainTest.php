@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Components;
 
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class CommonTableMainTest extends TestCase
 {
@@ -21,8 +21,8 @@ class CommonTableMainTest extends TestCase
                 'cells' => [
                     ['label' => 'テストラベル', 'value' => 'テスト値', 'type' => 'text'],
                     ['label' => '会社名', 'value' => '株式会社テスト', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = $this->blade(
@@ -63,8 +63,8 @@ class CommonTableMainTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'ラベル', 'value' => '値', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = $this->blade(
@@ -88,20 +88,20 @@ class CommonTableMainTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '標準ラベル', 'value' => '標準値', 'type' => 'text'],
-                ]
+                ],
             ],
             [
                 'type' => 'single',
                 'cells' => [
                     ['label' => '単一ラベル', 'value' => '単一値', 'type' => 'text', 'colspan' => 2],
-                ]
+                ],
             ],
             [
                 'type' => 'grouped',
                 'cells' => [
                     ['label' => 'グループラベル', 'value' => 'グループ値', 'type' => 'text', 'rowspan' => 2],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = $this->blade(
@@ -128,8 +128,8 @@ class CommonTableMainTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'ラベル', 'value' => '値', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = $this->blade(
@@ -152,8 +152,8 @@ class CommonTableMainTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'ラベル', 'value' => '値', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         // レスポンシブ有効
@@ -207,14 +207,14 @@ class CommonTableMainTest extends TestCase
                 'cells' => [
                     ['label' => 'ラベル1', 'value' => '値1', 'type' => 'text'],
                     ['label' => 'ラベル2', 'value' => '値2', 'type' => 'badge'],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'ラベル3', 'value' => '値3', 'type' => 'email'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = $this->blade(
@@ -242,8 +242,8 @@ class CommonTableMainTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'テストラベル', 'value' => 'テスト値', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = $this->blade(
@@ -267,8 +267,8 @@ class CommonTableMainTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'ラベル', 'value' => '値', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         // cleanBody有効

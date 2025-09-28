@@ -162,7 +162,7 @@ class ElevatorEquipmentTest extends TestCase
     /** @test */
     public function it_has_correct_table_name()
     {
-        $elevatorEquipment = new ElevatorEquipment();
+        $elevatorEquipment = new ElevatorEquipment;
         $this->assertEquals('elevator_equipment', $elevatorEquipment->getTable());
     }
 
@@ -184,7 +184,7 @@ class ElevatorEquipmentTest extends TestCase
         $originalUpdatedAt = $elevatorEquipment->updated_at;
 
         usleep(100000); // 0.1 seconds
-        
+
         $elevatorEquipment->notes = '更新された備考';
         $elevatorEquipment->save();
 
@@ -219,7 +219,7 @@ class ElevatorEquipmentTest extends TestCase
         $this->assertEquals('東芝エレベータ', $elevatorEquipment->basic_info['manufacturer']);
         $this->assertEquals('EV-2024-002', $elevatorEquipment->basic_info['model_number']);
         $this->assertEquals('1200kg', $elevatorEquipment->basic_info['capacity']);
-        
+
         // Other fields should remain unchanged
         $this->assertEquals('エレベーター保守株式会社', $elevatorEquipment->maintenance_info['maintenance_company']);
         $this->assertEquals('既存の備考', $elevatorEquipment->notes);
@@ -265,7 +265,7 @@ class ElevatorEquipmentTest extends TestCase
         $this->assertIsArray($elevatorEquipment->basic_info['specifications']);
         $this->assertIsArray($elevatorEquipment->maintenance_info['inspection_schedule']);
         $this->assertIsArray($elevatorEquipment->safety_info['safety_features']);
-        
+
         $this->assertEquals(15, $elevatorEquipment->basic_info['specifications']['capacity_persons']);
         $this->assertEquals('毎月15日', $elevatorEquipment->maintenance_info['inspection_schedule']['monthly']);
         $this->assertEquals('有', $elevatorEquipment->safety_info['safety_features']['door_sensor']);

@@ -226,7 +226,7 @@ class ExportService
     {
         return Cache::get("batch_pdf_progress_{$batchId}", [
             'status' => 'not_found',
-            'message' => 'バッチが見つかりません',
+            'message' => 'バッチが見つかりません。',
         ]);
     }
 

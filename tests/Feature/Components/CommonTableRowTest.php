@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Components;
 
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class CommonTableRowTest extends TestCase
 {
@@ -18,7 +18,7 @@ class CommonTableRowTest extends TestCase
         ];
 
         $view = $this->blade('<x-common-table.row :cells="$cells" type="standard" />', [
-            'cells' => $cells
+            'cells' => $cells,
         ]);
 
         $view->assertSee('会社名');
@@ -36,7 +36,7 @@ class CommonTableRowTest extends TestCase
         ];
 
         $view = $this->blade('<x-common-table.row :cells="$cells" type="single" />', [
-            'cells' => $cells
+            'cells' => $cells,
         ]);
 
         $view->assertSee('https://example.com');
@@ -53,7 +53,7 @@ class CommonTableRowTest extends TestCase
         ];
 
         $view = $this->blade('<x-common-table.row :cells="$cells" type="grouped" />', [
-            'cells' => $cells
+            'cells' => $cells,
         ]);
 
         $view->assertSee('グループラベル');
@@ -70,7 +70,7 @@ class CommonTableRowTest extends TestCase
         $cells = [];
 
         $view = $this->blade('<x-common-table.row :cells="$cells" type="standard" />', [
-            'cells' => $cells
+            'cells' => $cells,
         ]);
 
         $view->assertSee('セルデータがありません');
@@ -85,7 +85,7 @@ class CommonTableRowTest extends TestCase
         ];
 
         $view = $this->blade('<x-common-table.row :cells="$cells" type="standard" />', [
-            'cells' => $cells
+            'cells' => $cells,
         ]);
 
         $view->assertSee('無効なセルデータ');
@@ -101,7 +101,7 @@ class CommonTableRowTest extends TestCase
         ];
 
         $view = $this->blade('<x-common-table.row :cells="$cells" type="invalid_type" />', [
-            'cells' => $cells
+            'cells' => $cells,
         ]);
 
         $view->assertSee('data-row-type="standard"', false);
@@ -116,19 +116,19 @@ class CommonTableRowTest extends TestCase
 
         // Standard row
         $standardView = $this->blade('<x-common-table.row :cells="$cells" type="standard" />', [
-            'cells' => $cells
+            'cells' => $cells,
         ]);
         $standardView->assertSee('class="standard-row"', false);
 
         // Grouped row
         $groupedView = $this->blade('<x-common-table.row :cells="$cells" type="grouped" />', [
-            'cells' => $cells
+            'cells' => $cells,
         ]);
         $groupedView->assertSee('class="grouped-row"', false);
 
         // Single row
         $singleView = $this->blade('<x-common-table.row :cells="$cells" type="single" />', [
-            'cells' => $cells
+            'cells' => $cells,
         ]);
         $singleView->assertSee('class="single-row"', false);
     }
@@ -141,7 +141,7 @@ class CommonTableRowTest extends TestCase
         ];
 
         $view = $this->blade('<x-common-table.row :cells="$cells" type="standard" rowIndex="1" />', [
-            'cells' => $cells
+            'cells' => $cells,
         ]);
 
         $view->assertSee('role="row"', false);
@@ -158,7 +158,7 @@ class CommonTableRowTest extends TestCase
         ];
 
         $view = $this->blade('<x-common-table.row :cells="$cells" type="standard" />', [
-            'cells' => $cells
+            'cells' => $cells,
         ]);
 
         $view->assertSee('ラベル1');
@@ -179,7 +179,7 @@ class CommonTableRowTest extends TestCase
         ];
 
         $view = $this->blade('<x-common-table.row :cells="$cells" type="standard" />', [
-            'cells' => $cells
+            'cells' => $cells,
         ]);
 
         $view->assertSee('空の値');
@@ -198,7 +198,7 @@ class CommonTableRowTest extends TestCase
         ];
 
         $view = $this->blade('<x-common-table.row :cells="$cells" type="single" />', [
-            'cells' => $cells
+            'cells' => $cells,
         ]);
 
         // single行では、ラベルと値が1つのセルに結合される
@@ -212,17 +212,17 @@ class CommonTableRowTest extends TestCase
     {
         $cells = [
             [
-                'label' => '管理会社情報', 
-                'value' => '株式会社テスト管理', 
-                'type' => 'text', 
+                'label' => '管理会社情報',
+                'value' => '株式会社テスト管理',
+                'type' => 'text',
                 'rowspan' => 3,
-                'label_colspan' => 1
+                'label_colspan' => 1,
             ],
             ['label' => '担当者', 'value' => '田中太郎', 'type' => 'text'],
         ];
 
         $view = $this->blade('<x-common-table.row :cells="$cells" type="grouped" />', [
-            'cells' => $cells
+            'cells' => $cells,
         ]);
 
         $view->assertSee('管理会社情報');

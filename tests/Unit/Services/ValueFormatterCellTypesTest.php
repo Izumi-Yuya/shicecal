@@ -13,6 +13,7 @@ class ValueFormatterCellTypesTest extends TestCase
 {
     /**
      * @test
+     *
      * @group text-formatter
      */
     public function it_formats_text_with_various_options()
@@ -40,6 +41,7 @@ class ValueFormatterCellTypesTest extends TestCase
 
     /**
      * @test
+     *
      * @group badge-formatter
      */
     public function it_formats_badges_with_various_options()
@@ -69,6 +71,7 @@ class ValueFormatterCellTypesTest extends TestCase
 
     /**
      * @test
+     *
      * @group email-formatter
      */
     public function it_formats_emails_with_various_options()
@@ -96,6 +99,7 @@ class ValueFormatterCellTypesTest extends TestCase
 
     /**
      * @test
+     *
      * @group url-formatter
      */
     public function it_formats_urls_with_various_options()
@@ -133,6 +137,7 @@ class ValueFormatterCellTypesTest extends TestCase
 
     /**
      * @test
+     *
      * @group date-formatter
      */
     public function it_formats_dates_with_various_options()
@@ -174,6 +179,7 @@ class ValueFormatterCellTypesTest extends TestCase
 
     /**
      * @test
+     *
      * @group currency-formatter
      */
     public function it_formats_currency_with_various_options()
@@ -213,6 +219,7 @@ class ValueFormatterCellTypesTest extends TestCase
 
     /**
      * @test
+     *
      * @group number-formatter
      */
     public function it_formats_numbers_with_various_options()
@@ -248,58 +255,59 @@ class ValueFormatterCellTypesTest extends TestCase
 
     /**
      * @test
+     *
      * @group file-formatter
      */
     public function it_formats_file_links_with_various_types()
     {
         // PDFファイル
         $result = ValueFormatter::format('/documents/report.pdf', 'file');
-        $expected = '<a href="/documents/report.pdf" class="text-decoration-none" target="_blank"><i class="fas fa-file-pdf text-danger"></i> report.pdf</a>';
+        $expected = '<a href="/documents/report.pdf" class="text-decoration-none" aria-label="/documents/report.pdfをダウンロード" target="_blank"><i class="fas fa-file-pdf text-danger"></i>/documents/report.pdf</a>';
         $this->assertEquals($expected, $result);
 
         // Wordファイル
         $result = ValueFormatter::format('/documents/document.docx', 'file');
-        $expected = '<a href="/documents/document.docx" class="text-decoration-none" target="_blank"><i class="fas fa-file-word text-primary"></i> document.docx</a>';
+        $expected = '<a href="/documents/document.docx" class="text-decoration-none" aria-label="/documents/document.docxをダウンロード" target="_blank"><i class="fas fa-file-word text-primary"></i>/documents/document.docx</a>';
         $this->assertEquals($expected, $result);
 
         // Excelファイル
         $result = ValueFormatter::format('/documents/spreadsheet.xlsx', 'file');
-        $expected = '<a href="/documents/spreadsheet.xlsx" class="text-decoration-none" target="_blank"><i class="fas fa-file-excel text-success"></i> spreadsheet.xlsx</a>';
+        $expected = '<a href="/documents/spreadsheet.xlsx" class="text-decoration-none" aria-label="/documents/spreadsheet.xlsxをダウンロード" target="_blank"><i class="fas fa-file-excel text-success"></i>/documents/spreadsheet.xlsx</a>';
         $this->assertEquals($expected, $result);
 
         // 画像ファイル
         $result = ValueFormatter::format('/images/photo.jpg', 'file');
-        $expected = '<a href="/images/photo.jpg" class="text-decoration-none" target="_blank"><i class="fas fa-file-image text-info"></i> photo.jpg</a>';
+        $expected = '<a href="/images/photo.jpg" class="text-decoration-none" aria-label="/images/photo.jpgをダウンロード" target="_blank"><i class="fas fa-file-image text-info"></i>/images/photo.jpg</a>';
         $this->assertEquals($expected, $result);
 
         // アーカイブファイル
         $result = ValueFormatter::format('/archives/backup.zip', 'file');
-        $expected = '<a href="/archives/backup.zip" class="text-decoration-none" target="_blank"><i class="fas fa-file-archive text-secondary"></i> backup.zip</a>';
+        $expected = '<a href="/archives/backup.zip" class="text-decoration-none" aria-label="/archives/backup.zipをダウンロード" target="_blank"><i class="fas fa-file-archive text-secondary"></i>/archives/backup.zip</a>';
         $this->assertEquals($expected, $result);
 
         // テキストファイル
         $result = ValueFormatter::format('/documents/readme.txt', 'file');
-        $expected = '<a href="/documents/readme.txt" class="text-decoration-none" target="_blank"><i class="fas fa-file-alt text-secondary"></i> readme.txt</a>';
+        $expected = '<a href="/documents/readme.txt" class="text-decoration-none" aria-label="/documents/readme.txtをダウンロード" target="_blank"><i class="fas fa-file-alt text-secondary"></i>/documents/readme.txt</a>';
         $this->assertEquals($expected, $result);
 
         // CSVファイル
         $result = ValueFormatter::format('/data/export.csv', 'file');
-        $expected = '<a href="/data/export.csv" class="text-decoration-none" target="_blank"><i class="fas fa-file-csv text-success"></i> export.csv</a>';
+        $expected = '<a href="/data/export.csv" class="text-decoration-none" aria-label="/data/export.csvをダウンロード" target="_blank"><i class="fas fa-file-csv text-success"></i>/data/export.csv</a>';
         $this->assertEquals($expected, $result);
 
         // 不明なファイルタイプ
         $result = ValueFormatter::format('/files/unknown.xyz', 'file');
-        $expected = '<a href="/files/unknown.xyz" class="text-decoration-none" target="_blank"><i class="fas fa-file text-muted"></i> unknown.xyz</a>';
+        $expected = '<a href="/files/unknown.xyz" class="text-decoration-none" aria-label="/files/unknown.xyzをダウンロード" target="_blank"><i class="fas fa-file text-muted"></i>/files/unknown.xyz</a>';
         $this->assertEquals($expected, $result);
 
         // カスタム表示名
         $result = ValueFormatter::format('/documents/report.pdf', 'file', ['display_name' => '年次報告書']);
-        $expected = '<a href="/documents/report.pdf" class="text-decoration-none" target="_blank"><i class="fas fa-file-pdf text-danger"></i> 年次報告書</a>';
+        $expected = '<a href="/documents/report.pdf" class="text-decoration-none" aria-label="年次報告書をダウンロード" target="_blank"><i class="fas fa-file-pdf text-danger"></i>年次報告書</a>';
         $this->assertEquals($expected, $result);
 
         // 日本語ファイル名
         $result = ValueFormatter::format('/documents/報告書.pdf', 'file');
-        $expected = '<a href="/documents/報告書.pdf" class="text-decoration-none" target="_blank"><i class="fas fa-file-pdf text-danger"></i> 報告書.pdf</a>';
+        $expected = '<a href="/documents/報告書.pdf" class="text-decoration-none" aria-label="/documents/報告書.pdfをダウンロード" target="_blank"><i class="fas fa-file-pdf text-danger"></i>/documents/報告書.pdf</a>';
         $this->assertEquals($expected, $result);
 
         // 空値
@@ -309,6 +317,7 @@ class ValueFormatterCellTypesTest extends TestCase
 
     /**
      * @test
+     *
      * @group helper-methods
      */
     public function it_provides_correct_badge_classes()
@@ -343,6 +352,7 @@ class ValueFormatterCellTypesTest extends TestCase
 
     /**
      * @test
+     *
      * @group helper-methods
      */
     public function it_provides_correct_japanese_date_formats()
@@ -363,6 +373,7 @@ class ValueFormatterCellTypesTest extends TestCase
 
     /**
      * @test
+     *
      * @group edge-cases
      */
     public function it_handles_edge_cases_correctly()

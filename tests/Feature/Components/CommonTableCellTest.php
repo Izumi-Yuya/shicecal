@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Components;
 
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class CommonTableCellTest extends TestCase
 {

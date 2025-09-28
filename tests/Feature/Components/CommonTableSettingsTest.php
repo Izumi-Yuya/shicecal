@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Components;
 
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class CommonTableSettingsTest extends TestCase
 {
@@ -20,8 +20,8 @@ class CommonTableSettingsTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'ラベル', 'value' => '値', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         // レスポンシブ有効
@@ -50,8 +50,8 @@ class CommonTableSettingsTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'ラベル', 'value' => '値', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = $this->blade(
@@ -85,8 +85,8 @@ class CommonTableSettingsTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'ラベル', 'value' => '値', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = $this->blade(
@@ -128,8 +128,8 @@ class CommonTableSettingsTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'ラベル', 'value' => '値', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         // ヘッダー表示
@@ -158,8 +158,8 @@ class CommonTableSettingsTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'ラベル', 'value' => '値', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $attributes = [
@@ -187,8 +187,8 @@ class CommonTableSettingsTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'ラベル', 'value' => '値', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = $this->blade(
@@ -211,8 +211,8 @@ class CommonTableSettingsTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'ラベル', 'value' => '値', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         // cleanBody有効
@@ -242,8 +242,8 @@ class CommonTableSettingsTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'ラベル', 'value' => '値', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = $this->blade(
@@ -276,7 +276,7 @@ class CommonTableSettingsTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '有効ラベル', 'value' => '有効値', 'type' => 'text'],
-                ]
+                ],
             ],
             'invalid_data',
             [
@@ -291,8 +291,8 @@ class CommonTableSettingsTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '別の有効ラベル', 'value' => '別の有効値', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = $this->blade(
@@ -305,7 +305,7 @@ class CommonTableSettingsTest extends TestCase
         $view->assertSee('有効値');
         $view->assertSee('別の有効ラベル');
         $view->assertSee('別の有効値');
-        
+
         // 無効なデータは無視される
         $view->assertDontSee('データがありません');
     }
@@ -322,15 +322,15 @@ class CommonTableSettingsTest extends TestCase
                 'key' => 'row-1',
                 'cells' => [
                     ['label' => 'ラベル1', 'value' => '値1', 'type' => 'text'],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
                 'key' => 'row-2',
                 'cells' => [
                     ['label' => 'ラベル2', 'value' => '値2', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = $this->blade(

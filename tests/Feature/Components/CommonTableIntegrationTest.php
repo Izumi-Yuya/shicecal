@@ -2,15 +2,15 @@
 
 namespace Tests\Feature\Components;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\View;
 use App\Models\Facility;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\View;
+use Tests\TestCase;
 
 /**
  * CommonTable統合テスト
- * 
+ *
  * ビューレンダリングと既存ビューとの互換性テスト
  * 要件: 設計書のテスト戦略
  */
@@ -21,7 +21,7 @@ class CommonTableIntegrationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // テスト用ユーザーとファシリティを作成
         $this->user = User::factory()->create();
         $this->facility = Facility::factory()->create();
@@ -40,21 +40,21 @@ class CommonTableIntegrationTest extends TestCase
                 'cells' => [
                     ['label' => '会社名', 'value' => $this->facility->company_name, 'type' => 'text'],
                     ['label' => '事業所コード', 'value' => $this->facility->office_code, 'type' => 'badge'],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '住所', 'value' => $this->facility->address, 'type' => 'text'],
                     ['label' => '電話番号', 'value' => $this->facility->phone, 'type' => 'text'],
-                ]
+                ],
             ],
             [
                 'type' => 'single',
                 'cells' => [
                     ['label' => 'ウェブサイト', 'value' => 'https://example.com', 'type' => 'url', 'colspan' => 2],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $response = $this->actingAs($this->user)
@@ -66,7 +66,7 @@ class CommonTableIntegrationTest extends TestCase
         $view = View::make('components.common-table', [
             'data' => $basicInfoData,
             'title' => '基本情報',
-            'cardClass' => 'facility-info-card detail-card-improved mb-3'
+            'cardClass' => 'facility-info-card detail-card-improved mb-3',
         ]);
 
         $rendered = $view->render();
@@ -75,7 +75,7 @@ class CommonTableIntegrationTest extends TestCase
         $this->assertStringContainsString('facility-info-card', $rendered);
         $this->assertStringContainsString('detail-card-improved', $rendered);
         $this->assertStringContainsString('基本情報', $rendered);
-        
+
         // データの確認
         if ($this->facility->company_name) {
             $this->assertStringContainsString($this->facility->company_name, $rendered);
@@ -89,11 +89,11 @@ class CommonTableIntegrationTest extends TestCase
         if ($this->facility->phone) {
             $this->assertStringContainsString($this->facility->phone, $rendered);
         }
-        
+
         // URLリンクの確認
         $this->assertStringContainsString('https://example.com', $rendered);
         $this->assertStringContainsString('fas fa-external-link-alt', $rendered);
-        
+
         // バッジの確認
         $this->assertStringContainsString('badge bg-primary', $rendered);
     }
@@ -114,34 +114,34 @@ class CommonTableIntegrationTest extends TestCase
                         'value' => null,
                         'type' => 'text',
                         'rowspan' => 3,
-                        'label_colspan' => 1
-                    ]
-                ]
+                        'label_colspan' => 1,
+                    ],
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '会社名', 'value' => '管理会社A', 'type' => 'text'],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '担当者', 'value' => '田中太郎', 'type' => 'text'],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '連絡先', 'value' => 'tanaka@example.com', 'type' => 'email'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $landInfoData,
             'title' => '土地情報',
-            'cardClass' => 'facility-info-card detail-card-improved mb-3'
+            'cardClass' => 'facility-info-card detail-card-improved mb-3',
         ]);
 
         $rendered = $view->render();
@@ -151,11 +151,11 @@ class CommonTableIntegrationTest extends TestCase
         $this->assertStringContainsString('管理会社情報', $rendered);
         $this->assertStringContainsString('管理会社A', $rendered);
         $this->assertStringContainsString('田中太郎', $rendered);
-        
+
         // メールリンクの確認
         $this->assertStringContainsString('mailto:tanaka@example.com', $rendered);
         $this->assertStringContainsString('fas fa-envelope', $rendered);
-        
+
         // rowspanの確認
         $this->assertStringContainsString('rowspan="3"', $rendered);
     }
@@ -173,27 +173,27 @@ class CommonTableIntegrationTest extends TestCase
                 'cells' => [
                     ['label' => '建物名', 'value' => 'テストビル', 'type' => 'text'],
                     ['label' => '階数', 'value' => 10, 'type' => 'number'],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '建築年', 'value' => '2020-04-01', 'type' => 'date'],
                     ['label' => '延床面積', 'value' => 1500.50, 'type' => 'number', 'options' => ['decimals' => 2]],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '建築費', 'value' => 50000000, 'type' => 'currency'],
                     ['label' => '所有形態', 'value' => '自社所有', 'type' => 'badge', 'options' => ['auto_class' => true]],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $buildingInfoData,
-            'title' => '建物情報'
+            'title' => '建物情報',
         ]);
 
         $rendered = $view->render();
@@ -220,26 +220,26 @@ class CommonTableIntegrationTest extends TestCase
                 'cells' => [
                     ['label' => '設備名', 'value' => '受変電設備', 'type' => 'text'],
                     ['label' => 'ステータス', 'value' => '正常', 'type' => 'badge', 'options' => ['auto_class' => true]],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '点検日', 'value' => '2023-12-01', 'type' => 'date'],
                     ['label' => '次回点検', 'value' => '2024-06-01', 'type' => 'date'],
-                ]
+                ],
             ],
             [
                 'type' => 'single',
                 'cells' => [
                     ['label' => '点検報告書', 'value' => '/storage/reports/inspection_2023.pdf', 'type' => 'file', 'colspan' => 2],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $lifelineData,
-            'title' => 'ライフライン設備'
+            'title' => 'ライフライン設備',
         ]);
 
         $rendered = $view->render();
@@ -249,11 +249,11 @@ class CommonTableIntegrationTest extends TestCase
         $this->assertStringContainsString('正常', $rendered);
         $this->assertStringContainsString('2023年12月01日', $rendered); // 実際のフォーマット
         $this->assertStringContainsString('2024年06月01日', $rendered); // 実際のフォーマット
-        
+
         // ファイルリンクの確認
         $this->assertStringContainsString('inspection_2023.pdf', $rendered);
         $this->assertStringContainsString('fas fa-file-pdf', $rendered);
-        
+
         // バッジクラスの確認（正常 = success）
         $this->assertStringContainsString('badge bg-primary', $rendered); // デフォルトクラス
     }
@@ -267,7 +267,7 @@ class CommonTableIntegrationTest extends TestCase
         $view = View::make('components.common-table', [
             'data' => [],
             'title' => '空のテーブル',
-            'emptyMessage' => 'データが登録されていません'
+            'emptyMessage' => 'データが登録されていません',
         ]);
 
         $rendered = $view->render();
@@ -288,14 +288,14 @@ class CommonTableIntegrationTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'テスト項目', 'value' => 'テスト値', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $data,
             'title' => 'レスポンシブテスト',
-            'responsive' => true
+            'responsive' => true,
         ]);
 
         $rendered = $view->render();
@@ -318,14 +318,14 @@ class CommonTableIntegrationTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'アクセシビリティテスト', 'value' => 'テスト値', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $data,
             'title' => 'アクセシビリティテスト',
-            'ariaLabel' => 'カスタムアクセシビリティラベル'
+            'ariaLabel' => 'カスタムアクセシビリティラベル',
         ]);
 
         $rendered = $view->render();
@@ -337,7 +337,7 @@ class CommonTableIntegrationTest extends TestCase
         $this->assertStringContainsString('role="row"', $rendered);
         $this->assertStringContainsString('role="rowheader"', $rendered);
         $this->assertStringContainsString('role="gridcell"', $rendered);
-        
+
         // スクリーンリーダー用要素の確認
         $this->assertStringContainsString('sr-only', $rendered);
         $this->assertStringContainsString('<caption class="sr-only">', $rendered);
@@ -354,15 +354,15 @@ class CommonTableIntegrationTest extends TestCase
             [
                 'type' => 'unsupported_type',
                 'cells' => [
-                    ['label' => 'テスト', 'value' => '値', 'type' => 'unsupported_cell_type']
-                ]
-            ]
+                    ['label' => 'テスト', 'value' => '値', 'type' => 'unsupported_cell_type'],
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $invalidData,
             'title' => 'エラーテスト',
-            'fallbackOnError' => true
+            'fallbackOnError' => true,
         ]);
 
         $rendered = $view->render();
@@ -390,7 +390,7 @@ class CommonTableIntegrationTest extends TestCase
                 'cells' => [
                     ['label' => "項目{$i}", 'value' => "値{$i}", 'type' => 'text'],
                     ['label' => "メール{$i}", 'value' => "test{$i}@example.com", 'type' => 'email'],
-                ]
+                ],
             ];
         }
 
@@ -398,11 +398,11 @@ class CommonTableIntegrationTest extends TestCase
 
         $view = View::make('components.common-table', [
             'data' => $largeData,
-            'title' => 'パフォーマンステスト'
+            'title' => 'パフォーマンステスト',
         ]);
 
         $rendered = $view->render();
-        
+
         $endTime = microtime(true);
         $renderTime = $endTime - $startTime;
 
@@ -431,21 +431,21 @@ class CommonTableIntegrationTest extends TestCase
                         'value' => null,
                         'type' => 'text',
                         'rowspan' => 2,
-                        'label_colspan' => 1
-                    ]
-                ]
+                        'label_colspan' => 1,
+                    ],
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'サブ項目1', 'value' => 'サブ値1', 'type' => 'text'],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'サブ項目2', 'value' => 'success', 'type' => 'badge', 'options' => ['auto_class' => true]],
-                ]
+                ],
             ],
             [
                 'type' => 'single',
@@ -455,15 +455,15 @@ class CommonTableIntegrationTest extends TestCase
                         'value' => 'これは長い備考テキストです。複数行にわたる可能性があります。',
                         'type' => 'text',
                         'colspan' => 2,
-                        'options' => ['max_length' => 50]
-                    ]
-                ]
-            ]
+                        'options' => ['max_length' => 50],
+                    ],
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $complexData,
-            'title' => '複雑なデータ構造テスト'
+            'title' => '複雑なデータ構造テスト',
         ]);
 
         $rendered = $view->render();
@@ -476,7 +476,7 @@ class CommonTableIntegrationTest extends TestCase
         $this->assertStringContainsString('badge bg-success', $rendered);
         $this->assertStringContainsString('rowspan="2"', $rendered);
         $this->assertStringContainsString('colspan="2"', $rendered);
-        
+
         // テキスト切り詰めの確認
         $this->assertStringContainsString('これは長い備考テキストです。複数行にわたる可能性があります。', $rendered);
     }
@@ -494,8 +494,8 @@ class CommonTableIntegrationTest extends TestCase
                 'cells' => [
                     ['label' => '会社名', 'value' => $this->facility->company_name, 'type' => 'text'],
                     ['label' => '事業所コード', 'value' => $this->facility->office_code, 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         // 既存のCSSクラスを使用
@@ -505,7 +505,7 @@ class CommonTableIntegrationTest extends TestCase
             'cardClass' => 'facility-info-card detail-card-improved mb-3',
             'tableClass' => 'table table-bordered facility-basic-info-table-clean',
             'headerClass' => 'card-header',
-            'cleanBody' => true
+            'cleanBody' => true,
         ]);
 
         $rendered = $view->render();
@@ -515,11 +515,11 @@ class CommonTableIntegrationTest extends TestCase
         $this->assertStringContainsString('detail-card-improved', $rendered);
         $this->assertStringContainsString('facility-basic-info-table-clean', $rendered);
         $this->assertStringContainsString('card-body-clean', $rendered);
-        
+
         // 既存のデータが正しく表示されることを確認
         $this->assertStringContainsString($this->facility->company_name, $rendered);
         $this->assertStringContainsString($this->facility->office_code, $rendered);
-        
+
         // 既存のHTML構造が維持されることを確認
         $this->assertStringContainsString('detail-label', $rendered);
         $this->assertStringContainsString('detail-value', $rendered);

@@ -1,4 +1,6 @@
 /**
+ * Unit tests for LifelineEquipmentManager - Basic Info Card functionality
+ * Tests form interactions, validation, and API communication
  * @vitest-environment jsdom
  */
 
@@ -8,7 +10,7 @@ import { LifelineEquipmentManager } from '../../resources/js/modules/lifeline-eq
 // Mock fetch globally
 global.fetch = vi.fn();
 
-// Mock Bootstrap
+// Mock Bootstrap components
 global.bootstrap = {
   Tab: vi.fn().mockImplementation(() => ({})),
   Collapse: vi.fn().mockImplementation(() => ({
@@ -89,14 +91,14 @@ describe('LifelineEquipmentManager - Basic Info Card', () => {
     const displayMode = document.querySelector('.display-mode');
     const editMode = document.querySelector('.edit-mode');
 
-    // Initially display mode should be visible, edit mode hidden
+    // Initially, display mode should be visible and edit mode should be hidden
     expect(displayMode.classList.contains('d-none')).toBe(false);
     expect(editMode.classList.contains('d-none')).toBe(true);
 
     // Click edit button
     editButton.click();
 
-    // After click, display mode should be hidden, edit mode visible
+    // After clicking, display mode should be hidden and edit mode should be visible
     expect(displayMode.classList.contains('d-none')).toBe(true);
     expect(editMode.classList.contains('d-none')).toBe(false);
   });

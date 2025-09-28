@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\Services;
 
-use Tests\TestCase;
 use App\Services\ValueFormatter;
 use Illuminate\Support\Facades\Cache;
+use Tests\TestCase;
 
 class ValueFormatterPerformanceTest extends TestCase
 {
@@ -22,17 +22,17 @@ class ValueFormatterPerformanceTest extends TestCase
 
         // First call should cache the result
         $result1 = ValueFormatter::format($largeValue, $type, $options);
-        
+
         // Second call should use cached result
         $result2 = ValueFormatter::format($largeValue, $type, $options);
 
         $this->assertEquals($result1, $result2);
-        
+
         // Verify cache was used by checking if the same result is returned instantly
         $startTime = microtime(true);
         $result3 = ValueFormatter::format($largeValue, $type, $options);
         $endTime = microtime(true);
-        
+
         $this->assertEquals($result1, $result3);
         $this->assertLessThan(0.001, $endTime - $startTime); // Should be very fast due to cache
     }
@@ -44,7 +44,7 @@ class ValueFormatterPerformanceTest extends TestCase
 
         // Should not use cache for small values
         $result = ValueFormatter::format($smallValue, $type);
-        
+
         $this->assertIsString($result);
         // We can't directly test if cache wasn't used, but we can verify the result is correct
         $this->assertEquals('Small', $result);
@@ -57,7 +57,7 @@ class ValueFormatterPerformanceTest extends TestCase
             $values[] = [
                 'value' => "Test value {$i}",
                 'type' => 'text',
-                'options' => []
+                'options' => [],
             ];
         }
 
@@ -67,7 +67,7 @@ class ValueFormatterPerformanceTest extends TestCase
 
         $this->assertCount(100, $results);
         $this->assertLessThan(0.1, $endTime - $startTime); // Should be fast
-        
+
         // Verify all results are formatted correctly
         for ($i = 0; $i < 100; $i++) {
             $this->assertEquals("Test value {$i}", $results[$i]);
@@ -110,7 +110,7 @@ class ValueFormatterPerformanceTest extends TestCase
         $this->assertCount(3, $results);
         $this->assertEquals($results[0], $results[1]); // Same large value should produce same result
         $this->assertEquals('Small', $results[2]);
-        
+
         // Second batch with same large value should be faster due to cache
         $startTime2 = microtime(true);
         $results2 = ValueFormatter::formatBatch($values);
@@ -141,9 +141,9 @@ class ValueFormatterPerformanceTest extends TestCase
         $values = [];
         for ($i = 0; $i < 1000; $i++) {
             $values[] = [
-                'value' => "Performance test value {$i} " . str_repeat('x', 50),
+                'value' => "Performance test value {$i} ".str_repeat('x', 50),
                 'type' => 'text',
-                'options' => []
+                'options' => [],
             ];
         }
 
@@ -155,7 +155,7 @@ class ValueFormatterPerformanceTest extends TestCase
 
         $this->assertCount(1000, $results);
         $this->assertLessThan(1.0, $processingTime); // Should process 1000 items in less than 1 second
-        
+
         // Verify some results
         $this->assertStringContainsString('Performance test value 0', $results[0]);
         $this->assertStringContainsString('Performance test value 999', $results[999]);
@@ -202,18 +202,18 @@ class ValueFormatterPerformanceTest extends TestCase
 
         // Small string - should not cache
         $this->assertFalse($method->invoke(null, 'small'));
-        
+
         // Large string - should cache
         $largeString = str_repeat('x', 200);
         $this->assertTrue($method->invoke(null, $largeString));
-        
+
         // Array - should cache if serialized size is large
         $smallArray = ['key' => 'value'];
         $this->assertFalse($method->invoke(null, $smallArray));
-        
+
         $largeArray = array_fill(0, 100, 'large array content');
         $this->assertTrue($method->invoke(null, $largeArray));
-        
+
         // Other types
         $this->assertFalse($method->invoke(null, 123));
         $this->assertFalse($method->invoke(null, true));
@@ -222,19 +222,19 @@ class ValueFormatterPerformanceTest extends TestCase
     public function test_format_batch_memory_efficiency()
     {
         $memoryBefore = memory_get_usage(true);
-        
+
         // Process a large batch
         $values = [];
         for ($i = 0; $i < 500; $i++) {
             $values[] = [
-                'value' => "Memory test {$i} " . str_repeat('data', 20),
+                'value' => "Memory test {$i} ".str_repeat('data', 20),
                 'type' => 'text',
-                'options' => []
+                'options' => [],
             ];
         }
 
         $results = ValueFormatter::formatBatch($values);
-        
+
         $memoryAfter = memory_get_usage(true);
         $memoryUsed = $memoryAfter - $memoryBefore;
 
@@ -248,7 +248,7 @@ class ValueFormatterPerformanceTest extends TestCase
         // Create values that will use cache
         $largeValue1 = str_repeat('Cache test 1 ', 100);
         $largeValue2 = str_repeat('Cache test 2 ', 100);
-        
+
         $values = [
             ['value' => $largeValue1, 'type' => 'text', 'options' => []],
             ['value' => $largeValue2, 'type' => 'text', 'options' => []],
@@ -258,7 +258,7 @@ class ValueFormatterPerformanceTest extends TestCase
 
         // First batch - should populate cache
         $results1 = ValueFormatter::formatBatch($values);
-        
+
         // Second batch - should use cache for large values
         $startTime = microtime(true);
         $results2 = ValueFormatter::formatBatch($values);

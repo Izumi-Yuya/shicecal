@@ -84,22 +84,26 @@
             </div>
             
             <div class="col-md-6 mb-3">
-                <label for="tank_cleaning_report_pdf" class="form-label">受水槽清掃報告書</label>
-                <input type="file" class="form-control @error('basic_info.tank_cleaning_report_pdf') is-invalid @enderror" 
-                       id="tank_cleaning_report_pdf" name="basic_info[tank_cleaning_report_pdf]" 
-                       accept=".pdf">
-                @if(!empty($basicInfo['tank_cleaning_report_pdf']))
-                    <div class="mt-2">
-                        <small class="text-muted">
-                            現在のファイル: 
-                            <a href="{{ route('facilities.lifeline-equipment.download', [$facility, 'water', $basicInfo['tank_cleaning_report_pdf']]) }}" 
-                               target="_blank" class="text-decoration-none">
-                                <i class="fas fa-file-pdf text-danger"></i> {{ $basicInfo['tank_cleaning_report_pdf'] }}
-                            </a>
-                        </small>
-                    </div>
-                @endif
-                <x-form.field-error field="basic_info.tank_cleaning_report_pdf" />
+                @php
+                    $tankCleaningFileData = null;
+                    if (!empty($basicInfo['tank_cleaning']['tank_cleaning_report_pdf'])) {
+                        $tankCleaningFileData = [
+                            'filename' => $basicInfo['tank_cleaning']['tank_cleaning_report_pdf'],
+                            'download_url' => route('facilities.lifeline-equipment.download-file', [$facility, 'water', 'tank_cleaning_report']),
+                            'exists' => true
+                        ];
+                    }
+                @endphp
+                
+                <x-file-upload 
+                    name="tank_cleaning_report_file"
+                    label="受水槽清掃報告書"
+                    fileType="pdf"
+                    :currentFile="$tankCleaningFileData"
+                    :required="false"
+                    :showRemoveOption="true"
+                    removeFieldName="remove_tank_cleaning_report"
+                />
             </div>
         </div>
     </x-form.section>
@@ -188,14 +192,14 @@
         <div class="equipment-section-header d-flex justify-content-between align-items-center mb-3">
             <h6 class="mb-0">加圧ポンプ設備</h6>
             <button type="button" class="btn btn-outline-primary btn-sm add-pump-btn">
-                <i class="fas fa-plus"></i> 設備追加
+                <i class="fas fa-plus"></i> 設備を追加
             </button>
         </div>
         
         <div id="pump-equipment-list" class="equipment-list">
             @if(empty($pumps))
                 <div class="no-equipment-message">
-                    加圧ポンプが登録されていません。「設備追加」ボタンで追加してください。
+                    加圧ポンプが登録されていません。「設備を追加」ボタンから追加してください。
                 </div>
             @else
                 @foreach($pumps as $index => $pump)
@@ -291,22 +295,26 @@
             </div>
             
             <div class="col-md-4 mb-3">
-                <label for="septic_tank_inspection_report_pdf" class="form-label">点検・清掃実施報告書</label>
-                <input type="file" class="form-control @error('basic_info.septic_tank_info.inspection_report_pdf') is-invalid @enderror" 
-                       id="septic_tank_inspection_report_pdf" name="basic_info[septic_tank_info][inspection_report_pdf]" 
-                       accept=".pdf">
-                @if(!empty($septicTankInfo['inspection_report_pdf']))
-                    <div class="mt-2">
-                        <small class="text-muted">
-                            現在のファイル: 
-                            <a href="{{ route('facilities.lifeline-equipment.download', [$facility, 'water', $septicTankInfo['inspection_report_pdf']]) }}" 
-                               target="_blank" class="text-decoration-none">
-                                <i class="fas fa-file-pdf text-danger"></i> {{ $septicTankInfo['inspection_report_pdf'] }}
-                            </a>
-                        </small>
-                    </div>
-                @endif
-                <x-form.field-error field="basic_info.septic_tank_info.inspection_report_pdf" />
+                @php
+                    $septicTankFileData = null;
+                    if (!empty($septicTankInfo['inspection']['inspection_report_pdf'])) {
+                        $septicTankFileData = [
+                            'filename' => $septicTankInfo['inspection']['inspection_report_pdf'],
+                            'download_url' => route('facilities.lifeline-equipment.download-file', [$facility, 'water', 'septic_tank_inspection_report']),
+                            'exists' => true
+                        ];
+                    }
+                @endphp
+                
+                <x-file-upload 
+                    name="septic_tank_inspection_report_file"
+                    label="点検・清掃報告書"
+                    fileType="pdf"
+                    :currentFile="$septicTankFileData"
+                    :required="false"
+                    :showRemoveOption="true"
+                    removeFieldName="remove_septic_tank_inspection_report"
+                />
             </div>
         </div>
     </x-form.section>
@@ -316,14 +324,14 @@
         <div class="equipment-section-header d-flex justify-content-between align-items-center mb-3">
             <h6 class="mb-0">レジオネラ検査設備</h6>
             <button type="button" class="btn btn-outline-warning btn-sm add-legionella-btn">
-                <i class="fas fa-plus"></i> 検査追加
+                <i class="fas fa-plus"></i> 検査を追加
             </button>
         </div>
         
         <div id="legionella-equipment-list" class="equipment-list">
             @if(empty($legionellaInspections))
                 <div class="no-legionella-message">
-                    レジオネラ検査が登録されていません。「検査追加」ボタンで追加してください。
+                    レジオネラ検査が登録されていません。「検査を追加」ボタンから追加してください。
                 </div>
             @else
                 @foreach($legionellaInspections as $index => $inspection)
@@ -347,21 +355,26 @@
                             </div>
                             
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">検査結果報告書</label>
-                                <input type="file" class="form-control" 
-                                       name="basic_info[legionella_info][inspections][{{ $index }}][report_pdf]" 
-                                       accept=".pdf">
-                                @if(!empty($inspection['report_pdf']))
-                                    <div class="mt-2">
-                                        <small class="text-muted">
-                                            現在のファイル: 
-                                            <a href="{{ route('facilities.lifeline-equipment.download', [$facility, 'water', $inspection['report_pdf']]) }}" 
-                                               target="_blank" class="text-decoration-none">
-                                                <i class="fas fa-file-pdf text-danger"></i> {{ $inspection['report_pdf'] }}
-                                            </a>
-                                        </small>
-                                    </div>
-                                @endif
+                                @php
+                                    $legionellaFileData = null;
+                                    if (!empty($inspection['report']['report_pdf'])) {
+                                        $legionellaFileData = [
+                                            'filename' => $inspection['report']['report_pdf'],
+                                            'download_url' => route('facilities.lifeline-equipment.download-file', [$facility, 'water', 'legionella_report_' . $index]),
+                                            'exists' => true
+                                        ];
+                                    }
+                                @endphp
+                                
+                                <x-file-upload 
+                                    name="legionella_report_file_{{ $index }}"
+                                    label="検査結果報告書"
+                                    fileType="pdf"
+                                    :currentFile="$legionellaFileData"
+                                    :required="false"
+                                    :showRemoveOption="true"
+                                    removeFieldName="remove_legionella_report_{{ $index }}"
+                                />
                             </div>
                         </div>
                         
@@ -673,8 +686,16 @@ function initializeLegionellaEquipment() {
                 <div class="col-md-6 mb-3">
                     <label class="form-label">検査結果報告書</label>
                     <input type="file" class="form-control" 
-                           name="basic_info[legionella_info][inspections][${legionellaIndex}][report_pdf]" 
+                           name="legionella_report_file_${legionellaIndex}" 
                            accept=".pdf">
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="checkbox" 
+                               name="remove_legionella_report_${legionellaIndex}" 
+                               value="1" id="remove_legionella_report_${legionellaIndex}">
+                        <label class="form-check-label" for="remove_legionella_report_${legionellaIndex}">
+                            既存ファイルを削除
+                        </label>
+                    </div>
                 </div>
             </div>
             

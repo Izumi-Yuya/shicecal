@@ -46,7 +46,7 @@ class ElectricalEquipment extends Model
     }
 
     /**
-     * Get the facility through the lifeline equipment relationship.
+     * Get the associated facility through the lifeline equipment relationship.
      */
     public function facility(): BelongsTo
     {
@@ -54,7 +54,7 @@ class ElectricalEquipment extends Model
     }
 
     /**
-     * Get basic information field value.
+     * Get the value of a specific basic information field.
      */
     public function getBasicInfoField(string $field): mixed
     {
@@ -62,7 +62,7 @@ class ElectricalEquipment extends Model
     }
 
     /**
-     * Set basic information field value.
+     * Set the value of a specific basic information field.
      */
     public function setBasicInfoField(string $field, mixed $value): void
     {
@@ -72,7 +72,7 @@ class ElectricalEquipment extends Model
     }
 
     /**
-     * Get PAS information field value.
+     * Get the value of a specific PAS information field.
      */
     public function getPasInfoField(string $field): mixed
     {
@@ -80,7 +80,7 @@ class ElectricalEquipment extends Model
     }
 
     /**
-     * Set PAS information field value.
+     * Set the value of a specific PAS information field.
      */
     public function setPasInfoField(string $field, mixed $value): void
     {
@@ -90,7 +90,7 @@ class ElectricalEquipment extends Model
     }
 
     /**
-     * Get cubicle information field value.
+     * Get the value of a specific cubicle information field.
      */
     public function getCubicleInfoField(string $field): mixed
     {
@@ -98,7 +98,7 @@ class ElectricalEquipment extends Model
     }
 
     /**
-     * Set cubicle information field value.
+     * Set the value of a specific cubicle information field.
      */
     public function setCubicleInfoField(string $field, mixed $value): void
     {
@@ -108,7 +108,7 @@ class ElectricalEquipment extends Model
     }
 
     /**
-     * Get generator information field value.
+     * Get the value of a specific generator information field.
      */
     public function getGeneratorInfoField(string $field): mixed
     {
@@ -116,7 +116,7 @@ class ElectricalEquipment extends Model
     }
 
     /**
-     * Set generator information field value.
+     * Set the value of a specific generator information field.
      */
     public function setGeneratorInfoField(string $field, mixed $value): void
     {
@@ -150,7 +150,7 @@ class ElectricalEquipment extends Model
     }
 
     /**
-     * Get cubicle equipment list.
+     * Get the list of cubicle equipment.
      */
     public function getCubicleEquipmentList(): array
     {
@@ -158,7 +158,7 @@ class ElectricalEquipment extends Model
     }
 
     /**
-     * Get generator equipment list.
+     * Get the list of generator equipment.
      */
     public function getGeneratorEquipmentList(): array
     {

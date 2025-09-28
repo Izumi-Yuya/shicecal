@@ -2,13 +2,12 @@
 
 namespace Tests\Unit\Services;
 
-use Tests\TestCase;
 use App\Services\CommonTableValidator;
-use Illuminate\Support\Facades\Log;
+use Tests\TestCase;
 
 /**
  * CommonTableValidator単体テスト
- * 
+ *
  * データバリデーション機能の詳細なテスト
  * 要件: 設計書のテスト戦略
  */
@@ -18,7 +17,7 @@ class CommonTableValidatorUnitTest extends TestCase
      * @test
      * 有効なテーブルデータのバリデーション
      */
-    public function test_validateTableData_有効なデータで成功する()
+    public function test_validate_table_data_有効なデータで成功する()
     {
         $validData = [
             [
@@ -26,14 +25,14 @@ class CommonTableValidatorUnitTest extends TestCase
                 'cells' => [
                     ['label' => 'テストラベル', 'value' => 'テスト値', 'type' => 'text'],
                     ['label' => 'メール', 'value' => 'test@example.com', 'type' => 'email'],
-                ]
+                ],
             ],
             [
                 'type' => 'single',
                 'cells' => [
                     ['label' => 'URL', 'value' => 'https://example.com', 'type' => 'url', 'colspan' => 2],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $result = CommonTableValidator::validateTableData($validData);
@@ -46,7 +45,7 @@ class CommonTableValidatorUnitTest extends TestCase
      * @test
      * 無効なテーブルデータのバリデーション
      */
-    public function test_validateTableData_無効なデータでエラーを返す()
+    public function test_validate_table_data_無効なデータでエラーを返す()
     {
         // 配列でないデータ
         $result = CommonTableValidator::validateTableData('invalid');
@@ -55,7 +54,7 @@ class CommonTableValidatorUnitTest extends TestCase
 
         // 無効な行データ
         $invalidData = [
-            'invalid_row'
+            'invalid_row',
         ];
         $result = CommonTableValidator::validateTableData($invalidData);
         $this->assertFalse($result['valid']);
@@ -66,10 +65,10 @@ class CommonTableValidatorUnitTest extends TestCase
      * @test
      * 空データのバリデーション
      */
-    public function test_validateTableData_空データで警告を返す()
+    public function test_validate_table_data_空データで警告を返す()
     {
         $result = CommonTableValidator::validateTableData([]);
-        
+
         $this->assertTrue($result['valid']);
         $this->assertEmpty($result['errors']);
         $this->assertContains('テーブルデータが空です', $result['warnings']);
@@ -79,13 +78,13 @@ class CommonTableValidatorUnitTest extends TestCase
      * @test
      * 行データのバリデーション
      */
-    public function test_validateRowData_有効な行データで成功する()
+    public function test_validate_row_data_有効な行データで成功する()
     {
         $validRow = [
             'type' => 'standard',
             'cells' => [
-                ['label' => 'テスト', 'value' => '値', 'type' => 'text']
-            ]
+                ['label' => 'テスト', 'value' => '値', 'type' => 'text'],
+            ],
         ];
 
         $result = CommonTableValidator::validateRowData($validRow, 0);
@@ -98,19 +97,19 @@ class CommonTableValidatorUnitTest extends TestCase
      * @test
      * 行データの必須フィールドチェック
      */
-    public function test_validateRowData_必須フィールドなしでエラー()
+    public function test_validate_row_data_必須フィールドなしでエラー()
     {
         // cellsフィールドなし
         $invalidRow = ['type' => 'standard'];
         $result = CommonTableValidator::validateRowData($invalidRow, 0);
-        
+
         $this->assertFalse($result['valid']);
         $this->assertStringContainsString("'cells' フィールドが必要です", $result['errors'][0]);
 
         // cellsが配列でない
         $invalidRow = ['type' => 'standard', 'cells' => 'invalid'];
         $result = CommonTableValidator::validateRowData($invalidRow, 0);
-        
+
         $this->assertFalse($result['valid']);
         $this->assertStringContainsString("'cells' は配列である必要があります", $result['errors'][0]);
     }
@@ -119,13 +118,13 @@ class CommonTableValidatorUnitTest extends TestCase
      * @test
      * サポートされていない行タイプのバリデーション
      */
-    public function test_validateRowData_サポートされていない行タイプでエラー()
+    public function test_validate_row_data_サポートされていない行タイプでエラー()
     {
         $invalidRow = [
             'type' => 'unsupported_type',
             'cells' => [
-                ['label' => 'テスト', 'value' => '値', 'type' => 'text']
-            ]
+                ['label' => 'テスト', 'value' => '値', 'type' => 'text'],
+            ],
         ];
 
         $result = CommonTableValidator::validateRowData($invalidRow, 0);
@@ -138,14 +137,14 @@ class CommonTableValidatorUnitTest extends TestCase
      * @test
      * セルデータのバリデーション
      */
-    public function test_validateCellData_有効なセルデータで成功する()
+    public function test_validate_cell_data_有効なセルデータで成功する()
     {
         $validCell = [
             'label' => 'テストラベル',
             'value' => 'テスト値',
             'type' => 'text',
             'colspan' => 1,
-            'rowspan' => 1
+            'rowspan' => 1,
         ];
 
         $result = CommonTableValidator::validateCellData($validCell, 0, 0);
@@ -158,12 +157,12 @@ class CommonTableValidatorUnitTest extends TestCase
      * @test
      * サポートされていないセルタイプのバリデーション
      */
-    public function test_validateCellData_サポートされていないセルタイプでエラー()
+    public function test_validate_cell_data_サポートされていないセルタイプでエラー()
     {
         $invalidCell = [
             'label' => 'テスト',
             'value' => '値',
-            'type' => 'unsupported_type'
+            'type' => 'unsupported_type',
         ];
 
         $result = CommonTableValidator::validateCellData($invalidCell, 0, 0);
@@ -176,7 +175,7 @@ class CommonTableValidatorUnitTest extends TestCase
      * @test
      * colspanのバリデーション
      */
-    public function test_validateColspan_有効な値で成功する()
+    public function test_validate_colspan_有効な値で成功する()
     {
         $result = CommonTableValidator::validateColspan(2, 0, 0);
         $this->assertTrue($result['valid']);
@@ -194,7 +193,7 @@ class CommonTableValidatorUnitTest extends TestCase
      * @test
      * colspanの無効な値でエラー
      */
-    public function test_validateColspan_無効な値でエラー()
+    public function test_validate_colspan_無効な値でエラー()
     {
         // 数値でない
         $result = CommonTableValidator::validateColspan('invalid', 0, 0);
@@ -216,7 +215,7 @@ class CommonTableValidatorUnitTest extends TestCase
      * @test
      * colspanの警告値テスト
      */
-    public function test_validateColspan_大きな値で警告()
+    public function test_validate_colspan_大きな値で警告()
     {
         $result = CommonTableValidator::validateColspan(7, 0, 0);
         $this->assertTrue($result['valid']);
@@ -227,7 +226,7 @@ class CommonTableValidatorUnitTest extends TestCase
      * @test
      * rowspanのバリデーション
      */
-    public function test_validateRowspan_有効な値で成功する()
+    public function test_validate_rowspan_有効な値で成功する()
     {
         $result = CommonTableValidator::validateRowspan(2, 0, 0);
         $this->assertTrue($result['valid']);
@@ -245,7 +244,7 @@ class CommonTableValidatorUnitTest extends TestCase
      * @test
      * rowspanの無効な値でエラー
      */
-    public function test_validateRowspan_無効な値でエラー()
+    public function test_validate_rowspan_無効な値でエラー()
     {
         // 数値でない
         $result = CommonTableValidator::validateRowspan('invalid', 0, 0);
@@ -267,7 +266,7 @@ class CommonTableValidatorUnitTest extends TestCase
      * @test
      * rowspanの警告値テスト
      */
-    public function test_validateRowspan_大きな値で警告()
+    public function test_validate_rowspan_大きな値で警告()
     {
         $result = CommonTableValidator::validateRowspan(6, 0, 0);
         $this->assertTrue($result['valid']);
@@ -278,7 +277,7 @@ class CommonTableValidatorUnitTest extends TestCase
      * @test
      * セルタイプ固有のバリデーション
      */
-    public function test_validateCellTypeSpecific_メール形式チェック()
+    public function test_validate_cell_type_specific_メール形式チェック()
     {
         // 有効なメール
         $validCell = ['type' => 'email', 'value' => 'test@example.com'];
@@ -296,7 +295,7 @@ class CommonTableValidatorUnitTest extends TestCase
      * @test
      * セルタイプ固有のバリデーション - URL
      */
-    public function test_validateCellTypeSpecific_URL形式チェック()
+    public function test_validate_cell_type_specific_ur_l形式チェック()
     {
         // 有効なURL
         $validCell = ['type' => 'url', 'value' => 'https://example.com'];
@@ -312,7 +311,7 @@ class CommonTableValidatorUnitTest extends TestCase
         $invalidCell = ['type' => 'url', 'value' => 'not-a-url'];
         $result = CommonTableValidator::validateCellData($invalidCell, 0, 0);
         $this->assertTrue($result['valid']); // 警告なのでvalidはtrue
-        if (!empty($result['warnings'])) {
+        if (! empty($result['warnings'])) {
             $this->assertStringContainsString('有効なURL形式ではありません', $result['warnings'][0]);
         }
     }
@@ -321,7 +320,7 @@ class CommonTableValidatorUnitTest extends TestCase
      * @test
      * セルタイプ固有のバリデーション - 日付
      */
-    public function test_validateCellTypeSpecific_日付形式チェック()
+    public function test_validate_cell_type_specific_日付形式チェック()
     {
         // 有効な日付
         $validCell = ['type' => 'date', 'value' => '2023-12-25'];
@@ -339,7 +338,7 @@ class CommonTableValidatorUnitTest extends TestCase
      * @test
      * セルタイプ固有のバリデーション - 数値
      */
-    public function test_validateCellTypeSpecific_数値形式チェック()
+    public function test_validate_cell_type_specific_数値形式チェック()
     {
         // 有効な数値
         $validCell = ['type' => 'number', 'value' => 123];
@@ -361,7 +360,7 @@ class CommonTableValidatorUnitTest extends TestCase
      * @test
      * セルタイプ固有のバリデーション - ファイル
      */
-    public function test_validateCellTypeSpecific_ファイルパスチェック()
+    public function test_validate_cell_type_specific_ファイルパスチェック()
     {
         // 有効なファイルパス
         $validCell = ['type' => 'file', 'value' => '/path/to/file.pdf'];
@@ -379,12 +378,12 @@ class CommonTableValidatorUnitTest extends TestCase
      * @test
      * テーブル構造のバリデーション
      */
-    public function test_validateTableStructure_行数チェック()
+    public function test_validate_table_structure_行数チェック()
     {
         // 大量の行データ
         $largeData = array_fill(0, 150, [
             'type' => 'standard',
-            'cells' => [['label' => 'test', 'value' => 'value', 'type' => 'text']]
+            'cells' => [['label' => 'test', 'value' => 'value', 'type' => 'text']],
         ]);
 
         $result = CommonTableValidator::validateTableData($largeData, ['max_rows' => 100]);
@@ -396,22 +395,22 @@ class CommonTableValidatorUnitTest extends TestCase
      * @test
      * セル数一貫性チェック
      */
-    public function test_validateTableStructure_セル数一貫性チェック()
+    public function test_validate_table_structure_セル数一貫性チェック()
     {
         $inconsistentData = [
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'test1', 'value' => 'value1', 'type' => 'text'],
-                    ['label' => 'test2', 'value' => 'value2', 'type' => 'text']
-                ]
+                    ['label' => 'test2', 'value' => 'value2', 'type' => 'text'],
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
-                    ['label' => 'test3', 'value' => 'value3', 'type' => 'text']
-                ]
-            ]
+                    ['label' => 'test3', 'value' => 'value3', 'type' => 'text'],
+                ],
+            ],
         ];
 
         $result = CommonTableValidator::validateTableData($inconsistentData, ['check_cell_consistency' => true]);
@@ -423,7 +422,7 @@ class CommonTableValidatorUnitTest extends TestCase
      * @test
      * サポートされているタイプの取得
      */
-    public function test_getSupportedTypes_正しいタイプを返す()
+    public function test_get_supported_types_正しいタイプを返す()
     {
         $cellTypes = CommonTableValidator::getSupportedCellTypes();
         $expectedCellTypes = ['text', 'badge', 'email', 'url', 'date', 'currency', 'number', 'file'];
@@ -438,11 +437,11 @@ class CommonTableValidatorUnitTest extends TestCase
      * @test
      * バリデーションオプションの検証
      */
-    public function test_validateOptions_有効なオプションで成功()
+    public function test_validate_options_有効なオプションで成功()
     {
         $validOptions = [
             'max_rows' => 50,
-            'check_cell_consistency' => true
+            'check_cell_consistency' => true,
         ];
 
         $result = CommonTableValidator::validateOptions($validOptions);
@@ -454,7 +453,7 @@ class CommonTableValidatorUnitTest extends TestCase
      * @test
      * バリデーションオプションの検証 - 無効なオプション
      */
-    public function test_validateOptions_無効なオプションでエラー()
+    public function test_validate_options_無効なオプションでエラー()
     {
         // 無効なmax_rows
         $invalidOptions = ['max_rows' => -1];
@@ -473,7 +472,7 @@ class CommonTableValidatorUnitTest extends TestCase
      * @test
      * 大量データでのバリデーション
      */
-    public function test_validateTableData_大量データでの動作()
+    public function test_validate_table_data_大量データでの動作()
     {
         // 大量のデータを生成
         $largeData = [];
@@ -481,8 +480,8 @@ class CommonTableValidatorUnitTest extends TestCase
             $largeData[] = [
                 'type' => 'standard',
                 'cells' => [
-                    ['label' => "ラベル{$i}", 'value' => "値{$i}", 'type' => 'text']
-                ]
+                    ['label' => "ラベル{$i}", 'value' => "値{$i}", 'type' => 'text'],
+                ],
             ];
         }
 

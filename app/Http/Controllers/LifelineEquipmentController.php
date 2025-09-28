@@ -4,36 +4,44 @@ namespace App\Http\Controllers;
 
 use App\Models\Facility;
 use App\Models\LifelineEquipment;
+use App\Services\FileHandlingService;
 use App\Services\LifelineEquipmentService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class LifelineEquipmentController extends Controller
 {
     protected LifelineEquipmentService $lifelineEquipmentService;
 
-    public function __construct(LifelineEquipmentService $lifelineEquipmentService)
-    {
+    protected FileHandlingService $fileHandlingService;
+
+    public function __construct(
+        LifelineEquipmentService $lifelineEquipmentService,
+        FileHandlingService $fileHandlingService
+    ) {
         $this->lifelineEquipmentService = $lifelineEquipmentService;
+        $this->fileHandlingService = $fileHandlingService;
     }
 
     /**
-     * Display the specified lifeline equipment category data.
+     * Display lifeline equipment data for the specified category.
      */
     public function show(Facility $facility, string $category): JsonResponse
     {
         try {
-            // Check authorization using LifelineEquipment policy
+            // Check authorization using the LifelineEquipment policy
             $this->authorize('view', [LifelineEquipment::class, $facility]);
 
-            // Use service to get equipment data
-            $result = $this->lifelineEquipmentService->getEquipmentData($facility, $category);
+            // Normalize category (convert hyphens to underscores for internal processing)
+            $normalizedCategory = str_replace('-', '_', $category);
 
-            if (!$result['success']) {
+            // Use service to get equipment data
+            $result = $this->lifelineEquipmentService->getEquipmentData($facility, $normalizedCategory);
+
+            if (! $result['success']) {
                 return response()->json($result, 422);
             }
 
@@ -59,23 +67,31 @@ class LifelineEquipmentController extends Controller
     }
 
     /**
-     * Show the form for editing the specified lifeline equipment category.
+     * Shows the form for editing lifeline equipment for the specified category.
      */
     public function edit(Facility $facility, string $category)
     {
         try {
-            // Check authorization using LifelineEquipment policy
+            // Check authorization using the LifelineEquipment policy
             $this->authorize('update', [LifelineEquipment::class, $facility]);
 
+            // Normalize category (convert hyphens to underscores for internal processing)
+            $normalizedCategory = str_replace('-', '_', $category);
+
             // Validate category
-            if (!array_key_exists($category, LifelineEquipment::CATEGORIES)) {
+            if (! array_key_exists($normalizedCategory, LifelineEquipment::CATEGORIES)) {
                 abort(404, 'Invalid equipment category');
             }
 
             // Return the appropriate edit view based on category
-            $viewName = "facilities.lifeline-equipment.{$category}-edit";
-            
-            return view($viewName, compact('facility', 'category'));
+            // Convert underscores back to hyphens for view name
+            $viewCategory = str_replace('_', '-', $normalizedCategory);
+            $viewName = "facilities.lifeline-equipment.{$viewCategory}-edit";
+
+            return view($viewName, [
+                'facility' => $facility,
+                'category' => $normalizedCategory,
+            ]);
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             abort(403, 'この施設のライフライン設備情報を編集する権限がありません。');
         } catch (Exception $e) {
@@ -91,42 +107,48 @@ class LifelineEquipmentController extends Controller
     }
 
     /**
-     * Update the specified lifeline equipment category data.
+     * Update lifeline equipment data for the specified category.
      */
     public function update(Request $request, Facility $facility, string $category)
     {
         try {
-            // Check authorization using LifelineEquipment policy
+            // Check authorization using the LifelineEquipment policy
             $this->authorize('update', [LifelineEquipment::class, $facility]);
+
+            // Normalize category (convert hyphens to underscores for internal processing)
+            $normalizedCategory = str_replace('-', '_', $category);
 
             // Use service to update equipment data
             $result = $this->lifelineEquipmentService->updateEquipmentData(
                 $facility,
-                $category,
+                $normalizedCategory,
                 $request->all(),
                 auth()->id()
             );
 
             // Handle AJAX requests
             if ($request->expectsJson()) {
-                if (!$result['success']) {
+                if (! $result['success']) {
                     $statusCode = isset($result['errors']) ? 422 : 500;
+
                     return response()->json($result, $statusCode);
                 }
+
                 return response()->json($result);
             }
 
             // Handle form submissions
-            if (!$result['success']) {
+            if (! $result['success']) {
                 if (isset($result['errors'])) {
                     return back()->withErrors($result['errors'])->withInput();
                 }
+
                 return back()->with('error', $result['message'] ?? 'システムエラーが発生しました。')->withInput();
             }
 
-            return redirect()->route('facilities.show', $facility)
-                           ->with('success', 'ライフライン設備情報を更新しました。')
-                           ->withFragment($category);
+            // Always redirect to the facility show page after successful update
+            return redirect(route('facilities.show', $facility).'#'.str_replace('_', '-', $normalizedCategory))
+                ->with('success', 'ライフライン設備情報を更新しました。');
 
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             if ($request->expectsJson()) {
@@ -151,7 +173,7 @@ class LifelineEquipmentController extends Controller
                     'message' => 'システムエラーが発生しました。',
                 ], 500);
             }
-            
+
             return back()->with('error', 'システムエラーが発生しました。')->withInput();
         }
     }
@@ -196,7 +218,7 @@ class LifelineEquipmentController extends Controller
                 'categories.*' => [
                     'required',
                     'string',
-                    Rule::in(array_keys(LifelineEquipment::CATEGORIES))
+                    Rule::in(array_keys(LifelineEquipment::CATEGORIES)),
                 ],
             ]);
 
@@ -235,7 +257,7 @@ class LifelineEquipmentController extends Controller
                 'equipment_data.*.category' => [
                     'required',
                     'string',
-                    Rule::in(array_keys(LifelineEquipment::CATEGORIES))
+                    Rule::in(array_keys(LifelineEquipment::CATEGORIES)),
                 ],
                 'equipment_data.*.data' => 'required|array',
             ]);
@@ -356,12 +378,12 @@ class LifelineEquipmentController extends Controller
     }
 
     /**
-     * Format unified API response.
+     * Format a unified API response.
      */
     private function formatApiResponse(array $result): JsonResponse
     {
         $statusCode = $result['success'] ? 200 : ($result['status_code'] ?? 500);
-        
+
         $response = [
             'success' => $result['success'],
             'message' => $result['message'] ?? null,
@@ -373,7 +395,7 @@ class LifelineEquipmentController extends Controller
             ],
         ];
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             $response['errors'] = $result['errors'] ?? null;
             $response['error_code'] = $result['error_code'] ?? null;
         }
@@ -408,59 +430,114 @@ class LifelineEquipmentController extends Controller
     }
 
     /**
-     * Download inspection report PDF.
+     * Download lifeline equipment file.
      */
-    public function downloadInspectionReport(Facility $facility, string $category, string $filename)
+    public function downloadFile(Facility $facility, string $category, string $type)
     {
         try {
             $this->authorize('view', [LifelineEquipment::class, $facility]);
 
+            // Normalize category (convert hyphens to underscores for internal processing)
+            $normalizedCategory = str_replace('-', '_', $category);
+
             // Validate category
-            if (!array_key_exists($category, LifelineEquipment::CATEGORIES)) {
+            if (! array_key_exists($normalizedCategory, LifelineEquipment::CATEGORIES)) {
                 abort(404, 'Invalid equipment category');
             }
 
             // Get lifeline equipment
-            $lifelineEquipment = $facility->getLifelineEquipmentByCategory($category);
-            if (!$lifelineEquipment) {
+            $lifelineEquipment = $facility->getLifelineEquipmentByCategory($normalizedCategory);
+            if (! $lifelineEquipment) {
                 abort(404, 'Equipment not found');
             }
 
-            // Get equipment data to verify file exists
+            // Get equipment data based on category
             $equipmentData = null;
-            switch ($category) {
+            switch ($normalizedCategory) {
                 case 'electrical':
                     $equipmentData = $lifelineEquipment->electricalEquipment;
                     break;
-                // Add other categories as needed
+                case 'gas':
+                    $equipmentData = $lifelineEquipment->gasEquipment;
+                    break;
+                case 'water':
+                    $equipmentData = $lifelineEquipment->waterEquipment;
+                    break;
+                case 'elevator':
+                    $equipmentData = $lifelineEquipment->elevatorEquipment;
+                    break;
+                case 'hvac_lighting':
+                    $equipmentData = $lifelineEquipment->hvacLightingEquipment;
+                    break;
+                default:
+                    abort(404, 'Invalid equipment category');
             }
 
-            if (!$equipmentData) {
+            if (! $equipmentData) {
                 abort(404, 'Equipment data not found');
             }
 
+            $filePath = null;
+            $fileName = null;
+
+            // Get file path and name based on type
             $basicInfo = $equipmentData->basic_info ?? [];
-            if (empty($basicInfo['inspection_report_pdf_path'])) {
-                abort(404, 'File not found');
+            switch ($type) {
+                case 'inspection_report':
+                    $filePath = $basicInfo['inspection']['inspection_report_pdf_path'] ?? null;
+                    $fileName = $basicInfo['inspection']['inspection_report_pdf'] ?? null;
+                    break;
+                case 'hvac_inspection_report':
+                    $filePath = $basicInfo['hvac']['inspection']['inspection_report_path'] ?? null;
+                    $fileName = $basicInfo['hvac']['inspection']['inspection_report_filename'] ?? null;
+                    break;
+                    // Water equipment file types
+                case 'tank_cleaning_report':
+                    $filePath = $basicInfo['tank_cleaning']['tank_cleaning_report_pdf_path'] ?? null;
+                    $fileName = $basicInfo['tank_cleaning']['tank_cleaning_report_pdf'] ?? null;
+                    break;
+                case 'septic_tank_inspection_report':
+                    $filePath = $basicInfo['septic_tank_info']['inspection']['inspection_report_pdf_path'] ?? null;
+                    $fileName = $basicInfo['septic_tank_info']['inspection']['inspection_report_pdf'] ?? null;
+                    break;
+                default:
+                    // Handle legionella report files (pattern: legionella_report_0, legionella_report_1, etc.)
+                    if (preg_match('/^legionella_report_(\d+)$/', $type, $matches)) {
+                        $index = (int) $matches[1];
+                        $filePath = $basicInfo['legionella_info']['inspections'][$index]['report']['report_pdf_path'] ?? null;
+                        $fileName = $basicInfo['legionella_info']['inspections'][$index]['report']['report_pdf'] ?? null;
+                    } else {
+                        abort(404, '指定されたファイルタイプが無効です。');
+                    }
+                    break;
             }
 
-            $filePath = $basicInfo['inspection_report_pdf_path'];
-            
-            // Check if file exists in storage
-            if (!Storage::disk('public')->exists($filePath)) {
-                abort(404, 'File not found in storage');
+            if (! $filePath) {
+                abort(404, 'ファイルが見つかりません。');
             }
 
-            // Return file download response
-            return Storage::disk('public')->download($filePath, $filename);
+            // Use FileHandlingService for download
+            try {
+                return $this->fileHandlingService->downloadFile($filePath, $fileName);
+            } catch (Exception $e) {
+                Log::error('Lifeline equipment file download failed', [
+                    'facility_id' => $facility->id,
+                    'category' => $normalizedCategory,
+                    'file_type' => $type,
+                    'user_id' => auth()->id(),
+                    'error' => $e->getMessage(),
+                ]);
+
+                abort(500, 'ファイルのダウンロードに失敗しました。');
+            }
 
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             abort(403, 'この施設のファイルをダウンロードする権限がありません。');
         } catch (Exception $e) {
-            Log::error('Inspection report download failed', [
+            Log::error('Lifeline equipment file download failed', [
                 'facility_id' => $facility->id,
-                'category' => $category,
-                'filename' => $filename,
+                'category' => $normalizedCategory,
+                'file_type' => $type,
                 'user_id' => auth()->id(),
                 'error' => $e->getMessage(),
             ]);

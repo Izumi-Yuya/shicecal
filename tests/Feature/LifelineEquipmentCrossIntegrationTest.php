@@ -15,7 +15,7 @@ use Tests\TestCase;
 
 /**
  * 設備間連携のインテグレーションテスト
- * 
+ *
  * 複数の設備カテゴリ間の相互作用とデータ整合性をテストします。
  */
 class LifelineEquipmentCrossIntegrationTest extends TestCase
@@ -23,8 +23,11 @@ class LifelineEquipmentCrossIntegrationTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $editor;
+
     private User $viewer;
+
     private Facility $facility;
 
     protected function setUp(): void
@@ -78,12 +81,12 @@ class LifelineEquipmentCrossIntegrationTest extends TestCase
 
         // Verify all equipment is properly linked to the facility
         $this->assertEquals(5, $this->facility->lifelineEquipments()->count());
-        
+
         foreach ($categories as $category) {
             $equipment = $this->facility->lifelineEquipments()
                 ->where('category', $category)
                 ->first();
-            
+
             $this->assertNotNull($equipment);
             $this->assertEquals($category, $equipment->category);
             $this->assertEquals('active', $equipment->status);
@@ -201,7 +204,7 @@ class LifelineEquipmentCrossIntegrationTest extends TestCase
         // Verify only water equipment remains
         $this->assertEquals(1, $this->facility->lifelineEquipments()->count());
         $this->assertEquals('water', $this->facility->lifelineEquipments()->first()->category);
-        
+
         // Verify water equipment is still accessible
         $remainingWaterEquipment = WaterEquipment::find($waterEquipment->id);
         $this->assertNotNull($remainingWaterEquipment);
@@ -221,7 +224,7 @@ class LifelineEquipmentCrossIntegrationTest extends TestCase
 
         // Attempt to create second electrical equipment for same facility should fail
         $this->expectException(\Illuminate\Database\QueryException::class);
-        
+
         LifelineEquipment::factory()->create([
             'facility_id' => $this->facility->id,
             'category' => 'electrical',
@@ -258,7 +261,7 @@ class LifelineEquipmentCrossIntegrationTest extends TestCase
 
         // Verify bulk update
         $allEquipment = $this->facility->lifelineEquipments()->get();
-        
+
         foreach ($allEquipment as $equipment) {
             $this->assertEquals('active', $equipment->status);
             $this->assertEquals($this->admin->id, $equipment->approved_by);
@@ -310,18 +313,18 @@ class LifelineEquipmentCrossIntegrationTest extends TestCase
 
         // Verify complex relationships work
         $this->assertEquals(2, $this->facility->lifelineEquipments()->count());
-        
+
         $elevator = $this->facility->lifelineEquipments()
             ->where('category', 'elevator')
             ->first();
-        
+
         $electrical = $this->facility->lifelineEquipments()
             ->where('category', 'electrical')
             ->first();
 
         $this->assertNotNull($elevator->elevatorEquipment);
         $this->assertNotNull($electrical->electricalEquipment);
-        
+
         // Verify complex data structures
         $this->assertIsArray($elevator->elevatorEquipment->basic_info['floors_served']);
         $this->assertIsArray($elevator->elevatorEquipment->maintenance_info['inspection_schedule']);
@@ -359,7 +362,7 @@ class LifelineEquipmentCrossIntegrationTest extends TestCase
 
         // Verify audit trail
         $gasLifeline->refresh();
-        
+
         $this->assertEquals($this->editor->id, $gasLifeline->created_by);
         $this->assertEquals($this->admin->id, $gasLifeline->updated_by);
         $this->assertEquals($this->admin->id, $gasLifeline->approved_by);
@@ -403,11 +406,11 @@ class LifelineEquipmentCrossIntegrationTest extends TestCase
         $draftCount = $this->facility->lifelineEquipments()
             ->where('status', 'draft')
             ->count();
-        
+
         $activeCount = $this->facility->lifelineEquipments()
             ->where('status', 'active')
             ->count();
-        
+
         $pendingCount = $this->facility->lifelineEquipments()
             ->where('status', 'pending_approval')
             ->count();

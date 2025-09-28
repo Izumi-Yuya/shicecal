@@ -11,7 +11,7 @@
             'type' => 'standard',
             'cells' => [
                 ['label' => 'ガス契約会社', 'value' => $basicInfo['gas_supplier'] ?? null, 'type' => 'text'],
-                ['label' => 'ガス種類', 'value' => $basicInfo['gas_type'] ?? null, 'type' => 'badge', 'options' => ['badge_class' => 'bg-info']],
+                ['label' => 'ガスの種類', 'value' => $basicInfo['gas_type'] ?? null, 'type' => 'badge', 'options' => ['badge_class' => 'bg-info']],
             ]
         ],
     ];
@@ -57,6 +57,8 @@
             ]
         ],
     ];
+
+
 
     // 備考テーブルデータの構築
     $notesData = [
@@ -205,6 +207,8 @@
             tableClass="table table-bordered facility-basic-info-table-clean"
         />
     </div>
+
+
 
     <!-- 備考セクション -->
     <div class="equipment-section mb-4">

@@ -466,7 +466,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         console.log('サービス行追加ボタンのイベントリスナーを設定しました');
     } else {
-        console.error('サービス行追加ボタンが見つかりません');
+        console.error('サービス行追加ボタンが見つかりません。');
     }
     
     // 入力値の変更を監視
@@ -492,7 +492,7 @@ window.addEventListener('load', function() {
         console.log('ボタンのクラス:', addServiceBtn.className);
         console.log('ボタンが無効化されているか:', addServiceBtn.disabled);
     } else {
-        console.error('追加ボタンが見つかりません');
+        console.error('追加ボタンが見つかりません。');
     }
     
     const allRows = document.querySelectorAll('.service-row');

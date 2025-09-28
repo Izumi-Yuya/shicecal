@@ -2,15 +2,14 @@
 
 namespace App\Services;
 
+use App\Exceptions\LifelineEquipmentServiceException;
 use App\Models\ElectricalEquipment;
 use App\Models\ElevatorEquipment;
 use App\Models\Facility;
 use App\Models\HvacLightingEquipment;
 use App\Models\LifelineEquipment;
-use App\Exceptions\LifelineEquipmentServiceException;
 use App\Services\Traits\HandlesServiceErrors;
 use Exception;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -21,24 +20,29 @@ class LifelineEquipmentService
     use HandlesServiceErrors;
 
     protected LifelineEquipmentValidationService $validationService;
+
     protected ActivityLogService $activityLogService;
+
+    protected FileHandlingService $fileHandlingService;
 
     public function __construct(
         LifelineEquipmentValidationService $validationService,
-        ActivityLogService $activityLogService
+        ActivityLogService $activityLogService,
+        FileHandlingService $fileHandlingService
     ) {
         $this->validationService = $validationService;
         $this->activityLogService = $activityLogService;
+        $this->fileHandlingService = $fileHandlingService;
     }
 
     /**
-     * Retrieve lifeline equipment data for a specific facility and category.
+     * Retrieves the lifeline equipment data for a specific facility and category.
      */
     public function getEquipmentData(Facility $facility, string $category): array
     {
         try {
             // Validate category
-            if (!$this->isValidCategory($category)) {
+            if (! $this->isValidCategory($category)) {
                 return [
                     'success' => false,
                     'message' => '無効なカテゴリです。',
@@ -80,7 +84,7 @@ class LifelineEquipmentService
     }
 
     /**
-     * Update lifeline equipment data for the specified facility and category.
+     * Updates lifeline equipment data for the specified facility and category.
      */
     public function updateEquipmentData(
         Facility $facility,
@@ -89,8 +93,17 @@ class LifelineEquipmentService
         int $userId
     ): array {
         try {
+            Log::info('LifelineEquipmentService: Starting equipment data update', [
+                'facility_id' => $facility->id,
+                'category' => $category,
+                'user_id' => $userId,
+                'data_keys' => array_keys($data),
+            ]);
+
             // Validate category
-            if (!$this->isValidCategory($category)) {
+            if (! $this->isValidCategory($category)) {
+                Log::warning('LifelineEquipmentService: Invalid category', ['category' => $category]);
+
                 return [
                     'success' => false,
                     'message' => '無効なカテゴリです。',
@@ -98,26 +111,45 @@ class LifelineEquipmentService
             }
 
             // Validate data using validation service
+            Log::info('LifelineEquipmentService: Starting data validation');
             $validationResult = $this->validationService->validateCategoryData($category, $data);
-            if (!$validationResult['success']) {
+            if (! $validationResult['success']) {
+                Log::warning('LifelineEquipmentService: Validation failed', $validationResult);
+
                 return $validationResult;
             }
 
             $validatedData = $validationResult['data'];
 
+            // Keep reference to all original data for file processing
+            $allData = $data;
+
+            // Add file data to the validated data for processing
+            if (isset($data['inspection_report_file']) && $data['inspection_report_file']) {
+                $validatedData['inspection_report_file'] = $data['inspection_report_file'];
+            }
+
+            Log::info('LifelineEquipmentService: Data validation completed successfully');
+
             DB::beginTransaction();
 
             try {
+                Log::info('LifelineEquipmentService: Starting database transaction');
+
                 // Get or create lifeline equipment record
                 $lifelineEquipment = $this->getOrCreateLifelineEquipment($facility, $category, $userId);
+                Log::info('LifelineEquipmentService: Got lifeline equipment', ['id' => $lifelineEquipment->id]);
 
                 // Update lifeline equipment status and metadata
                 $this->updateLifelineEquipmentMetadata($lifelineEquipment, $userId);
+                Log::info('LifelineEquipmentService: Updated metadata');
 
-                // Update category-specific data
-                $this->updateCategorySpecificData($lifelineEquipment, $category, $validatedData);
+                // Update the category-specific data
+                $this->updateCategorySpecificData($lifelineEquipment, $category, $validatedData, $allData);
+                Log::info('LifelineEquipmentService: Updated category-specific data');
 
                 DB::commit();
+                Log::info('LifelineEquipmentService: Transaction committed successfully');
 
                 // Log the activity
                 $this->logEquipmentUpdate($facility, $category);
@@ -161,13 +193,13 @@ class LifelineEquipmentService
     }
 
     /**
-     * Get electrical equipment data with formatted structure.
+     * Get electrical equipment data with a formatted structure.
      */
     public function getElectricalEquipmentData(LifelineEquipment $lifelineEquipment): array
     {
         $electricalEquipment = $lifelineEquipment->electricalEquipment;
 
-        if (!$electricalEquipment) {
+        if (! $electricalEquipment) {
             return $this->getDefaultElectricalEquipmentStructure();
         }
 
@@ -185,11 +217,12 @@ class LifelineEquipmentService
      */
     public function updateElectricalEquipmentData(
         LifelineEquipment $lifelineEquipment,
-        array $validatedData
+        array $validatedData,
+        array $allData = []
     ): void {
         $electricalEquipment = $lifelineEquipment->electricalEquipment;
 
-        if (!$electricalEquipment) {
+        if (! $electricalEquipment) {
             $electricalEquipment = new ElectricalEquipment([
                 'lifeline_equipment_id' => $lifelineEquipment->id,
             ]);
@@ -198,7 +231,12 @@ class LifelineEquipmentService
         // Update only the sections that are provided in the request
         // This allows for partial updates without overwriting existing data
         if (array_key_exists('basic_info', $validatedData)) {
-            $electricalEquipment->basic_info = $this->processBasicInfo($validatedData['basic_info']);
+            // Pass the entire validated data and existing data to handle file uploads
+            $electricalEquipment->basic_info = $this->processBasicInfo(
+                $validatedData['basic_info'],
+                $allData,
+                $electricalEquipment->basic_info ?? []
+            );
         }
 
         if (array_key_exists('pas_info', $validatedData)) {
@@ -227,7 +265,7 @@ class LifelineEquipmentService
     {
         $gasEquipment = $lifelineEquipment->gasEquipment;
 
-        if (!$gasEquipment) {
+        if (! $gasEquipment) {
             return $this->getDefaultGasEquipmentStructure();
         }
 
@@ -246,7 +284,7 @@ class LifelineEquipmentService
     ): void {
         $gasEquipment = $lifelineEquipment->gasEquipment;
 
-        if (!$gasEquipment) {
+        if (! $gasEquipment) {
             $gasEquipment = new \App\Models\GasEquipment([
                 'lifeline_equipment_id' => $lifelineEquipment->id,
             ]);
@@ -271,7 +309,7 @@ class LifelineEquipmentService
     private function processGasBasicInfo(array $basicInfo): array
     {
         $processedData = [
-            'gas_supplier' => isset($basicInfo['gas_supplier']) 
+            'gas_supplier' => isset($basicInfo['gas_supplier'])
                 ? ($basicInfo['gas_supplier'] === null ? null : trim($basicInfo['gas_supplier']))
                 : null,
             'gas_type' => $basicInfo['gas_type'] ?? null,
@@ -280,19 +318,19 @@ class LifelineEquipmentService
         // Process water heater info (multiple water heaters support)
         if (isset($basicInfo['water_heater_info']) && is_array($basicInfo['water_heater_info'])) {
             $waterHeaterInfo = $basicInfo['water_heater_info'];
-            
+
             $processedData['water_heater_info'] = [
                 'availability' => $waterHeaterInfo['availability'] ?? null,
             ];
-            
+
             // Process water heaters list if availability is '有'
             if (($waterHeaterInfo['availability'] ?? '') === '有' && isset($waterHeaterInfo['water_heaters']) && is_array($waterHeaterInfo['water_heaters'])) {
                 $waterHeaterList = [];
-                
+
                 foreach ($waterHeaterInfo['water_heaters'] as $heater) {
-                    if (is_array($heater) && !empty(array_filter($heater))) {
+                    if (is_array($heater) && ! empty(array_filter($heater))) {
                         $waterHeaterList[] = [
-                            'manufacturer' => isset($heater['manufacturer']) 
+                            'manufacturer' => isset($heater['manufacturer'])
                                 ? ($heater['manufacturer'] === null ? null : trim($heater['manufacturer']))
                                 : null,
                             'model_year' => $heater['model_year'] ?? null,
@@ -300,7 +338,7 @@ class LifelineEquipmentService
                         ];
                     }
                 }
-                
+
                 $processedData['water_heater_info']['water_heaters'] = $waterHeaterList;
             }
         }
@@ -308,9 +346,9 @@ class LifelineEquipmentService
         // Process floor heating info
         if (isset($basicInfo['floor_heating_info']) && is_array($basicInfo['floor_heating_info'])) {
             $floorHeatingInfo = $basicInfo['floor_heating_info'];
-            
+
             $processedData['floor_heating_info'] = [
-                'manufacturer' => isset($floorHeatingInfo['manufacturer']) 
+                'manufacturer' => isset($floorHeatingInfo['manufacturer'])
                     ? ($floorHeatingInfo['manufacturer'] === null ? null : trim($floorHeatingInfo['manufacturer']))
                     : null,
                 'model_year' => $floorHeatingInfo['model_year'] ?? null,
@@ -351,7 +389,7 @@ class LifelineEquipmentService
     {
         $waterEquipment = $lifelineEquipment->waterEquipment;
 
-        if (!$waterEquipment) {
+        if (! $waterEquipment) {
             return $this->getDefaultWaterEquipmentStructure();
         }
 
@@ -366,19 +404,23 @@ class LifelineEquipmentService
      */
     public function updateWaterEquipmentData(
         LifelineEquipment $lifelineEquipment,
-        array $validatedData
+        array $validatedData,
+        array $allData = []
     ): void {
         $waterEquipment = $lifelineEquipment->waterEquipment;
+        $existingData = [];
 
-        if (!$waterEquipment) {
+        if (! $waterEquipment) {
             $waterEquipment = new \App\Models\WaterEquipment([
                 'lifeline_equipment_id' => $lifelineEquipment->id,
             ]);
+        } else {
+            $existingData = $waterEquipment->basic_info ?? [];
         }
 
         // Update only the sections that are provided in the request
         if (array_key_exists('basic_info', $validatedData)) {
-            $waterEquipment->basic_info = $this->processWaterBasicInfo($validatedData['basic_info']);
+            $waterEquipment->basic_info = $this->processWaterBasicInfo($validatedData['basic_info'], $allData, $existingData);
         }
 
         if (array_key_exists('notes', $validatedData)) {
@@ -392,27 +434,57 @@ class LifelineEquipmentService
      * Process water equipment basic info data before saving.
      * Handles data sanitization, validation, and structure normalization.
      */
-    private function processWaterBasicInfo(array $basicInfo): array
+    private function processWaterBasicInfo(array $basicInfo, array $allData = [], array $existingData = []): array
     {
+
         $processedData = [
-            'water_contractor' => isset($basicInfo['water_contractor']) 
+            'water_contractor' => isset($basicInfo['water_contractor'])
                 ? ($basicInfo['water_contractor'] === null ? null : trim($basicInfo['water_contractor']))
                 : null,
-            'tank_cleaning_company' => isset($basicInfo['tank_cleaning_company']) 
+            'tank_cleaning_company' => isset($basicInfo['tank_cleaning_company'])
                 ? ($basicInfo['tank_cleaning_company'] === null ? null : trim($basicInfo['tank_cleaning_company']))
                 : null,
             'tank_cleaning_date' => $basicInfo['tank_cleaning_date'] ?? null,
-            'tank_cleaning_report_pdf' => $basicInfo['tank_cleaning_report_pdf'] ?? null,
         ];
+
+        // Handle tank cleaning report PDF upload
+        if (isset($allData['tank_cleaning_report_file']) && $allData['tank_cleaning_report_file'] instanceof \Illuminate\Http\UploadedFile) {
+            // Delete existing file if present
+            if (isset($existingData['tank_cleaning']['tank_cleaning_report_pdf_path'])) {
+                $this->fileHandlingService->deleteFile($existingData['tank_cleaning']['tank_cleaning_report_pdf_path']);
+            }
+
+            $uploadResult = $this->handleFileUpload($allData['tank_cleaning_report_file'], 'water/tank-cleaning-reports');
+            if ($uploadResult) {
+                $processedData['tank_cleaning'] = [
+                    'tank_cleaning_report_pdf' => $uploadResult['filename'],
+                    'tank_cleaning_report_pdf_path' => $uploadResult['path'],
+                ];
+            }
+        } elseif (isset($existingData['tank_cleaning'])) {
+            // Preserve existing file information
+            $processedData['tank_cleaning'] = $existingData['tank_cleaning'];
+        }
+
+        // Handle file deletion
+        if (isset($allData['remove_tank_cleaning_report']) && $allData['remove_tank_cleaning_report'] === '1') {
+            if (isset($existingData['tank_cleaning']['tank_cleaning_report_pdf_path'])) {
+                $this->fileHandlingService->deleteFile($existingData['tank_cleaning']['tank_cleaning_report_pdf_path']);
+            }
+            $processedData['tank_cleaning'] = [
+                'tank_cleaning_report_pdf' => null,
+                'tank_cleaning_report_pdf_path' => null,
+            ];
+        }
 
         // Process filter info
         if (isset($basicInfo['filter_info']) && is_array($basicInfo['filter_info'])) {
             $processedData['filter_info'] = [
-                'bath_system' => isset($basicInfo['filter_info']['bath_system']) 
+                'bath_system' => isset($basicInfo['filter_info']['bath_system'])
                     ? ($basicInfo['filter_info']['bath_system'] === null ? null : trim($basicInfo['filter_info']['bath_system']))
                     : null,
                 'availability' => $basicInfo['filter_info']['availability'] ?? null,
-                'manufacturer' => isset($basicInfo['filter_info']['manufacturer']) 
+                'manufacturer' => isset($basicInfo['filter_info']['manufacturer'])
                     ? ($basicInfo['filter_info']['manufacturer'] === null ? null : trim($basicInfo['filter_info']['manufacturer']))
                     : null,
                 'model_year' => $basicInfo['filter_info']['model_year'] ?? null,
@@ -423,7 +495,7 @@ class LifelineEquipmentService
         if (isset($basicInfo['tank_info']) && is_array($basicInfo['tank_info'])) {
             $processedData['tank_info'] = [
                 'availability' => $basicInfo['tank_info']['availability'] ?? null,
-                'manufacturer' => isset($basicInfo['tank_info']['manufacturer']) 
+                'manufacturer' => isset($basicInfo['tank_info']['manufacturer'])
                     ? ($basicInfo['tank_info']['manufacturer'] === null ? null : trim($basicInfo['tank_info']['manufacturer']))
                     : null,
                 'model_year' => $basicInfo['tank_info']['model_year'] ?? null,
@@ -433,12 +505,12 @@ class LifelineEquipmentService
         // Process pump info (multiple pumps support)
         if (isset($basicInfo['pump_info']) && is_array($basicInfo['pump_info'])) {
             $pumpList = [];
-            
+
             if (isset($basicInfo['pump_info']['pumps']) && is_array($basicInfo['pump_info']['pumps'])) {
                 foreach ($basicInfo['pump_info']['pumps'] as $pump) {
-                    if (is_array($pump) && !empty(array_filter($pump))) {
+                    if (is_array($pump) && ! empty(array_filter($pump))) {
                         $pumpList[] = [
-                            'manufacturer' => isset($pump['manufacturer']) 
+                            'manufacturer' => isset($pump['manufacturer'])
                                 ? ($pump['manufacturer'] === null ? null : trim($pump['manufacturer']))
                                 : null,
                             'model_year' => $pump['model_year'] ?? null,
@@ -447,9 +519,117 @@ class LifelineEquipmentService
                     }
                 }
             }
-            
+
             $processedData['pump_info'] = [
                 'pumps' => $pumpList,
+            ];
+        }
+
+        // Process septic tank info
+        if (isset($basicInfo['septic_tank_info']) && is_array($basicInfo['septic_tank_info'])) {
+            $septicTankData = [
+                'availability' => $basicInfo['septic_tank_info']['availability'] ?? null,
+                'manufacturer' => isset($basicInfo['septic_tank_info']['manufacturer'])
+                    ? ($basicInfo['septic_tank_info']['manufacturer'] === null ? null : trim($basicInfo['septic_tank_info']['manufacturer']))
+                    : null,
+                'model_year' => $basicInfo['septic_tank_info']['model_year'] ?? null,
+                'inspection_company' => isset($basicInfo['septic_tank_info']['inspection_company'])
+                    ? ($basicInfo['septic_tank_info']['inspection_company'] === null ? null : trim($basicInfo['septic_tank_info']['inspection_company']))
+                    : null,
+                'inspection_date' => $basicInfo['septic_tank_info']['inspection_date'] ?? null,
+            ];
+
+            // Handle septic tank inspection report PDF upload
+            if (isset($allData['septic_tank_inspection_report_file']) && $allData['septic_tank_inspection_report_file'] instanceof \Illuminate\Http\UploadedFile) {
+                // Delete existing file if present
+                if (isset($existingData['septic_tank_info']['inspection']['inspection_report_pdf_path'])) {
+                    $this->fileHandlingService->deleteFile($existingData['septic_tank_info']['inspection']['inspection_report_pdf_path']);
+                }
+
+                $uploadResult = $this->handleFileUpload($allData['septic_tank_inspection_report_file'], 'water/septic-tank-reports');
+                if ($uploadResult) {
+                    $septicTankData['inspection'] = [
+                        'inspection_report_pdf' => $uploadResult['filename'],
+                        'inspection_report_pdf_path' => $uploadResult['path'],
+                    ];
+                }
+            } elseif (isset($existingData['septic_tank_info']['inspection'])) {
+                // Preserve existing file information
+                $septicTankData['inspection'] = $existingData['septic_tank_info']['inspection'];
+            }
+
+            // Handle septic tank file deletion
+            if (isset($allData['remove_septic_tank_inspection_report']) && $allData['remove_septic_tank_inspection_report'] === '1') {
+                if (isset($existingData['septic_tank_info']['inspection']['inspection_report_pdf_path'])) {
+                    $this->fileHandlingService->deleteFile($existingData['septic_tank_info']['inspection']['inspection_report_pdf_path']);
+                }
+                $septicTankData['inspection'] = [
+                    'inspection_report_pdf' => null,
+                    'inspection_report_pdf_path' => null,
+                ];
+            }
+
+            $processedData['septic_tank_info'] = $septicTankData;
+        }
+
+        // Process legionella info (multiple inspections support)
+        if (isset($basicInfo['legionella_info']) && is_array($basicInfo['legionella_info'])) {
+            $legionellaList = [];
+
+            if (isset($basicInfo['legionella_info']['inspections']) && is_array($basicInfo['legionella_info']['inspections'])) {
+                foreach ($basicInfo['legionella_info']['inspections'] as $index => $inspection) {
+                    if (is_array($inspection) && ! empty(array_filter($inspection))) {
+                        $inspectionData = [
+                            'inspection_date' => $inspection['inspection_date'] ?? null,
+                            'first_result' => $inspection['first_result'] ?? null,
+                            'first_value' => isset($inspection['first_value'])
+                                ? ($inspection['first_value'] === null ? null : trim($inspection['first_value']))
+                                : null,
+                            'second_result' => $inspection['second_result'] ?? null,
+                            'second_value' => isset($inspection['second_value'])
+                                ? ($inspection['second_value'] === null ? null : trim($inspection['second_value']))
+                                : null,
+                        ];
+
+                        // Handle legionella report PDF upload for this inspection
+                        $fileFieldName = "legionella_report_file_{$index}";
+                        if (isset($allData[$fileFieldName]) && $allData[$fileFieldName] instanceof \Illuminate\Http\UploadedFile) {
+                            // Delete existing file if present
+                            if (isset($existingData['legionella_info']['inspections'][$index]['report']['report_pdf_path'])) {
+                                $this->fileHandlingService->deleteFile($existingData['legionella_info']['inspections'][$index]['report']['report_pdf_path']);
+                            }
+
+                            $uploadResult = $this->handleFileUpload($allData[$fileFieldName], 'water/legionella-reports');
+                            if ($uploadResult) {
+                                $inspectionData['report'] = [
+                                    'report_pdf' => $uploadResult['filename'],
+                                    'report_pdf_path' => $uploadResult['path'],
+                                ];
+                            }
+                        } elseif (isset($existingData['legionella_info']['inspections'][$index]['report'])) {
+                            // Preserve existing file information
+                            $inspectionData['report'] = $existingData['legionella_info']['inspections'][$index]['report'];
+                        }
+
+                        // Handle legionella file deletion
+                        $removeFieldName = "remove_legionella_report_{$index}";
+                        if (isset($allData[$removeFieldName]) && $allData[$removeFieldName] === '1') {
+                            if (isset($existingData['legionella_info']['inspections'][$index]['report']['report_pdf_path'])) {
+                                $this->fileHandlingService->deleteFile($existingData['legionella_info']['inspections'][$index]['report']['report_pdf_path']);
+                            }
+                            $inspectionData['report'] = [
+                                'report_pdf' => null,
+                                'report_pdf_path' => null,
+                            ];
+                        }
+
+                        $legionellaList[] = $inspectionData;
+                    }
+                }
+            }
+
+            $processedData['legionella_info'] = [
+                'inspections' => $legionellaList,
             ];
         }
 
@@ -466,7 +646,10 @@ class LifelineEquipmentService
                 'water_contractor' => '',
                 'tank_cleaning_company' => '',
                 'tank_cleaning_date' => '',
-                'tank_cleaning_report_pdf' => '',
+                'tank_cleaning' => [
+                    'tank_cleaning_report_pdf' => null,
+                    'tank_cleaning_report_pdf_path' => null,
+                ],
                 'filter_info' => [
                     'bath_system' => '',
                     'availability' => '',
@@ -481,6 +664,20 @@ class LifelineEquipmentService
                 'pump_info' => [
                     'pumps' => [],
                 ],
+                'septic_tank_info' => [
+                    'availability' => '',
+                    'manufacturer' => '',
+                    'model_year' => '',
+                    'inspection_company' => '',
+                    'inspection_date' => '',
+                    'inspection' => [
+                        'inspection_report_pdf' => null,
+                        'inspection_report_pdf_path' => null,
+                    ],
+                ],
+                'legionella_info' => [
+                    'inspections' => [],
+                ],
             ],
             'notes' => '',
         ];
@@ -493,7 +690,7 @@ class LifelineEquipmentService
     {
         $hvacLightingEquipment = $lifelineEquipment->hvacLightingEquipment;
 
-        if (!$hvacLightingEquipment) {
+        if (! $hvacLightingEquipment) {
             return $this->getDefaultHvacLightingEquipmentStructure();
         }
 
@@ -508,26 +705,121 @@ class LifelineEquipmentService
      */
     public function updateHvacLightingEquipmentData(
         LifelineEquipment $lifelineEquipment,
-        array $validatedData
+        array $validatedData,
+        array $allData = []
     ): void {
+        Log::info('LifelineEquipmentService: Starting HVAC/Lighting equipment update', [
+            'lifeline_equipment_id' => $lifelineEquipment->id,
+            'validated_data_keys' => array_keys($validatedData),
+        ]);
+
         $hvacLightingEquipment = $lifelineEquipment->hvacLightingEquipment;
 
-        if (!$hvacLightingEquipment) {
+        if (! $hvacLightingEquipment) {
+            Log::info('LifelineEquipmentService: Creating new HVAC/Lighting equipment');
             $hvacLightingEquipment = new HvacLightingEquipment([
                 'lifeline_equipment_id' => $lifelineEquipment->id,
             ]);
+        } else {
+            Log::info('LifelineEquipmentService: Updating existing HVAC/Lighting equipment', ['id' => $hvacLightingEquipment->id]);
         }
 
         // Update only the sections that are provided in the request
         if (array_key_exists('basic_info', $validatedData)) {
-            $hvacLightingEquipment->basic_info = $validatedData['basic_info'];
+            Log::info('LifelineEquipmentService: Processing basic_info');
+            // Pass the entire validated data and existing data to handle file uploads
+            $hvacLightingEquipment->basic_info = $this->processHvacLightingBasicInfo(
+                $validatedData['basic_info'],
+                $allData,
+                $hvacLightingEquipment->basic_info ?? []
+            );
         }
 
         if (array_key_exists('notes', $validatedData)) {
+            Log::info('LifelineEquipmentService: Processing notes');
             $hvacLightingEquipment->notes = $validatedData['notes'];
         }
 
         $hvacLightingEquipment->save();
+        Log::info('LifelineEquipmentService: HVAC/Lighting equipment saved successfully', ['id' => $hvacLightingEquipment->id]);
+    }
+
+    /**
+     * Process HVAC/Lighting equipment basic info data before saving.
+     * Handles data sanitization, validation, and file uploads.
+     */
+    private function processHvacLightingBasicInfo(array $basicInfo, array $allData = [], array $existingData = []): array
+    {
+        $processedData = [];
+
+        // Process HVAC info
+        if (isset($basicInfo['hvac']) && is_array($basicInfo['hvac'])) {
+            $hvacInfo = $basicInfo['hvac'];
+            $existingHvacInfo = $existingData['hvac'] ?? [];
+
+            $processedData['hvac'] = [
+                'freon_inspector' => isset($hvacInfo['freon_inspector'])
+                    ? ($hvacInfo['freon_inspector'] === null ? null : trim($hvacInfo['freon_inspector']))
+                    : null,
+                'inspection_date' => $hvacInfo['inspection_date'] ?? null,
+                'target_equipment' => isset($hvacInfo['target_equipment'])
+                    ? ($hvacInfo['target_equipment'] === null ? null : trim($hvacInfo['target_equipment']))
+                    : null,
+                'notes' => isset($hvacInfo['notes'])
+                    ? ($hvacInfo['notes'] === null ? null : trim($hvacInfo['notes']))
+                    : null,
+            ];
+
+            // Handle inspection report file upload
+            if (isset($allData['inspection_report_file']) && $allData['inspection_report_file'] instanceof \Illuminate\Http\UploadedFile) {
+                // Delete existing file if it exists
+                if (isset($existingHvacInfo['inspection_report_path'])) {
+                    $this->fileHandlingService->deleteFile($existingHvacInfo['inspection_report_path']);
+                }
+                
+                $uploadResult = $this->handleFileUpload($allData['inspection_report_file'], 'hvac/inspection-reports');
+                if ($uploadResult) {
+                    $processedData['hvac']['inspection'] = [
+                        'inspection_report_filename' => $uploadResult['filename'],
+                        'inspection_report_path' => $uploadResult['path'],
+                    ];
+                }
+            } elseif (isset($existingHvacInfo['inspection'])) {
+                // Keep existing file info if no new file uploaded
+                $processedData['hvac']['inspection'] = $existingHvacInfo['inspection'];
+            }
+
+            // Handle file removal
+            if (isset($allData['remove_inspection_report']) && $allData['remove_inspection_report'] === '1') {
+                if (isset($existingHvacInfo['inspection']['inspection_report_path'])) {
+                    $this->fileHandlingService->deleteFile($existingHvacInfo['inspection']['inspection_report_path']);
+                }
+                $processedData['hvac']['inspection'] = [
+                    'inspection_report_filename' => null,
+                    'inspection_report_path' => null,
+                ];
+            }
+        }
+
+        // Process Lighting info
+        if (isset($basicInfo['lighting']) && is_array($basicInfo['lighting'])) {
+            $lightingInfo = $basicInfo['lighting'];
+
+            $processedData['lighting'] = [
+                'manufacturer' => isset($lightingInfo['manufacturer'])
+                    ? ($lightingInfo['manufacturer'] === null ? null : trim($lightingInfo['manufacturer']))
+                    : null,
+                'update_date' => $lightingInfo['update_date'] ?? null,
+                'warranty_period' => isset($lightingInfo['warranty_period'])
+                    ? ($lightingInfo['warranty_period'] === null ? null : trim($lightingInfo['warranty_period']))
+                    : null,
+                'notes' => isset($lightingInfo['notes'])
+                    ? ($lightingInfo['notes'] === null ? null : trim($lightingInfo['notes']))
+                    : null,
+            ];
+        }
+
+        return $processedData;
     }
 
     /**
@@ -555,7 +847,7 @@ class LifelineEquipmentService
     {
         $elevatorEquipment = $lifelineEquipment->elevatorEquipment;
 
-        if (!$elevatorEquipment) {
+        if (! $elevatorEquipment) {
             return $this->getDefaultElevatorEquipmentStructure();
         }
 
@@ -570,26 +862,126 @@ class LifelineEquipmentService
      */
     public function updateElevatorEquipmentData(
         LifelineEquipment $lifelineEquipment,
-        array $validatedData
+        array $validatedData,
+        array $allData = []
     ): void {
+        Log::info('LifelineEquipmentService: Starting elevator equipment update', [
+            'lifeline_equipment_id' => $lifelineEquipment->id,
+            'validated_data_keys' => array_keys($validatedData),
+        ]);
+
         $elevatorEquipment = $lifelineEquipment->elevatorEquipment;
 
-        if (!$elevatorEquipment) {
+        if (! $elevatorEquipment) {
+            Log::info('LifelineEquipmentService: Creating new elevator equipment');
             $elevatorEquipment = new ElevatorEquipment([
                 'lifeline_equipment_id' => $lifelineEquipment->id,
             ]);
+        } else {
+            Log::info('LifelineEquipmentService: Updating existing elevator equipment', ['id' => $elevatorEquipment->id]);
         }
 
         // Update only the sections that are provided in the request
         if (array_key_exists('basic_info', $validatedData)) {
-            $elevatorEquipment->basic_info = $validatedData['basic_info'];
+            Log::info('LifelineEquipmentService: Processing basic_info');
+            // Pass the entire validated data and existing data to handle file uploads
+            $elevatorEquipment->basic_info = $this->processElevatorBasicInfo(
+                $validatedData['basic_info'],
+                $allData,
+                $elevatorEquipment->basic_info ?? []
+            );
         }
 
         if (array_key_exists('notes', $validatedData)) {
+            Log::info('LifelineEquipmentService: Processing notes');
             $elevatorEquipment->notes = $validatedData['notes'];
         }
 
         $elevatorEquipment->save();
+        Log::info('LifelineEquipmentService: Elevator equipment saved successfully', ['id' => $elevatorEquipment->id]);
+    }
+
+    /**
+     * Process elevator equipment basic info data before saving.
+     * Handles data sanitization, validation, and file uploads.
+     */
+    private function processElevatorBasicInfo(array $basicInfo, array $allData = [], array $existingData = []): array
+    {
+        $processedData = [
+            'availability' => $basicInfo['availability'] ?? null,
+        ];
+
+        // Process elevators list if availability is '有'
+        if (($basicInfo['availability'] ?? '') === '有' && isset($basicInfo['elevators']) && is_array($basicInfo['elevators'])) {
+            $elevatorList = [];
+
+            foreach ($basicInfo['elevators'] as $elevator) {
+                if (is_array($elevator) && ! empty(array_filter($elevator))) {
+                    $elevatorList[] = [
+                        'manufacturer' => isset($elevator['manufacturer'])
+                            ? ($elevator['manufacturer'] === null ? null : trim($elevator['manufacturer']))
+                            : null,
+                        'type' => isset($elevator['type'])
+                            ? ($elevator['type'] === null ? null : trim($elevator['type']))
+                            : null,
+                        'model_year' => $elevator['model_year'] ?? null,
+                        'update_date' => $elevator['update_date'] ?? null,
+                    ];
+                }
+            }
+
+            $processedData['elevators'] = $elevatorList;
+        } else {
+            $processedData['elevators'] = [];
+        }
+
+        // Process inspection info
+        if (isset($basicInfo['inspection']) && is_array($basicInfo['inspection'])) {
+            $inspectionInfo = $basicInfo['inspection'];
+            $existingInspectionInfo = $existingData['inspection'] ?? [];
+
+            $processedData['inspection'] = [
+                'maintenance_contractor' => isset($inspectionInfo['maintenance_contractor'])
+                    ? ($inspectionInfo['maintenance_contractor'] === null ? null : trim($inspectionInfo['maintenance_contractor']))
+                    : null,
+                'inspection_date' => $inspectionInfo['inspection_date'] ?? null,
+            ];
+
+            // Handle inspection report file upload - check in the main data array
+            if (isset($allData['inspection_report_file']) && $allData['inspection_report_file'] instanceof \Illuminate\Http\UploadedFile) {
+                Log::info('LifelineEquipmentService: Processing file upload');
+
+                // Delete old file if exists - use existing data
+                if (isset($existingInspectionInfo['inspection_report_path']) && $existingInspectionInfo['inspection_report_path']) {
+                    Storage::disk('public')->delete($existingInspectionInfo['inspection_report_path']);
+                }
+
+                $uploadedFile = $this->handleFileUpload($allData['inspection_report_file'], 'elevator/inspection-reports');
+                if ($uploadedFile) {
+                    $processedData['inspection']['inspection_report_filename'] = $uploadedFile['filename'];
+                    $processedData['inspection']['inspection_report_path'] = $uploadedFile['path'];
+                    Log::info('LifelineEquipmentService: File uploaded successfully', $uploadedFile);
+                }
+            } elseif (isset($existingInspectionInfo['inspection_report_filename'])) {
+                // Keep existing file info if no new file uploaded - use existing data
+                $processedData['inspection']['inspection_report_filename'] = $existingInspectionInfo['inspection_report_filename'];
+                $processedData['inspection']['inspection_report_path'] = $existingInspectionInfo['inspection_report_path'] ?? null;
+                Log::info('LifelineEquipmentService: Keeping existing file info');
+            }
+
+            // Handle file removal - check in the main data array
+            if (isset($allData['remove_inspection_report']) && $allData['remove_inspection_report'] === '1') {
+                // Delete existing file if it exists - use existing data
+                if (isset($existingInspectionInfo['inspection_report_path']) && $existingInspectionInfo['inspection_report_path']) {
+                    Storage::disk('public')->delete($existingInspectionInfo['inspection_report_path']);
+                }
+                $processedData['inspection']['inspection_report_filename'] = null;
+                $processedData['inspection']['inspection_report_path'] = null;
+                Log::info('LifelineEquipmentService: File removal requested and processed');
+            }
+        }
+
+        return $processedData;
     }
 
     /**
@@ -599,10 +991,14 @@ class LifelineEquipmentService
     {
         return [
             'basic_info' => [
-                'elevator_contractor' => '',
-                'maintenance_company' => '',
-                'maintenance_date' => '',
-                'inspection_report' => '',
+                'availability' => '',
+                'elevators' => [],
+                'inspection' => [
+                    'maintenance_contractor' => '',
+                    'inspection_date' => '',
+                    'inspection_report_filename' => '',
+                    'inspection_report_path' => '',
+                ],
             ],
             'notes' => '',
         ];
@@ -675,16 +1071,22 @@ class LifelineEquipmentService
     }
 
     /**
-     * Update category-specific data.
+     * Update category-specific data based on the equipment category.
+     *
+     * @param  LifelineEquipment  $lifelineEquipment  The lifeline equipment instance
+     * @param  string  $category  The equipment category
+     * @param  array  $validatedData  The validated data array
+     * @param  array  $allData  The complete request data including files
      */
     private function updateCategorySpecificData(
         LifelineEquipment $lifelineEquipment,
         string $category,
-        array $validatedData
+        array $validatedData,
+        array $allData = []
     ): void {
         switch ($category) {
             case 'electrical':
-                $this->updateElectricalEquipmentData($lifelineEquipment, $validatedData);
+                $this->updateElectricalEquipmentData($lifelineEquipment, $validatedData, $allData);
                 break;
 
             case 'gas':
@@ -692,15 +1094,15 @@ class LifelineEquipmentService
                 break;
 
             case 'water':
-                $this->updateWaterEquipmentData($lifelineEquipment, $validatedData);
+                $this->updateWaterEquipmentData($lifelineEquipment, $validatedData, $allData);
                 break;
 
             case 'elevator':
-                $this->updateElevatorEquipmentData($lifelineEquipment, $validatedData);
+                $this->updateElevatorEquipmentData($lifelineEquipment, $validatedData, $allData);
                 break;
 
             case 'hvac_lighting':
-                $this->updateHvacLightingEquipmentData($lifelineEquipment, $validatedData);
+                $this->updateHvacLightingEquipmentData($lifelineEquipment, $validatedData, $allData);
                 break;
 
             default:
@@ -718,7 +1120,10 @@ class LifelineEquipmentService
                 'electrical_contractor' => '',
                 'safety_management_company' => '',
                 'maintenance_inspection_date' => '',
-                'inspection_report_pdf' => '',
+                'inspection' => [
+                    'inspection_report_pdf' => '',
+                    'inspection_report_pdf_path' => '',
+                ],
             ],
             'pas_info' => [
                 'availability' => '',
@@ -748,7 +1153,10 @@ class LifelineEquipmentService
             'electrical_contractor' => $basicInfo['electrical_contractor'] ?? '',
             'safety_management_company' => $basicInfo['safety_management_company'] ?? '',
             'maintenance_inspection_date' => $basicInfo['maintenance_inspection_date'] ?? '',
-            'inspection_report_pdf' => $basicInfo['inspection_report_pdf'] ?? '',
+            'inspection' => [
+                'inspection_report_pdf' => $basicInfo['inspection']['inspection_report_pdf'] ?? '',
+                'inspection_report_pdf_path' => $basicInfo['inspection']['inspection_report_pdf_path'] ?? '',
+            ],
         ];
     }
 
@@ -790,73 +1198,79 @@ class LifelineEquipmentService
 
     /**
      * Process basic info data before saving.
+     * Handles data sanitization, validation, and file uploads.
      */
-    private function processBasicInfo(array $basicInfo): array
+    private function processBasicInfo(array $basicInfo, array $allData = [], array $existingData = []): array
     {
         $processedData = [
-            'electrical_contractor' => isset($basicInfo['electrical_contractor']) 
+            'electrical_contractor' => isset($basicInfo['electrical_contractor'])
                 ? ($basicInfo['electrical_contractor'] === null ? null : trim($basicInfo['electrical_contractor']))
                 : null,
-            'safety_management_company' => isset($basicInfo['safety_management_company']) 
+            'safety_management_company' => isset($basicInfo['safety_management_company'])
                 ? ($basicInfo['safety_management_company'] === null ? null : trim($basicInfo['safety_management_company']))
                 : null,
             'maintenance_inspection_date' => $basicInfo['maintenance_inspection_date'] ?? null,
         ];
 
-        // Handle PDF file upload
-        if (isset($basicInfo['inspection_report_pdf_file']) && $basicInfo['inspection_report_pdf_file'] instanceof UploadedFile) {
-            $uploadedFile = $this->handlePdfUpload($basicInfo['inspection_report_pdf_file'], 'electrical/inspection-reports');
-            if ($uploadedFile) {
-                $processedData['inspection_report_pdf'] = $uploadedFile['filename'];
-                $processedData['inspection_report_pdf_path'] = $uploadedFile['path'];
+        // Process inspection info
+        $existingInspectionInfo = $existingData['inspection'] ?? [];
+        $processedData['inspection'] = [];
+
+        // Handle inspection report file upload - check in the main data array
+        if (isset($allData['inspection_report_file']) && $allData['inspection_report_file'] instanceof \Illuminate\Http\UploadedFile) {
+            Log::info('LifelineEquipmentService: Processing electrical inspection report file upload');
+
+            // Delete old file if exists
+            if (isset($existingInspectionInfo['inspection_report_pdf_path']) && $existingInspectionInfo['inspection_report_pdf_path']) {
+                $this->fileHandlingService->deleteFile($existingInspectionInfo['inspection_report_pdf_path']);
             }
-        } elseif (isset($basicInfo['inspection_report_pdf'])) {
-            // Keep existing PDF filename if no new file uploaded
-            $processedData['inspection_report_pdf'] = $basicInfo['inspection_report_pdf'] === null ? null : trim($basicInfo['inspection_report_pdf']);
-        } else {
-            $processedData['inspection_report_pdf'] = null;
+
+            $uploadedFile = $this->handleFileUpload($allData['inspection_report_file'], 'electrical/inspection-reports');
+            if ($uploadedFile) {
+                $processedData['inspection']['inspection_report_pdf'] = $uploadedFile['filename'];
+                $processedData['inspection']['inspection_report_pdf_path'] = $uploadedFile['path'];
+                Log::info('LifelineEquipmentService: Electrical inspection report uploaded successfully', $uploadedFile);
+            }
+        } elseif (isset($existingInspectionInfo['inspection_report_pdf'])) {
+            // Keep existing file info if no new file uploaded
+            $processedData['inspection']['inspection_report_pdf'] = $existingInspectionInfo['inspection_report_pdf'];
+            $processedData['inspection']['inspection_report_pdf_path'] = $existingInspectionInfo['inspection_report_pdf_path'] ?? null;
+            Log::info('LifelineEquipmentService: Keeping existing electrical file info');
+        }
+
+        // Handle file removal
+        if (isset($allData['remove_inspection_report']) && $allData['remove_inspection_report'] === '1') {
+            // Delete existing file if it exists
+            if (isset($existingInspectionInfo['inspection_report_pdf_path']) && $existingInspectionInfo['inspection_report_pdf_path']) {
+                $this->fileHandlingService->deleteFile($existingInspectionInfo['inspection_report_pdf_path']);
+            }
+            $processedData['inspection']['inspection_report_pdf'] = null;
+            $processedData['inspection']['inspection_report_pdf_path'] = null;
+            Log::info('LifelineEquipmentService: Electrical file removal requested and processed');
         }
 
         return $processedData;
     }
 
     /**
-     * Handle PDF file upload for inspection reports.
+     * Handle file upload using FileHandlingService for consistency.
      */
-    private function handlePdfUpload(UploadedFile $file, string $directory): ?array
+    private function handleFileUpload(UploadedFile $file, string $directory): ?array
     {
         try {
-            // Validate file type
-            if (!in_array($file->getClientMimeType(), ['application/pdf'])) {
-                throw new Exception('PDFファイルのみアップロード可能です。');
-            }
-
-            // Validate file size (max 10MB)
-            if ($file->getSize() > 10 * 1024 * 1024) {
-                throw new Exception('ファイルサイズは10MB以下にしてください。');
-            }
-
-            // Generate unique filename
-            $originalName = $file->getClientOriginalName();
-            $extension = $file->getClientOriginalExtension();
-            $filename = pathinfo($originalName, PATHINFO_FILENAME) . '_' . time() . '.' . $extension;
-
-            // Store file
-            $path = $file->storeAs($directory, $filename, 'public');
+            $result = $this->fileHandlingService->uploadFile($file, $directory, 'pdf');
 
             return [
-                'filename' => $originalName,
-                'path' => $path,
-                'stored_filename' => $filename,
+                'filename' => $result['filename'],
+                'path' => $result['path'],
+                'stored_filename' => $result['stored_filename'],
             ];
         } catch (Exception $e) {
-            Log::error('PDF upload failed', [
+            Log::error('File upload failed in LifelineEquipmentService', [
+                'directory' => $directory,
                 'error' => $e->getMessage(),
-                'file_name' => $file->getClientOriginalName(),
-                'file_size' => $file->getSize(),
             ]);
-            
-            throw new Exception('PDFファイルのアップロードに失敗しました: ' . $e->getMessage());
+            throw new Exception('ファイルのアップロードに失敗しました: '.$e->getMessage());
         }
     }
 
@@ -867,7 +1281,7 @@ class LifelineEquipmentService
     {
         return [
             'availability' => $pasInfo['availability'] ?? null,
-            'details' => isset($pasInfo['details']) 
+            'details' => isset($pasInfo['details'])
                 ? ($pasInfo['details'] === null ? null : trim($pasInfo['details']))
                 : null,
             'update_date' => $pasInfo['update_date'] ?? null,
@@ -882,12 +1296,12 @@ class LifelineEquipmentService
         $equipmentList = [];
         if (isset($cubicleInfo['equipment_list']) && is_array($cubicleInfo['equipment_list'])) {
             foreach ($cubicleInfo['equipment_list'] as $equipment) {
-                if (is_array($equipment) && !empty(array_filter($equipment))) {
+                if (is_array($equipment) && ! empty(array_filter($equipment))) {
                     $equipmentList[] = [
-                        'manufacturer' => isset($equipment['manufacturer']) 
+                        'manufacturer' => isset($equipment['manufacturer'])
                             ? ($equipment['manufacturer'] === null ? null : trim($equipment['manufacturer']))
                             : null,
-                        'model_year' => isset($equipment['model_year']) 
+                        'model_year' => isset($equipment['model_year'])
                             ? ($equipment['model_year'] === null ? null : trim($equipment['model_year']))
                             : null,
                         'update_date' => $equipment['update_date'] ?? null,
@@ -898,7 +1312,7 @@ class LifelineEquipmentService
 
         return [
             'availability' => $cubicleInfo['availability'] ?? null,
-            'details' => isset($cubicleInfo['details']) 
+            'details' => isset($cubicleInfo['details'])
                 ? ($cubicleInfo['details'] === null ? null : trim($cubicleInfo['details']))
                 : null,
             'equipment_list' => $equipmentList,
@@ -913,12 +1327,12 @@ class LifelineEquipmentService
         $equipmentList = [];
         if (isset($generatorInfo['equipment_list']) && is_array($generatorInfo['equipment_list'])) {
             foreach ($generatorInfo['equipment_list'] as $equipment) {
-                if (is_array($equipment) && !empty(array_filter($equipment))) {
+                if (is_array($equipment) && ! empty(array_filter($equipment))) {
                     $equipmentList[] = [
-                        'manufacturer' => isset($equipment['manufacturer']) 
+                        'manufacturer' => isset($equipment['manufacturer'])
                             ? ($equipment['manufacturer'] === null ? null : trim($equipment['manufacturer']))
                             : null,
-                        'model_year' => isset($equipment['model_year']) 
+                        'model_year' => isset($equipment['model_year'])
                             ? ($equipment['model_year'] === null ? null : trim($equipment['model_year']))
                             : null,
                         'update_date' => $equipment['update_date'] ?? null,
@@ -929,7 +1343,7 @@ class LifelineEquipmentService
 
         return [
             'availability' => $generatorInfo['availability'] ?? null,
-            'availability_details' => isset($generatorInfo['availability_details']) 
+            'availability_details' => isset($generatorInfo['availability_details'])
                 ? ($generatorInfo['availability_details'] === null ? null : trim($generatorInfo['availability_details']))
                 : null,
             'equipment_list' => $equipmentList,
@@ -944,7 +1358,7 @@ class LifelineEquipmentService
         $categoryDisplayName = LifelineEquipment::CATEGORIES[$category] ?? $category;
         $this->activityLogService->logFacilityUpdated(
             $facility->id,
-            $facility->facility_name . ' - ライフライン設備(' . $categoryDisplayName . ')',
+            $facility->facility_name.' - ライフライン設備('.$categoryDisplayName.')',
             request()
         );
     }
@@ -1007,8 +1421,9 @@ class LifelineEquipmentService
             $errors = [];
 
             foreach ($categories as $category) {
-                if (!$this->isValidCategory($category)) {
+                if (! $this->isValidCategory($category)) {
                     $errors[$category] = '無効なカテゴリです。';
+
                     continue;
                 }
 
@@ -1030,7 +1445,7 @@ class LifelineEquipmentService
                     'requested_categories' => $categories,
                 ],
                 'errors' => $errors,
-                'message' => $success 
+                'message' => $success
                     ? '指定されたカテゴリのデータを取得しました。'
                     : '一部のカテゴリでデータ取得に失敗しました。',
             ];
@@ -1066,27 +1481,29 @@ class LifelineEquipmentService
                     $category = $item['category'];
                     $data = $item['data'];
 
-                    if (!$this->isValidCategory($category)) {
+                    if (! $this->isValidCategory($category)) {
                         $errors[$category] = '無効なカテゴリです。';
+
                         continue;
                     }
 
                     $result = $this->updateEquipmentData($facility, $category, $data, $userId);
-                    
+
                     if ($result['success']) {
                         $results[$category] = $result;
                         $successCount++;
                     } else {
                         $errors[$category] = $result['message'] ?? 'データ更新に失敗しました。';
                         if (isset($result['errors'])) {
-                            $errors[$category . '_validation'] = $result['errors'];
+                            $errors[$category.'_validation'] = $result['errors'];
                         }
                     }
                 }
 
                 // Check if we should commit or rollback
-                if (!empty($errors)) {
+                if (! empty($errors)) {
                     DB::rollBack();
+
                     return [
                         'success' => false,
                         'message' => '一部のカテゴリで更新に失敗したため、すべての変更をロールバックしました。',
@@ -1151,7 +1568,7 @@ class LifelineEquipmentService
             }
 
             $totalCategories = count($categories);
-            $configuredCategories = count(array_filter($summary, fn($item) => $item['has_data']));
+            $configuredCategories = count(array_filter($summary, fn ($item) => $item['has_data']));
             $completionPercentage = $totalCategories > 0 ? round(($configuredCategories / $totalCategories) * 100, 1) : 0;
 
             return [
@@ -1196,22 +1613,22 @@ class LifelineEquipmentService
             $maintenanceCompanies = [];
 
             foreach ($equipmentData as $category => $data) {
-                if (!$this->isValidCategory($category)) {
+                if (! $this->isValidCategory($category)) {
                     continue;
                 }
 
                 // Extract contractor and maintenance company information
                 if (isset($data['basic_info'])) {
                     $basicInfo = $data['basic_info'];
-                    
+
                     // Collect contractor information
                     $contractorFields = [
-                        'electrical_contractor', 'gas_supplier', 'water_contractor', 
-                        'elevator_contractor', 'hvac_contractor'
+                        'electrical_contractor', 'gas_supplier', 'water_contractor',
+                        'elevator_contractor', 'hvac_contractor',
                     ];
-                    
+
                     foreach ($contractorFields as $field) {
-                        if (!empty($basicInfo[$field])) {
+                        if (! empty($basicInfo[$field])) {
                             $contractors[$category] = $basicInfo[$field];
                             break;
                         }
@@ -1219,11 +1636,11 @@ class LifelineEquipmentService
 
                     // Collect maintenance company information
                     $maintenanceFields = [
-                        'safety_management_company', 'maintenance_company'
+                        'safety_management_company', 'maintenance_company',
                     ];
-                    
+
                     foreach ($maintenanceFields as $field) {
-                        if (!empty($basicInfo[$field])) {
+                        if (! empty($basicInfo[$field])) {
                             $maintenanceCompanies[$category] = $basicInfo[$field];
                             break;
                         }
@@ -1253,22 +1670,22 @@ class LifelineEquipmentService
             $missingCritical = [];
 
             foreach ($criticalFields as $category) {
-                if (!isset($equipmentData[$category]) || 
+                if (! isset($equipmentData[$category]) ||
                     empty($equipmentData[$category]['basic_info'])) {
                     $missingCritical[] = LifelineEquipment::CATEGORIES[$category];
                 }
             }
 
-            if (!empty($missingCritical)) {
+            if (! empty($missingCritical)) {
                 $consistencyIssues[] = [
                     'type' => 'missing_critical_equipment',
-                    'message' => '重要な設備情報が不足しています: ' . implode(', ', $missingCritical),
+                    'message' => '重要な設備情報が不足しています: '.implode(', ', $missingCritical),
                     'severity' => 'high',
                 ];
             }
 
-            $hasIssues = !empty($consistencyIssues);
-            $hasWarnings = !empty($warnings);
+            $hasIssues = ! empty($consistencyIssues);
+            $hasWarnings = ! empty($warnings);
 
             return [
                 'success' => true,
@@ -1279,7 +1696,7 @@ class LifelineEquipmentService
                     'warnings' => $warnings,
                     'recommendations' => $this->generateConsistencyRecommendations($consistencyIssues, $warnings),
                 ],
-                'message' => $hasIssues 
+                'message' => $hasIssues
                     ? 'データ整合性に問題が見つかりました。'
                     : ($hasWarnings ? 'データ整合性に注意点があります。' : 'データ整合性に問題はありません。'),
             ];

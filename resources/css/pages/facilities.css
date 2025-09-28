@@ -1,6 +1,10 @@
 /* ========================================
    Facility Detail Page Styles
-   Organized and Optimized Version
+   Organized and optimized styles with a responsive design
+   for the facility management interface components.
+   Includes support for lifeline equipment, building information,
+   and land information display components.
+   Last updated: 2024-12-19
    ======================================== */
 
 /* ========================================
@@ -57,7 +61,7 @@
    ======================================== */
 
 /* Base Card Styles */
-/* .facility-info-card,
+.facility-info-card,
 .building-info-card {
   border: 1px solid var(--border-light);
   box-shadow: var(--box-shadow);
@@ -283,8 +287,6 @@
   font-weight: 400;
 }
 
-*/
-
 /* ========================================
    Auto-Calculation Fields
    ======================================== */
@@ -314,7 +316,98 @@
   box-shadow: 0 0 0 0.2rem rgba(13, 202, 240, 0.25) !important;
 }
 
+/* ========================================
+   Elevator Equipment Styles
+   ======================================== */
+.elevator-inspection-table {
+  margin-top: 1rem;
+}
 
+.elevator-inspection-table .table-cell-label {
+  background-color: var(--bg-light);
+  font-weight: 500;
+  color: var(--text-secondary);
+  width: 150px;
+  min-width: 150px;
+}
+
+.elevator-inspection-table .table-cell-value {
+  background-color: var(--bg-white);
+  color: var(--text-primary);
+}
+
+.elevator-equipment-sections .equipment-section {
+  border-radius: var(--border-radius);
+  background-color: var(--bg-white);
+}
+
+.elevator-equipment-sections .section-title {
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Equipment Item Styles */
+.equipment-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.equipment-title {
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.equipment-number {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* File Upload Styles */
+.current-file .alert {
+  margin-bottom: 0;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.current-file .alert i {
+  color: #dc3545;
+}
+
+.form-check-label.text-danger {
+  font-size: 0.875rem;
+}
+
+.form-text {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Inspection Report Download */
+.inspection-report-download {
+  padding: 0.75rem;
+  background-color: var(--bg-light);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-light);
+}
+
+.inspection-report-download a {
+  color: var(--text-primary);
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.inspection-report-download a:hover {
+  color: var(--primary);
+  text-decoration: underline !important;
+}
+
+.inspection-report-download .fa-file-pdf {
+  font-size: 1.1rem;
+}
 
 /* ========================================
    Responsive Design

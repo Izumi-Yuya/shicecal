@@ -42,6 +42,12 @@ class ValidationRuleService
             'owner_email' => ['nullable', 'email', 'max:100'],
             'owner_url' => ['nullable', 'url', 'max:200'],
             'owner_notes' => ['nullable', 'string', 'max:2000'],
+            // PDF file upload fields
+            'lease_contract_pdf' => ['nullable', 'file', 'mimes:pdf', 'max:10240'], // 10MB
+            'registry_pdf' => ['nullable', 'file', 'mimes:pdf', 'max:10240'], // 10MB
+            // File deletion flags
+            'delete_lease_contract_pdf' => ['nullable', 'boolean'],
+            'delete_registry_pdf' => ['nullable', 'boolean'],
         ];
     }
 

@@ -16,14 +16,15 @@ class ElectricalEquipmentPdfUploadTest extends TestCase
     use RefreshDatabase;
 
     protected User $user;
+
     protected Facility $facility;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         Storage::fake('public');
-        
+
         $this->user = User::factory()->create([
             'role' => 'editor',
         ]);
@@ -47,7 +48,7 @@ class ElectricalEquipmentPdfUploadTest extends TestCase
             ],
         ]);
 
-        $response->assertRedirect(route('facilities.show', $this->facility) . '#electrical');
+        $response->assertRedirect(route('facilities.show', $this->facility).'#electrical');
         $response->assertSessionHas('success', 'ライフライン設備情報を更新しました。');
 
         // Check that a file was stored in the electrical/inspection-reports directory
@@ -58,10 +59,10 @@ class ElectricalEquipmentPdfUploadTest extends TestCase
         $this->facility->refresh();
         $lifelineEquipment = $this->facility->getLifelineEquipmentByCategory('electrical');
         $this->assertNotNull($lifelineEquipment);
-        
+
         $electricalEquipment = $lifelineEquipment->electricalEquipment;
         $this->assertNotNull($electricalEquipment);
-        
+
         $basicInfo = $electricalEquipment->basic_info;
         $this->assertEquals('inspection_report.pdf', $basicInfo['inspection_report_pdf']);
         $this->assertArrayHasKey('inspection_report_pdf_path', $basicInfo);
@@ -81,8 +82,8 @@ class ElectricalEquipmentPdfUploadTest extends TestCase
 
         $pdfContent = 'fake pdf content';
         $filename = 'test_inspection_report.pdf';
-        $path = 'electrical/inspection-reports/' . $filename;
-        
+        $path = 'electrical/inspection-reports/'.$filename;
+
         Storage::disk('public')->put($path, $pdfContent);
 
         ElectricalEquipment::factory()->create([
@@ -95,9 +96,9 @@ class ElectricalEquipmentPdfUploadTest extends TestCase
         ]);
 
         $response = $this->get(route('facilities.lifeline-equipment.download', [
-            $this->facility, 
-            'electrical', 
-            'inspection_report.pdf'
+            $this->facility,
+            'electrical',
+            'inspection_report.pdf',
         ]));
 
         $response->assertOk();
@@ -119,7 +120,7 @@ class ElectricalEquipmentPdfUploadTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('basic_info.inspection_report_pdf_file');
-        $this->assertStringContainsString('PDFファイルのみアップロード可能です', 
+        $this->assertStringContainsString('PDFファイルのみアップロード可能です。',
             session('errors')->first('basic_info.inspection_report_pdf_file'));
     }
 
@@ -138,7 +139,7 @@ class ElectricalEquipmentPdfUploadTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('basic_info.inspection_report_pdf_file');
-        $this->assertStringContainsString('10MB以下にしてください', 
+        $this->assertStringContainsString('10MB以下にしてください',
             session('errors')->first('basic_info.inspection_report_pdf_file'));
     }
 
@@ -153,8 +154,8 @@ class ElectricalEquipmentPdfUploadTest extends TestCase
 
         $pdfContent = 'fake pdf content';
         $filename = 'test_inspection_report.pdf';
-        $path = 'electrical/inspection-reports/' . $filename;
-        
+        $path = 'electrical/inspection-reports/'.$filename;
+
         Storage::disk('public')->put($path, $pdfContent);
 
         ElectricalEquipment::factory()->create([
@@ -167,9 +168,9 @@ class ElectricalEquipmentPdfUploadTest extends TestCase
 
         // Try to access without authentication
         $response = $this->get(route('facilities.lifeline-equipment.download', [
-            $this->facility, 
-            'electrical', 
-            'inspection_report.pdf'
+            $this->facility,
+            'electrical',
+            'inspection_report.pdf',
         ]));
 
         // Should redirect to login page
@@ -182,9 +183,9 @@ class ElectricalEquipmentPdfUploadTest extends TestCase
         $this->actingAs($this->user);
 
         $response = $this->get(route('facilities.lifeline-equipment.download', [
-            $this->facility, 
-            'electrical', 
-            'nonexistent.pdf'
+            $this->facility,
+            'electrical',
+            'nonexistent.pdf',
         ]));
 
         $response->assertNotFound();

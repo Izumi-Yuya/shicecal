@@ -122,7 +122,7 @@ class HvacLightingEquipmentTest extends TestCase
     /** @test */
     public function it_has_correct_table_name()
     {
-        $hvacLightingEquipment = new HvacLightingEquipment();
+        $hvacLightingEquipment = new HvacLightingEquipment;
         $this->assertEquals('hvac_lighting_equipment', $hvacLightingEquipment->getTable());
     }
 
@@ -144,7 +144,7 @@ class HvacLightingEquipmentTest extends TestCase
         $originalUpdatedAt = $hvacLightingEquipment->updated_at;
 
         usleep(100000); // 0.1 seconds
-        
+
         $hvacLightingEquipment->notes = '更新された備考';
         $hvacLightingEquipment->save();
 
@@ -175,7 +175,7 @@ class HvacLightingEquipmentTest extends TestCase
         $this->assertEquals('パッケージ空調システム', $hvacLightingEquipment->basic_info['hvac_system']);
         $this->assertEquals('蛍光灯照明システム', $hvacLightingEquipment->basic_info['lighting_system']);
         $this->assertEquals('新空調設備保守株式会社', $hvacLightingEquipment->basic_info['maintenance_company']);
-        
+
         // Notes should remain unchanged
         $this->assertEquals('既存の備考', $hvacLightingEquipment->notes);
     }
@@ -210,7 +210,7 @@ class HvacLightingEquipmentTest extends TestCase
         $this->assertIsArray($hvacLightingEquipment->basic_info['hvac_system']);
         $this->assertIsArray($hvacLightingEquipment->basic_info['lighting_system']);
         $this->assertIsArray($hvacLightingEquipment->basic_info['maintenance_info']);
-        
+
         $this->assertEquals('ダイキン工業', $hvacLightingEquipment->basic_info['hvac_system']['manufacturer']);
         $this->assertEquals('調光制御システム', $hvacLightingEquipment->basic_info['lighting_system']['control_system']);
         $this->assertEquals('フルメンテナンス契約', $hvacLightingEquipment->basic_info['maintenance_info']['contract_type']);

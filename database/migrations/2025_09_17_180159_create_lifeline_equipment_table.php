@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         // Only create table if it doesn't exist
-        if (!Schema::hasTable('lifeline_equipment')) {
+        if (! Schema::hasTable('lifeline_equipment')) {
             Schema::create('lifeline_equipment', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('facility_id')->constrained()->onDelete('cascade');
@@ -25,11 +25,11 @@ return new class extends Migration
                 $table->foreignId('approved_by')->nullable()->constrained('users')->onDelete('set null');
                 $table->timestamp('approved_at')->nullable();
                 $table->timestamps();
-                
+
                 // Indexes for performance
                 $table->index(['facility_id', 'category']);
                 $table->index('status');
-                
+
                 // Ensure unique category per facility
                 $table->unique(['facility_id', 'category']);
             });

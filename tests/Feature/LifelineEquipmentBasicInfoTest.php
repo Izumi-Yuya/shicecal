@@ -14,8 +14,11 @@ class LifelineEquipmentBasicInfoTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $editor;
+
     private User $viewer;
+
     private Facility $facility;
 
     protected function setUp(): void
@@ -91,7 +94,7 @@ class LifelineEquipmentBasicInfoTest extends TestCase
                 'message' => 'ライフライン設備情報を更新しました。',
             ]);
 
-        // Verify data was saved
+        // Verify that data was saved
         $lifelineEquipment->refresh();
         $electricalEquipment = $lifelineEquipment->electricalEquipment;
 
@@ -108,7 +111,7 @@ class LifelineEquipmentBasicInfoTest extends TestCase
             'category' => 'electrical',
         ]);
 
-        // Test with invalid data
+        // Test validation with invalid data
         $invalidData = [
             'basic_info' => [
                 'electrical_contractor' => str_repeat('a', 256), // Too long
@@ -226,18 +229,16 @@ class LifelineEquipmentBasicInfoTest extends TestCase
 
         $response->assertStatus(200);
 
-        // Verify basic_info was updated
+        // Verify that basic_info was updated
         $electricalEquipment->refresh();
         $this->assertEquals('関西電力', $electricalEquipment->basic_info['electrical_contractor']);
         $this->assertEquals('新保安管理株式会社', $electricalEquipment->basic_info['safety_management_company']);
 
-        // Verify pas_info was preserved (not overwritten)
+        // Verify that pas_info was preserved (not overwritten)
         $this->assertNotNull($electricalEquipment->pas_info);
         $this->assertEquals('有', $electricalEquipment->pas_info['availability'] ?? null);
         $this->assertEquals('2024-01-01', $electricalEquipment->pas_info['update_date'] ?? null);
     }
-
-
 
     public function test_null_values_clear_specific_fields()
     {
@@ -267,7 +268,7 @@ class LifelineEquipmentBasicInfoTest extends TestCase
 
         $response->assertStatus(200);
 
-        // Verify fields were cleared
+        // Verify that fields were cleared
         $electricalEquipment->refresh();
         $this->assertNull($electricalEquipment->basic_info['electrical_contractor'] ?? null);
         $this->assertNull($electricalEquipment->basic_info['safety_management_company'] ?? null);
@@ -292,7 +293,7 @@ class LifelineEquipmentBasicInfoTest extends TestCase
 
         $response->assertStatus(200);
 
-        // Verify status was updated to active
+        // Verify that status was updated to active
         $lifelineEquipment->refresh();
         $this->assertEquals('active', $lifelineEquipment->status);
         $this->assertEquals($this->editor->id, $lifelineEquipment->updated_by);

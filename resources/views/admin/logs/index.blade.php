@@ -273,7 +273,7 @@
                     @else
                         <div class="text-center py-4">
                             <i class="fas fa-search fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">ログが見つかりませんでした</h5>
+                            <h5 class="text-muted">ログが見つかりませんでした。</h5>
                             <p class="text-muted">検索条件を変更してお試しください。</p>
                         </div>
                     @endif

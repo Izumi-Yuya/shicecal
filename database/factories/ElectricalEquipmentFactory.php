@@ -29,9 +29,9 @@ class ElectricalEquipmentFactory extends Factory
             'lifeline_equipment_id' => LifelineEquipment::factory()->electrical(),
             'basic_info' => [
                 'electrical_contractor' => $this->faker->company(),
-                'safety_management_company' => $this->faker->company() . '株式会社',
+                'safety_management_company' => $this->faker->company().'株式会社',
                 'maintenance_inspection_date' => $this->faker->date(),
-                'inspection_report_pdf' => $this->faker->optional()->word() . '.pdf',
+                'inspection_report_pdf' => $this->faker->optional()->word().'.pdf',
             ],
             'pas_info' => [
                 'availability' => $this->faker->randomElement(['有', '無']),

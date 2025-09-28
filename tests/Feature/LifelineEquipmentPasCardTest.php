@@ -14,6 +14,7 @@ class LifelineEquipmentPasCardTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Facility $facility;
 
     protected function setUp(): void
@@ -60,7 +61,7 @@ class LifelineEquipmentPasCardTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('PAS');
         $response->assertSee('無');
-        // Should not show PAS details section when availability is "無"
+        // availabilityが「無」の場合、PAS詳細セクションは表示されないはず
         $response->assertDontSee('PAS詳細情報のテスト');
         $response->assertDontSee('2024年3月15日');
     }

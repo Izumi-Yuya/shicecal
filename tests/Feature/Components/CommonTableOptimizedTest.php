@@ -2,10 +2,9 @@
 
 namespace Tests\Feature\Components;
 
-use Tests\TestCase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\View;
-use App\Services\CommonTablePerformanceOptimizer;
+use Tests\TestCase;
 
 class CommonTableOptimizedTest extends TestCase
 {
@@ -23,15 +22,15 @@ class CommonTableOptimizedTest extends TestCase
                 'cells' => [
                     ['label' => 'テストラベル', 'value' => 'テスト値', 'type' => 'text'],
                     ['label' => '会社名', 'value' => 'テスト会社', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table-optimized', [
             'data' => $data,
             'title' => 'テストテーブル',
             'enableCaching' => false, // Disable caching for this test
-            'performanceLogging' => false
+            'performanceLogging' => false,
         ]);
 
         $html = $view->render();
@@ -54,7 +53,7 @@ class CommonTableOptimizedTest extends TestCase
                 'cells' => [
                     ['label' => "ラベル{$i}", 'value' => "値{$i}", 'type' => 'text'],
                     ['label' => "説明{$i}", 'value' => str_repeat("データ{$i} ", 10), 'type' => 'text'],
-                ]
+                ],
             ];
         }
 
@@ -64,7 +63,7 @@ class CommonTableOptimizedTest extends TestCase
             'data' => $data,
             'title' => '大量データテーブル',
             'enableCaching' => true,
-            'performanceLogging' => false
+            'performanceLogging' => false,
         ]);
         $html1 = $view1->render();
         $endTime1 = microtime(true);
@@ -75,7 +74,7 @@ class CommonTableOptimizedTest extends TestCase
             'data' => $data,
             'title' => '大量データテーブル',
             'enableCaching' => true,
-            'performanceLogging' => false
+            'performanceLogging' => false,
         ]);
         $html2 = $view2->render();
         $endTime2 = microtime(true);
@@ -83,7 +82,7 @@ class CommonTableOptimizedTest extends TestCase
         $this->assertStringContains('大量データテーブル', $html1);
         $this->assertStringContains('大量データテーブル', $html2);
         $this->assertStringContains('data-cached="true"', $html2);
-        
+
         // Second render should be faster due to caching
         $renderTime1 = $endTime1 - $startTime1;
         $renderTime2 = $endTime2 - $startTime2;
@@ -99,7 +98,7 @@ class CommonTableOptimizedTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => "項目{$i}", 'value' => "データ{$i}", 'type' => 'text'],
-                ]
+                ],
             ];
         }
 
@@ -108,7 +107,7 @@ class CommonTableOptimizedTest extends TestCase
             'title' => '遅延読み込みテーブル',
             'enableLazyLoading' => true,
             'batchSize' => 50,
-            'performanceLogging' => false
+            'performanceLogging' => false,
         ]);
 
         $html = $view->render();
@@ -129,14 +128,14 @@ class CommonTableOptimizedTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'テスト', 'value' => 'パフォーマンステスト', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table-optimized', [
             'data' => $data,
             'title' => 'パフォーマンステスト',
-            'performanceLogging' => true
+            'performanceLogging' => true,
         ]);
 
         $html = $view->render();
@@ -158,8 +157,8 @@ class CommonTableOptimizedTest extends TestCase
                     ['label' => '大きなデータ', 'value' => str_repeat('大量のテキストデータ ', 200), 'type' => 'text'],
                     ['label' => '通常データ', 'value' => '通常の値', 'type' => 'text'],
                     ['label' => '空データ', 'value' => null, 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table-optimized', [
@@ -167,7 +166,7 @@ class CommonTableOptimizedTest extends TestCase
             'title' => 'メモリ最適化テスト',
             'enableMemoryOptimization' => true,
             'skipEmptyCells' => true,
-            'performanceLogging' => false
+            'performanceLogging' => false,
         ]);
 
         $html = $view->render();
@@ -183,7 +182,7 @@ class CommonTableOptimizedTest extends TestCase
     {
         // Invalid data structure
         $invalidData = [
-            'invalid' => 'structure'
+            'invalid' => 'structure',
         ];
 
         $view = View::make('components.common-table-optimized', [
@@ -191,14 +190,14 @@ class CommonTableOptimizedTest extends TestCase
             'title' => 'エラーテスト',
             'validateData' => true,
             'fallbackOnError' => true,
-            'performanceLogging' => false
+            'performanceLogging' => false,
         ]);
 
         $html = $view->render();
 
         // Should show error or fallback content
         $this->assertTrue(
-            str_contains($html, 'エラー') || 
+            str_contains($html, 'エラー') ||
             str_contains($html, 'データがありません') ||
             str_contains($html, 'fallback')
         );
@@ -213,7 +212,7 @@ class CommonTableOptimizedTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => "バッチ項目{$i}", 'value' => "バッチ値{$i}", 'type' => 'text'],
-                ]
+                ],
             ];
         }
 
@@ -222,7 +221,7 @@ class CommonTableOptimizedTest extends TestCase
             'title' => 'バッチ処理テスト',
             'enableLazyLoading' => true,
             'batchSize' => 50,
-            'performanceLogging' => false
+            'performanceLogging' => false,
         ]);
 
         $html = $view->render();
@@ -230,7 +229,7 @@ class CommonTableOptimizedTest extends TestCase
         // Should show initial batch
         $this->assertStringContains('バッチ項目0', $html);
         $this->assertStringContains('バッチ値0', $html);
-        
+
         // Should have load more button
         $this->assertStringContains('さらに読み込む', $html);
         $this->assertStringContains('75行', $html); // 125 - 50 = 75 remaining
@@ -243,15 +242,15 @@ class CommonTableOptimizedTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'アクセシビリティテスト', 'value' => 'テスト値', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table-optimized', [
             'data' => $data,
             'title' => 'アクセシビリティテーブル',
             'ariaLabel' => 'カスタムARIAラベル',
-            'performanceLogging' => false
+            'performanceLogging' => false,
         ]);
 
         $html = $view->render();
@@ -271,15 +270,15 @@ class CommonTableOptimizedTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'レスポンシブテスト', 'value' => 'テスト値', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table-optimized', [
             'data' => $data,
             'title' => 'レスポンシブテーブル',
             'responsive' => true,
-            'performanceLogging' => false
+            'performanceLogging' => false,
         ]);
 
         $html = $view->render();
@@ -296,8 +295,8 @@ class CommonTableOptimizedTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'スタイルテスト', 'value' => 'テスト値', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table-optimized', [
@@ -308,7 +307,7 @@ class CommonTableOptimizedTest extends TestCase
             'headerClass' => 'custom-header-class',
             'bodyClass' => 'custom-body-class',
             'wrapperClass' => 'custom-wrapper-class',
-            'performanceLogging' => false
+            'performanceLogging' => false,
         ]);
 
         $html = $view->render();
@@ -328,7 +327,7 @@ class CommonTableOptimizedTest extends TestCase
             'data' => $emptyData,
             'title' => '空データテーブル',
             'emptyMessage' => 'カスタム空メッセージ',
-            'performanceLogging' => false
+            'performanceLogging' => false,
         ]);
 
         $html = $view->render();
@@ -346,7 +345,7 @@ class CommonTableOptimizedTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => "分析項目{$i}", 'value' => str_repeat("データ{$i} ", 50), 'type' => 'text'],
-                ]
+                ],
             ];
         }
 
@@ -355,14 +354,14 @@ class CommonTableOptimizedTest extends TestCase
             'title' => 'パフォーマンス分析テーブル',
             'enableCaching' => true,
             'enableMemoryOptimization' => true,
-            'performanceLogging' => false
+            'performanceLogging' => false,
         ]);
 
         $html = $view->render();
 
         // Should handle large dataset appropriately
         $this->assertStringContains('パフォーマンス分析テーブル', $html);
-        
+
         // Performance optimizations should be applied
         $this->assertTrue(
             str_contains($html, 'data-cached="true"') ||

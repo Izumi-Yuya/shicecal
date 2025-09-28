@@ -155,6 +155,7 @@ class Facility extends Model
     public function getElectricalEquipment(): ?ElectricalEquipment
     {
         $lifelineEquipment = $this->getLifelineEquipmentByCategory('electrical');
+
         return $lifelineEquipment?->electricalEquipment;
     }
 
@@ -164,6 +165,7 @@ class Facility extends Model
     public function getGasEquipment(): ?GasEquipment
     {
         $lifelineEquipment = $this->getLifelineEquipmentByCategory('gas');
+
         return $lifelineEquipment?->gasEquipment;
     }
 
@@ -173,6 +175,7 @@ class Facility extends Model
     public function getWaterEquipment(): ?WaterEquipment
     {
         $lifelineEquipment = $this->getLifelineEquipmentByCategory('water');
+
         return $lifelineEquipment?->waterEquipment;
     }
 
@@ -182,6 +185,7 @@ class Facility extends Model
     public function getElevatorEquipment(): ?ElevatorEquipment
     {
         $lifelineEquipment = $this->getLifelineEquipmentByCategory('elevator');
+
         return $lifelineEquipment?->elevatorEquipment;
     }
 
@@ -191,6 +195,7 @@ class Facility extends Model
     public function getHvacLightingEquipment(): ?HvacLightingEquipment
     {
         $lifelineEquipment = $this->getLifelineEquipmentByCategory('hvac_lighting');
+
         return $lifelineEquipment?->hvacLightingEquipment;
     }
 

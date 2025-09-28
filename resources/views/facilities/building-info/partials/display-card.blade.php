@@ -415,7 +415,7 @@
                 <div class="card facility-info-card detail-card-improved">
                     <div class="card-body text-center">
                         <i class="fas fa-building fa-4x text-muted mb-3"></i>
-                        <h5 class="text-muted">建物情報が未登録です</h5>
+                        <h5 class="text-muted">建物情報が未登録です。</h5>
                         <p class="text-muted">建物情報を登録してください。</p>
                     </div>
                 </div>

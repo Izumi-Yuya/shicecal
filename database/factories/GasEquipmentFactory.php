@@ -26,10 +26,10 @@ class GasEquipmentFactory extends Factory
         return [
             'lifeline_equipment_id' => LifelineEquipment::factory(),
             'basic_info' => [
-                'gas_supplier' => $this->faker->company() . 'ガス',
-                'safety_management_company' => $this->faker->company() . '保安管理株式会社',
+                'gas_supplier' => $this->faker->company().'ガス',
+                'safety_management_company' => $this->faker->company().'保安管理株式会社',
                 'maintenance_inspection_date' => $this->faker->dateTimeBetween('-1 year', 'now')->format('Y-m-d'),
-                'inspection_report_pdf' => 'gas_inspection_report_' . $this->faker->year() . '.pdf',
+                'inspection_report_pdf' => 'gas_inspection_report_'.$this->faker->year().'.pdf',
                 'gas_meter_number' => $this->faker->numerify('GM-########'),
                 'gas_type' => $this->faker->randomElement(['都市ガス', 'プロパンガス', 'LPガス']),
                 'supply_pressure' => $this->faker->randomElement(['低圧', '中圧', '高圧']),
@@ -79,7 +79,7 @@ class GasEquipmentFactory extends Factory
                     'safety_management_company' => '○○保安管理株式会社',
                     'maintenance_inspection_date' => $this->faker->dateTimeBetween('-6 months', 'now')->format('Y-m-d'),
                     'inspection_report_pdf' => 'gas_inspection_report_2024.pdf',
-                    'gas_meter_number' => 'GM-' . $this->faker->numerify('########'),
+                    'gas_meter_number' => 'GM-'.$this->faker->numerify('########'),
                     'gas_type' => '都市ガス',
                     'supply_pressure' => '低圧',
                     'pipe_material' => 'ポリエチレン管',
@@ -87,7 +87,7 @@ class GasEquipmentFactory extends Factory
                     'emergency_shutoff_valve' => '有',
                     'leak_detector' => '設置済み',
                 ],
-                'notes' => 'ガス設備の定期点検を実施済み。次回点検予定日: ' . $this->faker->dateTimeBetween('now', '+1 year')->format('Y年m月d日'),
+                'notes' => 'ガス設備の定期点検を実施済み。次回点検予定日: '.$this->faker->dateTimeBetween('now', '+1 year')->format('Y年m月d日'),
             ];
         });
     }

@@ -10,7 +10,6 @@ use App\Services\ActivityLogService;
 use App\Services\LifelineEquipmentService;
 use App\Services\LifelineEquipmentValidationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class LifelineEquipmentServiceTest extends TestCase
@@ -18,9 +17,13 @@ class LifelineEquipmentServiceTest extends TestCase
     use RefreshDatabase;
 
     protected LifelineEquipmentService $service;
+
     protected LifelineEquipmentValidationService $validationService;
+
     protected ActivityLogService $activityLogService;
+
     protected User $user;
+
     protected Facility $facility;
 
     protected function setUp(): void
@@ -29,7 +32,7 @@ class LifelineEquipmentServiceTest extends TestCase
 
         $this->validationService = $this->createMock(LifelineEquipmentValidationService::class);
         $this->activityLogService = $this->createMock(ActivityLogService::class);
-        
+
         $this->service = new LifelineEquipmentService(
             $this->validationService,
             $this->activityLogService
@@ -88,7 +91,7 @@ class LifelineEquipmentServiceTest extends TestCase
         $this->assertArrayHasKey('cubicle_info', $result);
         $this->assertArrayHasKey('generator_info', $result);
         $this->assertArrayHasKey('notes', $result);
-        
+
         // Check default structure
         $this->assertEquals('', $result['basic_info']['electrical_contractor']);
         $this->assertEquals('', $result['pas_info']['availability']);
@@ -193,7 +196,7 @@ class LifelineEquipmentServiceTest extends TestCase
         );
 
         $this->assertTrue($result['success']);
-        
+
         $this->assertDatabaseHas('lifeline_equipment', [
             'facility_id' => $this->facility->id,
             'category' => 'electrical',
@@ -242,7 +245,7 @@ class LifelineEquipmentServiceTest extends TestCase
         );
 
         $this->assertTrue($result['success']);
-        
+
         $electricalEquipment->refresh();
         $this->assertEquals('新契約会社', $electricalEquipment->basic_info['electrical_contractor']);
     }
@@ -280,7 +283,7 @@ class LifelineEquipmentServiceTest extends TestCase
         );
 
         $this->assertTrue($result['success']);
-        
+
         $electricalEquipment->refresh();
         $this->assertEquals('更新契約会社', $electricalEquipment->basic_info['electrical_contractor']);
         $this->assertEquals('有', $electricalEquipment->pas_info['availability']); // Should remain unchanged
@@ -294,12 +297,12 @@ class LifelineEquipmentServiceTest extends TestCase
             'success' => true,
             'data' => ['basic_info' => ['electrical_contractor' => '東京電力']],
         ]);
-        
+
         $mockActivityLogService = $this->createMock(ActivityLogService::class);
         $mockActivityLogService->method('logFacilityUpdated')->willThrowException(new \Exception('Test exception'));
-        
+
         $service = new LifelineEquipmentService($mockValidationService, $mockActivityLogService);
-        
+
         $result = $service->updateEquipmentData(
             $this->facility,
             'electrical',

@@ -2,14 +2,14 @@
 
 namespace Tests\Feature\Components;
 
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\View;
+use Tests\TestCase;
 
 /**
  * CommonTable最終統合テスト結果サマリー
- * 
+ *
  * 全機能の連携テスト、パフォーマンステスト、セキュリティテストの結果
  * 要件: 1.4, 6.1, 6.2
  */
@@ -28,12 +28,12 @@ class CommonTableFinalIntegrationSummary extends TestCase
             'unit_tests' => [
                 'status' => 'PASSED',
                 'tests_count' => 19,
-                'description' => 'コンポーネントの基本機能、プロパティ処理、レンダリングロジック'
+                'description' => 'コンポーネントの基本機能、プロパティ処理、レンダリングロジック',
             ],
             'integration_tests' => [
                 'status' => 'PASSED',
                 'tests_count' => 12,
-                'description' => 'ビューレンダリング、既存ビューとの互換性、CSS統合'
+                'description' => 'ビューレンダリング、既存ビューとの互換性、CSS統合',
             ],
             'performance_tests' => [
                 'status' => 'MOSTLY_PASSED',
@@ -45,8 +45,8 @@ class CommonTableFinalIntegrationSummary extends TestCase
                     'small_data_render_time' => '< 0.5s',
                     'medium_data_render_time' => '< 1.5s',
                     'large_data_render_time' => '< 3.0s',
-                    'memory_usage' => '< 50MB for 200 rows'
-                ]
+                    'memory_usage' => '< 50MB for 200 rows',
+                ],
             ],
             'security_tests' => [
                 'status' => 'MOSTLY_PASSED',
@@ -59,14 +59,14 @@ class CommonTableFinalIntegrationSummary extends TestCase
                     'html_injection_protection' => 'ACTIVE - 危険なHTMLタグがエスケープ',
                     'css_injection_protection' => 'ACTIVE - 危険なCSSが無効化',
                     'path_traversal_protection' => 'ACTIVE - ファイルパスが検証',
-                    'dos_protection' => 'ACTIVE - 大量データでも安定動作'
-                ]
+                    'dos_protection' => 'ACTIVE - 大量データでも安定動作',
+                ],
             ],
             'browser_tests' => [
                 'status' => 'PASSED',
                 'tests_count' => 15,
-                'description' => 'ブラウザでの実際の動作確認、ユーザーインタラクション'
-            ]
+                'description' => 'ブラウザでの実際の動作確認、ユーザーインタラクション',
+            ],
         ];
 
         // 全体的な統合テスト結果
@@ -79,7 +79,7 @@ class CommonTableFinalIntegrationSummary extends TestCase
             'performance_requirements' => 'MET',
             'security_requirements' => 'MET',
             'accessibility_requirements' => 'MET',
-            'backward_compatibility' => 'MAINTAINED'
+            'backward_compatibility' => 'MAINTAINED',
         ];
 
         // 主要機能の動作確認
@@ -93,7 +93,7 @@ class CommonTableFinalIntegrationSummary extends TestCase
             'security_measures' => 'WORKING',
             'backward_compatibility' => 'WORKING',
             'css_integration' => 'WORKING',
-            'javascript_compatibility' => 'WORKING'
+            'javascript_compatibility' => 'WORKING',
         ];
 
         // 要件達成状況
@@ -126,7 +126,7 @@ class CommonTableFinalIntegrationSummary extends TestCase
             '7.2_bootstrap_integration' => 'ACHIEVED',
             '7.3_css_variables' => 'ACHIEVED',
             '7.4_responsive_breakpoints' => 'ACHIEVED',
-            '7.5_accessibility_features' => 'ACHIEVED'
+            '7.5_accessibility_features' => 'ACHIEVED',
         ];
 
         Log::info('CommonTable Final Integration Test Summary', [
@@ -134,7 +134,7 @@ class CommonTableFinalIntegrationSummary extends TestCase
             'overall_results' => $overallResults,
             'functionality_status' => $functionalityStatus,
             'requirement_status' => $requirementStatus,
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->toISOString(),
         ]);
 
         // 基本的な動作確認テスト
@@ -144,13 +144,13 @@ class CommonTableFinalIntegrationSummary extends TestCase
                 'cells' => [
                     ['label' => '統合テスト', 'value' => '成功', 'type' => 'text'],
                     ['label' => 'ステータス', 'value' => 'PASSED', 'type' => 'badge'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $testData,
-            'title' => '最終統合テスト結果'
+            'title' => '最終統合テスト結果',
         ]);
 
         $rendered = $view->render();
@@ -181,7 +181,7 @@ class CommonTableFinalIntegrationSummary extends TestCase
                 'cells' => [
                     ['label' => "項目{$i}", 'value' => "値{$i}", 'type' => 'text'],
                     ['label' => "メール{$i}", 'value' => "test{$i}@example.com", 'type' => 'email'],
-                ]
+                ],
             ];
         }
 
@@ -190,14 +190,14 @@ class CommonTableFinalIntegrationSummary extends TestCase
 
         $view = View::make('components.common-table', [
             'data' => $mediumData,
-            'title' => 'パフォーマンステスト'
+            'title' => 'パフォーマンステスト',
         ]);
 
         $rendered = $view->render();
-        
+
         $endTime = microtime(true);
         $endMemory = memory_get_usage();
-        
+
         $renderTime = $endTime - $startTime;
         $memoryUsage = $endMemory - $startMemory;
 
@@ -213,7 +213,7 @@ class CommonTableFinalIntegrationSummary extends TestCase
             'render_time' => $renderTime,
             'memory_usage_mb' => round($memoryUsage / 1024 / 1024, 2),
             'data_rows' => count($mediumData),
-            'status' => 'REQUIREMENTS_MET'
+            'status' => 'REQUIREMENTS_MET',
         ]);
 
         $this->assertTrue(true, 'パフォーマンス要件が達成されました');
@@ -232,13 +232,13 @@ class CommonTableFinalIntegrationSummary extends TestCase
                 'cells' => [
                     ['label' => 'XSSテスト', 'value' => '<script>alert("test")</script>', 'type' => 'text'],
                     ['label' => '正常データ', 'value' => '安全な値', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $securityTestData,
-            'title' => 'セキュリティテスト'
+            'title' => 'セキュリティテスト',
         ]);
 
         $rendered = $view->render();
@@ -251,7 +251,7 @@ class CommonTableFinalIntegrationSummary extends TestCase
         Log::info('Security Requirements Verification', [
             'xss_protection' => 'ACTIVE',
             'html_escaping' => 'WORKING',
-            'status' => 'REQUIREMENTS_MET'
+            'status' => 'REQUIREMENTS_MET',
         ]);
 
         $this->assertTrue(true, 'セキュリティ要件が達成されました');
@@ -269,13 +269,13 @@ class CommonTableFinalIntegrationSummary extends TestCase
                 'cells' => [
                     ['label' => 'アクセシビリティテスト', 'value' => 'テスト値', 'type' => 'text'],
                     ['label' => 'リンクテスト', 'value' => 'https://example.com', 'type' => 'url'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $accessibilityData,
-            'title' => 'アクセシビリティテスト'
+            'title' => 'アクセシビリティテスト',
         ]);
 
         $rendered = $view->render();
@@ -293,7 +293,7 @@ class CommonTableFinalIntegrationSummary extends TestCase
             'aria_attributes' => 'PRESENT',
             'screen_reader_support' => 'ACTIVE',
             'keyboard_navigation' => 'SUPPORTED',
-            'status' => 'REQUIREMENTS_MET'
+            'status' => 'REQUIREMENTS_MET',
         ]);
 
         $this->assertTrue(true, 'アクセシビリティ要件が達成されました');
@@ -311,8 +311,8 @@ class CommonTableFinalIntegrationSummary extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '互換性テスト', 'value' => 'テスト値', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
@@ -321,7 +321,7 @@ class CommonTableFinalIntegrationSummary extends TestCase
             'cardClass' => 'facility-info-card detail-card-improved mb-3',
             'tableClass' => 'table table-bordered facility-basic-info-table-clean',
             'cleanBody' => true,
-            'responsive' => true
+            'responsive' => true,
         ]);
 
         $rendered = $view->render();
@@ -341,7 +341,7 @@ class CommonTableFinalIntegrationSummary extends TestCase
             'css_classes' => 'MAINTAINED',
             'html_structure' => 'MAINTAINED',
             'existing_functionality' => 'PRESERVED',
-            'status' => 'REQUIREMENTS_MET'
+            'status' => 'REQUIREMENTS_MET',
         ]);
 
         $this->assertTrue(true, '後方互換性が維持されました');

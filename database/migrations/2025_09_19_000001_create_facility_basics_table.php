@@ -14,27 +14,27 @@ return new class extends Migration
         Schema::create('facility_basics', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('facility_id')->unique();
-            
+
             // 運営情報
             $table->date('opening_date')->nullable();
             $table->integer('years_in_operation')->nullable();
             $table->date('designation_renewal_date')->nullable();
-            
+
             // 建物情報
             $table->string('building_structure')->nullable();
             $table->integer('building_floors')->nullable();
-            
+
             // 定員・部屋数
             $table->integer('paid_rooms_count')->nullable();
             $table->integer('ss_rooms_count')->nullable();
             $table->integer('capacity')->nullable();
-            
+
             // サービス情報（JSONで複数保存）
             $table->json('service_types')->nullable();
-            
+
             // 部門（施設レベルの属性として追加）
             $table->string('section')->nullable();
-            
+
             // システム管理
             $table->enum('status', ['draft', 'pending_approval', 'approved'])->default('draft');
             $table->timestamp('approved_at')->nullable();

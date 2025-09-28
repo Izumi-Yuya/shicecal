@@ -41,7 +41,7 @@
             <div class="mb-4">
                 <i class="fas fa-lock fa-4x text-muted"></i>
             </div>
-            <h4 class="text-muted mb-3">編集権限がありません</h4>
+            <h4 class="text-muted mb-3">編集権限がありません。</h4>
             <p class="text-muted mb-4">
                 この施設の土地情報を編集する権限がありません。<br>
                 土地情報の編集には管理者または編集者権限が必要です。
@@ -528,57 +528,31 @@
                             :error-fields="App\Helpers\FacilityFormHelper::getErrorFieldsForSection('documents')">
                 <div class="row g-3">
                     <div class="col-12 col-sm-6">
-                        <label for="lease_contract_pdf" class="form-label">賃貸借契約書・覚書</label>
-                        @if($landInfo && $landInfo->lease_contract_pdf_name)
-                            <div class="mb-2 p-2 bg-light border rounded">
-                                <small class="text-muted">現在のファイル:</small><br>
-                                <a href="{{ route('facilities.land-info.download', ['facility' => $facility, 'type' => 'lease_contract']) }}" 
-                                   class="text-decoration-none" target="_blank">
-                                    <i class="fas fa-file-contract text-warning me-1"></i>{{ $landInfo->lease_contract_pdf_name }}
-                                    <i class="fas fa-external-link-alt ms-1" style="font-size: 0.8em;"></i>
-                                </a>
-                                <div class="form-check mt-1">
-                                    <input class="form-check-input" type="checkbox" name="delete_lease_contract_pdf" id="delete_lease_contract_pdf">
-                                    <label class="form-check-label text-danger" for="delete_lease_contract_pdf">
-                                        <small>このファイルを削除する</small>
-                                    </label>
-                                </div>
-                            </div>
-                        @endif
-                        <input type="file" name="lease_contract_pdf" id="lease_contract_pdf" 
-                               class="form-control @error('lease_contract_pdf') is-invalid @enderror" 
-                               accept=".pdf" 
-                               data-max-size="2097152"
-                               aria-describedby="lease_contract_help">
-                        <small id="lease_contract_help" class="form-text text-muted">PDFファイルのみ（最大2MB）</small>
-                        <x-form.field-error field="lease_contract_pdf" />
+
+                        
+                        <x-file-upload 
+                            name="lease_contract_pdf"
+                            label="賃貸借契約書・覚書"
+                            fileType="pdf"
+                            :currentFile="$landInfoFileData['lease_contract'] ?? null"
+                            :required="false"
+                            :showRemoveOption="true"
+                            removeFieldName="delete_lease_contract_pdf"
+                        />
                     </div>
                     
                     <div class="col-12 col-sm-6">
-                        <label for="registry_pdf" class="form-label">謄本</label>
-                        @if($landInfo && $landInfo->registry_pdf_name)
-                            <div class="mb-2 p-2 bg-light border rounded">
-                                <small class="text-muted">現在のファイル:</small><br>
-                                <a href="{{ route('facilities.land-info.download', ['facility' => $facility, 'type' => 'registry']) }}" 
-                                   class="text-decoration-none" target="_blank">
-                                    <i class="fas fa-file-alt text-info me-1"></i>{{ $landInfo->registry_pdf_name }}
-                                    <i class="fas fa-external-link-alt ms-1" style="font-size: 0.8em;"></i>
-                                </a>
-                                <div class="form-check mt-1">
-                                    <input class="form-check-input" type="checkbox" name="delete_registry_pdf" id="delete_registry_pdf">
-                                    <label class="form-check-label text-danger" for="delete_registry_pdf">
-                                        <small>このファイルを削除する</small>
-                                    </label>
-                                </div>
-                            </div>
-                        @endif
-                        <input type="file" name="registry_pdf" id="registry_pdf" 
-                               class="form-control @error('registry_pdf') is-invalid @enderror" 
-                               accept=".pdf"
-                               data-max-size="2097152"
-                               aria-describedby="registry_help">
-                        <small id="registry_help" class="form-text text-muted">PDFファイルのみ（最大2MB）</small>
-                        <x-form.field-error field="registry_pdf" />
+
+                        
+                        <x-file-upload 
+                            name="registry_pdf"
+                            label="謄本"
+                            fileType="pdf"
+                            :currentFile="$landInfoFileData['registry'] ?? null"
+                            :required="false"
+                            :showRemoveOption="true"
+                            removeFieldName="delete_registry_pdf"
+                        />
                     </div>
                 </div>
             </x-form.section>

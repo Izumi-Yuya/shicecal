@@ -16,27 +16,27 @@ class FacilityBasic extends Model
 
     protected $fillable = [
         'facility_id',
-        
+
         // 運営情報
         'opening_date',
         'years_in_operation',
         'designation_renewal_date',
-        
+
         // 建物情報
         'building_structure',
         'building_floors',
-        
+
         // 定員・部屋数
         'paid_rooms_count',
         'ss_rooms_count',
         'capacity',
-        
+
         // サービス情報
         'service_types',
-        
+
         // 部門
         'section',
-        
+
         // システム管理
         'status',
         'approved_at',
@@ -110,9 +110,10 @@ class FacilityBasic extends Model
      */
     public function getServiceTypesStringAttribute(): string
     {
-        if (!$this->service_types || !is_array($this->service_types)) {
+        if (! $this->service_types || ! is_array($this->service_types)) {
             return '';
         }
+
         return implode('、', $this->service_types);
     }
 
@@ -121,12 +122,13 @@ class FacilityBasic extends Model
      */
     public function calculateYearsInOperation(): ?int
     {
-        if (!$this->opening_date) {
+        if (! $this->opening_date) {
             return null;
         }
 
         $now = new \DateTime;
         $openingDate = new \DateTime($this->opening_date);
+
         return $now->diff($openingDate)->y;
     }
 

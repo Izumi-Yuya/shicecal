@@ -89,6 +89,13 @@ class LandInfoRequest extends FormRequest
             'notes.max' => '備考は1000文字以下で入力してください。',
             'management_company_notes.max' => '管理会社の備考は1000文字以下で入力してください。',
             'owner_notes.max' => 'オーナーの備考は1000文字以下で入力してください。',
+            // PDF file upload messages
+            'lease_contract_pdf.file' => '賃貸借契約書・覚書は有効なファイルを選択してください。',
+            'lease_contract_pdf.mimes' => '賃貸借契約書・覚書はPDFファイルのみアップロード可能です。',
+            'lease_contract_pdf.max' => '賃貸借契約書・覚書のファイルサイズは10MB以下にしてください。',
+            'registry_pdf.file' => '謄本は有効なファイルを選択してください。',
+            'registry_pdf.mimes' => '謄本はPDFファイルのみアップロード可能です。',
+            'registry_pdf.max' => '謄本のファイルサイズは10MB以下にしてください。',
         ];
     }
 
@@ -126,6 +133,8 @@ class LandInfoRequest extends FormRequest
             'owner_url' => 'オーナーURL',
             'owner_notes' => 'オーナー備考',
             'notes' => '備考',
+            'lease_contract_pdf' => '賃貸借契約書・覚書',
+            'registry_pdf' => '謄本',
         ];
     }
 

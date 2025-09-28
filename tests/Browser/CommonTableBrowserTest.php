@@ -2,17 +2,17 @@
 
 namespace Tests\Browser;
 
-use Tests\DuskTestCase;
-use Laravel\Dusk\Browser;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use App\Models\User;
+use App\Models\BuildingInfo;
 use App\Models\Facility;
 use App\Models\LandInfo;
-use App\Models\BuildingInfo;
+use App\Models\User;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Laravel\Dusk\Browser;
+use Tests\DuskTestCase;
 
 /**
  * CommonTableブラウザテスト
- * 
+ *
  * ブラウザでの実際の動作確認とユーザーインタラクションテスト
  * 要件: 設計書のテスト戦略
  */
@@ -21,23 +21,24 @@ class CommonTableBrowserTest extends DuskTestCase
     use DatabaseMigrations;
 
     protected $user;
+
     protected $facility;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->user = User::factory()->create([
             'email' => 'test@example.com',
-            'password' => bcrypt('password')
+            'password' => bcrypt('password'),
         ]);
-        
+
         $this->facility = Facility::factory()->create([
             'company_name' => 'ブラウザテスト会社',
             'office_code' => 'BROWSER001',
             'address' => '東京都渋谷区ブラウザテスト1-1-1',
             'phone' => '03-1111-2222',
-            'email' => 'browser@example.com'
+            'email' => 'browser@example.com',
         ]);
     }
 
@@ -100,7 +101,7 @@ class CommonTableBrowserTest extends DuskTestCase
                 ->waitFor('.facility-info-card')
                 ->assertPresent('a[href="mailto:browser@example.com"]')
                 ->assertSee('fas fa-envelope');
-            
+
             // メールリンクの属性確認
             $mailtoLink = $browser->element('a[href="mailto:browser@example.com"]');
             $this->assertNotNull($mailtoLink);
@@ -111,12 +112,12 @@ class CommonTableBrowserTest extends DuskTestCase
      * @test
      * URLリンクのクリック動作テスト
      */
-    public function test_browser_URLリンクが正しく動作する()
+    public function test_browser_ur_lリンクが正しく動作する()
     {
         // URLを持つファシリティを作成
         $facilityWithUrl = Facility::factory()->create([
             'company_name' => 'URL テスト会社',
-            'website_url' => 'https://example.com'
+            'website_url' => 'https://example.com',
         ]);
 
         $this->browse(function (Browser $browser) use ($facilityWithUrl) {
@@ -141,7 +142,7 @@ class CommonTableBrowserTest extends DuskTestCase
             'office_code' => null,
             'address' => null,
             'phone' => '03-3333-4444',
-            'email' => null
+            'email' => null,
         ]);
 
         $this->browse(function (Browser $browser) use ($facilityWithEmptyFields) {
@@ -165,13 +166,13 @@ class CommonTableBrowserTest extends DuskTestCase
         LandInfo::factory()->create([
             'facility_id' => $this->facility->id,
             'management_company_name' => 'ブラウザ管理会社',
-            'management_contact_person' => 'ブラウザ太郎'
+            'management_contact_person' => 'ブラウザ太郎',
         ]);
 
         BuildingInfo::factory()->create([
             'facility_id' => $this->facility->id,
             'building_name' => 'ブラウザテストビル',
-            'floors_above_ground' => 15
+            'floors_above_ground' => 15,
         ]);
 
         $this->browse(function (Browser $browser) {
@@ -222,7 +223,7 @@ class CommonTableBrowserTest extends DuskTestCase
         // バッジを表示するファシリティを作成
         $facilityWithBadge = Facility::factory()->create([
             'company_name' => 'バッジテスト会社',
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         $this->browse(function (Browser $browser) use ($facilityWithBadge) {
@@ -243,7 +244,7 @@ class CommonTableBrowserTest extends DuskTestCase
         // 日付を持つファシリティを作成
         $facilityWithDate = Facility::factory()->create([
             'company_name' => '日付テスト会社',
-            'established_date' => '2023-12-25'
+            'established_date' => '2023-12-25',
         ]);
 
         $this->browse(function (Browser $browser) use ($facilityWithDate) {
@@ -276,7 +277,7 @@ class CommonTableBrowserTest extends DuskTestCase
      * @test
      * CSSクラスの適用確認テスト
      */
-    public function test_browser_CSSクラスが正しく適用される()
+    public function test_browser_cs_sクラスが正しく適用される()
     {
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->user)
@@ -293,7 +294,7 @@ class CommonTableBrowserTest extends DuskTestCase
      * @test
      * JavaScript連携の確認テスト
      */
-    public function test_browser_JavaScript連携が正しく動作する()
+    public function test_browser_java_script連携が正しく動作する()
     {
         $this->browse(function (Browser $browser) {
             $browser->loginAs($this->user)
@@ -363,7 +364,7 @@ class CommonTableBrowserTest extends DuskTestCase
 
             // 印刷プレビューモードでの表示確認
             $browser->script('window.print = function() { console.log("Print called"); }');
-            
+
             // 印刷用のCSSが適用されていることを確認
             $printStyles = $browser->script('
                 return Array.from(document.styleSheets)
@@ -396,7 +397,7 @@ class CommonTableBrowserTest extends DuskTestCase
             'management_phone' => '03-5555-6666',
             'management_email' => 'complex@example.com',
             'owner_name' => '複雑オーナー',
-            'owner_phone' => '03-7777-8888'
+            'owner_phone' => '03-7777-8888',
         ]);
 
         $this->browse(function (Browser $browser) {

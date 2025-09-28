@@ -2,24 +2,20 @@
 
 namespace Tests\Feature\Components;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
-use App\Models\Facility;
-use App\Models\User;
-use App\Models\LandInfo;
 use App\Models\BuildingInfo;
+use App\Models\Facility;
+use App\Models\LandInfo;
 use App\Models\LifelineEquipment;
-use App\Services\ValueFormatter;
-use App\Services\CommonTableValidator;
-use App\Services\CommonTableErrorHandler;
-use App\Services\CommonTablePerformanceOptimizer;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\View;
+use Tests\TestCase;
 
 /**
  * CommonTable包括的統合テスト
- * 
+ *
  * 全機能の連携テスト、パフォーマンステスト、セキュリティテスト
  * 要件: 1.4, 6.1, 6.2
  */
@@ -28,26 +24,30 @@ class CommonTableComprehensiveIntegrationTest extends TestCase
     use RefreshDatabase;
 
     protected $user;
+
     protected $facility;
+
     protected $landInfo;
+
     protected $buildingInfo;
+
     protected $lifelineEquipment;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // テストデータの準備
         $this->user = User::factory()->create([
             'role' => 'admin',
-            'email' => 'integration@example.com'
+            'email' => 'integration@example.com',
         ]);
-        
+
         $this->facility = Facility::factory()->create([
             'company_name' => '統合テスト株式会社',
             'office_code' => 'INTEGRATION001',
             'address' => '東京都新宿区統合テスト1-1-1',
-            'phone_number' => '03-1234-5678'
+            'phone_number' => '03-1234-5678',
         ]);
 
         $this->landInfo = LandInfo::factory()->create([
@@ -59,7 +59,7 @@ class CommonTableComprehensiveIntegrationTest extends TestCase
             'owner_name' => '統合オーナー',
             'owner_phone' => '03-1111-2222',
             'land_area' => 500.75,
-            'land_price' => 100000000
+            'land_price' => 100000000,
         ]);
 
         $this->buildingInfo = BuildingInfo::factory()->create([
@@ -69,7 +69,7 @@ class CommonTableComprehensiveIntegrationTest extends TestCase
             'floors_below_ground' => 2,
             'total_floor_area' => 2500.50,
             'construction_cost' => 500000000,
-            'completion_date' => '2020-03-31'
+            'completion_date' => '2020-03-31',
         ]);
 
         $this->lifelineEquipment = LifelineEquipment::factory()->create([
@@ -78,7 +78,7 @@ class CommonTableComprehensiveIntegrationTest extends TestCase
             'equipment_type' => 'electrical',
             'status' => 'normal',
             'last_inspection_date' => '2023-12-01',
-            'next_inspection_date' => '2024-06-01'
+            'next_inspection_date' => '2024-06-01',
         ]);
     }
 
@@ -94,28 +94,28 @@ class CommonTableComprehensiveIntegrationTest extends TestCase
                 'cells' => [
                     ['label' => '会社名', 'value' => $this->facility->company_name, 'type' => 'text'],
                     ['label' => '事業所コード', 'value' => $this->facility->office_code, 'type' => 'badge'],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '住所', 'value' => $this->facility->address, 'type' => 'text'],
                     ['label' => '電話番号', 'value' => $this->facility->phone_number, 'type' => 'text'],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'メールアドレス', 'value' => 'integration@test.com', 'type' => 'email'],
                     ['label' => '設立日', 'value' => '2020-04-01', 'type' => 'date'],
-                ]
+                ],
             ],
             [
                 'type' => 'single',
                 'cells' => [
                     ['label' => 'ウェブサイト', 'value' => 'https://integration-test.com', 'type' => 'url', 'colspan' => 2],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
@@ -124,7 +124,7 @@ class CommonTableComprehensiveIntegrationTest extends TestCase
             'cardClass' => 'facility-info-card detail-card-improved mb-3',
             'tableClass' => 'table table-bordered facility-basic-info-table-clean',
             'responsive' => true,
-            'cleanBody' => true
+            'cleanBody' => true,
         ]);
 
         $rendered = $view->render();
@@ -171,33 +171,33 @@ class CommonTableComprehensiveIntegrationTest extends TestCase
                         'value' => null,
                         'type' => 'text',
                         'rowspan' => 4,
-                        'label_colspan' => 1
-                    ]
-                ]
+                        'label_colspan' => 1,
+                    ],
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '会社名', 'value' => $this->landInfo->management_company_name, 'type' => 'text'],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '担当者', 'value' => $this->landInfo->management_contact_person, 'type' => 'text'],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '電話番号', 'value' => $this->landInfo->management_phone, 'type' => 'text'],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'メール', 'value' => $this->landInfo->management_email, 'type' => 'email'],
-                ]
+                ],
             ],
             [
                 'type' => 'grouped',
@@ -207,35 +207,35 @@ class CommonTableComprehensiveIntegrationTest extends TestCase
                         'value' => null,
                         'type' => 'text',
                         'rowspan' => 2,
-                        'label_colspan' => 1
-                    ]
-                ]
+                        'label_colspan' => 1,
+                    ],
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '氏名', 'value' => $this->landInfo->owner_name, 'type' => 'text'],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '電話番号', 'value' => $this->landInfo->owner_phone, 'type' => 'text'],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '土地面積', 'value' => $this->landInfo->land_area, 'type' => 'number', 'options' => ['decimals' => 2, 'suffix' => '㎡']],
                     ['label' => '土地価格', 'value' => $this->landInfo->land_price, 'type' => 'currency'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $landInfoData,
             'title' => '土地情報',
-            'cardClass' => 'facility-info-card detail-card-improved mb-3'
+            'cardClass' => 'facility-info-card detail-card-improved mb-3',
         ]);
 
         $rendered = $view->render();
@@ -269,27 +269,27 @@ class CommonTableComprehensiveIntegrationTest extends TestCase
                 'cells' => [
                     ['label' => '建物名', 'value' => $this->buildingInfo->building_name, 'type' => 'text'],
                     ['label' => '地上階数', 'value' => $this->buildingInfo->floors_above_ground, 'type' => 'number', 'options' => ['suffix' => '階']],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '地下階数', 'value' => $this->buildingInfo->floors_below_ground, 'type' => 'number', 'options' => ['suffix' => '階']],
                     ['label' => '延床面積', 'value' => $this->buildingInfo->total_floor_area, 'type' => 'number', 'options' => ['decimals' => 2, 'suffix' => '㎡']],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '建築費', 'value' => $this->buildingInfo->construction_cost, 'type' => 'currency'],
                     ['label' => '竣工日', 'value' => $this->buildingInfo->completion_date, 'type' => 'date'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $buildingInfoData,
-            'title' => '建物情報'
+            'title' => '建物情報',
         ]);
 
         $rendered = $view->render();
@@ -315,32 +315,32 @@ class CommonTableComprehensiveIntegrationTest extends TestCase
                 'cells' => [
                     ['label' => '設備名', 'value' => $this->lifelineEquipment->equipment_name, 'type' => 'text'],
                     ['label' => 'ステータス', 'value' => $this->lifelineEquipment->status, 'type' => 'badge', 'options' => ['auto_class' => true]],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '前回点検日', 'value' => $this->lifelineEquipment->last_inspection_date, 'type' => 'date'],
                     ['label' => '次回点検日', 'value' => $this->lifelineEquipment->next_inspection_date, 'type' => 'date'],
-                ]
+                ],
             ],
             [
                 'type' => 'single',
                 'cells' => [
                     ['label' => '点検報告書', 'value' => '/storage/reports/inspection_2023.pdf', 'type' => 'file', 'colspan' => 2],
-                ]
+                ],
             ],
             [
                 'type' => 'single',
                 'cells' => [
                     ['label' => '設備図面', 'value' => '/storage/drawings/equipment_drawing.dwg', 'type' => 'file', 'colspan' => 2],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $lifelineData,
-            'title' => 'ライフライン設備'
+            'title' => 'ライフライン設備',
         ]);
 
         $rendered = $view->render();
@@ -372,15 +372,15 @@ class CommonTableComprehensiveIntegrationTest extends TestCase
                 'cells' => [
                     ['label' => "項目{$i}", 'value' => "値{$i}", 'type' => 'text'],
                     ['label' => "メール{$i}", 'value' => "test{$i}@example.com", 'type' => 'email'],
-                ]
+                ],
             ];
-            
+
             if ($i % 10 === 0) {
                 $largeData[] = [
                     'type' => 'single',
                     'cells' => [
                         ['label' => "URL{$i}", 'value' => "https://example{$i}.com", 'type' => 'url', 'colspan' => 2],
-                    ]
+                    ],
                 ];
             }
         }
@@ -390,14 +390,14 @@ class CommonTableComprehensiveIntegrationTest extends TestCase
 
         $view = View::make('components.common-table', [
             'data' => $largeData,
-            'title' => 'パフォーマンステスト（100行）'
+            'title' => 'パフォーマンステスト（100行）',
         ]);
 
         $rendered = $view->render();
-        
+
         $endTime = microtime(true);
         $endMemory = memory_get_usage();
-        
+
         $renderTime = $endTime - $startTime;
         $memoryUsage = $endMemory - $startMemory;
 
@@ -418,7 +418,7 @@ class CommonTableComprehensiveIntegrationTest extends TestCase
             'rows' => count($largeData),
             'render_time' => $renderTime,
             'memory_usage' => $memoryUsage,
-            'memory_usage_mb' => round($memoryUsage / 1024 / 1024, 2)
+            'memory_usage_mb' => round($memoryUsage / 1024 / 1024, 2),
         ]);
     }
 
@@ -426,7 +426,7 @@ class CommonTableComprehensiveIntegrationTest extends TestCase
      * @test
      * セキュリティテスト - XSS対策
      */
-    public function test_security_XSS対策が正しく動作()
+    public function test_security_xs_s対策が正しく動作()
     {
         $maliciousData = [
             [
@@ -434,20 +434,20 @@ class CommonTableComprehensiveIntegrationTest extends TestCase
                 'cells' => [
                     ['label' => '<script>alert("XSS")</script>', 'value' => '<img src="x" onerror="alert(\'XSS\')">', 'type' => 'text'],
                     ['label' => '正常なラベル', 'value' => '<b>太字テキスト</b>', 'type' => 'text'],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'JavaScript URL', 'value' => 'javascript:alert("XSS")', 'type' => 'url'],
                     ['label' => 'メール XSS', 'value' => 'test@example.com<script>alert("XSS")</script>', 'type' => 'email'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $maliciousData,
-            'title' => 'セキュリティテスト'
+            'title' => 'セキュリティテスト',
         ]);
 
         $rendered = $view->render();
@@ -469,7 +469,7 @@ class CommonTableComprehensiveIntegrationTest extends TestCase
      * @test
      * セキュリティテスト - SQLインジェクション対策
      */
-    public function test_security_SQLインジェクション対策()
+    public function test_security_sq_lインジェクション対策()
     {
         $sqlInjectionData = [
             [
@@ -477,13 +477,13 @@ class CommonTableComprehensiveIntegrationTest extends TestCase
                 'cells' => [
                     ['label' => "'; DROP TABLE users; --", 'value' => "1' OR '1'='1", 'type' => 'text'],
                     ['label' => 'UNION SELECT', 'value' => "' UNION SELECT password FROM users --", 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $sqlInjectionData,
-            'title' => 'SQLインジェクションテスト'
+            'title' => 'SQLインジェクションテスト',
         ]);
 
         $rendered = $view->render();
@@ -511,36 +511,36 @@ class CommonTableComprehensiveIntegrationTest extends TestCase
                 'cells' => [
                     ['label' => '正常データ', 'value' => '正常値', 'type' => 'text'],
                     ['label' => 'null値', 'value' => null, 'type' => 'text'],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '空文字', 'value' => '', 'type' => 'text'],
                     ['label' => '不正な日付', 'value' => 'invalid-date', 'type' => 'date'],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '不正な数値', 'value' => 'not-a-number', 'type' => 'number'],
                     ['label' => '不正なメール', 'value' => 'invalid-email', 'type' => 'email'],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '大きなcolspan', 'value' => 'テスト', 'type' => 'text', 'colspan' => 10],
                     // 2番目のセルは表示されない（colspanが大きすぎるため）
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $errorData,
             'title' => 'エラーハンドリングテスト',
             'fallbackOnError' => true,
-            'showValidationWarnings' => true
+            'showValidationWarnings' => true,
         ]);
 
         $rendered = $view->render();
@@ -576,11 +576,11 @@ class CommonTableComprehensiveIntegrationTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'キャッシュテスト', 'value' => 'キャッシュ値', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
-        $cacheKey = 'common_table_test_' . md5(json_encode($cacheableData));
+        $cacheKey = 'common_table_test_'.md5(json_encode($cacheableData));
 
         // キャッシュをクリア
         Cache::forget($cacheKey);
@@ -591,7 +591,7 @@ class CommonTableComprehensiveIntegrationTest extends TestCase
             'data' => $cacheableData,
             'title' => 'キャッシュテスト',
             'enableCache' => true,
-            'cacheKey' => $cacheKey
+            'cacheKey' => $cacheKey,
         ]);
         $rendered1 = $view1->render();
         $endTime1 = microtime(true);
@@ -603,7 +603,7 @@ class CommonTableComprehensiveIntegrationTest extends TestCase
             'data' => $cacheableData,
             'title' => 'キャッシュテスト',
             'enableCache' => true,
-            'cacheKey' => $cacheKey
+            'cacheKey' => $cacheKey,
         ]);
         $rendered2 = $view2->render();
         $endTime2 = microtime(true);
@@ -620,7 +620,7 @@ class CommonTableComprehensiveIntegrationTest extends TestCase
         Log::info('Cache Performance Test', [
             'first_render_time' => $renderTime1,
             'second_render_time' => $renderTime2,
-            'cache_effective' => $renderTime2 < $renderTime1
+            'cache_effective' => $renderTime2 < $renderTime1,
         ]);
     }
 
@@ -636,22 +636,22 @@ class CommonTableComprehensiveIntegrationTest extends TestCase
                 'cells' => [
                     ['label' => 'アクセシビリティテスト', 'value' => 'テスト値', 'type' => 'text'],
                     ['label' => 'リンクテスト', 'value' => 'https://example.com', 'type' => 'url'],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'メールテスト', 'value' => 'test@example.com', 'type' => 'email'],
                     ['label' => 'ファイルテスト', 'value' => '/storage/test.pdf', 'type' => 'file'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $accessibilityData,
             'title' => 'アクセシビリティテスト',
             'ariaLabel' => 'アクセシビリティテスト用のテーブル',
-            'ariaDescribedBy' => 'accessibility-description'
+            'ariaDescribedBy' => 'accessibility-description',
         ]);
 
         $rendered = $view->render();
@@ -689,28 +689,28 @@ class CommonTableComprehensiveIntegrationTest extends TestCase
                 'cells' => [
                     ['label' => '日本語テスト', 'value' => 'これは日本語のテストです', 'type' => 'text'],
                     ['label' => '英語テスト', 'value' => 'This is an English test', 'type' => 'text'],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '日付（日本語）', 'value' => '2023-12-25', 'type' => 'date'],
                     ['label' => '通貨（日本円）', 'value' => 1000000, 'type' => 'currency'],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '数値（日本語区切り）', 'value' => 1234567.89, 'type' => 'number', 'options' => ['decimals' => 2]],
                     ['label' => '特殊文字', 'value' => '①②③④⑤', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $i18nData,
             'title' => '国際化テスト',
-            'locale' => 'ja'
+            'locale' => 'ja',
         ]);
 
         $rendered = $view->render();
@@ -742,15 +742,15 @@ class CommonTableComprehensiveIntegrationTest extends TestCase
                 'cells' => [
                     ['label' => '会社名', 'value' => $this->facility->company_name, 'type' => 'text'],
                     ['label' => '事業所コード', 'value' => $this->facility->office_code, 'type' => 'text'],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
                     ['label' => '住所', 'value' => $this->facility->address, 'type' => 'text'],
                     ['label' => '電話番号', 'value' => $this->facility->phone_number, 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         // 既存のCSSクラスとオプションを使用
@@ -762,7 +762,7 @@ class CommonTableComprehensiveIntegrationTest extends TestCase
             'headerClass' => 'card-header',
             'bodyClass' => 'card-body',
             'cleanBody' => true,
-            'responsive' => true
+            'responsive' => true,
         ]);
 
         $rendered = $view->render();

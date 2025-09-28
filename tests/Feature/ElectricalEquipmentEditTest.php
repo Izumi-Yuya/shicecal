@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\ElectricalEquipment;
 use App\Models\Facility;
 use App\Models\LifelineEquipment;
 use App\Models\User;
@@ -14,15 +13,16 @@ class ElectricalEquipmentEditTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Facility $facility;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->user = User::factory()->create();
         $this->facility = Facility::factory()->create();
-        
+
         // Grant user permission to edit this facility
         $this->user->grantPermission('edit_facility', $this->facility->id);
     }
@@ -59,7 +59,7 @@ class ElectricalEquipmentEditTest extends TestCase
             $updateData
         );
 
-        $response->assertRedirect(route('facilities.show', $this->facility) . '#electrical');
+        $response->assertRedirect(route('facilities.show', $this->facility).'#electrical');
         $response->assertSessionHas('success', 'ライフライン設備情報を更新しました。');
 
         // Verify data was saved
@@ -69,7 +69,7 @@ class ElectricalEquipmentEditTest extends TestCase
 
         $this->assertNotNull($lifelineEquipment);
         $this->assertNotNull($lifelineEquipment->electricalEquipment);
-        
+
         $basicInfo = $lifelineEquipment->electricalEquipment->basic_info;
         $this->assertEquals('東京電力', $basicInfo['electrical_contractor']);
         $this->assertEquals('安全管理株式会社', $basicInfo['safety_management_company']);
@@ -144,7 +144,7 @@ class ElectricalEquipmentEditTest extends TestCase
         $cubicleInfo = $lifelineEquipment->electricalEquipment->cubicle_info;
         $this->assertEquals('有', $cubicleInfo['availability']);
         $this->assertCount(2, $cubicleInfo['equipment_list']);
-        
+
         $equipment1 = $cubicleInfo['equipment_list'][0];
         $this->assertEquals('三菱電機', $equipment1['manufacturer']);
         $this->assertEquals('2020', $equipment1['model_year']);
@@ -184,7 +184,7 @@ class ElectricalEquipmentEditTest extends TestCase
         $generatorInfo = $lifelineEquipment->electricalEquipment->generator_info;
         $this->assertEquals('有', $generatorInfo['availability']);
         $this->assertCount(1, $generatorInfo['equipment_list']);
-        
+
         $equipment = $generatorInfo['equipment_list'][0];
         $this->assertEquals('ヤンマー', $equipment['manufacturer']);
         $this->assertEquals('2021', $equipment['model_year']);

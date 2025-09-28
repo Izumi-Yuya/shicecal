@@ -15,10 +15,10 @@ class FacilityIndexServiceFilterTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // テスト用ユーザーを作成してログイン
         $user = User::factory()->create([
-            'role' => 'admin'
+            'role' => 'admin',
         ]);
         $this->actingAs($user);
     }
@@ -45,14 +45,14 @@ class FacilityIndexServiceFilterTest extends TestCase
         $response = $this->get(route('facilities.index'));
 
         $response->assertStatus(200);
-        
+
         // 部門フィルターのラベルが正しく表示されることを確認
         $response->assertSee('部門');
-        
+
         // 部門のオプションが表示されることを確認
         $response->assertSee('有料老人ホーム');
         $response->assertSee('デイサービスセンター');
-        
+
         // 「すべての部門」オプションが表示されることを確認
         $response->assertSee('すべての部門');
     }
@@ -114,7 +114,7 @@ class FacilityIndexServiceFilterTest extends TestCase
         $response = $this->get(route('facilities.index', ['section' => '有料老人ホーム']));
 
         $response->assertStatus(200);
-        
+
         // 選択されたオプションがselectedになっていることを確認
         $content = $response->getContent();
         $this->assertStringContainsString('value="有料老人ホーム"', $content);
@@ -131,7 +131,7 @@ class FacilityIndexServiceFilterTest extends TestCase
             'facility_name' => 'テスト施設1',
             'office_code' => '01001', // 北海道
         ]);
-        
+
         $facility2 = Facility::factory()->create([
             'facility_name' => 'テスト施設2',
             'office_code' => '13001', // 東京都
@@ -150,7 +150,7 @@ class FacilityIndexServiceFilterTest extends TestCase
         // 部門とキーワードの組み合わせフィルター
         $response = $this->get(route('facilities.index', [
             'section' => '有料老人ホーム',
-            'keyword' => 'テスト施設1'
+            'keyword' => 'テスト施設1',
         ]));
 
         $response->assertStatus(200);
@@ -194,7 +194,7 @@ class FacilityIndexServiceFilterTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertDontSee('テスト施設');
-        
+
         // 検索結果が0件であることを確認
         $content = $response->getContent();
         $this->assertStringContainsString('0件の施設が見つかりました', $content);

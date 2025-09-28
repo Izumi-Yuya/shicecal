@@ -22,7 +22,7 @@
             'cells' => [
                 ['label' => '受水槽清掃業者', 'value' => $basicInfo['tank_cleaning_company'] ?? null, 'type' => 'text'],
                 ['label' => '受水槽清掃実施日', 'value' => $basicInfo['tank_cleaning_date'] ?? null, 'type' => 'date'],
-                ['label' => '受水槽清掃報告書', 'value' => $basicInfo['tank_cleaning_report_pdf'] ?? null, 'type' => 'file', 'options' => ['route' => 'facilities.lifeline-equipment.download', 'params' => [$facility, 'water'], 'display_name' => 'ダウンロード']],
+                ['label' => '受水槽清掃報告書', 'value' => $basicInfo['tank_cleaning']['tank_cleaning_report_pdf'] ?? null, 'type' => 'file_display', 'options' => ['route' => 'facilities.lifeline-equipment.download-file', 'params' => [$facility, 'water', 'tank_cleaning_report'], 'display_name' => 'ダウンロード']],
             ]
         ],
     ];
@@ -77,7 +77,7 @@
             'cells' => [
                 ['label' => '点検・清掃業者', 'value' => $septicTankInfo['inspection_company'] ?? null, 'type' => 'text'],
                 ['label' => '点検・清掃実施日', 'value' => $septicTankInfo['inspection_date'] ?? null, 'type' => 'date'],
-                ['label' => '点検・清掃実施報告書', 'value' => $septicTankInfo['inspection_report_pdf'] ?? null, 'type' => 'file', 'options' => ['route' => 'facilities.lifeline-equipment.download', 'params' => [$facility, 'water'], 'display_name' => 'ダウンロード']],
+                ['label' => '点検・清掃実施報告書', 'value' => $septicTankInfo['inspection']['inspection_report_pdf'] ?? null, 'type' => 'file_display', 'options' => ['route' => 'facilities.lifeline-equipment.download-file', 'params' => [$facility, 'water', 'septic_tank_inspection_report'], 'display_name' => 'ダウンロード']],
             ]
         ],
     ];
@@ -133,7 +133,7 @@
                         'type' => 'standard',
                         'cells' => [
                             ['label' => '実施日', 'value' => $inspection['inspection_date'] ?? null, 'type' => 'date'],
-                            ['label' => '検査結果報告書', 'value' => $inspection['report_pdf'] ?? null, 'type' => 'file', 'options' => ['route' => 'facilities.lifeline-equipment.download', 'params' => [$facility, 'water'], 'display_name' => 'ダウンロード']],
+                            ['label' => '検査結果報告書', 'value' => $inspection['report']['report_pdf'] ?? null, 'type' => 'file_display', 'options' => ['route' => 'facilities.lifeline-equipment.download-file', 'params' => [$facility, 'water', 'legionella_report_' . $index], 'display_name' => 'ダウンロード']],
                         ]
                     ],
                     // 第2行：検査結果（初回）、数値（陽性の場合）
@@ -165,7 +165,7 @@
                     'type' => 'standard',
                     'cells' => [
                         ['label' => '実施日', 'value' => $legionellaInfo['inspection_date'] ?? null, 'type' => 'date'],
-                        ['label' => '検査結果報告書', 'value' => $legionellaInfo['report_pdf'] ?? null, 'type' => 'file', 'options' => ['route' => 'facilities.lifeline-equipment.download', 'params' => [$facility, 'water'], 'display_name' => 'ダウンロード']],
+                        ['label' => '検査結果報告書', 'value' => $legionellaInfo['report']['report_pdf'] ?? null, 'type' => 'file_display', 'options' => ['route' => 'facilities.lifeline-equipment.download-file', 'params' => [$facility, 'water', 'legionella_report_0'], 'display_name' => 'ダウンロード']],
                     ]
                 ],
                 // 第2行：検査結果（初回）、数値（陽性の場合）

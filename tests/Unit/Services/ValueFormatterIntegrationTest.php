@@ -37,7 +37,7 @@ class ValueFormatterIntegrationTest extends TestCase
             '2020年04月01日',
             '10,000,000円',
             '150',
-            '<a href="/documents/company-profile.pdf" class="text-decoration-none" target="_blank"><i class="fas fa-file-pdf text-danger"></i> company-profile.pdf</a>',
+            '<a href="/documents/company-profile.pdf" class="text-decoration-none" aria-label="/documents/company-profile.pdfをダウンロード" target="_blank"><i class="fas fa-file-pdf text-danger"></i>/documents/company-profile.pdf</a>',
             '未設定',
         ];
 
@@ -72,7 +72,7 @@ class ValueFormatterIntegrationTest extends TestCase
             '2022年01月01日',
             '500,000円',
             '1,500.5',
-            '<a href="/contracts/land-contract-2022.pdf" class="text-decoration-none" target="_blank"><i class="fas fa-file-pdf text-danger"></i> land-contract-2022.pdf</a>',
+            '<a href="/contracts/land-contract-2022.pdf" class="text-decoration-none" aria-label="/contracts/land-contract-2022.pdfをダウンロード" target="_blank"><i class="fas fa-file-pdf text-danger"></i>/contracts/land-contract-2022.pdf</a>',
             '特になし',
         ];
 
@@ -99,7 +99,7 @@ class ValueFormatterIntegrationTest extends TestCase
 
         foreach ($mixedData as $item) {
             $result = ValueFormatter::format($item['value'], $item['type']);
-            $this->assertEquals($item['expected'], $result, "Failed for value: " . json_encode($item['value']));
+            $this->assertEquals($item['expected'], $result, 'Failed for value: '.json_encode($item['value']));
         }
     }
 
@@ -117,7 +117,7 @@ class ValueFormatterIntegrationTest extends TestCase
             'date' => ['value' => '2023-12-25', 'expected' => '2023年12月25日'],
             'currency' => ['value' => 1000, 'expected' => '1,000円'],
             'number' => ['value' => 1000, 'expected' => '1,000'],
-            'file' => ['value' => '/path/to/file.pdf', 'expected' => '<a href="/path/to/file.pdf" class="text-decoration-none" target="_blank"><i class="fas fa-file-pdf text-danger"></i> file.pdf</a>'],
+            'file' => ['value' => '/path/to/file.pdf', 'expected' => '<a href="/path/to/file.pdf" class="text-decoration-none" aria-label="/path/to/file.pdfをダウンロード" target="_blank"><i class="fas fa-file-pdf text-danger"></i>/path/to/file.pdf</a>'],
         ];
 
         foreach ($requiredTypes as $type => $testCase) {
@@ -138,7 +138,7 @@ class ValueFormatterIntegrationTest extends TestCase
         foreach ($types as $type) {
             foreach ($emptyValues as $emptyValue) {
                 $result = ValueFormatter::format($emptyValue, $type);
-                $this->assertEquals('未設定', $result, "Failed for type {$type} with empty value: " . json_encode($emptyValue));
+                $this->assertEquals('未設定', $result, "Failed for type {$type} with empty value: ".json_encode($emptyValue));
             }
         }
     }
@@ -155,7 +155,7 @@ class ValueFormatterIntegrationTest extends TestCase
             ['value' => 'テスト@example.co.jp', 'type' => 'email', 'expected' => '<a href="mailto:テスト@example.co.jp" class="text-decoration-none"><i class="fas fa-envelope me-1"></i>テスト@example.co.jp</a>'],
             ['value' => 1000000, 'type' => 'currency', 'expected' => '1,000,000円'],
             ['value' => '2023-12-31', 'type' => 'date', 'expected' => '2023年12月31日'],
-            ['value' => '/documents/報告書.pdf', 'type' => 'file', 'expected' => '<a href="/documents/報告書.pdf" class="text-decoration-none" target="_blank"><i class="fas fa-file-pdf text-danger"></i> 報告書.pdf</a>'],
+            ['value' => '/documents/報告書.pdf', 'type' => 'file', 'expected' => '<a href="/documents/報告書.pdf" class="text-decoration-none" aria-label="/documents/報告書.pdfをダウンロード" target="_blank"><i class="fas fa-file-pdf text-danger"></i>/documents/報告書.pdf</a>'],
         ];
 
         foreach ($japaneseData as $item) {

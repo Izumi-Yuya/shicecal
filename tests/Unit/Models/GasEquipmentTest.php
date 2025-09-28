@@ -122,7 +122,7 @@ class GasEquipmentTest extends TestCase
     /** @test */
     public function it_has_correct_table_name()
     {
-        $gasEquipment = new GasEquipment();
+        $gasEquipment = new GasEquipment;
         $this->assertEquals('gas_equipment', $gasEquipment->getTable());
     }
 
@@ -144,7 +144,7 @@ class GasEquipmentTest extends TestCase
         $originalUpdatedAt = $gasEquipment->updated_at;
 
         usleep(100000); // 0.1 seconds
-        
+
         $gasEquipment->notes = '更新された備考';
         $gasEquipment->save();
 
@@ -175,7 +175,7 @@ class GasEquipmentTest extends TestCase
         $this->assertEquals('大阪ガス', $gasEquipment->basic_info['gas_supplier']);
         $this->assertEquals('業務用契約', $gasEquipment->basic_info['contract_type']);
         $this->assertEquals('G987654321', $gasEquipment->basic_info['meter_number']);
-        
+
         // Notes should remain unchanged
         $this->assertEquals('既存の備考', $gasEquipment->notes);
     }

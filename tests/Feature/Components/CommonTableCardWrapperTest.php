@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Components;
 
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class CommonTableCardWrapperTest extends TestCase
 {
@@ -173,14 +173,14 @@ class CommonTableCardWrapperTest extends TestCase
         // 両方のビューでIDが生成されることを確認
         $view1->assertSeeInOrder(['aria-labelledby=', 'id='], false);
         $view2->assertSeeInOrder(['aria-labelledby=', 'id='], false);
-        
+
         // 実際のHTMLを取得してIDが異なることを確認
         $html1 = (string) $view1;
         $html2 = (string) $view2;
-        
+
         preg_match('/id="([^"]+)"/', $html1, $matches1);
         preg_match('/id="([^"]+)"/', $html2, $matches2);
-        
+
         $this->assertNotEmpty($matches1);
         $this->assertNotEmpty($matches2);
         $this->assertNotEquals($matches1[1], $matches2[1]);

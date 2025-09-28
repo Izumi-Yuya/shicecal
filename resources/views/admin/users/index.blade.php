@@ -261,7 +261,7 @@
                     @else
                         <div class="text-center py-4">
                             <i class="fas fa-users fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">ユーザーが見つかりませんでした</h5>
+                            <h5 class="text-muted">ユーザーが見つかりませんでした。</h5>
                             <p class="text-muted">検索条件を変更するか、新しいユーザーを登録してください。</p>
                         </div>
                     @endif

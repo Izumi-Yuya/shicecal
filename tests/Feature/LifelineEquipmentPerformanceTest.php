@@ -16,7 +16,7 @@ use Tests\TestCase;
 
 /**
  * ライフライン設備管理のパフォーマンステスト
- * 
+ *
  * 大量データでのパフォーマンスとN+1クエリ問題の検証を行います。
  */
 class LifelineEquipmentPerformanceTest extends TestCase
@@ -24,6 +24,7 @@ class LifelineEquipmentPerformanceTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private array $facilities;
 
     protected function setUp(): void
@@ -31,7 +32,7 @@ class LifelineEquipmentPerformanceTest extends TestCase
         parent::setUp();
 
         $this->admin = User::factory()->create(['role' => 'admin']);
-        
+
         // Create multiple facilities for performance testing
         $this->facilities = Facility::factory()->count(10)->create()->toArray();
     }
@@ -43,10 +44,10 @@ class LifelineEquipmentPerformanceTest extends TestCase
 
         // Create large dataset
         $startTime = microtime(true);
-        
+
         foreach ($this->facilities as $facility) {
             $categories = ['electrical', 'water', 'gas', 'elevator', 'hvac_lighting'];
-            
+
             foreach ($categories as $category) {
                 $lifelineEquipment = LifelineEquipment::factory()->create([
                     'facility_id' => $facility['id'],
@@ -90,14 +91,14 @@ class LifelineEquipmentPerformanceTest extends TestCase
 
         // Test query performance
         $queryStartTime = microtime(true);
-        
+
         $allEquipment = LifelineEquipment::with([
             'facility',
             'electricalEquipment',
             'gasEquipment',
             'waterEquipment',
             'elevatorEquipment',
-            'hvacLightingEquipment'
+            'hvacLightingEquipment',
         ])->get();
 
         $queryTime = microtime(true) - $queryStartTime;
@@ -138,12 +139,12 @@ class LifelineEquipmentPerformanceTest extends TestCase
 
         // Test without eager loading (should have N+1 problem)
         DB::enableQueryLog();
-        
+
         $equipmentWithoutEager = LifelineEquipment::where('facility_id', $facility->id)->get();
         foreach ($equipmentWithoutEager as $equipment) {
             $equipment->facility->name; // This will trigger additional queries
         }
-        
+
         $queriesWithoutEager = count(DB::getQueryLog());
         DB::flushQueryLog();
 
@@ -151,11 +152,11 @@ class LifelineEquipmentPerformanceTest extends TestCase
         $equipmentWithEager = LifelineEquipment::with('facility')
             ->where('facility_id', $facility->id)
             ->get();
-        
+
         foreach ($equipmentWithEager as $equipment) {
             $equipment->facility->name; // This should not trigger additional queries
         }
-        
+
         $queriesWithEager = count(DB::getQueryLog());
         DB::disableQueryLog();
 
@@ -185,12 +186,12 @@ class LifelineEquipmentPerformanceTest extends TestCase
 
         // Simulate concurrent updates
         $startTime = microtime(true);
-        
+
         for ($i = 0; $i < 10; $i++) {
             $currentInfo = $electricalEquipment->fresh()->basic_info;
             $currentInfo['counter'] = ($currentInfo['counter'] ?? 0) + 1;
             $currentInfo['last_update'] = now()->toISOString();
-            
+
             $electricalEquipment->update([
                 'basic_info' => $currentInfo,
             ]);
@@ -305,7 +306,7 @@ class LifelineEquipmentPerformanceTest extends TestCase
 
         // Create and process large dataset
         $facility = Facility::factory()->create();
-        
+
         for ($i = 0; $i < 100; $i++) {
             $testFacility = Facility::factory()->create();
             $lifelineEquipment = LifelineEquipment::factory()->create([

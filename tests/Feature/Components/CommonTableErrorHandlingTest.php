@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Components;
 
-use Tests\TestCase;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\View;
+use Tests\TestCase;
 
 class CommonTableErrorHandlingTest extends TestCase
 {
@@ -25,14 +25,14 @@ class CommonTableErrorHandlingTest extends TestCase
                 'cells' => [
                     ['label' => 'テストラベル', 'value' => 'テスト値', 'type' => 'text'],
                     ['label' => 'メール', 'value' => 'test@example.com', 'type' => 'email'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $validData,
             'title' => 'テストテーブル',
-            'validateData' => true
+            'validateData' => true,
         ]);
 
         $html = $view->render();
@@ -58,15 +58,15 @@ class CommonTableErrorHandlingTest extends TestCase
                 'type' => 'invalid_type',
                 'cells' => [
                     ['label' => 'テスト', 'value' => 'テスト値', 'type' => 'invalid_cell_type'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $invalidData,
             'title' => 'テストテーブル',
             'validateData' => true,
-            'fallbackOnError' => true
+            'fallbackOnError' => true,
         ]);
 
         $html = $view->render();
@@ -91,8 +91,8 @@ class CommonTableErrorHandlingTest extends TestCase
                 'cells' => [
                     ['label' => 'メール', 'value' => 'invalid-email', 'type' => 'email'],
                     ['label' => 'URL', 'value' => 'not a valid url at all', 'type' => 'url'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
@@ -100,7 +100,7 @@ class CommonTableErrorHandlingTest extends TestCase
             'title' => 'テストテーブル',
             'validateData' => true,
             'showValidationWarnings' => true,
-            'fallbackOnError' => false // 警告では表示を続行
+            'fallbackOnError' => false, // 警告では表示を続行
         ]);
 
         $html = $view->render();
@@ -124,15 +124,15 @@ class CommonTableErrorHandlingTest extends TestCase
                 'type' => 'invalid_type',
                 'cells' => [
                     ['label' => 'テスト', 'value' => 'テスト値', 'type' => 'invalid_cell_type'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $invalidData,
             'title' => 'テストテーブル',
             'validateData' => true,
-            'fallbackOnError' => true
+            'fallbackOnError' => true,
         ]);
 
         $html = $view->render();
@@ -152,14 +152,14 @@ class CommonTableErrorHandlingTest extends TestCase
                 'type' => 'invalid_type',
                 'cells' => [
                     ['label' => 'テスト', 'value' => 'テスト値', 'type' => 'invalid_cell_type'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $invalidData,
             'title' => 'テストテーブル',
-            'validateData' => false // バリデーション無効
+            'validateData' => false, // バリデーション無効
         ]);
 
         $html = $view->render();
@@ -180,7 +180,7 @@ class CommonTableErrorHandlingTest extends TestCase
         $view = View::make('components.common-table', [
             'data' => [],
             'title' => 'テストテーブル',
-            'validateData' => true
+            'validateData' => true,
         ]);
 
         $html = $view->render();
@@ -201,7 +201,7 @@ class CommonTableErrorHandlingTest extends TestCase
             'data' => 'invalid_data',
             'title' => 'テストテーブル',
             'validateData' => true,
-            'fallbackOnError' => true
+            'fallbackOnError' => true,
         ]);
 
         $html = $view->render();
@@ -222,7 +222,7 @@ class CommonTableErrorHandlingTest extends TestCase
             'data' => [],
             'title' => 'テストテーブル',
             'emptyMessage' => 'カスタム空メッセージ',
-            'validateData' => true
+            'validateData' => true,
         ]);
 
         $html = $view->render();
@@ -242,8 +242,8 @@ class CommonTableErrorHandlingTest extends TestCase
             $largeData[] = [
                 'type' => 'standard',
                 'cells' => [
-                    ['label' => "ラベル{$i}", 'value' => "値{$i}", 'type' => 'text']
-                ]
+                    ['label' => "ラベル{$i}", 'value' => "値{$i}", 'type' => 'text'],
+                ],
             ];
         }
 
@@ -252,7 +252,7 @@ class CommonTableErrorHandlingTest extends TestCase
             'title' => 'テストテーブル',
             'validateData' => true,
             'showValidationWarnings' => true,
-            'validationOptions' => ['max_rows' => 100]
+            'validationOptions' => ['max_rows' => 100],
         ]);
 
         $html = $view->render();
@@ -273,15 +273,15 @@ class CommonTableErrorHandlingTest extends TestCase
                 'type' => 'invalid_type',
                 'cells' => [
                     ['label' => 'テスト', 'value' => 'テスト値', 'type' => 'invalid_cell_type'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $invalidData,
             'title' => 'テストテーブル',
             'validateData' => true,
-            'fallbackOnError' => true
+            'fallbackOnError' => true,
         ]);
 
         $html = $view->render();

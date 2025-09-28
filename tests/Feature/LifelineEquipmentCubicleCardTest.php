@@ -14,16 +14,17 @@ class LifelineEquipmentCubicleCardTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Facility $facility;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->user = User::factory()->create([
             'role' => 'editor',
         ]);
-        
+
         $this->facility = Facility::factory()->create();
     }
 
@@ -55,7 +56,7 @@ class LifelineEquipmentCubicleCardTest extends TestCase
             ->first();
 
         $this->assertNotNull($lifelineEquipment);
-        
+
         $electricalEquipment = $lifelineEquipment->electricalEquipment;
         $this->assertNotNull($electricalEquipment);
         $this->assertEquals('無', $electricalEquipment->cubicle_info['availability']);
@@ -132,7 +133,7 @@ class LifelineEquipmentCubicleCardTest extends TestCase
         $this->assertEquals('有', $cubicleInfo['availability']);
         $this->assertEquals('キュービクル設備の詳細情報です。', $cubicleInfo['details']);
         $this->assertCount(1, $cubicleInfo['equipment_list']);
-        
+
         $equipment = $cubicleInfo['equipment_list'][0];
         $this->assertEquals('CB-001', $equipment['equipment_number']);
         $this->assertEquals('三菱電機', $equipment['manufacturer']);
@@ -189,17 +190,17 @@ class LifelineEquipmentCubicleCardTest extends TestCase
 
         $this->assertEquals('有', $cubicleInfo['availability']);
         $this->assertCount(3, $cubicleInfo['equipment_list']);
-        
+
         // Verify first equipment
         $equipment1 = $cubicleInfo['equipment_list'][0];
         $this->assertEquals('CB-001', $equipment1['equipment_number']);
         $this->assertEquals('三菱電機', $equipment1['manufacturer']);
-        
+
         // Verify second equipment
         $equipment2 = $cubicleInfo['equipment_list'][1];
         $this->assertEquals('CB-002', $equipment2['equipment_number']);
         $this->assertEquals('東芝', $equipment2['manufacturer']);
-        
+
         // Verify third equipment
         $equipment3 = $cubicleInfo['equipment_list'][2];
         $this->assertEquals('CB-003', $equipment3['equipment_number']);
@@ -272,7 +273,7 @@ class LifelineEquipmentCubicleCardTest extends TestCase
 
         $this->assertEquals('更新された詳細情報', $cubicleInfo['details']);
         $this->assertCount(2, $cubicleInfo['equipment_list']);
-        
+
         // Verify old data is replaced
         $this->assertEquals('NEW-001', $cubicleInfo['equipment_list'][0]['equipment_number']);
         $this->assertEquals('NEW-002', $cubicleInfo['equipment_list'][1]['equipment_number']);

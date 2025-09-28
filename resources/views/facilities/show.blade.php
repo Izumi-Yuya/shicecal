@@ -28,7 +28,7 @@
                         <div class="col-md-4 text-end">
                             <div class="facility-actions">
                                 <a href="{{ route('facilities.index') }}" class="btn btn-outline-secondary btn-sm">
-                                    <i class="fas fa-arrow-left"></i> 一覧に戻る
+                                    <i class="fas fa-arrow-left"></i> 施設一覧に戻る
                                 </a>
                             </div>
                         </div>
@@ -125,7 +125,7 @@
                         <div class="land-info-content">
                             @if(isset($landInfo) && $landInfo)
                                 <!-- 土地情報詳細表示 -->
-                                @include('facilities.land-info.partials.display-card', ['landInfo' => $landInfo])
+                                @include('facilities.land-info.partials.display-card', ['landInfo' => $landInfo, 'landInfoFileData' => $landInfoFileData ?? []])
                                 
                                 <!-- 土地情報コメントセクション -->
                                 <div class="comments-section" data-section="land_basic" style="display: none;">
@@ -362,6 +362,35 @@ document.addEventListener('DOMContentLoaded', function() {
             // Trigger Bootstrap tab event
             const tabEvent = new bootstrap.Tab(tabButton);
             tabEvent.show();
+            
+            @if(session('activeSubTab'))
+                // Handle sub-tab activation for lifeline equipment
+                setTimeout(() => {
+                    const activeSubTab = '{{ session('activeSubTab') }}';
+                    const subTabButton = document.getElementById(activeSubTab + '-tab');
+                    const subTabPane = document.getElementById(activeSubTab);
+                    
+                    if (subTabButton && subTabPane) {
+                        // Remove active class from current active sub-tab
+                        document.querySelectorAll('#lifelineSubTabs .nav-link.active').forEach(tab => {
+                            tab.classList.remove('active');
+                            tab.setAttribute('aria-selected', 'false');
+                        });
+                        document.querySelectorAll('#lifelineSubTabContent .tab-pane.active').forEach(pane => {
+                            pane.classList.remove('active', 'show');
+                        });
+                        
+                        // Activate the target sub-tab
+                        subTabButton.classList.add('active');
+                        subTabButton.setAttribute('aria-selected', 'true');
+                        subTabPane.classList.add('active', 'show');
+                        
+                        // Trigger Bootstrap tab event
+                        const subTabEvent = new bootstrap.Tab(subTabButton);
+                        subTabEvent.show();
+                    }
+                }, 100); // Small delay to ensure main tab is activated first
+            @endif
         }
     @endif
     
@@ -424,7 +453,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const lifelineTab = document.getElementById('lifeline-tab');
     if (lifelineTab) {
         lifelineTab.addEventListener('shown.bs.tab', function() {
-            console.log('Lifeline equipment tab activated');
+            console.log('Lifeline equipment tab activated: initializing animations and components');
             
             // Animate cards in the active sub-tab
             setTimeout(() => {
@@ -445,7 +474,7 @@ document.addEventListener('DOMContentLoaded', function() {
     subTabs.forEach(tab => {
         tab.addEventListener('shown.bs.tab', function(event) {
             const targetId = event.target.getAttribute('data-bs-target');
-            console.log(`Switched to ${targetId.replace('#', '')} equipment`);
+            console.log(`Switched to ${targetId.replace('#', '')} equipment sub-tab`);
             
             // Animate cards in the newly active tab
             setTimeout(() => {
@@ -468,7 +497,7 @@ document.addEventListener('DOMContentLoaded', function() {
             event.preventDefault();
             const section = toggle.getAttribute('data-section');
             console.log(`Toggle comments for section: ${section}`);
-            alert(`コメント機能は今後実装予定です。\nセクション: ${section}`);
+            alert(`コメント機能は今後実装予定です。\n対象セクション: ${section}`);
         });
     });
 });

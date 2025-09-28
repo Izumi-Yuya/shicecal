@@ -31,7 +31,7 @@ class LifelineEquipmentTest extends TestCase
         $lifelineEquipment = LifelineEquipment::factory()->create([
             'category' => 'electrical',
         ]);
-        
+
         $electricalEquipment = ElectricalEquipment::factory()->create([
             'lifeline_equipment_id' => $lifelineEquipment->id,
         ]);
@@ -131,7 +131,7 @@ class LifelineEquipmentTest extends TestCase
     /** @test */
     public function it_has_correct_table_name()
     {
-        $lifelineEquipment = new LifelineEquipment();
+        $lifelineEquipment = new LifelineEquipment;
         $this->assertEquals('lifeline_equipment', $lifelineEquipment->getTable());
     }
 
@@ -174,17 +174,17 @@ class LifelineEquipmentTest extends TestCase
     {
         $facility1 = Facility::factory()->create();
         $facility2 = Facility::factory()->create();
-        
+
         $equipment1 = LifelineEquipment::factory()->create([
             'facility_id' => $facility1->id,
             'category' => 'electrical',
         ]);
-        
+
         $equipment2 = LifelineEquipment::factory()->create([
             'facility_id' => $facility2->id,
             'category' => 'electrical',
         ]);
-        
+
         $equipment3 = LifelineEquipment::factory()->create([
             'facility_id' => $facility1->id,
             'category' => 'gas',
@@ -204,7 +204,7 @@ class LifelineEquipmentTest extends TestCase
     public function it_validates_category_values()
     {
         $validCategories = ['electrical', 'water', 'gas', 'elevator', 'hvac_lighting'];
-        
+
         foreach ($validCategories as $category) {
             $equipment = LifelineEquipment::factory()->create(['category' => $category]);
             $this->assertEquals($category, $equipment->category);
@@ -215,7 +215,7 @@ class LifelineEquipmentTest extends TestCase
     public function it_validates_status_values()
     {
         $validStatuses = ['draft', 'active', 'pending_approval', 'approved', 'rejected'];
-        
+
         foreach ($validStatuses as $status) {
             $equipment = LifelineEquipment::factory()->create(['status' => $status]);
             $this->assertEquals($status, $equipment->status);
@@ -241,7 +241,7 @@ class LifelineEquipmentTest extends TestCase
 
         // Use usleep for microsecond precision
         usleep(100000); // 0.1 seconds
-        
+
         $lifelineEquipment->status = 'active';
         $lifelineEquipment->save();
 

@@ -98,7 +98,7 @@ class AdminUI {
           .then(response => response.json())
           .then(data => {
             if (data.success) {
-              this.showAlert(data.message || '操作が完了しました', 'success');
+              this.showAlert(data.message || '操作が完了しました。', 'success');
 
               // Reload page or redirect if specified
               if (data.redirect) {
@@ -107,12 +107,12 @@ class AdminUI {
                 location.reload();
               }
             } else {
-              this.showAlert(data.message || 'エラーが発生しました', 'danger');
+              this.showAlert(data.message || 'エラーが発生しました。', 'danger');
             }
           })
           .catch(error => {
             console.error('Error:', error);
-            this.showAlert('通信エラーが発生しました', 'danger');
+            this.showAlert('通信エラーが発生しました。', 'danger');
           })
           .finally(() => {
             // Restore button state

@@ -14,10 +14,15 @@ class LifelineEquipmentNotesCardTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $editor;
+
     private User $viewer;
+
     private Facility $facility;
+
     private LifelineEquipment $lifelineEquipment;
+
     private ElectricalEquipment $electricalEquipment;
 
     protected function setUp(): void
@@ -66,14 +71,14 @@ class LifelineEquipmentNotesCardTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('備考');
         $response->assertSee('Initial notes content');
-        
-        // Check that the notes card specifically doesn't have an edit button
+
+        // Check that the notes card specifically does not have an edit button
         $content = $response->getContent();
         $this->assertStringContainsString('data-section="electrical_notes"', $content);
-        
+
         // Extract just the notes card section
         preg_match('/data-section="electrical_notes".*?<\/div>\s*<\/div>\s*<\/div>/s', $content, $matches);
-        if (!empty($matches)) {
+        if (! empty($matches)) {
             $notesCardContent = $matches[0];
             $this->assertStringNotContainsString('編集', $notesCardContent, 'Edit button should not be visible in notes card for viewers');
         }
@@ -109,7 +114,7 @@ class LifelineEquipmentNotesCardTest extends TestCase
             'message' => 'ライフライン設備情報を更新しました。',
         ]);
 
-        // Verify the notes were updated in the database
+        // Verify that the notes were updated in the database
         $this->electricalEquipment->refresh();
         $this->assertEquals($newNotes, $this->electricalEquipment->notes);
     }
@@ -149,7 +154,7 @@ class LifelineEquipmentNotesCardTest extends TestCase
             'message' => 'この施設のライフライン設備情報を編集する権限がありません。',
         ]);
 
-        // Verify the notes were not updated
+        // Verify that the notes were not updated
         $this->electricalEquipment->refresh();
         $this->assertEquals('Initial notes content', $this->electricalEquipment->notes);
     }
@@ -253,7 +258,7 @@ class LifelineEquipmentNotesCardTest extends TestCase
 
         $response->assertStatus(200);
 
-        // Verify notes were updated
+        // Verify that notes were updated
         $this->electricalEquipment->refresh();
         $this->assertEquals($newNotes, $this->electricalEquipment->notes);
 
@@ -291,14 +296,14 @@ class LifelineEquipmentNotesCardTest extends TestCase
     public function notes_display_handles_special_characters_safely()
     {
         $notesWithSpecialChars = 'Notes with <script>alert("xss")</script> and & special chars';
-        
+
         $this->electricalEquipment->update(['notes' => $notesWithSpecialChars]);
 
         $response = $this->actingAs($this->editor)
             ->get("/facilities/{$this->facility->id}");
 
         $response->assertStatus(200);
-        
+
         // Should see escaped content, not raw HTML
         $response->assertSee('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;', false);
         $response->assertSee('&amp; special chars', false);

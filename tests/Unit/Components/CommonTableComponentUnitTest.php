@@ -2,15 +2,12 @@
 
 namespace Tests\Unit\Components;
 
-use Tests\TestCase;
-use Illuminate\View\Component;
 use Illuminate\Support\Facades\View;
-use App\Services\CommonTableValidator;
-use App\Services\CommonTableErrorHandler;
+use Tests\TestCase;
 
 /**
  * CommonTableコンポーネント単体テスト
- * 
+ *
  * コンポーネントのプロパティ処理とレンダリングロジックのテスト
  * 要件: 設計書のテスト戦略
  */
@@ -23,7 +20,7 @@ class CommonTableComponentUnitTest extends TestCase
     public function test_component_デフォルトプロパティが正しく設定される()
     {
         $view = View::make('components.common-table', [
-            'data' => []
+            'data' => [],
         ]);
 
         $this->assertStringContainsString('facility-info-card detail-card-improved mb-3', $view->render());
@@ -38,7 +35,7 @@ class CommonTableComponentUnitTest extends TestCase
     {
         $view = View::make('components.common-table', [
             'data' => [],
-            'emptyMessage' => 'カスタム空メッセージ'
+            'emptyMessage' => 'カスタム空メッセージ',
         ]);
 
         $rendered = $view->render();
@@ -53,7 +50,7 @@ class CommonTableComponentUnitTest extends TestCase
     {
         $view = View::make('components.common-table', [
             'data' => [],
-            'title' => 'テストタイトル'
+            'title' => 'テストタイトル',
         ]);
 
         $rendered = $view->render();
@@ -70,7 +67,7 @@ class CommonTableComponentUnitTest extends TestCase
         $view = View::make('components.common-table', [
             'data' => [],
             'title' => 'テストタイトル',
-            'showHeader' => false
+            'showHeader' => false,
         ]);
 
         $rendered = $view->render();
@@ -86,7 +83,7 @@ class CommonTableComponentUnitTest extends TestCase
         // レスポンシブON
         $view = View::make('components.common-table', [
             'data' => [],
-            'responsive' => true
+            'responsive' => true,
         ]);
 
         $rendered = $view->render();
@@ -96,7 +93,7 @@ class CommonTableComponentUnitTest extends TestCase
         // レスポンシブOFF
         $view = View::make('components.common-table', [
             'data' => [],
-            'responsive' => false
+            'responsive' => false,
         ]);
 
         $rendered = $view->render();
@@ -107,7 +104,7 @@ class CommonTableComponentUnitTest extends TestCase
      * @test
      * カスタムCSSクラスの適用
      */
-    public function test_component_カスタムCSSクラスが適用される()
+    public function test_component_カスタム_cs_sクラスが適用される()
     {
         $view = View::make('components.common-table', [
             'data' => [],
@@ -116,7 +113,7 @@ class CommonTableComponentUnitTest extends TestCase
             'headerClass' => 'custom-header-class',
             'bodyClass' => 'custom-body-class',
             'wrapperClass' => 'custom-wrapper-class',
-            'title' => 'テスト'
+            'title' => 'テスト',
         ]);
 
         $rendered = $view->render();
@@ -136,7 +133,7 @@ class CommonTableComponentUnitTest extends TestCase
         $view = View::make('components.common-table', [
             'data' => [],
             'title' => 'テストテーブル',
-            'ariaLabel' => 'カスタムARIAラベル'
+            'ariaLabel' => 'カスタムARIAラベル',
         ]);
 
         $rendered = $view->render();
@@ -149,11 +146,11 @@ class CommonTableComponentUnitTest extends TestCase
      * @test
      * デフォルトARIAラベルの生成
      */
-    public function test_component_デフォルトARIAラベルが生成される()
+    public function test_component_デフォルト_ari_aラベルが生成される()
     {
         $view = View::make('components.common-table', [
             'data' => [],
-            'title' => 'テストテーブル'
+            'title' => 'テストテーブル',
         ]);
 
         $rendered = $view->render();
@@ -170,8 +167,8 @@ class CommonTableComponentUnitTest extends TestCase
             'data' => [],
             'tableAttributes' => [
                 'data-test' => 'test-value',
-                'id' => 'custom-table-id'
-            ]
+                'id' => 'custom-table-id',
+            ],
         ]);
 
         $rendered = $view->render();
@@ -189,13 +186,13 @@ class CommonTableComponentUnitTest extends TestCase
             [
                 'type' => 'standard',
                 'cells' => [
-                    ['label' => 'テストラベル', 'value' => 'テスト値', 'type' => 'text']
-                ]
-            ]
+                    ['label' => 'テストラベル', 'value' => 'テスト値', 'type' => 'text'],
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
-            'data' => $data
+            'data' => $data,
         ]);
 
         $rendered = $view->render();
@@ -214,14 +211,14 @@ class CommonTableComponentUnitTest extends TestCase
             [
                 'type' => 'invalid_type',
                 'cells' => [
-                    ['label' => 'テスト', 'value' => '値', 'type' => 'invalid_cell_type']
-                ]
-            ]
+                    ['label' => 'テスト', 'value' => '値', 'type' => 'invalid_cell_type'],
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $invalidData,
-            'validateData' => false
+            'validateData' => false,
         ]);
 
         $rendered = $view->render();
@@ -240,14 +237,14 @@ class CommonTableComponentUnitTest extends TestCase
             [
                 'type' => 'standard',
                 'cells' => [
-                    ['label' => 'テスト', 'value' => '値', 'type' => 'text', 'colspan' => 8]
-                ]
-            ]
+                    ['label' => 'テスト', 'value' => '値', 'type' => 'text', 'colspan' => 8],
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $warningData,
-            'showValidationWarnings' => true
+            'showValidationWarnings' => true,
         ]);
 
         $rendered = $view->render();
@@ -266,14 +263,14 @@ class CommonTableComponentUnitTest extends TestCase
             [
                 'type' => 'unsupported_type',
                 'cells' => [
-                    ['label' => 'テスト', 'value' => '値', 'type' => 'unsupported_cell_type']
-                ]
-            ]
+                    ['label' => 'テスト', 'value' => '値', 'type' => 'unsupported_cell_type'],
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $errorData,
-            'fallbackOnError' => true
+            'fallbackOnError' => true,
         ]);
 
         $rendered = $view->render();
@@ -293,7 +290,7 @@ class CommonTableComponentUnitTest extends TestCase
         // クリーンボディON
         $view = View::make('components.common-table', [
             'data' => [],
-            'cleanBody' => true
+            'cleanBody' => true,
         ]);
 
         $rendered = $view->render();
@@ -302,7 +299,7 @@ class CommonTableComponentUnitTest extends TestCase
         // クリーンボディOFF
         $view = View::make('components.common-table', [
             'data' => [],
-            'cleanBody' => false
+            'cleanBody' => false,
         ]);
 
         $rendered = $view->render();
@@ -319,14 +316,14 @@ class CommonTableComponentUnitTest extends TestCase
             [
                 'type' => 'standard',
                 'cells' => [
-                    ['label' => 'テスト', 'value' => '値', 'type' => 'text']
-                ]
-            ]
+                    ['label' => 'テスト', 'value' => '値', 'type' => 'text'],
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $data,
-            'title' => 'テストテーブル'
+            'title' => 'テストテーブル',
         ]);
 
         $rendered = $view->render();
@@ -342,7 +339,7 @@ class CommonTableComponentUnitTest extends TestCase
     {
         $view = View::make('components.common-table', [
             'data' => [],
-            'title' => 'テストテーブル'
+            'title' => 'テストテーブル',
         ]);
 
         $rendered = $view->render();
@@ -356,7 +353,7 @@ class CommonTableComponentUnitTest extends TestCase
     public function test_component_モバイル最適化属性が設定される()
     {
         $view = View::make('components.common-table', [
-            'data' => []
+            'data' => [],
         ]);
 
         $rendered = $view->render();
@@ -373,19 +370,19 @@ class CommonTableComponentUnitTest extends TestCase
             [
                 'type' => 'standard',
                 'cells' => [
-                    ['label' => 'ラベル1', 'value' => '値1', 'type' => 'text']
-                ]
+                    ['label' => 'ラベル1', 'value' => '値1', 'type' => 'text'],
+                ],
             ],
             [
                 'type' => 'single',
                 'cells' => [
-                    ['label' => 'ラベル2', 'value' => '値2', 'type' => 'text', 'colspan' => 2]
-                ]
-            ]
+                    ['label' => 'ラベル2', 'value' => '値2', 'type' => 'text', 'colspan' => 2],
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
-            'data' => $data
+            'data' => $data,
         ]);
 
         $rendered = $view->render();
@@ -405,19 +402,19 @@ class CommonTableComponentUnitTest extends TestCase
             [
                 'type' => 'standard',
                 'cells' => [
-                    ['label' => '有効なデータ', 'value' => '値', 'type' => 'text']
-                ]
+                    ['label' => '有効なデータ', 'value' => '値', 'type' => 'text'],
+                ],
             ],
             'invalid_row_data',
             [
                 'type' => 'standard',
-                'cells' => []  // 空のセル配列
-            ]
+                'cells' => [],  // 空のセル配列
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $data,
-            'validateData' => false  // バリデーションを無効にして構造チェックのみ
+            'validateData' => false,  // バリデーションを無効にして構造チェックのみ
         ]);
 
         $rendered = $view->render();

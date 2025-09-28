@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Components;
 
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class CommonTableCardWrapperIntegrationTest extends TestCase
 {
@@ -18,8 +18,8 @@ class CommonTableCardWrapperIntegrationTest extends TestCase
                 'cells' => [
                     ['label' => '会社名', 'value' => 'テスト会社', 'type' => 'text'],
                     ['label' => '事業所コード', 'value' => 'TEST001', 'type' => 'badge'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = $this->blade(
@@ -32,7 +32,7 @@ class CommonTableCardWrapperIntegrationTest extends TestCase
         $view->assertSee('detail-card-improved');
         $view->assertSee('card-header');
         $view->assertSee('基本情報');
-        
+
         // テーブルコンテンツを確認
         $view->assertSee('会社名');
         $view->assertSee('テスト会社');
@@ -48,8 +48,8 @@ class CommonTableCardWrapperIntegrationTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'ラベル', 'value' => '値', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = $this->blade(
@@ -59,7 +59,7 @@ class CommonTableCardWrapperIntegrationTest extends TestCase
 
         // ヘッダーがないことを確認
         $view->assertDontSee('card-header');
-        
+
         // カードとテーブルは存在することを確認
         $view->assertSee('facility-info-card');
         $view->assertSee('ラベル');
@@ -74,8 +74,8 @@ class CommonTableCardWrapperIntegrationTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'テスト', 'value' => 'データ', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = $this->blade(
@@ -100,8 +100,8 @@ class CommonTableCardWrapperIntegrationTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'アクセシビリティ', 'value' => 'テスト', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = $this->blade(
@@ -126,14 +126,14 @@ class CommonTableCardWrapperIntegrationTest extends TestCase
                 'cells' => [
                     ['label' => '会社名', 'value' => 'テスト会社', 'type' => 'text'],
                     ['label' => 'メール', 'value' => 'test@example.com', 'type' => 'email'],
-                ]
+                ],
             ],
             [
                 'type' => 'single',
                 'cells' => [
                     ['label' => 'URL', 'value' => 'https://example.com', 'type' => 'url', 'colspan' => 3],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = $this->blade(
@@ -144,7 +144,7 @@ class CommonTableCardWrapperIntegrationTest extends TestCase
         // カードラッパーの構造
         $view->assertSee('facility-info-card');
         $view->assertSee('複雑なデータ');
-        
+
         // 複雑なデータの表示
         $view->assertSee('テスト会社');
         $view->assertSee('test@example.com');

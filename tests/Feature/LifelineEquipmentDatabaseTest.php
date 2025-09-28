@@ -14,7 +14,7 @@ class LifelineEquipmentDatabaseTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * Test lifeline equipment model creation and relationships.
+     * Test the lifeline equipment model creation and relationships.
      */
     public function test_lifeline_equipment_model_creation_and_relationships()
     {
@@ -45,7 +45,7 @@ class LifelineEquipmentDatabaseTest extends TestCase
 
         // Test facility relationship back to lifeline equipment
         $this->assertTrue($facility->lifelineEquipment->contains($lifelineEquipment));
-        
+
         // Test getting lifeline equipment by category
         $electricalEquipment = $facility->getLifelineEquipmentByCategory('electrical');
         $this->assertInstanceOf(LifelineEquipment::class, $electricalEquipment);
@@ -53,7 +53,7 @@ class LifelineEquipmentDatabaseTest extends TestCase
     }
 
     /**
-     * Test electrical equipment model creation and relationships.
+     * Test the electrical equipment model creation and relationships.
      */
     public function test_electrical_equipment_model_creation_and_relationships()
     {
@@ -72,11 +72,11 @@ class LifelineEquipmentDatabaseTest extends TestCase
                 'electrical_contractor' => '東京電力',
                 'safety_management_company' => '○○保安管理株式会社',
                 'maintenance_inspection_date' => '2024-03-15',
-                'inspection_report_pdf' => 'electrical_inspection_report_2024.pdf'
+                'inspection_report_pdf' => 'electrical_inspection_report_2024.pdf',
             ],
             'pas_info' => [
                 'availability' => '有',
-                'update_date' => '2023-09-15'
+                'update_date' => '2023-09-15',
             ],
             'cubicle_info' => [
                 'availability' => '有',
@@ -85,9 +85,9 @@ class LifelineEquipmentDatabaseTest extends TestCase
                         'equipment_number' => '1',
                         'manufacturer' => '三菱電機',
                         'model_year' => '2020',
-                        'update_date' => '2024-03-15'
-                    ]
-                ]
+                        'update_date' => '2024-03-15',
+                    ],
+                ],
             ],
             'generator_info' => [
                 'availability' => '有',
@@ -96,11 +96,11 @@ class LifelineEquipmentDatabaseTest extends TestCase
                         'equipment_number' => '1',
                         'manufacturer' => 'ヤンマー',
                         'model_year' => '2021',
-                        'update_date' => '2024-03-15'
-                    ]
-                ]
+                        'update_date' => '2024-03-15',
+                    ],
+                ],
             ],
-            'notes' => '特記事項なし'
+            'notes' => '特記事項なし',
         ]);
 
         // Test basic model properties
@@ -138,7 +138,7 @@ class LifelineEquipmentDatabaseTest extends TestCase
     }
 
     /**
-     * Test lifeline equipment status methods.
+     * Test the lifeline equipment status methods.
      */
     public function test_lifeline_equipment_status_methods()
     {
@@ -176,7 +176,7 @@ class LifelineEquipmentDatabaseTest extends TestCase
     }
 
     /**
-     * Test lifeline equipment display names.
+     * Test the lifeline equipment display names.
      */
     public function test_lifeline_equipment_display_names()
     {

@@ -2,10 +2,9 @@
 
 namespace Tests\Unit\Services;
 
-use Tests\TestCase;
 use App\Services\CommonTablePerformanceOptimizer;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
+use Tests\TestCase;
 
 class CommonTablePerformanceOptimizerTest extends TestCase
 {
@@ -18,7 +17,7 @@ class CommonTablePerformanceOptimizerTest extends TestCase
     public function test_generate_cache_key_creates_consistent_key()
     {
         $data = [
-            ['type' => 'standard', 'cells' => [['label' => 'Test', 'value' => 'Value']]]
+            ['type' => 'standard', 'cells' => [['label' => 'Test', 'value' => 'Value']]],
         ];
         $options = ['title' => 'Test Table'];
 
@@ -32,10 +31,10 @@ class CommonTablePerformanceOptimizerTest extends TestCase
     public function test_generate_cache_key_creates_different_keys_for_different_data()
     {
         $data1 = [
-            ['type' => 'standard', 'cells' => [['label' => 'Test1', 'value' => 'Value1']]]
+            ['type' => 'standard', 'cells' => [['label' => 'Test1', 'value' => 'Value1']]],
         ];
         $data2 = [
-            ['type' => 'standard', 'cells' => [['label' => 'Test2', 'value' => 'Value2']]]
+            ['type' => 'standard', 'cells' => [['label' => 'Test2', 'value' => 'Value2']]],
         ];
 
         $key1 = CommonTablePerformanceOptimizer::generateCacheKey($data1);
@@ -49,7 +48,7 @@ class CommonTablePerformanceOptimizerTest extends TestCase
         $cacheKey = 'test_cache_key';
         $formattedData = [
             'data' => [['type' => 'standard', 'cells' => []]],
-            'has_valid_data' => true
+            'has_valid_data' => true,
         ];
 
         $result = CommonTablePerformanceOptimizer::cacheFormattedData($cacheKey, $formattedData, 5);
@@ -71,8 +70,8 @@ class CommonTablePerformanceOptimizerTest extends TestCase
         $smallData = [
             ['type' => 'standard', 'cells' => [
                 ['label' => 'Test1', 'value' => 'Value1'],
-                ['label' => 'Test2', 'value' => 'Value2']
-            ]]
+                ['label' => 'Test2', 'value' => 'Value2'],
+            ]],
         ];
 
         $this->assertFalse(CommonTablePerformanceOptimizer::isLargeDataset($smallData));
@@ -98,9 +97,9 @@ class CommonTablePerformanceOptimizerTest extends TestCase
                 'cells' => [
                     ['label' => 'Test', 'value' => str_repeat('A', 2000), 'extra_field' => 'unused'],
                     ['label' => 'Empty', 'value' => null],
-                    ['label' => 'Normal', 'value' => 'Normal value']
-                ]
-            ]
+                    ['label' => 'Normal', 'value' => 'Normal value'],
+                ],
+            ],
         ];
 
         $optimized = CommonTablePerformanceOptimizer::optimizeDataForMemory($originalData);
@@ -108,7 +107,7 @@ class CommonTablePerformanceOptimizerTest extends TestCase
         $this->assertIsArray($optimized);
         $this->assertCount(1, $optimized);
         $this->assertArrayHasKey('cells', $optimized[0]);
-        
+
         // Check that long value was truncated
         $firstCell = $optimized[0]['cells'][0];
         $this->assertStringEndsWith('...', $firstCell['value']);
@@ -123,13 +122,13 @@ class CommonTablePerformanceOptimizerTest extends TestCase
                 'cells' => [
                     ['label' => 'Test', 'value' => 'Value'],
                     ['label' => 'Empty', 'value' => null],
-                    ['label' => 'Another Empty', 'value' => '']
-                ]
-            ]
+                    ['label' => 'Another Empty', 'value' => ''],
+                ],
+            ],
         ];
 
         $optimized = CommonTablePerformanceOptimizer::optimizeDataForMemory($originalData, [
-            'skip_empty_cells' => true
+            'skip_empty_cells' => true,
         ]);
 
         $this->assertCount(1, $optimized[0]['cells']);
@@ -156,8 +155,8 @@ class CommonTablePerformanceOptimizerTest extends TestCase
         $data = [
             ['type' => 'standard', 'cells' => [
                 ['label' => 'Test1', 'value' => 'Value1'],
-                ['label' => 'Test2', 'value' => 'Value2']
-            ]]
+                ['label' => 'Test2', 'value' => 'Value2'],
+            ]],
         ];
 
         $renderTime = 0.25; // 250ms
@@ -221,7 +220,7 @@ class CommonTablePerformanceOptimizerTest extends TestCase
             'batch_size',
             'enable_memory_optimization',
             'enable_data_truncation',
-            'skip_empty_cells'
+            'skip_empty_cells',
         ];
 
         foreach ($expectedKeys as $key) {
@@ -240,8 +239,8 @@ class CommonTablePerformanceOptimizerTest extends TestCase
         // Small dataset - no optimization needed
         $smallData = [
             ['type' => 'standard', 'cells' => [
-                ['label' => 'Test', 'value' => 'Value']
-            ]]
+                ['label' => 'Test', 'value' => 'Value'],
+            ]],
         ];
 
         $smallAnalysis = CommonTablePerformanceOptimizer::analyzePerformanceNeeds($smallData);

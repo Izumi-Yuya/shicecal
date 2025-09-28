@@ -216,7 +216,7 @@ class ElectricalEquipmentTest extends TestCase
         $this->assertEquals('関西電力', $electricalEquipment->basic_info['electrical_contractor']);
         $this->assertEquals('新保安管理会社', $electricalEquipment->basic_info['safety_management_company']);
         $this->assertEquals('2024-02-15', $electricalEquipment->basic_info['maintenance_inspection_date']);
-        
+
         // PAS info should remain unchanged
         $this->assertEquals('有', $electricalEquipment->pas_info['availability']);
         $this->assertEquals('既存PAS情報', $electricalEquipment->pas_info['details']);
@@ -225,7 +225,7 @@ class ElectricalEquipmentTest extends TestCase
     /** @test */
     public function it_has_correct_table_name()
     {
-        $electricalEquipment = new ElectricalEquipment();
+        $electricalEquipment = new ElectricalEquipment;
         $this->assertEquals('electrical_equipment', $electricalEquipment->getTable());
     }
 
@@ -248,7 +248,7 @@ class ElectricalEquipmentTest extends TestCase
 
         // Use usleep for microsecond precision
         usleep(100000); // 0.1 seconds
-        
+
         $electricalEquipment->notes = '更新された備考';
         $electricalEquipment->save();
 

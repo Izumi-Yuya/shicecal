@@ -12,7 +12,7 @@ class LifelineEquipmentValidationServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new LifelineEquipmentValidationService();
+        $this->service = new LifelineEquipmentValidationService;
     }
 
     public function test_validate_category_data_returns_success_for_valid_electrical_data(): void
@@ -134,7 +134,7 @@ class LifelineEquipmentValidationServiceTest extends TestCase
         for ($i = 0; $i < 25; $i++) {
             $equipmentList[] = [
                 'equipment_number' => sprintf('%03d', $i),
-                'manufacturer' => 'メーカー' . $i,
+                'manufacturer' => 'メーカー'.$i,
                 'model_year' => '2024',
                 'update_date' => '2024-01-15',
             ];

@@ -40,7 +40,7 @@
 
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="gas_supplier" class="form-label">ガス契約会社</label>
+                                <label for="gas_supplier" class="form-label">ガス事業者</label>
                                 <input type="text" 
                                        class="form-control @error('basic_info.gas_supplier') is-invalid @enderror" 
                                        id="gas_supplier" 
@@ -52,7 +52,7 @@
                                 @enderror
                             </div>
                             <div class="col-md-6">
-                                <label for="gas_type" class="form-label">ガス種類</label>
+                                <label for="gas_type" class="form-label">ガスの種類</label>
                                 <div class="input-group">
                                     <select class="form-select @error('basic_info.gas_type') is-invalid @enderror" 
                                             id="gas_type_select" 
@@ -66,7 +66,7 @@
                                            class="form-control @error('basic_info.gas_type') is-invalid @enderror" 
                                            id="gas_type_custom" 
                                            value="{{ old('basic_info.gas_type', $basicInfo['gas_type'] ?? '') }}"
-                                           placeholder="その他のガス種類を入力してください"
+                                           placeholder="ガスの種類を入力してください"
                                            style="display: none;">
                                     <button type="button" 
                                             class="btn btn-outline-secondary" 
@@ -124,14 +124,14 @@
                             <div class="equipment-section-header d-flex justify-content-between align-items-center mb-3">
                                 <h6 class="mb-0">給湯器設備一覧</h6>
                                 <button type="button" class="btn btn-outline-primary btn-sm add-water-heater-btn">
-                                    <i class="fas fa-plus"></i> 設備追加
+                                    <i class="fas fa-plus"></i> 給湯器追加
                                 </button>
                             </div>
                             
                             <div id="water-heater-equipment-list" class="equipment-list">
                                 @if(empty($waterHeaters))
                                     <div class="no-equipment-message">
-                                        給湯器が登録されていません。「設備追加」ボタンで追加してください。
+                                        給湯器設備が登録されていません。「給湯器追加」ボタンで追加してください。
                                     </div>
                                 @else
                                     @foreach($waterHeaters as $index => $heater)
@@ -416,7 +416,7 @@ function initializeWaterHeaterEquipment() {
     const addWaterHeaterBtn = document.querySelector('.add-water-heater-btn');
     const noEquipmentMessage = document.querySelector('.no-equipment-message');
     
-    // 設備追加ボタンのイベント
+    // 給湯器追加ボタンのイベント
     if (addWaterHeaterBtn) {
         addWaterHeaterBtn.addEventListener('click', function(e) {
             e.preventDefault();
@@ -424,7 +424,7 @@ function initializeWaterHeaterEquipment() {
         });
     }
     
-    // 設備追加関数
+    // 給湯器追加関数
     function addWaterHeaterEquipment() {
         // メッセージを非表示
         if (noEquipmentMessage) {

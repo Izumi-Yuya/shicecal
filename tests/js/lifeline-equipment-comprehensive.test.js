@@ -638,11 +638,11 @@ describe('ライフライン設備管理 - 包括的テスト', () => {
         }, 3000);
       };
 
-      showNotification('データを保存しました', 'success');
+      showNotification('データを保存しました。', 'success');
 
       const notification = notificationContainer.querySelector('.alert-success');
       expect(notification).toBeTruthy();
-      expect(notification.textContent).toBe('データを保存しました');
+      expect(notification.textContent).toBe('データを保存しました。');
     });
 
     it('エラー通知が表示される', () => {
@@ -656,11 +656,11 @@ describe('ライフライン設備管理 - 包括的テスト', () => {
         notificationContainer.appendChild(notification);
       };
 
-      showNotification('保存に失敗しました', 'danger');
+      showNotification('保存に失敗しました。', 'danger');
 
       const notification = notificationContainer.querySelector('.alert-danger');
       expect(notification).toBeTruthy();
-      expect(notification.textContent).toBe('保存に失敗しました');
+      expect(notification.textContent).toBe('保存に失敗しました。');
     });
   });
 

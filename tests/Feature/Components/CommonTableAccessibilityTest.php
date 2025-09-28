@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Components;
 
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class CommonTableAccessibilityTest extends TestCase
 {
@@ -20,8 +20,8 @@ class CommonTableAccessibilityTest extends TestCase
                 'cells' => [
                     ['label' => 'テストラベル', 'value' => 'テスト値', 'type' => 'text'],
                     ['label' => '空フィールド', 'value' => null, 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $html = $this->blade(
@@ -31,17 +31,17 @@ class CommonTableAccessibilityTest extends TestCase
 
         // テーブルのrole属性
         $html->assertSee('role="table"', false);
-        
+
         // aria-label属性
         $html->assertSee('aria-label="アクセシビリティテストの詳細情報"', false);
-        
+
         // region role for table container
         $html->assertSee('role="region"', false);
-        
+
         // スクリーンリーダー用の説明
         $html->assertSee('class="sr-only"', false);
         $html->assertSee('アクセシビリティテストの詳細情報テーブル', false);
-        
+
         // テーブルキャプション
         $html->assertSee('<caption class="sr-only">アクセシビリティテストの詳細情報</caption>', false);
     }
@@ -56,14 +56,14 @@ class CommonTableAccessibilityTest extends TestCase
                 'type' => 'grouped',
                 'cells' => [
                     ['label' => 'グループラベル', 'value' => 'グループ値', 'type' => 'text'],
-                ]
+                ],
             ],
             [
                 'type' => 'single',
                 'cells' => [
                     ['label' => '単一ラベル', 'value' => '単一値', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $html = $this->blade(
@@ -73,11 +73,11 @@ class CommonTableAccessibilityTest extends TestCase
 
         // 行のrole属性
         $html->assertSee('role="row"', false);
-        
+
         // 行タイプ別のaria-label
         $html->assertSee('aria-label="グループラベルの情報行"', false);
         $html->assertSee('aria-label="単一ラベルの情報行"', false);
-        
+
         // データ属性
         $html->assertSee('data-row-type="grouped"', false);
         $html->assertSee('data-row-type="single"', false);
@@ -95,8 +95,8 @@ class CommonTableAccessibilityTest extends TestCase
                     ['label' => 'メールアドレス', 'value' => 'test@example.com', 'type' => 'email'],
                     ['label' => 'ウェブサイト', 'value' => 'https://example.com', 'type' => 'url'],
                     ['label' => '空項目', 'value' => null, 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $html = $this->blade(
@@ -107,15 +107,15 @@ class CommonTableAccessibilityTest extends TestCase
         // ラベルセルの属性
         $html->assertSee('scope="row"', false);
         $html->assertSee('role="rowheader"', false);
-        
+
         // 値セルの属性
         $html->assertSee('role="gridcell"', false);
-        
+
         // セルタイプ別のaria-label
         $html->assertSee('aria-label="メールアドレス: test@example.com"', false);
         $html->assertSee('aria-label="ウェブサイト: https://example.com"', false);
         $html->assertSee('aria-label="未設定の項目"', false);
-        
+
         // データ属性
         $html->assertSee('data-cell-type="email"', false);
         $html->assertSee('data-cell-type="url"', false);
@@ -133,8 +133,8 @@ class CommonTableAccessibilityTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'テスト', 'value' => 'レスポンシブ', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $html = $this->blade(
@@ -144,7 +144,7 @@ class CommonTableAccessibilityTest extends TestCase
 
         // レスポンシブクラス
         $html->assertSee('table-responsive table-responsive-md', false);
-        
+
         // レスポンシブデータ属性
         $html->assertSee('data-responsive="true"', false);
         $html->assertSee('data-mobile-optimized="true"', false);
@@ -162,13 +162,13 @@ class CommonTableAccessibilityTest extends TestCase
 
         // Alert role
         $html->assertSee('role="alert"', false);
-        
+
         // Live region
         $html->assertSee('aria-live="polite"', false);
-        
+
         // aria-hidden for decorative icons
         $html->assertSee('aria-hidden="true"', false);
-        
+
         // スクリーンリーダー用の説明
         $html->assertSee('class="sr-only"', false);
         $html->assertSee('データの表示に問題が発生しました', false);
@@ -184,8 +184,8 @@ class CommonTableAccessibilityTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'フォーカステスト', 'value' => 'キーボードナビゲーション', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $html = $this->blade(
@@ -196,7 +196,7 @@ class CommonTableAccessibilityTest extends TestCase
         // CSS classes for focus styles should be present in the rendered HTML
         $html->assertSee('detail-label', false);
         $html->assertSee('detail-value', false);
-        
+
         // The HTML structure should support keyboard navigation
         // (Focus styles are handled by CSS)
     }
@@ -211,8 +211,8 @@ class CommonTableAccessibilityTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'スクリーンリーダー', 'value' => 'テスト', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $html = $this->blade(
@@ -237,8 +237,8 @@ class CommonTableAccessibilityTest extends TestCase
                 'cells' => [
                     ['label' => 'No-JSテスト', 'value' => 'フォールバック', 'type' => 'text'],
                     ['label' => '空項目', 'value' => null, 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $html = $this->blade(
@@ -249,12 +249,12 @@ class CommonTableAccessibilityTest extends TestCase
         // 基本的なテーブル構造
         $html->assertSee('role="table"', false);
         $html->assertSee('scope="row"', false);
-        
+
         // データの表示
         $html->assertSee('No-JSテスト', false);
         $html->assertSee('フォールバック', false);
         $html->assertSee('未設定', false);
-        
+
         // 空フィールドクラス
         $html->assertSee('empty-field', false);
     }
@@ -269,8 +269,8 @@ class CommonTableAccessibilityTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'ハイコントラスト', 'value' => 'テスト', 'type' => 'text'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $html = $this->blade(

@@ -14,6 +14,7 @@ class LifelineEquipmentControllerTest extends TestCase
     use RefreshDatabase;
 
     protected User $user;
+
     protected Facility $facility;
 
     protected function setUp(): void
@@ -48,7 +49,7 @@ class LifelineEquipmentControllerTest extends TestCase
         $response = $this->actingAs($this->user)
             ->getJson(route('facilities.lifeline-equipment.show', [
                 'facility' => $this->facility->id,
-                'category' => 'electrical'
+                'category' => 'electrical',
             ]));
 
         $response->assertStatus(200)
@@ -69,7 +70,7 @@ class LifelineEquipmentControllerTest extends TestCase
         $response = $this->actingAs($this->user)
             ->getJson(route('facilities.lifeline-equipment.show', [
                 'facility' => $this->facility->id,
-                'category' => 'electrical'
+                'category' => 'electrical',
             ]));
 
         $response->assertStatus(200)
@@ -80,7 +81,10 @@ class LifelineEquipmentControllerTest extends TestCase
                         'electrical_contractor' => '',
                         'safety_management_company' => '',
                         'maintenance_inspection_date' => '',
-                        'inspection_report_pdf' => '',
+                        'inspection' => [
+                            'inspection_report_pdf' => '',
+                            'inspection_report_pdf_path' => '',
+                        ],
                     ],
                     'pas_info' => [
                         'availability' => '',
@@ -120,7 +124,7 @@ class LifelineEquipmentControllerTest extends TestCase
         $response = $this->actingAs($this->user)
             ->putJson(route('facilities.lifeline-equipment.update', [
                 'facility' => $this->facility->id,
-                'category' => 'electrical'
+                'category' => 'electrical',
             ]), $data);
 
         $response->assertStatus(200)
@@ -149,7 +153,7 @@ class LifelineEquipmentControllerTest extends TestCase
         $response = $this->actingAs($this->user)
             ->getJson(route('facilities.lifeline-equipment.show', [
                 'facility' => $this->facility->id,
-                'category' => 'invalid_category'
+                'category' => 'invalid_category',
             ]));
 
         $response->assertStatus(422)
@@ -167,7 +171,7 @@ class LifelineEquipmentControllerTest extends TestCase
             $response = $this->actingAs($this->user)
                 ->getJson(route('facilities.lifeline-equipment.show', [
                     'facility' => $this->facility->id,
-                    'category' => $category
+                    'category' => $category,
                 ]));
 
             $response->assertStatus(200)
@@ -184,8 +188,8 @@ class LifelineEquipmentControllerTest extends TestCase
                         'category_display_name',
                         'status_display_name',
                         'updated_at',
-                        'created_at'
-                    ]
+                        'created_at',
+                    ],
                 ]);
         }
     }
@@ -200,7 +204,7 @@ class LifelineEquipmentControllerTest extends TestCase
             $response = $this->actingAs($user)
                 ->getJson(route('facilities.lifeline-equipment.show', [
                     'facility' => $this->facility->id,
-                    'category' => 'electrical'
+                    'category' => 'electrical',
                 ]));
 
             $response->assertStatus(200)
@@ -224,7 +228,7 @@ class LifelineEquipmentControllerTest extends TestCase
         $response = $this->actingAs($this->user)
             ->putJson(route('facilities.lifeline-equipment.update', [
                 'facility' => $this->facility->id,
-                'category' => 'electrical'
+                'category' => 'electrical',
             ]), $invalidData);
 
         $response->assertStatus(422)
@@ -236,7 +240,7 @@ class LifelineEquipmentControllerTest extends TestCase
                 'errors' => [
                     'basic_info.maintenance_inspection_date',
                     'pas_info.availability',
-                ]
+                ],
             ]);
     }
 }

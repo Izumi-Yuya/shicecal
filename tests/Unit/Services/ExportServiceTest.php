@@ -153,13 +153,13 @@ class ExportServiceTest extends TestCase
             ->with("batch_pdf_progress_{$batchId}", \Mockery::any())
             ->andReturn([
                 'status' => 'not_found',
-                'message' => 'バッチが見つかりません',
+                'message' => 'バッチが見つかりません。',
             ]);
 
         $result = $this->service->getBatchProgress($batchId);
 
         $this->assertEquals('not_found', $result['status']);
-        $this->assertEquals('バッチが見つかりません', $result['message']);
+        $this->assertEquals('バッチが見つかりません。', $result['message']);
     }
 
     // ========================================

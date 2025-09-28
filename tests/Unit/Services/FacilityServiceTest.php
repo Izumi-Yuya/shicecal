@@ -180,10 +180,10 @@ class FacilityServiceTest extends TestCase
     {
         // Arrange
         $facility = Facility::factory()->create();
-        
+
         // Ensure no land info exists by deleting any that might have been created
         LandInfo::where('facility_id', $facility->id)->delete();
-        
+
         // Clear cache to ensure fresh query
         Cache::forget("land_info.facility.{$facility->id}");
 

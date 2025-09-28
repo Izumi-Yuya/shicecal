@@ -122,7 +122,7 @@ class WaterEquipmentTest extends TestCase
     /** @test */
     public function it_has_correct_table_name()
     {
-        $waterEquipment = new WaterEquipment();
+        $waterEquipment = new WaterEquipment;
         $this->assertEquals('water_equipment', $waterEquipment->getTable());
     }
 
@@ -144,7 +144,7 @@ class WaterEquipmentTest extends TestCase
         $originalUpdatedAt = $waterEquipment->updated_at;
 
         usleep(100000); // 0.1 seconds
-        
+
         $waterEquipment->notes = '更新された備考';
         $waterEquipment->save();
 
@@ -175,7 +175,7 @@ class WaterEquipmentTest extends TestCase
         $this->assertEquals('大阪市水道局', $waterEquipment->basic_info['water_supplier']);
         $this->assertEquals('工業用水道', $waterEquipment->basic_info['contract_type']);
         $this->assertEquals('W987654321', $waterEquipment->basic_info['meter_number']);
-        
+
         // Notes should remain unchanged
         $this->assertEquals('既存の備考', $waterEquipment->notes);
     }

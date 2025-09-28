@@ -48,7 +48,7 @@ class ErrorHandlingTraitsTest extends TestCase
 
         // Test error messages (should be in Japanese)
         $this->assertStringContainsString('バリデーションエラー', $trait->test_get_error_message(new ValidationException(validator([]))));
-        $this->assertStringContainsString('権限がありません', $trait->test_get_error_message(new AuthorizationException));
+        $this->assertStringContainsString('権限がありません。', $trait->test_get_error_message(new AuthorizationException));
         $this->assertStringContainsString('見つかりません', $trait->test_get_error_message(new ModelNotFoundException));
         $this->assertStringContainsString('エラーが発生しました', $trait->test_get_error_message(new \Exception));
     }

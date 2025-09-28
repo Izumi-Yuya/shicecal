@@ -1,5 +1,5 @@
 @props([
-    'message' => 'テーブルの表示中にエラーが発生しました',
+    'message' => 'テーブルの表示中にエラーが発生しました。',
     'errors' => [],
     'showDetails' => false,
     'errorId' => null

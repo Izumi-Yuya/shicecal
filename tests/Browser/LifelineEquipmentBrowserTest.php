@@ -15,17 +15,18 @@ class LifelineEquipmentBrowserTest extends DuskTestCase
     use DatabaseMigrations;
 
     protected User $user;
+
     protected Facility $facility;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->user = User::factory()->create([
             'role' => 'editor',
             'email' => 'test@example.com',
         ]);
-        
+
         $this->facility = Facility::factory()->create([
             'facility_name' => 'テスト施設',
             'status' => 'approved',
@@ -108,17 +109,17 @@ class LifelineEquipmentBrowserTest extends DuskTestCase
                     $browser->click('[data-card="basic_info"] .edit-btn')
                         ->waitFor('[data-card="basic_info"] .edit-form')
                         ->assertVisible('[data-card="basic_info"] .edit-form')
-                        
+
                         // Fill in form fields
                         ->type('input[name="electrical_contractor"]', '東京電力')
                         ->type('input[name="safety_management_company"]', '保安管理会社')
                         ->type('input[name="maintenance_inspection_date"]', '2024-01-15')
-                        
+
                         // Save the form
                         ->click('[data-card="basic_info"] .save-btn')
                         ->waitFor('[data-card="basic_info"] .display-content')
                         ->assertVisible('[data-card="basic_info"] .display-content')
-                        
+
                         // Verify saved data is displayed
                         ->assertSee('東京電力')
                         ->assertSee('保安管理会社')
@@ -140,18 +141,18 @@ class LifelineEquipmentBrowserTest extends DuskTestCase
                     $browser->click('[data-card="pas_info"] .edit-btn')
                         ->waitFor('[data-card="pas_info"] .edit-form')
                         ->assertVisible('[data-card="pas_info"] .edit-form')
-                        
+
                         // Select availability
                         ->select('select[name="availability"]', '有')
                         ->waitFor('textarea[name="details"]')
                         ->type('textarea[name="details"]', 'PAS設備詳細情報')
                         ->type('input[name="update_date"]', '2024-01-15')
-                        
+
                         // Save the form
                         ->click('[data-card="pas_info"] .save-btn')
                         ->waitFor('[data-card="pas_info"] .display-content')
                         ->assertVisible('[data-card="pas_info"] .display-content')
-                        
+
                         // Verify saved data is displayed
                         ->assertSee('有')
                         ->assertSee('PAS設備詳細情報')
@@ -173,11 +174,11 @@ class LifelineEquipmentBrowserTest extends DuskTestCase
                     $browser->click('[data-card="cubicle_info"] .edit-btn')
                         ->waitFor('[data-card="cubicle_info"] .edit-form')
                         ->assertVisible('[data-card="cubicle_info"] .edit-form')
-                        
+
                         // Select availability
                         ->select('select[name="availability"]', '有')
                         ->waitFor('.equipment-list-container')
-                        
+
                         // Add first equipment
                         ->click('.add-equipment-btn')
                         ->waitFor('.equipment-item:first-child')
@@ -187,7 +188,7 @@ class LifelineEquipmentBrowserTest extends DuskTestCase
                                 ->type('input[name="model_year"]', '2024')
                                 ->type('input[name="update_date"]', '2024-01-15');
                         })
-                        
+
                         // Add second equipment
                         ->click('.add-equipment-btn')
                         ->waitFor('.equipment-item:nth-child(2)')
@@ -197,12 +198,12 @@ class LifelineEquipmentBrowserTest extends DuskTestCase
                                 ->type('input[name="model_year"]', '2023')
                                 ->type('input[name="update_date"]', '2024-01-16');
                         })
-                        
+
                         // Save the form
                         ->click('[data-card="cubicle_info"] .save-btn')
                         ->waitFor('[data-card="cubicle_info"] .display-content')
                         ->assertVisible('[data-card="cubicle_info"] .display-content')
-                        
+
                         // Verify saved data is displayed
                         ->assertSee('有')
                         ->assertSee('001')
@@ -227,7 +228,7 @@ class LifelineEquipmentBrowserTest extends DuskTestCase
                         ->waitFor('[data-card="generator_info"] .edit-form')
                         ->select('select[name="availability"]', '有')
                         ->waitFor('.equipment-list-container')
-                        
+
                         // Add two equipment items
                         ->click('.add-equipment-btn')
                         ->waitFor('.equipment-item:first-child')
@@ -235,18 +236,18 @@ class LifelineEquipmentBrowserTest extends DuskTestCase
                             $browser->type('input[name="equipment_number"]', '001')
                                 ->type('input[name="manufacturer"]', 'ヤンマー');
                         })
-                        
+
                         ->click('.add-equipment-btn')
                         ->waitFor('.equipment-item:nth-child(2)')
                         ->within('.equipment-item:nth-child(2)', function ($browser) {
                             $browser->type('input[name="equipment_number"]', '002')
                                 ->type('input[name="manufacturer"]', 'デンヨー');
                         })
-                        
+
                         // Remove first equipment
                         ->click('.equipment-item:first-child .remove-equipment-btn')
                         ->waitUntilMissing('.equipment-item:nth-child(2)')
-                        
+
                         // Verify only second equipment remains (now first)
                         ->within('.equipment-item:first-child', function ($browser) {
                             $browser->assertInputValue('input[name="equipment_number"]', '002')
@@ -269,15 +270,15 @@ class LifelineEquipmentBrowserTest extends DuskTestCase
                     $browser->click('[data-card="notes"] .edit-btn')
                         ->waitFor('[data-card="notes"] .edit-form')
                         ->assertVisible('[data-card="notes"] .edit-form')
-                        
+
                         // Fill in notes
                         ->type('textarea[name="notes"]', '電気設備に関する特記事項です。')
-                        
+
                         // Save the form
                         ->click('[data-card="notes"] .save-btn')
                         ->waitFor('[data-card="notes"] .display-content')
                         ->assertVisible('[data-card="notes"] .display-content')
-                        
+
                         // Verify saved data is displayed
                         ->assertSee('電気設備に関する特記事項です。');
                 });
@@ -297,15 +298,15 @@ class LifelineEquipmentBrowserTest extends DuskTestCase
                     $browser->click('[data-card="basic_info"] .edit-btn')
                         ->waitFor('[data-card="basic_info"] .edit-form')
                         ->assertVisible('[data-card="basic_info"] .edit-form')
-                        
+
                         // Fill in some data
                         ->type('input[name="electrical_contractor"]', '東京電力')
-                        
+
                         // Cancel editing
                         ->click('[data-card="basic_info"] .cancel-btn')
                         ->waitFor('[data-card="basic_info"] .display-content')
                         ->assertVisible('[data-card="basic_info"] .display-content')
-                        
+
                         // Verify form is hidden and data is not saved
                         ->assertMissing('[data-card="basic_info"] .edit-form')
                         ->assertDontSee('東京電力');
@@ -325,15 +326,15 @@ class LifelineEquipmentBrowserTest extends DuskTestCase
                     // Click edit button for basic info card
                     $browser->click('[data-card="basic_info"] .edit-btn')
                         ->waitFor('[data-card="basic_info"] .edit-form')
-                        
+
                         // Enter invalid date (future date)
                         ->type('input[name="maintenance_inspection_date"]', '2025-12-31')
-                        
+
                         // Try to save
                         ->click('[data-card="basic_info"] .save-btn')
                         ->waitFor('.error-message')
                         ->assertSee('点検実施日は今日以前の日付を入力してください')
-                        
+
                         // Form should still be visible
                         ->assertVisible('[data-card="basic_info"] .edit-form');
                 });
@@ -459,7 +460,7 @@ class LifelineEquipmentBrowserTest extends DuskTestCase
     {
         // Create test data for all categories
         $categories = ['electrical', 'water', 'gas', 'elevator', 'hvac_lighting'];
-        
+
         foreach ($categories as $category) {
             $lifelineEquipment = LifelineEquipment::factory()->create([
                 'facility_id' => $this->facility->id,
@@ -513,7 +514,7 @@ class LifelineEquipmentBrowserTest extends DuskTestCase
                 ['gas', '東京ガス'],
                 ['water', '東京都水道局'],
                 ['elevator', '三菱電機'],
-                ['hvac-lighting', 'セントラル空調']
+                ['hvac-lighting', 'セントラル空調'],
             ];
 
             foreach ($tabTests as [$tabId, $expectedContent]) {
@@ -537,11 +538,11 @@ class LifelineEquipmentBrowserTest extends DuskTestCase
                 ->within('#electrical', function ($browser) {
                     // Edit multiple cards in sequence
                     $cards = ['basic_info', 'pas_info', 'notes'];
-                    
+
                     foreach ($cards as $cardType) {
                         $browser->click("[data-card=\"{$cardType}\"] .edit-btn")
                             ->waitFor("[data-card=\"{$cardType}\"] .edit-form");
-                        
+
                         switch ($cardType) {
                             case 'basic_info':
                                 $browser->type('input[name="electrical_contractor"]', '関西電力');
@@ -554,11 +555,11 @@ class LifelineEquipmentBrowserTest extends DuskTestCase
                                 $browser->type('textarea[name="notes"]', '備考情報');
                                 break;
                         }
-                        
+
                         $browser->click("[data-card=\"{$cardType}\"] .save-btn")
                             ->waitFor("[data-card=\"{$cardType}\"] .display-content");
                     }
-                    
+
                     // Verify all data was saved
                     $browser->assertSee('関西電力')
                         ->assertSee('有')
@@ -582,38 +583,38 @@ class LifelineEquipmentBrowserTest extends DuskTestCase
                         ->waitFor('[data-card="cubicle_info"] .edit-form')
                         ->select('select[name="availability"]', '有')
                         ->waitFor('.equipment-list-container');
-                    
+
                     // Add 3 equipment items
                     $equipmentData = [
                         ['001', '三菱電機', '2024'],
                         ['002', '東芝', '2023'],
-                        ['003', 'パナソニック', '2022']
+                        ['003', 'パナソニック', '2022'],
                     ];
-                    
+
                     foreach ($equipmentData as $index => [$number, $manufacturer, $year]) {
                         $browser->click('.add-equipment-btn')
-                            ->waitFor(".equipment-item:nth-child(" . ($index + 1) . ")")
-                            ->within(".equipment-item:nth-child(" . ($index + 1) . ")", function ($browser) use ($number, $manufacturer, $year) {
+                            ->waitFor('.equipment-item:nth-child('.($index + 1).')')
+                            ->within('.equipment-item:nth-child('.($index + 1).')', function ($browser) use ($number, $manufacturer, $year) {
                                 $browser->type('input[name="equipment_number"]', $number)
                                     ->type('input[name="manufacturer"]', $manufacturer)
                                     ->type('input[name="model_year"]', $year);
                             });
                     }
-                    
+
                     // Remove middle item
                     $browser->click('.equipment-item:nth-child(2) .remove-equipment-btn')
                         ->pause(500); // Wait for removal animation
-                    
+
                     // Verify remaining items
                     $browser->within('.equipment-item:nth-child(1)', function ($browser) {
                         $browser->assertInputValue('input[name="equipment_number"]', '001')
                             ->assertInputValue('input[name="manufacturer"]', '三菱電機');
                     })
-                    ->within('.equipment-item:nth-child(2)', function ($browser) {
-                        $browser->assertInputValue('input[name="equipment_number"]', '003')
-                            ->assertInputValue('input[name="manufacturer"]', 'パナソニック');
-                    });
-                    
+                        ->within('.equipment-item:nth-child(2)', function ($browser) {
+                            $browser->assertInputValue('input[name="equipment_number"]', '003')
+                                ->assertInputValue('input[name="manufacturer"]', 'パナソニック');
+                        });
+
                     // Save and verify
                     $browser->click('[data-card="cubicle_info"] .save-btn')
                         ->waitFor('[data-card="cubicle_info"] .display-content')
@@ -638,24 +639,24 @@ class LifelineEquipmentBrowserTest extends DuskTestCase
                     // Test validation on basic info card
                     $browser->click('[data-card="basic_info"] .edit-btn')
                         ->waitFor('[data-card="basic_info"] .edit-form')
-                        
+
                         // Enter invalid data
                         ->type('input[name="electrical_contractor"]', '') // Empty required field
                         ->type('input[name="maintenance_inspection_date"]', '2025-12-31') // Future date
-                        
+
                         // Try to save
                         ->click('[data-card="basic_info"] .save-btn')
                         ->waitFor('.validation-errors')
                         ->assertSee('電気契約会社は必須です')
                         ->assertSee('点検実施日は今日以前の日付を入力してください')
-                        
+
                         // Form should remain open
                         ->assertVisible('[data-card="basic_info"] .edit-form')
-                        
+
                         // Fix validation errors
                         ->type('input[name="electrical_contractor"]', '東京電力')
                         ->type('input[name="maintenance_inspection_date"]', '2024-01-15')
-                        
+
                         // Save should now work
                         ->click('[data-card="basic_info"] .save-btn')
                         ->waitFor('[data-card="basic_info"] .display-content')
@@ -680,7 +681,7 @@ class LifelineEquipmentBrowserTest extends DuskTestCase
                         ->keys('[data-bs-target="#gas"]', ['{enter}'])
                         ->waitFor('#gas')
                         ->assertVisible('#gas')
-                        
+
                         // Navigate back with keyboard
                         ->keys('[data-bs-target="#gas"]', ['{shift}', '{tab}'])
                         ->assertFocused('[data-bs-target="#electrical"]')
@@ -703,19 +704,19 @@ class LifelineEquipmentBrowserTest extends DuskTestCase
                     // Simulate network error by using invalid endpoint
                     $browser->script([
                         'window.originalFetch = window.fetch;',
-                        'window.fetch = function() { return Promise.reject(new Error("Network error")); };'
+                        'window.fetch = function() { return Promise.reject(new Error("Network error")); };',
                     ]);
-                    
+
                     $browser->click('[data-card="basic_info"] .edit-btn')
                         ->waitFor('[data-card="basic_info"] .edit-form')
                         ->type('input[name="electrical_contractor"]', '東京電力')
                         ->click('[data-card="basic_info"] .save-btn')
                         ->waitFor('.error-message')
                         ->assertSee('保存中にエラーが発生しました')
-                        
+
                         // Form should remain open for retry
                         ->assertVisible('[data-card="basic_info"] .edit-form');
-                    
+
                     // Restore normal fetch
                     $browser->script(['window.fetch = window.originalFetch;']);
                 });
@@ -733,15 +734,15 @@ class LifelineEquipmentBrowserTest extends DuskTestCase
                 ->within('#electrical', function ($browser) {
                     $browser->click('[data-card="notes"] .edit-btn')
                         ->waitFor('[data-card="notes"] .edit-form')
-                        
+
                         // Test Japanese text input
-                        ->type('textarea[name="notes"]', 
-                            '電気設備に関する特記事項：' . 
-                            '年次点検は毎年3月に実施予定。' .
-                            '緊急連絡先は施設管理者（田中）まで。' .
+                        ->type('textarea[name="notes"]',
+                            '電気設備に関する特記事項：'.
+                            '年次点検は毎年3月に実施予定。'.
+                            '緊急連絡先は施設管理者（田中）まで。'.
                             '設備更新予定：令和7年度'
                         )
-                        
+
                         ->click('[data-card="notes"] .save-btn')
                         ->waitFor('[data-card="notes"] .display-content')
                         ->assertSee('電気設備に関する特記事項')
@@ -765,22 +766,22 @@ class LifelineEquipmentBrowserTest extends DuskTestCase
                     $browser->click('[data-card="basic_info"] .edit-btn')
                         ->waitFor('[data-card="basic_info"] .edit-form')
                         ->type('input[name="electrical_contractor"]', '東京電力');
-                    
+
                     // Start editing another card while first is still open
                     $browser->click('[data-card="pas_info"] .edit-btn')
                         ->waitFor('[data-card="pas_info"] .edit-form')
                         ->select('select[name="availability"]', '有');
-                    
+
                     // Both forms should be open
                     $browser->assertVisible('[data-card="basic_info"] .edit-form')
                         ->assertVisible('[data-card="pas_info"] .edit-form');
-                    
+
                     // Save both forms
                     $browser->click('[data-card="basic_info"] .save-btn')
                         ->waitFor('[data-card="basic_info"] .display-content')
                         ->click('[data-card="pas_info"] .save-btn')
                         ->waitFor('[data-card="pas_info"] .display-content')
-                        
+
                         // Verify both saved successfully
                         ->assertSee('東京電力')
                         ->assertSee('有');
@@ -828,7 +829,7 @@ class LifelineEquipmentBrowserTest extends DuskTestCase
             $largeEquipmentList[] = [
                 'equipment_number' => sprintf('%03d', $i),
                 'manufacturer' => "メーカー{$i}",
-                'model_year' => (string)(2020 + ($i % 5)),
+                'model_year' => (string) (2020 + ($i % 5)),
                 'update_date' => '2024-01-15',
             ];
         }
@@ -843,7 +844,7 @@ class LifelineEquipmentBrowserTest extends DuskTestCase
 
         $this->browse(function (Browser $browser) {
             $startTime = microtime(true);
-            
+
             $browser->loginAs($this->user)
                 ->visit("/facilities/{$this->facility->id}")
                 ->click('#lifeline-tab')
@@ -855,9 +856,9 @@ class LifelineEquipmentBrowserTest extends DuskTestCase
                         ->assertSee('001')
                         ->assertSee('020');
                 });
-            
+
             $loadTime = microtime(true) - $startTime;
-            
+
             // Assert reasonable performance (less than 5 seconds)
             $this->assertLessThan(5.0, $loadTime, 'Large dataset should load within 5 seconds');
         });

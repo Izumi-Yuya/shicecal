@@ -1,6 +1,6 @@
 /**
  * Lifeline Equipment Management Module
- * Handles tab switching, card editing, saving, and error handling for the lifeline equipment
+ * Handles tab switching, card editing, data saving, and error handling for lifeline equipment
  * Implements requirements 1.8 and 1.9 from the lifeline equipment management spec
  */
 
@@ -14,7 +14,8 @@ class LifelineEquipmentManager {
   }
 
   /**
-   * Extract facility ID from URL if not available in window object
+   * Extract facility ID from URL if not available in the window object.
+   * @returns {string|null} The facility ID or null if not found
    */
   extractFacilityIdFromUrl() {
     const match = window.location.pathname.match(/\/facilities\/(\d+)/);
@@ -33,13 +34,13 @@ class LifelineEquipmentManager {
       console.log('LifelineEquipmentManager initialized successfully');
     } catch (error) {
       console.error('Failed to initialize LifelineEquipmentManager:', error);
-      this.showErrorMessage('ライフライン設備の初期化に失敗しました。');
+      this.showErrorMessage('ライフライン設備システムの初期化に失敗しました。ページを再読み込みしてください。');
     }
   }
 
   /**
-   * Initialize comment system integration
-   * Connects with the existing Shise-Cal comment system for equipment-specific discussions
+   * Initialize comment system integration.
+   * Integrates with the existing Shise-Cal comment system for equipment-specific discussions.
    */
   initializeCommentSystem() {
     // Check if comment system is available
@@ -49,7 +50,7 @@ class LifelineEquipmentManager {
   }
 
   /**
-   * Setup keyboard navigation for accessibility
+   * Set up keyboard navigation for accessibility.
    */
   setupKeyboardNavigation() {
     // Handle Enter key on comment inputs

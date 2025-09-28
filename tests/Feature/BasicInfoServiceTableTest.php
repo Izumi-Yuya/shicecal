@@ -15,10 +15,10 @@ class BasicInfoServiceTableTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // テスト用ユーザーを作成してログイン
         $user = User::factory()->create([
-            'role' => 'admin'
+            'role' => 'admin',
         ]);
         $this->actingAs($user);
     }
@@ -89,26 +89,26 @@ class BasicInfoServiceTableTest extends TestCase
         $response = $this->get(route('facilities.show', $facility));
 
         $response->assertStatus(200);
-        
+
         // 全てのサービス種類が表示されることを確認
         $response->assertSee('介護老人福祉施設');
         $response->assertSee('短期入所生活介護');
         $response->assertSee('通所介護');
-        
+
         // サービス種類ラベルが最初の行にのみ表示されることを確認
         $content = $response->getContent();
-        
+
         // 4列構造の確認：各サービスが表示され、rowspanが正しく動作していることを確認
         $serviceCount = 3; // 作成したサービス数
-        
+
         // サービス種類テーブル内でのサービス種類ラベルの確認（data-section="facility_services"内）
         $this->assertStringContainsString('data-section="facility_services"', $content);
-        
+
         // 各サービスが表示されることを確認
         $this->assertStringContainsString('介護老人福祉施設', $content);
         $this->assertStringContainsString('短期入所生活介護', $content);
         $this->assertStringContainsString('通所介護', $content);
-        
+
         // 有効期限が各サービス分表示されることを確認（最低でもサービス数分）
         $this->assertGreaterThanOrEqual($serviceCount, substr_count($content, '有効期限'));
     }
@@ -129,7 +129,7 @@ class BasicInfoServiceTableTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('サービス種類');
         $response->assertSee('有効期限');
-        
+
         // 未設定の表示を確認
         $response->assertSee('未設定');
     }
@@ -187,15 +187,15 @@ class BasicInfoServiceTableTest extends TestCase
         // HTMLの構造を確認
         $this->assertStringContainsString('<table', $content);
         $this->assertStringContainsString('</table>', $content);
-        
+
         // 各行が適切な数のセルを持つことを確認（簡易チェック）
         $trCount = substr_count($content, '<tr');
         $tdCount = substr_count($content, '<td');
-        
+
         // 基本的な構造の整合性を確認
         $this->assertGreaterThan(0, $trCount);
         $this->assertGreaterThan(0, $tdCount);
-        
+
         // 各サービスが表示されることを確認
         for ($i = 1; $i <= 3; $i++) {
             $response->assertSee("サービス{$i}");

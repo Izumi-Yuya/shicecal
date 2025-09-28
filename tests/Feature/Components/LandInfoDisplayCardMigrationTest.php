@@ -2,15 +2,15 @@
 
 namespace Tests\Feature\Components;
 
-use Tests\TestCase;
 use App\Models\Facility;
 use App\Models\LandInfo;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Carbon\Carbon;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 /**
  * 土地情報表示カードの共通テーブルコンポーネント移行テスト
- * 
+ *
  * 要件: 5.1, 5.2, 5.3
  * - 既存のテーブルを移行する際、システムは現在のデータ構造との後方互換性を維持すること
  * - 古いコードを置き換える際、システムは既存のすべての機能を保持すること
@@ -21,12 +21,13 @@ class LandInfoDisplayCardMigrationTest extends TestCase
     use RefreshDatabase;
 
     private $facility;
+
     private $landInfo;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // テスト用施設データの作成
         $this->facility = Facility::factory()->create([
             'facility_name' => 'テスト施設',
@@ -62,7 +63,7 @@ class LandInfoDisplayCardMigrationTest extends TestCase
     {
         $view = view('facilities.land-info.partials.display-card', [
             'facility' => $this->facility,
-            'landInfo' => $this->landInfo
+            'landInfo' => $this->landInfo,
         ]);
         $html = $view->render();
 
@@ -78,12 +79,12 @@ class LandInfoDisplayCardMigrationTest extends TestCase
         $this->assertStringContainsString('あり', $html); // 自動更新
         $this->assertStringContainsString('5年', $html); // 契約年数
         $this->assertStringContainsString('テスト備考', $html); // 備考
-        
+
         // 管理会社情報
         $this->assertStringContainsString('テスト管理会社', $html);
         $this->assertStringContainsString('management@example.com', $html);
         $this->assertStringContainsString('https://management.example.com', $html);
-        
+
         // オーナー情報
         $this->assertStringContainsString('テストオーナー', $html);
         $this->assertStringContainsString('owner@example.com', $html);
@@ -96,26 +97,26 @@ class LandInfoDisplayCardMigrationTest extends TestCase
         // 自社の場合
         $this->landInfo->ownership_type = 'owned';
         $this->landInfo->save();
-        
+
         $view = view('facilities.land-info.partials.display-card', [
             'facility' => $this->facility,
-            'landInfo' => $this->landInfo
+            'landInfo' => $this->landInfo,
         ]);
         $html = $view->render();
-        
+
         $this->assertStringContainsString('badge bg-success', $html);
         $this->assertStringContainsString('自社', $html);
-        
+
         // 賃借の場合
         $this->landInfo->ownership_type = 'leased';
         $this->landInfo->save();
-        
+
         $view = view('facilities.land-info.partials.display-card', [
             'facility' => $this->facility,
-            'landInfo' => $this->landInfo
+            'landInfo' => $this->landInfo,
         ]);
         $html = $view->render();
-        
+
         $this->assertStringContainsString('badge bg-warning', $html);
         $this->assertStringContainsString('賃借', $html);
     }
@@ -126,26 +127,26 @@ class LandInfoDisplayCardMigrationTest extends TestCase
         // ありの場合
         $this->landInfo->auto_renewal = 'yes';
         $this->landInfo->save();
-        
+
         $view = view('facilities.land-info.partials.display-card', [
             'facility' => $this->facility,
-            'landInfo' => $this->landInfo
+            'landInfo' => $this->landInfo,
         ]);
         $html = $view->render();
-        
+
         $this->assertStringContainsString('badge bg-success', $html);
         $this->assertStringContainsString('あり', $html);
-        
+
         // なしの場合
         $this->landInfo->auto_renewal = 'no';
         $this->landInfo->save();
-        
+
         $view = view('facilities.land-info.partials.display-card', [
             'facility' => $this->facility,
-            'landInfo' => $this->landInfo
+            'landInfo' => $this->landInfo,
         ]);
         $html = $view->render();
-        
+
         $this->assertStringContainsString('badge bg-secondary', $html);
         $this->assertStringContainsString('なし', $html);
     }
@@ -155,24 +156,24 @@ class LandInfoDisplayCardMigrationTest extends TestCase
     {
         $view = view('facilities.land-info.partials.display-card', [
             'facility' => $this->facility,
-            'landInfo' => $this->landInfo
+            'landInfo' => $this->landInfo,
         ]);
         $html = $view->render();
 
         // 管理会社のメールリンク
         $this->assertStringContainsString('mailto:management@example.com', $html);
         $this->assertStringContainsString('fa-envelope', $html);
-        
+
         // オーナーのメールリンク
         $this->assertStringContainsString('mailto:owner@example.com', $html);
     }
 
     /** @test */
-    public function URLがリンクとして表示されること()
+    public function ur_lがリンクとして表示されること()
     {
         $view = view('facilities.land-info.partials.display-card', [
             'facility' => $this->facility,
-            'landInfo' => $this->landInfo
+            'landInfo' => $this->landInfo,
         ]);
         $html = $view->render();
 
@@ -180,20 +181,20 @@ class LandInfoDisplayCardMigrationTest extends TestCase
         $this->assertStringContainsString('href="https://management.example.com"', $html);
         $this->assertStringContainsString('fa-external-link-alt', $html);
         $this->assertStringContainsString('target="_blank"', $html);
-        
+
         // オーナーのURLリンク
         $this->assertStringContainsString('href="https://owner.example.com"', $html);
     }
 
     /** @test */
-    public function 必要なCSSクラスが適用されていること()
+    public function 必要な_cs_sクラスが適用されていること()
     {
         $view = view('facilities.land-info.partials.display-card', [
             'facility' => $this->facility,
-            'landInfo' => $this->landInfo
+            'landInfo' => $this->landInfo,
         ]);
         $html = $view->render();
-        
+
         // 共通テーブルコンポーネントのCSSクラス確認
         $this->assertStringContainsString('facility-info-card', $html);
         $this->assertStringContainsString('detail-card-improved', $html);
@@ -211,7 +212,7 @@ class LandInfoDisplayCardMigrationTest extends TestCase
             'facility_name' => '空フィールドテスト施設',
             'company_name' => 'テスト会社2',
         ]);
-        
+
         // 空フィールドを持つ土地情報を作成（必須フィールドは有効な値を使用）
         $emptyLandInfo = LandInfo::factory()->create([
             'facility_id' => $emptyFacility->id,
@@ -223,13 +224,13 @@ class LandInfoDisplayCardMigrationTest extends TestCase
 
         $view = view('facilities.land-info.partials.display-card', [
             'facility' => $emptyFacility,
-            'landInfo' => $emptyLandInfo
+            'landInfo' => $emptyLandInfo,
         ]);
         $html = $view->render();
-        
+
         // 未設定が表示されることを確認
         $this->assertStringContainsString('未設定', $html);
-        
+
         // empty-fieldクラスが適用されることを確認
         $this->assertStringContainsString('empty-field', $html);
     }
@@ -239,10 +240,10 @@ class LandInfoDisplayCardMigrationTest extends TestCase
     {
         $view = view('facilities.land-info.partials.display-card', [
             'facility' => $this->facility,
-            'landInfo' => $this->landInfo
+            'landInfo' => $this->landInfo,
         ]);
         $html = $view->render();
-        
+
         // セクションタイトルが表示されることを確認
         $this->assertStringContainsString('管理会社情報', $html);
         $this->assertStringContainsString('オーナー情報', $html);

@@ -2,16 +2,16 @@
 
 namespace Tests\Feature\Components;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Log;
 use App\Models\Facility;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\View;
+use Tests\TestCase;
 
 /**
  * CommonTableセキュリティテスト
- * 
+ *
  * XSS対策、SQLインジェクション対策、データサニタイゼーションのテスト
  * 要件: 6.1, 6.2
  */
@@ -20,20 +20,21 @@ class CommonTableSecurityTest extends TestCase
     use RefreshDatabase;
 
     protected $user;
+
     protected $facility;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->user = User::factory()->create([
             'role' => 'admin',
-            'email' => 'security@example.com'
+            'email' => 'security@example.com',
         ]);
-        
+
         $this->facility = Facility::factory()->create([
             'company_name' => 'セキュリティテスト株式会社',
-            'office_code' => 'SEC001'
+            'office_code' => 'SEC001',
         ]);
     }
 
@@ -41,7 +42,7 @@ class CommonTableSecurityTest extends TestCase
      * @test
      * XSS攻撃対策テスト - スクリプトタグ
      */
-    public function test_security_XSS攻撃対策_スクリプトタグ()
+    public function test_security_xs_s攻撃対策_スクリプトタグ()
     {
         $xssData = [
             [
@@ -50,20 +51,20 @@ class CommonTableSecurityTest extends TestCase
                     [
                         'label' => '<script>alert("XSS Label")</script>',
                         'value' => '<script>alert("XSS Value")</script>',
-                        'type' => 'text'
+                        'type' => 'text',
                     ],
                     [
                         'label' => '正常なラベル',
                         'value' => '<script src="malicious.js"></script>',
-                        'type' => 'text'
+                        'type' => 'text',
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $xssData,
-            'title' => '<script>alert("XSS Title")</script>'
+            'title' => '<script>alert("XSS Title")</script>',
         ]);
 
         $rendered = $view->render();
@@ -85,7 +86,7 @@ class CommonTableSecurityTest extends TestCase
      * @test
      * XSS攻撃対策テスト - イベントハンドラー
      */
-    public function test_security_XSS攻撃対策_イベントハンドラー()
+    public function test_security_xs_s攻撃対策_イベントハンドラー()
     {
         $xssData = [
             [
@@ -94,20 +95,20 @@ class CommonTableSecurityTest extends TestCase
                     [
                         'label' => '<img src="x" onerror="alert(\'XSS\')">',
                         'value' => '<div onclick="alert(\'XSS\')">クリック</div>',
-                        'type' => 'text'
+                        'type' => 'text',
                     ],
                     [
                         'label' => '<input onmouseover="alert(\'XSS\')">',
                         'value' => '<a href="javascript:alert(\'XSS\')">リンク</a>',
-                        'type' => 'text'
+                        'type' => 'text',
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $xssData,
-            'title' => 'XSSイベントハンドラーテスト'
+            'title' => 'XSSイベントハンドラーテスト',
         ]);
 
         $rendered = $view->render();
@@ -130,7 +131,7 @@ class CommonTableSecurityTest extends TestCase
      * @test
      * XSS攻撃対策テスト - URLタイプでのJavaScript URL
      */
-    public function test_security_XSS攻撃対策_JavaScript_URL()
+    public function test_security_xs_s攻撃対策_java_script_url()
     {
         $xssData = [
             [
@@ -139,20 +140,20 @@ class CommonTableSecurityTest extends TestCase
                     [
                         'label' => 'JavaScript URL',
                         'value' => 'javascript:alert("XSS")',
-                        'type' => 'url'
+                        'type' => 'url',
                     ],
                     [
                         'label' => 'Data URL',
                         'value' => 'data:text/html,<script>alert("XSS")</script>',
-                        'type' => 'url'
+                        'type' => 'url',
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $xssData,
-            'title' => 'JavaScript URLテスト'
+            'title' => 'JavaScript URLテスト',
         ]);
 
         $rendered = $view->render();
@@ -163,7 +164,7 @@ class CommonTableSecurityTest extends TestCase
 
         // 安全でないURLは表示されないか、無効化される
         $this->assertTrue(
-            !strpos($rendered, 'javascript:alert') ||
+            ! strpos($rendered, 'javascript:alert') ||
             strpos($rendered, 'href="#"') ||
             strpos($rendered, 'href=""')
         );
@@ -175,7 +176,7 @@ class CommonTableSecurityTest extends TestCase
      * @test
      * XSS攻撃対策テスト - メールタイプでのJavaScript
      */
-    public function test_security_XSS攻撃対策_メールJavaScript()
+    public function test_security_xs_s攻撃対策_メール_java_script()
     {
         $xssData = [
             [
@@ -184,20 +185,20 @@ class CommonTableSecurityTest extends TestCase
                     [
                         'label' => 'JavaScript メール',
                         'value' => 'javascript:alert("XSS")@example.com',
-                        'type' => 'email'
+                        'type' => 'email',
                     ],
                     [
                         'label' => '不正なメール',
                         'value' => 'test@example.com<script>alert("XSS")</script>',
-                        'type' => 'email'
+                        'type' => 'email',
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $xssData,
-            'title' => 'メールJavaScriptテスト'
+            'title' => 'メールJavaScriptテスト',
         ]);
 
         $rendered = $view->render();
@@ -216,7 +217,7 @@ class CommonTableSecurityTest extends TestCase
      * @test
      * SQLインジェクション対策テスト
      */
-    public function test_security_SQLインジェクション対策()
+    public function test_security_sq_lインジェクション対策()
     {
         $sqlInjectionData = [
             [
@@ -225,14 +226,14 @@ class CommonTableSecurityTest extends TestCase
                     [
                         'label' => "'; DROP TABLE users; --",
                         'value' => "1' OR '1'='1",
-                        'type' => 'text'
+                        'type' => 'text',
                     ],
                     [
                         'label' => 'UNION SELECT',
                         'value' => "' UNION SELECT password FROM users --",
-                        'type' => 'text'
+                        'type' => 'text',
                     ],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
@@ -240,20 +241,20 @@ class CommonTableSecurityTest extends TestCase
                     [
                         'label' => 'INSERT攻撃',
                         'value' => "'; INSERT INTO users (email, password) VALUES ('hacker@evil.com', 'password'); --",
-                        'type' => 'text'
+                        'type' => 'text',
                     ],
                     [
                         'label' => 'UPDATE攻撃',
                         'value' => "'; UPDATE users SET role='admin' WHERE id=1; --",
-                        'type' => 'text'
+                        'type' => 'text',
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $sqlInjectionData,
-            'title' => 'SQLインジェクションテスト'
+            'title' => 'SQLインジェクションテスト',
         ]);
 
         $rendered = $view->render();
@@ -278,7 +279,7 @@ class CommonTableSecurityTest extends TestCase
      * @test
      * HTMLインジェクション対策テスト
      */
-    public function test_security_HTMLインジェクション対策()
+    public function test_security_htm_lインジェクション対策()
     {
         $htmlInjectionData = [
             [
@@ -287,20 +288,20 @@ class CommonTableSecurityTest extends TestCase
                     [
                         'label' => '<iframe src="http://malicious.com"></iframe>',
                         'value' => '<object data="malicious.swf"></object>',
-                        'type' => 'text'
+                        'type' => 'text',
                     ],
                     [
                         'label' => '<embed src="malicious.swf">',
                         'value' => '<form action="http://malicious.com"><input type="submit"></form>',
-                        'type' => 'text'
+                        'type' => 'text',
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $htmlInjectionData,
-            'title' => 'HTMLインジェクションテスト'
+            'title' => 'HTMLインジェクションテスト',
         ]);
 
         $rendered = $view->render();
@@ -324,7 +325,7 @@ class CommonTableSecurityTest extends TestCase
      * @test
      * CSSインジェクション対策テスト
      */
-    public function test_security_CSSインジェクション対策()
+    public function test_security_cs_sインジェクション対策()
     {
         $cssInjectionData = [
             [
@@ -333,20 +334,20 @@ class CommonTableSecurityTest extends TestCase
                     [
                         'label' => '<style>body{display:none}</style>',
                         'value' => '<div style="background:url(javascript:alert(\'XSS\'))">テスト</div>',
-                        'type' => 'text'
+                        'type' => 'text',
                     ],
                     [
                         'label' => 'CSS Expression',
                         'value' => '<div style="width:expression(alert(\'XSS\'))">テスト</div>',
-                        'type' => 'text'
+                        'type' => 'text',
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $cssInjectionData,
-            'title' => 'CSSインジェクションテスト'
+            'title' => 'CSSインジェクションテスト',
         ]);
 
         $rendered = $view->render();
@@ -376,14 +377,14 @@ class CommonTableSecurityTest extends TestCase
                     [
                         'label' => 'パストラバーサル1',
                         'value' => '../../../etc/passwd',
-                        'type' => 'file'
+                        'type' => 'file',
                     ],
                     [
                         'label' => 'パストラバーサル2',
                         'value' => '..\\..\\..\\windows\\system32\\config\\sam',
-                        'type' => 'file'
+                        'type' => 'file',
                     ],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
@@ -391,20 +392,20 @@ class CommonTableSecurityTest extends TestCase
                     [
                         'label' => 'NULL バイト',
                         'value' => 'file.txt%00.jpg',
-                        'type' => 'file'
+                        'type' => 'file',
                     ],
                     [
                         'label' => 'URLエンコード',
                         'value' => '%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd',
-                        'type' => 'file'
+                        'type' => 'file',
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $pathTraversalData,
-            'title' => 'パストラバーサルテスト'
+            'title' => 'パストラバーサルテスト',
         ]);
 
         $rendered = $view->render();
@@ -426,7 +427,7 @@ class CommonTableSecurityTest extends TestCase
      * @test
      * CSRF対策テスト（フォーム要素の無効化）
      */
-    public function test_security_CSRF対策()
+    public function test_security_csr_f対策()
     {
         $csrfData = [
             [
@@ -435,20 +436,20 @@ class CommonTableSecurityTest extends TestCase
                     [
                         'label' => 'フォーム攻撃',
                         'value' => '<form method="POST" action="/admin/delete-all"><input type="submit" value="削除"></form>',
-                        'type' => 'text'
+                        'type' => 'text',
                     ],
                     [
                         'label' => 'ボタン攻撃',
                         'value' => '<button onclick="fetch(\'/api/delete\', {method: \'DELETE\'})">削除</button>',
-                        'type' => 'text'
+                        'type' => 'text',
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $csrfData,
-            'title' => 'CSRF対策テスト'
+            'title' => 'CSRF対策テスト',
         ]);
 
         $rendered = $view->render();
@@ -469,11 +470,11 @@ class CommonTableSecurityTest extends TestCase
      * @test
      * 大量データによるDoS攻撃対策テスト
      */
-    public function test_security_DoS攻撃対策()
+    public function test_security_do_s攻撃対策()
     {
         // 非常に大きなデータを生成
         $largeString = str_repeat('A', 100000); // 100KB の文字列
-        
+
         $dosData = [
             [
                 'type' => 'standard',
@@ -481,15 +482,15 @@ class CommonTableSecurityTest extends TestCase
                     [
                         'label' => '大量データ',
                         'value' => $largeString,
-                        'type' => 'text'
+                        'type' => 'text',
                     ],
                     [
                         'label' => '正常データ',
                         'value' => '正常な値',
-                        'type' => 'text'
+                        'type' => 'text',
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $startTime = microtime(true);
@@ -497,7 +498,7 @@ class CommonTableSecurityTest extends TestCase
 
         $view = View::make('components.common-table', [
             'data' => $dosData,
-            'title' => 'DoS攻撃対策テスト'
+            'title' => 'DoS攻撃対策テスト',
         ]);
 
         $rendered = $view->render();
@@ -518,7 +519,7 @@ class CommonTableSecurityTest extends TestCase
         Log::info('DoS Attack Protection Test', [
             'render_time' => $renderTime,
             'memory_usage_mb' => round($memoryUsage / 1024 / 1024, 2),
-            'large_string_length' => strlen($largeString)
+            'large_string_length' => strlen($largeString),
         ]);
     }
 
@@ -535,14 +536,14 @@ class CommonTableSecurityTest extends TestCase
                     [
                         'label' => 'UTF-8 BOM攻撃',
                         'value' => "\xEF\xBB\xBF<script>alert('XSS')</script>",
-                        'type' => 'text'
+                        'type' => 'text',
                     ],
                     [
                         'label' => '不正なUTF-8',
                         'value' => "\xFF\xFE<script>alert('XSS')</script>",
-                        'type' => 'text'
+                        'type' => 'text',
                     ],
-                ]
+                ],
             ],
             [
                 'type' => 'standard',
@@ -550,20 +551,20 @@ class CommonTableSecurityTest extends TestCase
                     [
                         'label' => 'NULL文字攻撃',
                         'value' => "normal\x00<script>alert('XSS')</script>",
-                        'type' => 'text'
+                        'type' => 'text',
                     ],
                     [
                         'label' => '制御文字',
                         'value' => "test\x01\x02\x03value",
-                        'type' => 'text'
+                        'type' => 'text',
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $encodingData,
-            'title' => '文字エンコーディング攻撃テスト'
+            'title' => '文字エンコーディング攻撃テスト',
         ]);
 
         $rendered = $view->render();
@@ -589,7 +590,7 @@ class CommonTableSecurityTest extends TestCase
         // 一般ユーザーを作成
         $regularUser = User::factory()->create([
             'role' => 'viewer',
-            'email' => 'viewer@example.com'
+            'email' => 'viewer@example.com',
         ]);
 
         // 管理者専用データ
@@ -600,10 +601,10 @@ class CommonTableSecurityTest extends TestCase
                     [
                         'label' => '管理者情報',
                         'value' => '機密データ',
-                        'type' => 'text'
+                        'type' => 'text',
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
 
         // 管理者としてアクセス
@@ -636,20 +637,20 @@ class CommonTableSecurityTest extends TestCase
                     [
                         'label' => 'セッション攻撃',
                         'value' => 'PHPSESSID=malicious_session_id',
-                        'type' => 'text'
+                        'type' => 'text',
                     ],
                     [
                         'label' => 'Cookie攻撃',
                         'value' => 'document.cookie="admin=true"',
-                        'type' => 'text'
+                        'type' => 'text',
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $view = View::make('components.common-table', [
             'data' => $sessionData,
-            'title' => 'セッションハイジャック対策テスト'
+            'title' => 'セッションハイジャック対策テスト',
         ]);
 
         $rendered = $view->render();

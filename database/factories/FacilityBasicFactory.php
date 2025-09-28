@@ -59,33 +59,33 @@ class FacilityBasicFactory extends Factory
 
         $openingDate = $this->faker->dateTimeBetween('-10 years', '-1 year');
         $designationRenewalDate = $this->faker->dateTimeBetween('now', '+2 years');
-        
+
         // Calculate years in operation
-        $yearsInOperation = (new \DateTime())->diff(new \DateTime($openingDate))->y;
+        $yearsInOperation = (new \DateTime)->diff(new \DateTime($openingDate))->y;
 
         return [
             'facility_id' => FacilityInfo::factory(),
-            
+
             // 運営情報
             'opening_date' => $openingDate,
             'years_in_operation' => $yearsInOperation,
             'designation_renewal_date' => $designationRenewalDate,
-            
+
             // 建物情報
             'building_structure' => $this->faker->randomElement($buildingStructures),
             'building_floors' => $this->faker->numberBetween(1, 10),
-            
+
             // 定員・部屋数
             'paid_rooms_count' => $this->faker->numberBetween(10, 100),
             'ss_rooms_count' => $this->faker->numberBetween(0, 20),
             'capacity' => $this->faker->numberBetween(20, 150),
-            
+
             // サービス情報（複数選択可能）
             'service_types' => $this->faker->randomElements($serviceTypes, $this->faker->numberBetween(1, 3)),
-            
+
             // 部門
             'section' => $this->faker->randomElement($sections),
-            
+
             // システム管理
             'status' => $this->faker->randomElement(['draft', 'pending_approval', 'approved']),
             'approved_at' => $this->faker->optional(0.7)->dateTimeBetween('-6 months', 'now'),
@@ -182,8 +182,8 @@ class FacilityBasicFactory extends Factory
     public function recentlyOpened(): static
     {
         $openingDate = $this->faker->dateTimeBetween('-2 years', 'now');
-        $yearsInOperation = (new \DateTime())->diff(new \DateTime($openingDate))->y;
-        
+        $yearsInOperation = (new \DateTime)->diff(new \DateTime($openingDate))->y;
+
         return $this->state(fn (array $attributes) => [
             'opening_date' => $openingDate,
             'years_in_operation' => $yearsInOperation,

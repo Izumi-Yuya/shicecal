@@ -66,26 +66,29 @@
             </div>
             
             <div class="col-md-6 mb-3">
-                <label for="inspection_report_pdf_file" class="form-label">点検実施報告書</label>
-                @if(!empty($basicInfo['inspection_report_pdf']))
+                <label for="inspection_report_file" class="form-label">点検実施報告書</label>
+                @if(!empty($basicInfo['inspection']['inspection_report_pdf']))
                     <div class="mb-2">
                         <small class="text-muted">現在のファイル:</small>
-                        <a href="{{ route('facilities.lifeline-equipment.download', [$facility, 'electrical', $basicInfo['inspection_report_pdf']]) }}" 
+                        <a href="{{ route('facilities.lifeline-equipment.download-file', [$facility, 'electrical', 'inspection_report']) }}" 
                            class="text-decoration-none ms-1" target="_blank">
-                            <i class="fas fa-file-pdf me-1 text-danger"></i>{{ $basicInfo['inspection_report_pdf'] }}
+                            <i class="fas fa-file-pdf me-1 text-danger"></i>{{ $basicInfo['inspection']['inspection_report_pdf'] }}
                         </a>
                     </div>
+                    <div class="mb-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="remove_inspection_report" name="remove_inspection_report" value="1">
+                            <label class="form-check-label text-danger" for="remove_inspection_report">
+                                <i class="fas fa-trash me-1"></i>現在のファイルを削除
+                            </label>
+                        </div>
+                    </div>
                 @endif
-                <input type="file" class="form-control @error('basic_info.inspection_report_pdf_file') is-invalid @enderror" 
-                       id="inspection_report_pdf_file" name="basic_info[inspection_report_pdf_file]" 
+                <input type="file" class="form-control @error('inspection_report_file') is-invalid @enderror" 
+                       id="inspection_report_file" name="inspection_report_file" 
                        accept=".pdf">
                 <div class="form-text">PDFファイルのみアップロード可能です（最大10MB）</div>
-                <x-form.field-error field="basic_info.inspection_report_pdf_file" />
-                
-                <!-- Hidden field to preserve existing filename -->
-                @if(!empty($basicInfo['inspection_report_pdf']))
-                    <input type="hidden" name="basic_info[inspection_report_pdf]" value="{{ $basicInfo['inspection_report_pdf'] }}">
-                @endif
+                <x-form.field-error field="inspection_report_file" />
             </div>
         </div>
     </x-form.section>

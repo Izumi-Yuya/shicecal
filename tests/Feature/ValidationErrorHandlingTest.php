@@ -124,7 +124,7 @@ class ValidationErrorHandlingTest extends TestCase
 
         $response = $this->get(route('facilities.land-info.edit', $this->facility));
 
-        $response->assertSee('ファイルサイズは10MB以下にしてください');
+        $response->assertSee('ファイルサイズは10MB以下にしてください。');
     }
 
     /** @test */

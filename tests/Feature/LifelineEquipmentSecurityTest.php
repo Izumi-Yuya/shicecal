@@ -7,12 +7,11 @@ use App\Models\Facility;
 use App\Models\LifelineEquipment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Gate;
 use Tests\TestCase;
 
 /**
  * ライフライン設備管理のセキュリティテスト
- * 
+ *
  * 権限管理、データ保護、入力検証のセキュリティ機能をテストします。
  */
 class LifelineEquipmentSecurityTest extends TestCase
@@ -20,10 +19,15 @@ class LifelineEquipmentSecurityTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $editor;
+
     private User $viewer;
+
     private User $unauthorizedUser;
+
     private Facility $facility;
+
     private LifelineEquipment $lifelineEquipment;
 
     protected function setUp(): void
@@ -34,7 +38,7 @@ class LifelineEquipmentSecurityTest extends TestCase
         $this->editor = User::factory()->create(['role' => 'editor']);
         $this->viewer = User::factory()->create(['role' => 'viewer']);
         $this->unauthorizedUser = User::factory()->create(['role' => 'viewer']);
-        
+
         $this->facility = Facility::factory()->create();
         $this->lifelineEquipment = LifelineEquipment::factory()->create([
             'facility_id' => $this->facility->id,
@@ -119,10 +123,10 @@ class LifelineEquipmentSecurityTest extends TestCase
         ];
 
         $response = $this->put("/facilities/{$this->facility->id}/lifeline-equipment/electrical", $maliciousData);
-        
+
         // Should not cause SQL injection
         $response->assertStatus(200);
-        
+
         // Verify data is stored safely
         $equipment = ElectricalEquipment::where('lifeline_equipment_id', $this->lifelineEquipment->id)->first();
         if ($equipment) {
@@ -192,7 +196,7 @@ class LifelineEquipmentSecurityTest extends TestCase
         ];
 
         $response = $this->put("/facilities/{$this->facility->id}/lifeline-equipment/electrical", $maliciousData);
-        
+
         // Should not allow mass assignment of protected fields
         $equipment = ElectricalEquipment::where('lifeline_equipment_id', $this->lifelineEquipment->id)->first();
         if ($equipment) {
@@ -218,7 +222,7 @@ class LifelineEquipmentSecurityTest extends TestCase
 
         // Try to access other user's facility equipment
         $response = $this->get("/facilities/{$otherFacility->id}/lifeline-equipment/electrical");
-        
+
         // Should be allowed if user has general access (depends on business rules)
         // In this test, we assume all authenticated users can view all facilities
         $response->assertStatus(200);
@@ -231,7 +235,7 @@ class LifelineEquipmentSecurityTest extends TestCase
         ];
 
         $response = $this->put("/facilities/{$otherFacility->id}/lifeline-equipment/electrical", $updateData);
-        
+
         // Should be allowed if user has edit permissions (depends on business rules)
         // The actual authorization logic should be implemented in the policy
         $response->assertStatus(200);
@@ -339,7 +343,7 @@ class LifelineEquipmentSecurityTest extends TestCase
         // Make multiple rapid requests
         for ($i = 0; $i < 5; $i++) {
             $response = $this->put("/facilities/{$this->facility->id}/lifeline-equipment/electrical", $updateData);
-            
+
             // All requests should succeed in test environment
             // In production, rate limiting middleware would be applied
             $response->assertStatus(200);

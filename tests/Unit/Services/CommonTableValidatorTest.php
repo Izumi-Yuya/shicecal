@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Services;
 
-use Tests\TestCase;
 use App\Services\CommonTableValidator;
+use Tests\TestCase;
 
 class CommonTableValidatorTest extends TestCase
 {
@@ -18,14 +18,14 @@ class CommonTableValidatorTest extends TestCase
                 'cells' => [
                     ['label' => 'テストラベル', 'value' => 'テスト値', 'type' => 'text'],
                     ['label' => 'メール', 'value' => 'test@example.com', 'type' => 'email'],
-                ]
+                ],
             ],
             [
                 'type' => 'single',
                 'cells' => [
                     ['label' => 'URL', 'value' => 'https://example.com', 'type' => 'url', 'colspan' => 2],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $result = CommonTableValidator::validateTableData($validData);
@@ -44,8 +44,8 @@ class CommonTableValidatorTest extends TestCase
                 'type' => 'invalid_type',
                 'cells' => [
                     ['label' => 'テスト', 'value' => 'テスト値', 'type' => 'invalid_cell_type'],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $result = CommonTableValidator::validateTableData($invalidData);
@@ -90,8 +90,8 @@ class CommonTableValidatorTest extends TestCase
         $validRowData = [
             'type' => 'standard',
             'cells' => [
-                ['label' => 'テスト', 'value' => 'テスト値', 'type' => 'text']
-            ]
+                ['label' => 'テスト', 'value' => 'テスト値', 'type' => 'text'],
+            ],
         ];
 
         $result = CommonTableValidator::validateRowData($validRowData, 0);
@@ -99,7 +99,7 @@ class CommonTableValidatorTest extends TestCase
 
         // 無効な行データ（cellsが欠如）
         $invalidRowData = [
-            'type' => 'standard'
+            'type' => 'standard',
         ];
 
         $result = CommonTableValidator::validateRowData($invalidRowData, 0);
@@ -118,7 +118,7 @@ class CommonTableValidatorTest extends TestCase
             'value' => 'テスト値',
             'type' => 'text',
             'colspan' => 2,
-            'rowspan' => 1
+            'rowspan' => 1,
         ];
 
         $result = CommonTableValidator::validateCellData($validCellData, 0, 0);
@@ -189,7 +189,7 @@ class CommonTableValidatorTest extends TestCase
         $emailCellData = [
             'label' => 'メール',
             'value' => 'invalid-email',
-            'type' => 'email'
+            'type' => 'email',
         ];
 
         $result = CommonTableValidator::validateCellData($emailCellData, 0, 0);
@@ -201,7 +201,7 @@ class CommonTableValidatorTest extends TestCase
         $urlCellData = [
             'label' => 'URL',
             'value' => 'not a valid url at all',
-            'type' => 'url'
+            'type' => 'url',
         ];
 
         $result = CommonTableValidator::validateCellData($urlCellData, 0, 0);
@@ -213,7 +213,7 @@ class CommonTableValidatorTest extends TestCase
         $numberCellData = [
             'label' => '数値',
             'value' => 'not-a-number',
-            'type' => 'number'
+            'type' => 'number',
         ];
 
         $result = CommonTableValidator::validateCellData($numberCellData, 0, 0);
@@ -248,7 +248,7 @@ class CommonTableValidatorTest extends TestCase
         // 有効なオプション
         $validOptions = [
             'max_rows' => 50,
-            'check_cell_consistency' => true
+            'check_cell_consistency' => true,
         ];
 
         $result = CommonTableValidator::validateOptions($validOptions);
@@ -257,7 +257,7 @@ class CommonTableValidatorTest extends TestCase
         // 無効なオプション
         $invalidOptions = [
             'max_rows' => -1,
-            'check_cell_consistency' => 'invalid'
+            'check_cell_consistency' => 'invalid',
         ];
 
         $result = CommonTableValidator::validateOptions($invalidOptions);
@@ -276,8 +276,8 @@ class CommonTableValidatorTest extends TestCase
             $largeData[] = [
                 'type' => 'standard',
                 'cells' => [
-                    ['label' => "ラベル{$i}", 'value' => "値{$i}", 'type' => 'text']
-                ]
+                    ['label' => "ラベル{$i}", 'value' => "値{$i}", 'type' => 'text'],
+                ],
             ];
         }
 
@@ -297,15 +297,15 @@ class CommonTableValidatorTest extends TestCase
                 'type' => 'standard',
                 'cells' => [
                     ['label' => 'ラベル1', 'value' => '値1', 'type' => 'text'],
-                    ['label' => 'ラベル2', 'value' => '値2', 'type' => 'text']
-                ]
+                    ['label' => 'ラベル2', 'value' => '値2', 'type' => 'text'],
+                ],
             ],
             [
                 'type' => 'standard',
                 'cells' => [
-                    ['label' => 'ラベル3', 'value' => '値3', 'type' => 'text']
-                ]
-            ]
+                    ['label' => 'ラベル3', 'value' => '値3', 'type' => 'text'],
+                ],
+            ],
         ];
 
         $options = ['check_cell_consistency' => true];
