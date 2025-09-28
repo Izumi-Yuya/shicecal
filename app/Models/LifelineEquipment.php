@@ -45,6 +45,7 @@ class LifelineEquipment extends Model
         'water' => '水道',
         'elevator' => 'エレベーター',
         'hvac_lighting' => '空調・照明',
+        'security_disaster' => '防犯・防災',
     ];
 
     /**
@@ -130,6 +131,14 @@ class LifelineEquipment extends Model
     public function hvacLightingEquipment(): HasOne
     {
         return $this->hasOne(HvacLightingEquipment::class);
+    }
+
+    /**
+     * Get the security/disaster equipment associated with this lifeline equipment.
+     */
+    public function securityDisasterEquipment(): HasOne
+    {
+        return $this->hasOne(SecurityDisasterEquipment::class);
     }
 
     /**

@@ -130,6 +130,13 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/{category}/download/{type}', [LifelineEquipmentController::class, 'downloadFile'])->name('download-file');
         });
 
+        // Security disaster equipment routes
+        Route::prefix('security-disaster')->name('security-disaster.')->group(function () {
+            Route::get('/edit', [\App\Http\Controllers\SecurityDisasterController::class, 'edit'])->name('edit');
+            Route::put('/', [\App\Http\Controllers\SecurityDisasterController::class, 'update'])->name('update');
+            Route::get('/download/{type}', [\App\Http\Controllers\SecurityDisasterController::class, 'downloadFile'])->name('download-file');
+        });
+
         // Facility-specific comment routes
         Route::prefix('comments')->name('comments.')->group(function () {
             Route::get('/', [CommentController::class, 'allFacilityComments'])->name('all');

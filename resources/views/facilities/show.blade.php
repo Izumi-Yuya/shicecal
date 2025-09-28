@@ -75,6 +75,11 @@
                                 <i class="fas fa-plug me-2"></i>ライフライン設備
                             </button>
                         </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="security-disaster-tab" data-bs-toggle="tab" data-bs-target="#security-disaster" type="button" role="tab" aria-controls="security-disaster" aria-selected="false">
+                                <i class="fas fa-shield-alt me-2"></i>防犯・防災
+                            </button>
+                        </li>
                     </ul>
                 </div>
                 
@@ -176,7 +181,7 @@
                                     <h4 class="text-muted mb-3">土地情報が登録されていません</h4>
                                     <p class="text-muted mb-4">
                                         この施設の土地情報はまだ登録されていません。<br>
-                                        土地情報を登録するには、編集ボタンから登録してください。
+                                        土地情報を登録するには、編集ボタンをクリックしてください。
                                     </p>
                                     @if(auth()->user()->canEditLandInfo())
                                         <a href="{{ route('facilities.land-info.edit', $facility) }}" class="btn btn-primary">
@@ -220,6 +225,31 @@
                         
                         <!-- Lifeline Equipment Content -->
                         @include('facilities.lifeline-equipment.index', ['facility' => $facility])
+                    </div>
+                    
+                    <div class="tab-pane fade" id="security-disaster" role="tabpanel" aria-labelledby="security-disaster-tab">
+                        <!-- 防犯・防災タブヘッダー -->
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="mb-0">
+                                <i class="fas fa-shield-alt text-primary me-2"></i>防犯・防災
+                            </h4>
+                            @if(auth()->user()->canEditFacility($facility->id))
+                                <a href="{{ route('facilities.security-disaster.edit', $facility) }}" class="btn btn-primary">
+                                    <i class="fas fa-edit me-2"></i>
+                                    @php
+                                        $securityDisasterEquipment = $facility->getSecurityDisasterEquipment();
+                                    @endphp
+                                    @if($securityDisasterEquipment)
+                                        編集
+                                    @else
+                                        登録
+                                    @endif
+                                </a>
+                            @endif
+                        </div>
+                        
+                        <!-- Security Disaster Content -->
+                        @include('facilities.security-disaster.index', ['facility' => $facility])
                     </div>
                 </div>
             </div>
@@ -296,6 +326,81 @@
     background: linear-gradient(135deg, #28a745, #1e7e34);
 }
 
+#security-disaster .card-header {
+    background: linear-gradient(135deg, #fd7e14, #e55a00);
+}
+
+/* Security Disaster Styles */
+.security-disaster-container {
+    margin-top: 1rem;
+}
+
+.security-disaster-container .nav-tabs {
+    border-bottom: 2px solid #dee2e6;
+    margin-bottom: 1.5rem;
+}
+
+.security-disaster-container .nav-tabs .nav-link {
+    border: none;
+    border-bottom: 3px solid transparent;
+    background: none;
+    color: #6c757d;
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+    margin-bottom: -2px;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.security-disaster-container .nav-tabs .nav-link:hover {
+    border-color: transparent;
+    color: #495057;
+    background-color: #f8f9fa;
+}
+
+.security-disaster-container .nav-tabs .nav-link.active {
+    color: #fd7e14;
+    border-bottom-color: #fd7e14;
+    background-color: transparent;
+}
+
+.security-disaster-edit-container .nav-tabs .nav-link.active {
+    color: #fd7e14;
+    border-bottom-color: #fd7e14;
+    background-color: transparent;
+}
+
+/* Security Disaster Subtabs */
+.security-disaster-subtabs {
+    border-bottom: 2px solid #dee2e6;
+    margin-bottom: 1.5rem;
+}
+
+.security-disaster-subtabs .nav-link {
+    border: none;
+    border-bottom: 3px solid transparent;
+    background: none;
+    color: #6c757d;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    margin-bottom: -2px;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.security-disaster-subtabs .nav-link:hover {
+    border-color: transparent;
+    color: #495057;
+    background-color: #f8f9fa;
+}
+
+.security-disaster-subtabs .nav-link.active {
+    color: #fd7e14;
+    border-bottom-color: #fd7e14;
+    background-color: transparent;
+    font-weight: 600;
+}
+
 .lifeline-equipment-container .comment-toggle {
     border: 1px solid rgba(255, 255, 255, 0.3);
     background-color: rgba(255, 255, 255, 0.1);
@@ -322,7 +427,7 @@
 // Pass facility ID to the JavaScript module
 window.facilityId = {{ $facility->id }};
 
-// Handle active tab from session and building tab functionality
+// Handle active tab from session and initialize building tab functionality
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize building tab animations
     const buildingTab = document.getElementById('building-tab');
@@ -341,8 +446,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     @if(session('activeTab'))
         const activeTab = '{{ session('activeTab') }}';
-        const tabButton = document.getElementById(activeTab.replace('-info', '') + '-tab');
+        const tabButton = document.getElementById(activeTab + '-tab');
         const tabPane = document.getElementById(activeTab);
+        
+        console.log('Active tab session:', activeTab);
+        console.log('Tab button element:', tabButton);
+        console.log('Tab pane element:', tabPane);
         
         if (tabButton && tabPane) {
             // Remove active class from current active tab
@@ -363,20 +472,35 @@ document.addEventListener('DOMContentLoaded', function() {
             const tabEvent = new bootstrap.Tab(tabButton);
             tabEvent.show();
             
+            console.log('Tab activated successfully:', activeTab);
+            
             @if(session('activeSubTab'))
-                // Handle sub-tab activation for lifeline equipment
+                // Handle sub-tab activation for both lifeline equipment and security disaster
                 setTimeout(() => {
                     const activeSubTab = '{{ session('activeSubTab') }}';
                     const subTabButton = document.getElementById(activeSubTab + '-tab');
                     const subTabPane = document.getElementById(activeSubTab);
                     
+                    console.log('Active sub-tab session:', activeSubTab);
+                    console.log('Sub-tab button element:', subTabButton);
+                    console.log('Sub-tab pane element:', subTabPane);
+                    
                     if (subTabButton && subTabPane) {
+                        // Determine which sub-tab container to use based on active main tab
+                        let subTabContainer = '#lifelineSubTabs';
+                        let subTabContentContainer = '#lifelineSubTabContent';
+                        
+                        if (activeTab === 'security-disaster') {
+                            subTabContainer = '#securityDisasterTabs';
+                            subTabContentContainer = '#securityDisasterTabContent';
+                        }
+                        
                         // Remove active class from current active sub-tab
-                        document.querySelectorAll('#lifelineSubTabs .nav-link.active').forEach(tab => {
+                        document.querySelectorAll(subTabContainer + ' .nav-link.active').forEach(tab => {
                             tab.classList.remove('active');
                             tab.setAttribute('aria-selected', 'false');
                         });
-                        document.querySelectorAll('#lifelineSubTabContent .tab-pane.active').forEach(pane => {
+                        document.querySelectorAll(subTabContentContainer + ' .tab-pane.active').forEach(pane => {
                             pane.classList.remove('active', 'show');
                         });
                         
@@ -388,9 +512,27 @@ document.addEventListener('DOMContentLoaded', function() {
                         // Trigger Bootstrap tab event
                         const subTabEvent = new bootstrap.Tab(subTabButton);
                         subTabEvent.show();
+                        
+                        console.log('Sub-tab activated successfully:', activeSubTab);
+                    } else {
+                        console.log('Sub-tab elements not found:', {
+                            activeSubTab: activeSubTab,
+                            subTabButtonId: activeSubTab + '-tab',
+                            subTabPaneId: activeSubTab,
+                            subTabButton: subTabButton,
+                            subTabPane: subTabPane
+                        });
                     }
                 }, 100); // Small delay to ensure main tab is activated first
             @endif
+        } else {
+            console.log('Tab elements not found:', {
+                activeTab: activeTab,
+                tabButtonId: activeTab + '-tab',
+                tabPaneId: activeTab,
+                tabButton: tabButton,
+                tabPane: tabPane
+            });
         }
     @endif
     
@@ -453,7 +595,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const lifelineTab = document.getElementById('lifeline-tab');
     if (lifelineTab) {
         lifelineTab.addEventListener('shown.bs.tab', function() {
-            console.log('Lifeline equipment tab activated: initializing animations and components');
+            console.log('Lifeline Equipment tab activated: initializing animations and components');
             
             // Animate cards in the active sub-tab
             setTimeout(() => {
@@ -474,7 +616,7 @@ document.addEventListener('DOMContentLoaded', function() {
     subTabs.forEach(tab => {
         tab.addEventListener('shown.bs.tab', function(event) {
             const targetId = event.target.getAttribute('data-bs-target');
-            console.log(`Switched to ${targetId.replace('#', '')} equipment sub-tab`);
+            console.log(`Switched to ${targetId.replace('#', '')} Equipment sub-tab`);
             
             // Animate cards in the newly active tab
             setTimeout(() => {
@@ -497,7 +639,7 @@ document.addEventListener('DOMContentLoaded', function() {
             event.preventDefault();
             const section = toggle.getAttribute('data-section');
             console.log(`Toggle comments for section: ${section}`);
-            alert(`コメント機能は今後実装予定です。\n対象セクション: ${section}`);
+            alert(`コメント機能は今後実装予定です。\n対象セクション：${section}`);
         });
     });
 });

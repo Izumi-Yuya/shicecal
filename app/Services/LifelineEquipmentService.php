@@ -745,6 +745,158 @@ class LifelineEquipmentService
     }
 
     /**
+     * Get security/disaster equipment data with formatted structure.
+     */
+    public function getSecurityDisasterEquipmentData(LifelineEquipment $lifelineEquipment): array
+    {
+        $securityDisasterEquipment = $lifelineEquipment->securityDisasterEquipment;
+
+        return [
+            'security_systems' => $securityDisasterEquipment?->security_systems ?? [],
+        ];
+    }
+
+    /**
+     * Update security/disaster equipment data.
+     */
+    public function updateSecurityDisasterEquipmentData(
+        LifelineEquipment $lifelineEquipment,
+        array $validatedData,
+        array $allData = []
+    ): void {
+        Log::info('LifelineEquipmentService: Starting Security/Disaster equipment update', [
+            'lifeline_equipment_id' => $lifelineEquipment->id,
+            'validated_data_keys' => array_keys($validatedData),
+        ]);
+
+        $securityDisasterEquipment = $lifelineEquipment->securityDisasterEquipment;
+
+        if (!$securityDisasterEquipment) {
+            Log::info('LifelineEquipmentService: Creating new Security/Disaster equipment');
+            $securityDisasterEquipment = new \App\Models\SecurityDisasterEquipment([
+                'lifeline_equipment_id' => $lifelineEquipment->id,
+                'created_by' => auth()->id(),
+                'updated_by' => auth()->id(),
+            ]);
+        } else {
+            Log::info('LifelineEquipmentService: Updating existing Security/Disaster equipment', ['id' => $securityDisasterEquipment->id]);
+            $securityDisasterEquipment->updated_by = auth()->id();
+        }
+
+        // Update camera and lock system information only
+        if (array_key_exists('security_systems', $validatedData)) {
+            Log::info('LifelineEquipmentService: Processing security_systems');
+            $processedSecuritySystems = $this->processSecuritySystems($validatedData['security_systems']);
+            
+            // Handle file uploads for camera and lock layout PDFs
+            $processedSecuritySystems = $this->handleCameraLockFileUploads(
+                $processedSecuritySystems,
+                $allData,
+                $securityDisasterEquipment->security_systems ?? []
+            );
+            
+            $securityDisasterEquipment->security_systems = $processedSecuritySystems;
+        }
+
+        $securityDisasterEquipment->save();
+        Log::info('LifelineEquipmentService: Security/Disaster equipment saved successfully', ['id' => $securityDisasterEquipment->id]);
+    }
+
+    /**
+     * Process security systems data before saving.
+     */
+    private function processSecuritySystems(array $securitySystems): array
+    {
+        $processed = [];
+
+        // Process camera and lock system information only
+        if (isset($securitySystems['camera_lock'])) {
+            $processed['camera_lock'] = [
+                'camera' => [
+                    'management_company' => trim($securitySystems['camera_lock']['camera']['management_company'] ?? ''),
+                    'model_year' => trim($securitySystems['camera_lock']['camera']['model_year'] ?? ''),
+                    'notes' => trim($securitySystems['camera_lock']['camera']['notes'] ?? ''),
+                ],
+                'lock' => [
+                    'management_company' => trim($securitySystems['camera_lock']['lock']['management_company'] ?? ''),
+                    'model_year' => trim($securitySystems['camera_lock']['lock']['model_year'] ?? ''),
+                    'notes' => trim($securitySystems['camera_lock']['lock']['notes'] ?? ''),
+                ],
+            ];
+        }
+
+        return $processed;
+    }
+
+    /**
+     * Handle file uploads for camera and lock layout PDFs.
+     */
+    private function handleCameraLockFileUploads(array $processedSecuritySystems, array $allData, array $existingSecuritySystems): array
+    {
+        if (!isset($processedSecuritySystems['camera_lock'])) {
+            return $processedSecuritySystems;
+        }
+
+        $existingCameraLock = $existingSecuritySystems['camera_lock'] ?? [];
+
+        // Handle camera layout PDF
+        if (isset($allData['camera_layout_pdf']) && $allData['camera_layout_pdf'] instanceof \Illuminate\Http\UploadedFile) {
+            // Delete existing file if present
+            if (isset($existingCameraLock['camera']['layout_pdf_path'])) {
+                $this->fileHandlingService->deleteFile($existingCameraLock['camera']['layout_pdf_path']);
+            }
+
+            $uploadResult = $this->handleFileUpload($allData['camera_layout_pdf'], 'security-disaster/camera-layouts');
+            if ($uploadResult) {
+                $processedSecuritySystems['camera_lock']['camera']['layout_pdf_name'] = $uploadResult['filename'];
+                $processedSecuritySystems['camera_lock']['camera']['layout_pdf_path'] = $uploadResult['path'];
+            }
+        } elseif (isset($existingCameraLock['camera'])) {
+            // Preserve existing file info
+            $processedSecuritySystems['camera_lock']['camera']['layout_pdf_name'] = $existingCameraLock['camera']['layout_pdf_name'] ?? null;
+            $processedSecuritySystems['camera_lock']['camera']['layout_pdf_path'] = $existingCameraLock['camera']['layout_pdf_path'] ?? null;
+        }
+
+        // Handle camera layout PDF deletion
+        if (isset($allData['delete_camera_layout_pdf']) && $allData['delete_camera_layout_pdf'] === '1') {
+            if (isset($existingCameraLock['camera']['layout_pdf_path'])) {
+                $this->fileHandlingService->deleteFile($existingCameraLock['camera']['layout_pdf_path']);
+            }
+            $processedSecuritySystems['camera_lock']['camera']['layout_pdf_name'] = null;
+            $processedSecuritySystems['camera_lock']['camera']['layout_pdf_path'] = null;
+        }
+
+        // Handle lock layout PDF
+        if (isset($allData['lock_layout_pdf']) && $allData['lock_layout_pdf'] instanceof \Illuminate\Http\UploadedFile) {
+            // Delete existing file if present
+            if (isset($existingCameraLock['lock']['layout_pdf_path'])) {
+                $this->fileHandlingService->deleteFile($existingCameraLock['lock']['layout_pdf_path']);
+            }
+
+            $uploadResult = $this->handleFileUpload($allData['lock_layout_pdf'], 'security-disaster/lock-layouts');
+            if ($uploadResult) {
+                $processedSecuritySystems['camera_lock']['lock']['layout_pdf_name'] = $uploadResult['filename'];
+                $processedSecuritySystems['camera_lock']['lock']['layout_pdf_path'] = $uploadResult['path'];
+            }
+        } elseif (isset($existingCameraLock['lock'])) {
+            // Preserve existing file info
+            $processedSecuritySystems['camera_lock']['lock']['layout_pdf_name'] = $existingCameraLock['lock']['layout_pdf_name'] ?? null;
+            $processedSecuritySystems['camera_lock']['lock']['layout_pdf_path'] = $existingCameraLock['lock']['layout_pdf_path'] ?? null;
+        }
+
+        // Handle lock layout PDF deletion
+        if (isset($allData['delete_lock_layout_pdf']) && $allData['delete_lock_layout_pdf'] === '1') {
+            if (isset($existingCameraLock['lock']['layout_pdf_path'])) {
+                $this->fileHandlingService->deleteFile($existingCameraLock['lock']['layout_pdf_path']);
+            }
+            $processedSecuritySystems['camera_lock']['lock']['layout_pdf_name'] = null;
+            $processedSecuritySystems['camera_lock']['lock']['layout_pdf_path'] = null;
+        }
+
+        return $processedSecuritySystems;
+    }
+
+    /**
      * Process HVAC/Lighting equipment basic info data before saving.
      * Handles data sanitization, validation, and file uploads.
      */
@@ -1065,6 +1217,9 @@ class LifelineEquipmentService
             case 'hvac_lighting':
                 return $this->getHvacLightingEquipmentData($lifelineEquipment);
 
+            case 'security_disaster':
+                return $this->getSecurityDisasterEquipmentData($lifelineEquipment);
+
             default:
                 throw new Exception('無効なカテゴリです。');
         }
@@ -1103,6 +1258,10 @@ class LifelineEquipmentService
 
             case 'hvac_lighting':
                 $this->updateHvacLightingEquipmentData($lifelineEquipment, $validatedData, $allData);
+                break;
+
+            case 'security_disaster':
+                $this->updateSecurityDisasterEquipmentData($lifelineEquipment, $validatedData, $allData);
                 break;
 
             default:
@@ -1270,7 +1429,7 @@ class LifelineEquipmentService
                 'directory' => $directory,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('ファイルのアップロードに失敗しました: '.$e->getMessage());
+            throw new Exception('ファイルのアップロードに失敗しました。'.$e->getMessage());
         }
     }
 

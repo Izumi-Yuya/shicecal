@@ -200,6 +200,16 @@ class Facility extends Model
     }
 
     /**
+     * Get security/disaster equipment for this facility
+     */
+    public function getSecurityDisasterEquipment(): ?SecurityDisasterEquipment
+    {
+        $lifelineEquipment = $this->getLifelineEquipmentByCategory('security_disaster');
+
+        return $lifelineEquipment?->securityDisasterEquipment;
+    }
+
+    /**
      * Get the land documents associated with this facility
      */
     public function landDocuments(): HasMany

@@ -83,6 +83,11 @@ class LifelineEquipmentController extends Controller
                 abort(404, 'Invalid equipment category');
             }
 
+            // Special handling for security disaster category
+            if ($normalizedCategory === 'security_disaster') {
+                return redirect()->route('facilities.security-disaster.edit', $facility);
+            }
+
             // Return the appropriate edit view based on category
             // Convert underscores back to hyphens for view name
             $viewCategory = str_replace('_', '-', $normalizedCategory);
