@@ -67,7 +67,7 @@
             <!-- ファイルが登録されているが存在しない場合 -->
             <div class="d-flex align-items-center text-warning">
                 <i class="fas fa-exclamation-triangle me-2"></i>
-                <span>{{ $fileData['filename'] ?? 'ファイル名不明' }}（ファイルが見つかりません）</span>
+                <span>{{ $fileData['filename'] ?? 'ファイル名を取得できません' }}（ファイルが見つかりません）</span>
             </div>
         @else
             <!-- ファイルがない場合 -->

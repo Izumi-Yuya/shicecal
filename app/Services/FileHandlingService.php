@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Storage;
  * 
  * A unified file processing service for facility and lifeline equipment operations.
  * Provides consistent handling of file uploads, downloads, and display operations
- * throughout the application.
+ * throughout the application with security validation and error handling.
  */
 class FileHandlingService
 {
@@ -237,7 +237,7 @@ class FileHandlingService
         $config = self::SUPPORTED_FILE_TYPES[$fileType] ?? null;
 
         if (! $config) {
-            throw new Exception('このファイル形式はサポートされていません。');
+            throw new Exception('指定されたファイル形式はサポートされていません。');
         }
 
         // MIMEタイプの検証
@@ -262,7 +262,7 @@ class FileHandlingService
         $config = self::SUPPORTED_FILE_TYPES[$fileType] ?? null;
 
         if (! $config) {
-            throw new Exception('このファイル形式はサポートされていません。');
+            throw new Exception('指定されたファイル形式はサポートされていません。');
         }
 
         if ($file->getSize() > $config['max_size']) {
@@ -310,7 +310,7 @@ class FileHandlingService
         $config = self::SUPPORTED_FILE_TYPES[$fileType] ?? null;
 
         if (! $config) {
-            return 'このファイル形式はサポートされていません。';
+            return '指定されたファイル形式はサポートされていません。';
         }
 
         $extensions = implode(', ', array_map('strtoupper', $config['extensions']));

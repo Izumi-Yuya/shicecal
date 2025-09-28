@@ -417,7 +417,7 @@ class ValueFormatter
 
             if (! $exists) {
                 return sprintf(
-                    '<span class="text-muted"><i class="%s %s me-1"></i>%s <small>(ファイルが見つかりません)</small></span>',
+                    '<span class="text-muted"><i class="%s %s me-1"></i>%s <small>(ファイルが見つかりません。)</small></span>',
                     $icon,
                     $color,
                     htmlspecialchars($filename, ENT_QUOTES, 'UTF-8')
