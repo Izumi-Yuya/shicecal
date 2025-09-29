@@ -131,7 +131,7 @@
                             <div id="water-heater-equipment-list" class="equipment-list">
                                 @if(empty($waterHeaters))
                                     <div class="no-equipment-message">
-                                        給湯器設備が登録されていません。「給湯器追加」ボタンをクリックして追加してください。
+                                        給湯器が登録されていません。「給湯器追加」ボタンから追加してください。
                                     </div>
                                 @else
                                     @foreach($waterHeaters as $index => $heater)
@@ -358,7 +358,7 @@ function handleGasTypeChange(selectElement) {
         customInput.focus();
         finalInput.value = customInput.value;
         
-        // カスタム入力フィールドの値が変更された際に最終値を更新
+        // カスタム入力フィールドの値変更時に最終値を更新
         customInput.addEventListener('input', function() {
             finalInput.value = this.value;
         });
@@ -426,7 +426,7 @@ function initializeWaterHeaterEquipment() {
     
     // 給湯器追加関数
     function addWaterHeaterEquipment() {
-        // 「設備なし」メッセージを非表示にする
+        // 「設備なし」メッセージを非表示に設定
         if (noEquipmentMessage) {
             noEquipmentMessage.style.display = 'none';
         }

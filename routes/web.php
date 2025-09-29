@@ -3,6 +3,7 @@
 use App\Http\Controllers\AnnualConfirmationController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\ContractsController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\LifelineEquipmentController;
@@ -135,6 +136,12 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/edit', [\App\Http\Controllers\SecurityDisasterController::class, 'edit'])->name('edit');
             Route::put('/', [\App\Http\Controllers\SecurityDisasterController::class, 'update'])->name('update');
             Route::get('/download/{type}', [\App\Http\Controllers\SecurityDisasterController::class, 'downloadFile'])->name('download-file');
+        });
+
+        // Contracts routes
+        Route::prefix('contracts')->name('contracts.')->group(function () {
+            Route::get('/edit', [ContractsController::class, 'edit'])->name('edit');
+            Route::put('/', [ContractsController::class, 'update'])->name('update');
         });
 
         // Facility-specific comment routes

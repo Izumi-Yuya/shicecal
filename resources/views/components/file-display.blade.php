@@ -36,7 +36,7 @@
     
     <div class="file-content">
         @if($hasFile && $fileExists)
-            <!-- ファイルが存在する場合 -->
+            <!-- ファイルが存在し、アクセス可能な場合 -->
             <div class="d-flex align-items-center">
                 <i class="{{ $fileData['icon'] ?? 'fas fa-file' }} {{ $fileData['color'] ?? 'text-primary' }} me-2"></i>
                 
@@ -67,7 +67,7 @@
             <!-- ファイルが登録されているが存在しない場合 -->
             <div class="d-flex align-items-center text-warning">
                 <i class="fas fa-exclamation-triangle me-2"></i>
-                <span>{{ $fileData['filename'] ?? 'ファイル名を取得できません' }}（ファイルが見つかりません）</span>
+                <span>{{ $fileData['filename'] ?? 'ファイル名不明' }}（ファイルが見つかりません）</span>
             </div>
         @else
             <!-- ファイルがない場合 -->

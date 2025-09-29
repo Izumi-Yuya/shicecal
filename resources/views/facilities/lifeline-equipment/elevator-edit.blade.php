@@ -73,7 +73,7 @@
                             <div id="elevator-equipment-list" class="equipment-list">
                                 @if(empty($elevators))
                                     <div class="no-equipment-message">
-                                        エレベーターが登録されていません。「エレベーター追加」ボタンをクリックして追加してください。
+                                        エレベーターが登録されていません。「エレベーター追加」ボタンで追加してください。
                                     </div>
                                 @else
                                     @foreach($elevators as $index => $elevator)
@@ -388,7 +388,7 @@ function initializeElevatorEquipment() {
     const addElevatorBtn = document.querySelector('.add-elevator-btn');
     const noEquipmentMessage = document.querySelector('.no-equipment-message');
     
-    // エレベーター追加ボタンのイベントリスナー設定
+    // エレベーター追加ボタンのイベントリスナーを設定
     if (addElevatorBtn) {
         addElevatorBtn.addEventListener('click', function(e) {
             e.preventDefault();
@@ -470,7 +470,7 @@ function initializeElevatorEquipment() {
         elevatorList.insertAdjacentHTML('beforeend', equipmentHtml);
         elevatorIndex++;
         
-        // 新しく追加された削除ボタンにイベントリスナーを追加
+        // 新しく追加された削除ボタンにイベントリスナーを追加する
         const newItem = elevatorList.lastElementChild;
         const removeBtn = newItem.querySelector('.remove-elevator-btn');
         removeBtn.addEventListener('click', function() {
@@ -485,7 +485,7 @@ function initializeElevatorEquipment() {
         equipmentItem.remove();
         updateElevatorNumbers();
         
-        // 設備がなくなった場合、メッセージを表示
+        // 設備がなくなった場合、メッセージを表示する
         const remainingItems = elevatorList.querySelectorAll('.elevator-equipment-item');
         if (remainingItems.length === 0 && noEquipmentMessage) {
             noEquipmentMessage.style.display = 'block';

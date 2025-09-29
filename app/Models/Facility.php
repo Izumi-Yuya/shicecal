@@ -219,6 +219,14 @@ class Facility extends Model
     }
 
     /**
+     * Get the contract information associated with this facility
+     */
+    public function contract(): HasOne
+    {
+        return $this->hasOne(FacilityContract::class);
+    }
+
+    /**
      * Check if the facility is approved
      */
     public function isApproved(): bool

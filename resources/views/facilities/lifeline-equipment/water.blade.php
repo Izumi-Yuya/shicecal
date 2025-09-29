@@ -75,9 +75,9 @@
         [
             'type' => 'standard',
             'cells' => [
-                ['label' => '点検清掃業者', 'value' => $septicTankInfo['inspection_company'] ?? null, 'type' => 'text'],
-                ['label' => '点検清掃実施日', 'value' => $septicTankInfo['inspection_date'] ?? null, 'type' => 'date'],
-                ['label' => '点検清掃実施報告書', 'value' => $septicTankInfo['inspection']['inspection_report_pdf'] ?? null, 'type' => 'file_display', 'options' => ['route' => 'facilities.lifeline-equipment.download-file', 'params' => [$facility, 'water', 'septic_tank_inspection_report'], 'display_name' => 'ダウンロード']],
+                ['label' => '点検・清掃業者', 'value' => $septicTankInfo['inspection_company'] ?? null, 'type' => 'text'],
+                ['label' => '点検・清掃実施日', 'value' => $septicTankInfo['inspection_date'] ?? null, 'type' => 'date'],
+                ['label' => '点検・清掃実施報告書', 'value' => $septicTankInfo['inspection']['inspection_report_pdf'] ?? null, 'type' => 'file_display', 'options' => ['route' => 'facilities.lifeline-equipment.download-file', 'params' => [$facility, 'water', 'septic_tank_inspection_report'], 'display_name' => 'ダウンロード']],
             ]
         ],
     ];
