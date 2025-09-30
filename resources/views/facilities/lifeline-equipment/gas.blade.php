@@ -10,8 +10,8 @@
         [
             'type' => 'standard',
             'cells' => [
-                ['label' => 'ガス契約会社', 'value' => $basicInfo['gas_supplier'] ?? null, 'type' => 'text'],
-                ['label' => 'ガスの種類', 'value' => $basicInfo['gas_type'] ?? null, 'type' => 'badge', 'options' => ['badge_class' => 'bg-info']],
+                ['label' => 'ガス契約会社', 'value' => $basicInfo['gas_supplier'] ?? null, 'type' => 'text', 'width' => '50%'],
+                ['label' => 'ガスの種類', 'value' => $basicInfo['gas_type'] ?? null, 'type' => 'badge', 'options' => ['badge_class' => 'bg-info'], 'width' => '50%'],
             ]
         ],
     ];
@@ -24,26 +24,7 @@
         $waterHeaters = $waterHeaterInfo['water_heaters'];
     }
 
-    // 給湯器テーブルデータの構築（複数台対応）
-    $waterHeaterDataSets = [];
-    
-    if (!empty($waterHeaters)) {
-        foreach ($waterHeaters as $index => $heater) {
-            $waterHeaterDataSets[] = [
-                'number' => $index + 1,
-                'data' => [
-                    [
-                        'type' => 'standard',
-                        'cells' => [
-                            ['label' => 'メーカー', 'value' => $heater['manufacturer'] ?? null, 'type' => 'text'],
-                            ['label' => '年式', 'value' => !empty($heater['model_year']) ? $heater['model_year'] . '年式' : null, 'type' => 'text'],
-                            ['label' => '更新年月日', 'value' => $heater['update_date'] ?? null, 'type' => 'date'],
-                        ]
-                    ],
-                ]
-            ];
-        }
-    }
+
 
     // 床暖房テーブルデータの構築
     $floorHeatingInfo = $basicInfo['floor_heating_info'] ?? [];
@@ -51,9 +32,9 @@
         [
             'type' => 'standard',
             'cells' => [
-                ['label' => 'メーカー', 'value' => $floorHeatingInfo['manufacturer'] ?? null, 'type' => 'text'],
-                ['label' => '年式', 'value' => !empty($floorHeatingInfo['model_year']) ? $floorHeatingInfo['model_year'] . '年式' : null, 'type' => 'text'],
-                ['label' => '更新年月日', 'value' => $floorHeatingInfo['update_date'] ?? null, 'type' => 'date'],
+                ['label' => 'メーカー', 'value' => $floorHeatingInfo['manufacturer'] ?? null, 'type' => 'text', 'width' => '33.33%'],
+                ['label' => '年式', 'value' => !empty($floorHeatingInfo['model_year']) ? $floorHeatingInfo['model_year'] . '年式' : null, 'type' => 'text', 'width' => '33.33%'],
+                ['label' => '更新年月日', 'value' => $floorHeatingInfo['update_date'] ?? null, 'type' => 'date', 'width' => '33.33%'],
             ]
         ],
     ];
@@ -65,7 +46,7 @@
         [
             'type' => 'standard',
             'cells' => [
-                ['label' => '備考', 'value' => $gasEquipment?->notes ?? null, 'type' => 'text'],
+                ['label' => '備考', 'value' => $gasEquipment?->notes ?? null, 'type' => 'text', 'width' => '100%'],
             ]
         ],
     ];
@@ -79,11 +60,8 @@
                 [
                     'label' => '設置の有無', 
                     'value' => $waterHeaterInfo['availability'] ?? null, 
-                    'type' => 'badge', 
-                    'options' => [
-                        'badge_class' => 'availability',
-                        'data_attributes' => ['data-value' => $waterHeaterInfo['availability'] ?? '']
-                    ]
+                    'type' => 'text', 
+                    'width' => '100%'
                 ],
             ]
         ],
@@ -100,9 +78,10 @@
                     [
                         'type' => 'standard',
                         'cells' => [
-                            ['label' => 'メーカー', 'value' => $heater['manufacturer'] ?? null, 'type' => 'text'],
-                            ['label' => '年式', 'value' => !empty($heater['model_year']) ? $heater['model_year'] . '年式' : null, 'type' => 'text'],
-                            ['label' => '更新年月日', 'value' => $heater['update_date'] ?? null, 'type' => 'date'],
+                            ['label' => 'メーカー', 'value' => $heater['manufacturer'] ?? null, 'type' => 'text', 'width' => '25%'],
+                            ['label' => '種類', 'value' => $heater['type'] ?? null, 'type' => 'text', 'width' => '25%'],
+                            ['label' => '年式', 'value' => !empty($heater['model_year']) ? $heater['model_year'] . '年式' : null, 'type' => 'text', 'width' => '25%'],
+                            ['label' => '更新年月日', 'value' => $heater['update_date'] ?? null, 'type' => 'date', 'width' => '25%'],
                         ]
                     ],
                 ]
@@ -115,14 +94,16 @@
 <div class="gas-equipment-sections">
     <!-- 基本情報セクション -->
     <div class="equipment-section mb-4">
-        <x-common-table 
-            :data="$basicInfoData"
-            :showHeader="false"
-            :tableAttributes="['class' => 'table table-bordered gas-info-table']"
-            bodyClass=""
-            cardClass=""
-            tableClass="table table-bordered facility-basic-info-table-clean"
-        />
+        <div class="gas-four-column-equal">
+            <x-common-table 
+                :data="$basicInfoData"
+                :showHeader="false"
+                :tableAttributes="['class' => 'table table-bordered gas-info-table']"
+                bodyClass=""
+                cardClass=""
+                tableClass="table table-bordered facility-basic-info-table-clean"
+            />
+        </div>
     </div>
 
     <!-- 給湯器セクション -->
@@ -161,14 +142,16 @@
                                 <span class="equipment-title">給湯器 {{ $equipmentItem['number'] }}</span>
                             </div>
                             
-                            <x-common-table 
-                                :data="$equipmentItem['data']"
-                                :showHeader="false"
-                                :tableAttributes="['class' => 'table table-bordered water-heater-equipment-table']"
-                                bodyClass=""
-                                cardClass=""
-                                tableClass="table table-bordered facility-basic-info-table-clean"
-                            />
+                            <div class="gas-eight-column-equal">
+                                <x-common-table 
+                                    :data="$equipmentItem['data']"
+                                    :showHeader="false"
+                                    :tableAttributes="['class' => 'table table-bordered water-heater-equipment-table']"
+                                    bodyClass=""
+                                    cardClass=""
+                                    tableClass="table table-bordered facility-basic-info-table-clean"
+                                />
+                            </div>
                         </div>
                     @endforeach
                 </div>
@@ -198,14 +181,16 @@
             @endcan
         </div>
 
-        <x-common-table 
-            :data="$floorHeatingData"
-            :showHeader="false"
-            :tableAttributes="['class' => 'table table-bordered floor-heating-info-table']"
-            bodyClass=""
-            cardClass=""
-            tableClass="table table-bordered facility-basic-info-table-clean"
-        />
+        <div class="gas-six-column-equal">
+            <x-common-table 
+                :data="$floorHeatingData"
+                :showHeader="false"
+                :tableAttributes="['class' => 'table table-bordered floor-heating-info-table']"
+                bodyClass=""
+                cardClass=""
+                tableClass="table table-bordered facility-basic-info-table-clean"
+            />
+        </div>
     </div>
 
 

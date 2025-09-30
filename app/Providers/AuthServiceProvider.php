@@ -18,6 +18,7 @@ class AuthServiceProvider extends ServiceProvider
         \App\Models\FacilityContract::class => \App\Policies\ContractPolicy::class,
         \App\Models\DocumentFile::class => \App\Policies\DocumentPolicy::class,
         \App\Models\DocumentFolder::class => \App\Policies\DocumentPolicy::class,
+        \App\Models\MaintenanceHistory::class => \App\Policies\MaintenanceHistoryPolicy::class,
     ];
 
     /**

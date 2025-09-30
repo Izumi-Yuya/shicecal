@@ -10,6 +10,7 @@ use App\Http\Controllers\LifelineEquipmentController;
 use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\MyPageController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\RepairHistoryController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -138,10 +139,11 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/download/{type}', [\App\Http\Controllers\SecurityDisasterController::class, 'downloadFile'])->name('download-file');
         });
 
-        // Contracts routes
-        Route::prefix('contracts')->name('contracts.')->group(function () {
-            Route::get('/edit', [ContractsController::class, 'edit'])->name('edit');
-            Route::put('/', [ContractsController::class, 'update'])->name('update');
+        // Repair history routes
+        Route::prefix('repair-history')->name('repair-history.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\RepairHistoryController::class, 'index'])->name('index');
+            Route::get('/{category}/edit', [\App\Http\Controllers\RepairHistoryController::class, 'edit'])->name('edit');
+            Route::put('/{category}', [\App\Http\Controllers\RepairHistoryController::class, 'update'])->name('update');
         });
 
         // Document management routes with enhanced security
