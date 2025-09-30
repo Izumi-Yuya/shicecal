@@ -62,7 +62,14 @@ class FacilityController extends Controller
         // Section (department) filter
         if ($request->filled('section')) {
             $query->whereHas('facilityBasic', function ($q) use ($request) {
-                $q->where('section', $request->section);
+                $section = $request->section;
+                
+                // Special handling for combined section filter
+                if ($section === '有料老人ホーム・グループホーム') {
+                    $q->whereIn('section', ['有料老人ホーム', 'グループホーム']);
+                } else {
+                    $q->where('section', $section);
+                }
             });
         }
 
@@ -85,19 +92,71 @@ class FacilityController extends Controller
             });
         }
 
-        // Default sorting by facility name
-        $query->orderBy('facility_name', 'asc');
+        // Default sorting by office code
+        $query->orderBy('office_code', 'asc');
 
         $facilities = $query->get();
 
         // Get unique sections (departments) for filter dropdown
-        $sections = \DB::table('facility_basics')
+        $rawSections = \DB::table('facility_basics')
             ->select('section')
             ->whereNotNull('section')
             ->where('section', '!=', '')
             ->distinct()
             ->orderBy('section')
             ->pluck('section');
+
+        // Process sections to combine 有料老人ホーム and グループホーム
+        $sections = collect();
+        $hasYuryoRojinhome = false;
+        $hasGroupHome = false;
+
+        foreach ($rawSections as $section) {
+            if ($section === '有料老人ホーム') {
+                $hasYuryoRojinhome = true;
+            } elseif ($section === 'グループホーム') {
+                $hasGroupHome = true;
+            } else {
+                $sections->push($section);
+            }
+        }
+
+        // Add combined option if both exist
+        if ($hasYuryoRojinhome && $hasGroupHome) {
+            $sections->push('有料老人ホーム・グループホーム');
+        } elseif ($hasYuryoRojinhome) {
+            $sections->push('有料老人ホーム');
+        } elseif ($hasGroupHome) {
+            $sections->push('グループホーム');
+        }
+
+        // Define custom section order
+        $sectionOrder = [
+            '有料老人ホーム・グループホーム',
+            'デイサービスセンター',
+            '訪問看護ステーション',
+            'ヘルパーステーション',
+            'ケアプランセンター',
+            '他（事務所など）'
+        ];
+
+        // Sort sections according to custom order
+        $sections = $sections->sort(function ($a, $b) use ($sectionOrder) {
+            $posA = array_search($a, $sectionOrder);
+            $posB = array_search($b, $sectionOrder);
+            
+            // If both sections are in the order array, sort by position
+            if ($posA !== false && $posB !== false) {
+                return $posA - $posB;
+            }
+            
+            // If only one is in the order array, prioritize it
+            if ($posA !== false) return -1;
+            if ($posB !== false) return 1;
+            
+            // If neither is in the order array, sort alphabetically
+            return strcmp($a, $b);
+        })->values();
 
         // Get prefectures that have facilities (standard 47 prefectures only)
         $allPrefectures = config('prefectures.codes');
