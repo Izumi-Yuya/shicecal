@@ -499,12 +499,12 @@ class FacilityController extends Controller
                     if ($request->expectsJson()) {
                         return response()->json([
                             'success' => false,
-                            'message' => 'ファイルのアップロードに失敗しました。'.$e->getMessage(),
+                            'message' => 'ファイルのアップロードに失敗しました: ' . $e->getMessage(),
                         ], 422);
                     }
 
                     return redirect()->back()
-                        ->withErrors(['file_upload' => 'ファイルのアップロードに失敗しました。'.$e->getMessage()])
+                        ->withErrors(['file_upload' => 'ファイルのアップロードに失敗しました: ' . $e->getMessage()])
                         ->withInput();
                 }
             }

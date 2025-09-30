@@ -37,6 +37,10 @@ class LifelineEquipmentService
 
     /**
      * Retrieves lifeline equipment data for a specific facility and category.
+     * 
+     * @param Facility $facility The target facility
+     * @param string $category The equipment category
+     * @return array Result array with success status and data
      */
     public function getEquipmentData(Facility $facility, string $category): array
     {
@@ -1681,7 +1685,7 @@ class LifelineEquipmentService
                 'directory' => $directory,
                 'error' => $e->getMessage(),
             ]);
-            throw new Exception('ファイルのアップロードに失敗しました。'.$e->getMessage());
+            throw new Exception('ファイルのアップロードに失敗しました: ' . $e->getMessage());
         }
     }
 

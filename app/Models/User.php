@@ -292,4 +292,43 @@ class User extends Authenticatable
     {
         return $this->canEditLandInfo();
     }
+
+    /**
+     * Check if user can manage documents for a specific facility.
+     * This includes creating folders, uploading files, and organizing documents.
+     */
+    public function canManageDocuments(int $facilityId): bool
+    {
+        return $this->canEditFacility($facilityId);
+    }
+
+    /**
+     * Check if user can view documents for a specific facility.
+     */
+    public function canViewDocuments(int $facilityId): bool
+    {
+        return $this->canViewFacility($facilityId);
+    }
+
+    /**
+     * Check if user can delete documents and folders for a specific facility.
+     * This requires edit permissions and facility access.
+     */
+    public function canDeleteDocuments(int $facilityId): bool
+    {
+        return $this->canEditFacility($facilityId);
+    }
+
+    /**
+     * Check if user can view document audit logs for a specific facility.
+     * Only admins and approvers can view audit logs.
+     */
+    public function canViewDocumentAuditLogs(int $facilityId): bool
+    {
+        if (!in_array($this->role, ['admin', 'approver'])) {
+            return false;
+        }
+
+        return $this->canAccessFacility($facilityId);
+    }
 }

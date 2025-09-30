@@ -42,13 +42,78 @@ class FileHandlingService
             'color' => 'text-info',
         ],
         'document' => [
-            'mime_types' => ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
-            'extensions' => ['pdf', 'doc', 'docx'],
+            'mime_types' => [
+                'application/pdf', 
+                'application/msword', 
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            ],
+            'extensions' => ['pdf', 'doc', 'docx', 'xls', 'xlsx'],
             'max_size' => 10 * 1024 * 1024, // 10MB
             'icon' => 'fas fa-file-alt',
             'color' => 'text-primary',
         ],
+        // ドキュメント管理用の拡張ファイルタイプ定義
+        'office_document' => [
+            'mime_types' => [
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            ],
+            'extensions' => ['doc', 'docx'],
+            'max_size' => 15 * 1024 * 1024, // 15MB
+            'icon' => 'fas fa-file-word',
+            'color' => 'text-primary',
+        ],
+        'spreadsheet' => [
+            'mime_types' => [
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            ],
+            'extensions' => ['xls', 'xlsx'],
+            'max_size' => 15 * 1024 * 1024, // 15MB
+            'icon' => 'fas fa-file-excel',
+            'color' => 'text-success',
+        ],
+        'facility_document' => [
+            'mime_types' => [
+                'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'image/jpeg',
+                'image/png'
+            ],
+            'extensions' => ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png'],
+            'max_size' => 20 * 1024 * 1024, // 20MB for facility documents
+            'icon' => 'fas fa-folder-open',
+            'color' => 'text-warning',
+        ],
     ];
+
+    /**
+     * ドキュメント管理用のストレージディスクを取得
+     */
+    public function getDocumentStorageDisk(): string
+    {
+        return config('app.env') === 'testing' ? 'public' : 
+               (config('filesystems.default_document_disk', 'public'));
+    }
+
+    /**
+     * 環境別ストレージ設定の取得
+     */
+    public function getStorageConfig(): array
+    {
+        $disk = $this->getDocumentStorageDisk();
+        
+        return [
+            'disk' => $disk,
+            'is_s3' => $disk === 'documents_s3',
+            'base_path' => $disk === 'documents_s3' ? '' : 'documents',
+        ];
+    }
 
     /**
      * ファイルをアップロードして保存
@@ -69,14 +134,24 @@ class FileHandlingService
             // 一意なファイル名の生成
             $filename = $this->generateUniqueFilename($file);
 
+            // 環境別ストレージ設定の取得
+            $storageConfig = $this->getStorageConfig();
+            $disk = $storageConfig['disk'];
+            
+            // ディレクトリパスの調整
+            $fullDirectory = $storageConfig['base_path'] ? 
+                $storageConfig['base_path'] . '/' . $directory : 
+                $directory;
+
             // ファイルの保存
-            $path = $file->storeAs($directory, $filename, 'public');
+            $path = $file->storeAs($fullDirectory, $filename, $disk);
 
             Log::info('File uploaded successfully', [
                 'original_name' => $file->getClientOriginalName(),
                 'stored_path' => $path,
                 'file_size' => $file->getSize(),
                 'mime_type' => $file->getClientMimeType(),
+                'disk' => $disk,
             ]);
 
             return [
@@ -86,6 +161,7 @@ class FileHandlingService
                 'path' => $path,
                 'size' => $file->getSize(),
                 'mime_type' => $file->getClientMimeType(),
+                'disk' => $disk,
             ];
 
         } catch (Exception $e) {
@@ -96,16 +172,17 @@ class FileHandlingService
                 'directory' => $directory,
             ]);
 
-            throw new Exception('ファイルのアップロードに失敗しました。詳細: ' . $e->getMessage());
+            throw new Exception('ファイルのアップロードに失敗しました: ' . $e->getMessage());
         }
     }
 
     /**
      * ファイルの存在確認
      */
-    public function fileExists(string $path): bool
+    public function fileExists(string $path, ?string $disk = null): bool
     {
-        return Storage::disk('public')->exists($path);
+        $disk = $disk ?? $this->getDocumentStorageDisk();
+        return Storage::disk($disk)->exists($path);
     }
 
     /**
@@ -115,13 +192,15 @@ class FileHandlingService
      *
      * @throws Exception
      */
-    public function downloadFile(string $path, string $filename)
+    public function downloadFile(string $path, string $filename, ?string $disk = null)
     {
-        if (! $this->fileExists($path)) {
+        $disk = $disk ?? $this->getDocumentStorageDisk();
+        
+        if (! $this->fileExists($path, $disk)) {
             throw new Exception('ファイルが見つかりません。');
         }
 
-        return Storage::disk('public')->download($path, $filename);
+        return Storage::disk($disk)->download($path, $filename);
     }
 
     /**
@@ -129,11 +208,12 @@ class FileHandlingService
      * This method formats file information for consistent display throughout the application.
      *
      * @param  array  $fileData  File information array containing path and filename
-     * @param  string  $category  Equipment category (electrical, gas, water, etc.)
+     * @param  string  $category  Equipment category (electrical, gas, water, etc.) or 'document' for document management
      * @param  object  $facility  Facility model instance
+     * @param  array  $options  Additional options for URL generation
      * @return array|null Formatted file display data, or null if no file exists
      */
-    public function generateFileDisplayData(array $fileData, string $category, object $facility): ?array
+    public function generateFileDisplayData(array $fileData, string $category, object $facility, array $options = []): ?array
     {
         try {
             // 必要なデータが存在するかチェック
@@ -166,7 +246,15 @@ class FileHandlingService
 
             // Generate appropriate download URL based on category
             $downloadUrl = '';
-            if ($category === 'land-info') {
+            if ($category === 'document') {
+                // For document management system
+                if (isset($options['file_id'])) {
+                    $downloadUrl = route('facilities.documents.files.download', [
+                        'facility' => $facility->id,
+                        'file' => $options['file_id'],
+                    ]);
+                }
+            } elseif ($category === 'land-info') {
                 // For land-info, determine type based on filename or path
                 $type = str_contains($path, 'lease_contract') ? 'lease_contract' : 'registry';
                 $downloadUrl = route('facilities.land-info.download', [
@@ -183,6 +271,22 @@ class FileHandlingService
                 ]);
             }
 
+            // ファイルサイズの取得（可能な場合）
+            $fileSize = null;
+            $formattedSize = null;
+            if (isset($fileData['size'])) {
+                $fileSize = $fileData['size'];
+                $formattedSize = $this->formatFileSize($fileSize);
+            } elseif ($this->fileExists($path)) {
+                try {
+                    $disk = $this->getDocumentStorageDisk();
+                    $fileSize = Storage::disk($disk)->size($path);
+                    $formattedSize = $this->formatFileSize($fileSize);
+                } catch (Exception $e) {
+                    Log::debug('Could not get file size', ['path' => $path, 'error' => $e->getMessage()]);
+                }
+            }
+
             $result = [
                 'filename' => $filename,
                 'path' => $path,
@@ -191,6 +295,8 @@ class FileHandlingService
                 'icon' => $config['icon'],
                 'color' => $config['color'],
                 'type' => $fileType,
+                'size' => $fileSize,
+                'formatted_size' => $formattedSize,
             ];
 
             Log::debug('FileHandlingService: Generated file display data', ['result' => $result]);
@@ -212,12 +318,14 @@ class FileHandlingService
     /**
      * ファイル削除
      */
-    public function deleteFile(string $path): bool
+    public function deleteFile(string $path, ?string $disk = null): bool
     {
         try {
-            if ($this->fileExists($path)) {
-                Storage::disk('public')->delete($path);
-                Log::info('File deleted successfully', ['path' => $path]);
+            $disk = $disk ?? $this->getDocumentStorageDisk();
+            
+            if ($this->fileExists($path, $disk)) {
+                Storage::disk($disk)->delete($path);
+                Log::info('File deleted successfully', ['path' => $path, 'disk' => $disk]);
 
                 return true;
             }
@@ -226,10 +334,224 @@ class FileHandlingService
         } catch (Exception $e) {
             Log::error('File deletion failed', [
                 'path' => $path,
+                'disk' => $disk,
                 'error' => $e->getMessage(),
             ]);
 
             return false;
+        }
+    }
+
+    /**
+     * バッチファイル削除
+     */
+    public function deleteFiles(array $paths, ?string $disk = null): array
+    {
+        $disk = $disk ?? $this->getDocumentStorageDisk();
+        $results = [];
+        
+        foreach ($paths as $path) {
+            $results[$path] = $this->deleteFile($path, $disk);
+        }
+        
+        Log::info('Batch file deletion completed', [
+            'total_files' => count($paths),
+            'successful' => count(array_filter($results)),
+            'failed' => count($paths) - count(array_filter($results)),
+            'disk' => $disk,
+        ]);
+        
+        return $results;
+    }
+
+    /**
+     * ファイル移動
+     */
+    public function moveFile(string $fromPath, string $toPath, ?string $disk = null): bool
+    {
+        try {
+            $disk = $disk ?? $this->getDocumentStorageDisk();
+            
+            if (!$this->fileExists($fromPath, $disk)) {
+                throw new Exception('移動元ファイルが見つかりません。');
+            }
+            
+            // 移動先ディレクトリの作成
+            $toDirectory = dirname($toPath);
+            if (!Storage::disk($disk)->exists($toDirectory)) {
+                Storage::disk($disk)->makeDirectory($toDirectory);
+            }
+            
+            $result = Storage::disk($disk)->move($fromPath, $toPath);
+            
+            if ($result) {
+                Log::info('File moved successfully', [
+                    'from' => $fromPath,
+                    'to' => $toPath,
+                    'disk' => $disk,
+                ]);
+            }
+            
+            return $result;
+            
+        } catch (Exception $e) {
+            Log::error('File move failed', [
+                'from' => $fromPath,
+                'to' => $toPath,
+                'disk' => $disk,
+                'error' => $e->getMessage(),
+            ]);
+            
+            return false;
+        }
+    }
+
+    /**
+     * ディレクトリ作成
+     */
+    public function createDirectory(string $path, ?string $disk = null): bool
+    {
+        try {
+            $disk = $disk ?? $this->getDocumentStorageDisk();
+            
+            if (Storage::disk($disk)->exists($path)) {
+                return true; // Already exists
+            }
+            
+            $result = Storage::disk($disk)->makeDirectory($path);
+            
+            Log::info('Directory created successfully', [
+                'path' => $path,
+                'disk' => $disk,
+            ]);
+            
+            return $result;
+            
+        } catch (Exception $e) {
+            Log::error('Directory creation failed', [
+                'path' => $path,
+                'disk' => $disk,
+                'error' => $e->getMessage(),
+            ]);
+            
+            return false;
+        }
+    }
+
+    /**
+     * ディレクトリ削除（中身も含めて）
+     */
+    public function deleteDirectory(string $path, ?string $disk = null): bool
+    {
+        try {
+            $disk = $disk ?? $this->getDocumentStorageDisk();
+            
+            if (!Storage::disk($disk)->exists($path)) {
+                return true; // Already doesn't exist
+            }
+            
+            $result = Storage::disk($disk)->deleteDirectory($path);
+            
+            Log::info('Directory deleted successfully', [
+                'path' => $path,
+                'disk' => $disk,
+            ]);
+            
+            return $result;
+            
+        } catch (Exception $e) {
+            Log::error('Directory deletion failed', [
+                'path' => $path,
+                'disk' => $disk,
+                'error' => $e->getMessage(),
+            ]);
+            
+            return false;
+        }
+    }
+
+    /**
+     * ディレクトリ内のファイル一覧取得
+     */
+    public function listFiles(string $directory, ?string $disk = null): array
+    {
+        try {
+            $disk = $disk ?? $this->getDocumentStorageDisk();
+            
+            if (!Storage::disk($disk)->exists($directory)) {
+                return [];
+            }
+            
+            $files = Storage::disk($disk)->files($directory);
+            $result = [];
+            
+            foreach ($files as $file) {
+                $result[] = [
+                    'path' => $file,
+                    'name' => basename($file),
+                    'size' => Storage::disk($disk)->size($file),
+                    'last_modified' => Storage::disk($disk)->lastModified($file),
+                    'mime_type' => Storage::disk($disk)->mimeType($file),
+                ];
+            }
+            
+            return $result;
+            
+        } catch (Exception $e) {
+            Log::error('File listing failed', [
+                'directory' => $directory,
+                'disk' => $disk,
+                'error' => $e->getMessage(),
+            ]);
+            
+            return [];
+        }
+    }
+
+    /**
+     * ストレージ使用量の取得
+     */
+    public function getStorageUsage(string $directory, ?string $disk = null): array
+    {
+        try {
+            $disk = $disk ?? $this->getDocumentStorageDisk();
+            
+            if (!Storage::disk($disk)->exists($directory)) {
+                return [
+                    'total_size' => 0,
+                    'file_count' => 0,
+                    'folder_count' => 0,
+                ];
+            }
+            
+            $files = Storage::disk($disk)->allFiles($directory);
+            $directories = Storage::disk($disk)->allDirectories($directory);
+            
+            $totalSize = 0;
+            foreach ($files as $file) {
+                $totalSize += Storage::disk($disk)->size($file);
+            }
+            
+            return [
+                'total_size' => $totalSize,
+                'file_count' => count($files),
+                'folder_count' => count($directories),
+                'formatted_size' => $this->formatFileSize($totalSize),
+            ];
+            
+        } catch (Exception $e) {
+            Log::error('Storage usage calculation failed', [
+                'directory' => $directory,
+                'disk' => $disk,
+                'error' => $e->getMessage(),
+            ]);
+            
+            return [
+                'total_size' => 0,
+                'file_count' => 0,
+                'folder_count' => 0,
+                'formatted_size' => '0 B',
+            ];
         }
     }
 
@@ -299,6 +621,23 @@ class FileHandlingService
     {
         $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
+        // より具体的なタイプを優先
+        if (in_array($extension, ['doc', 'docx'])) {
+            return 'office_document';
+        }
+        
+        if (in_array($extension, ['xls', 'xlsx'])) {
+            return 'spreadsheet';
+        }
+        
+        if (in_array($extension, ['jpg', 'jpeg', 'png', 'gif'])) {
+            return 'image';
+        }
+        
+        if ($extension === 'pdf') {
+            return 'pdf';
+        }
+
         foreach (self::SUPPORTED_FILE_TYPES as $type => $config) {
             if (in_array($extension, $config['extensions'])) {
                 return $type;
@@ -306,6 +645,22 @@ class FileHandlingService
         }
 
         return 'document'; // デフォルト
+    }
+
+    /**
+     * ファイルサイズのフォーマット
+     */
+    public function formatFileSize(int $bytes): string
+    {
+        if ($bytes === 0) {
+            return '0 B';
+        }
+        
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $base = log($bytes, 1024);
+        $index = floor($base);
+        
+        return round(pow(1024, $base - $index), 2) . ' ' . $units[$index];
     }
 
     /**

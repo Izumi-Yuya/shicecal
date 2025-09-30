@@ -85,6 +85,11 @@
                                 <i class="fas fa-file-contract me-2"></i>契約書
                             </button>
                         </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="documents-tab" data-bs-toggle="tab" data-bs-target="#documents" type="button" role="tab" aria-controls="documents" aria-selected="false">
+                                <i class="fas fa-folder me-2"></i>ドキュメント
+                            </button>
+                        </li>
                     </ul>
                 </div>
                 
@@ -277,6 +282,27 @@
                             
                         @endphp
                         @include('facilities.contracts.index', ['facility' => $facility, 'contractsData' => $contractsData])
+                    </div>
+                    
+                    <div class="tab-pane fade" id="documents" role="tabpanel" aria-labelledby="documents-tab">
+                        <!-- ドキュメントタブヘッダー -->
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="mb-0">
+                                <i class="fas fa-folder text-primary me-2"></i>ドキュメント管理
+                            </h4>
+                        </div>
+                        
+                        <!-- Documents Content -->
+                        <div class="documents-container">
+                            <div id="documentsContent">
+                                <div class="text-center py-5">
+                                    <div class="spinner-border" role="status">
+                                        <span class="visually-hidden">読み込み中...</span>
+                                    </div>
+                                    <p class="mt-2">ドキュメントを読み込んでいます...</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -528,6 +554,187 @@
     background-color: transparent;
     font-weight: 600;
 }
+
+/* Documents Styles */
+.documents-container {
+    margin-top: 1rem;
+}
+
+.documents-container .card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.documents-container .card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+#documents .card-header {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+    color: white;
+    border: none;
+}
+
+.documents-toolbar {
+    background-color: #f8f9fa;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #dee2e6;
+}
+
+.documents-breadcrumb {
+    background-color: transparent;
+    padding: 0.5rem 0;
+    margin-bottom: 1rem;
+}
+
+.documents-breadcrumb .breadcrumb {
+    margin-bottom: 0;
+    background-color: #f8f9fa;
+    border-radius: 0.375rem;
+    padding: 0.75rem 1rem;
+}
+
+.documents-breadcrumb .breadcrumb-item a {
+    color: #0d6efd;
+    text-decoration: none;
+}
+
+.documents-breadcrumb .breadcrumb-item a:hover {
+    text-decoration: underline;
+}
+
+.documents-view-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.documents-view-mode .btn-group .btn {
+    border-color: #dee2e6;
+}
+
+.documents-view-mode .btn-check:checked + .btn {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
+}
+
+.documents-sort-controls {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.documents-list-view .table th {
+    background-color: #f8f9fa;
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+}
+
+.documents-list-view .folder-row:hover,
+.documents-list-view .file-row:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+.documents-icon-view .folder-card,
+.documents-icon-view .file-card {
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: 1px solid #dee2e6;
+}
+
+.documents-icon-view .folder-card:hover,
+.documents-icon-view .file-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    border-color: #0d6efd;
+}
+
+.documents-icon-view .card-body {
+    padding: 1rem 0.5rem;
+}
+
+.documents-icon-view .card-text {
+    font-size: 0.875rem;
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+    word-break: break-word;
+    height: 2.4em;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.documents-empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+}
+
+.documents-empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.documents-storage-stats {
+    background-color: #f8f9fa;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    margin-top: 1.5rem;
+}
+
+.documents-storage-stats .row > div {
+    text-align: center;
+    padding: 0.5rem;
+}
+
+.documents-storage-stats .fw-bold {
+    font-size: 1.25rem;
+    color: #495057;
+}
+
+.documents-storage-stats small {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .documents-view-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .documents-sort-controls {
+        justify-content: center;
+    }
+    
+    .documents-icon-view .col-4 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+}
+
+@media (max-width: 576px) {
+    .documents-icon-view .col-4 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    
+    .documents-toolbar {
+        padding: 0.75rem;
+    }
+}
 </style>
 
 <script>
@@ -548,6 +755,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 card.style.animationDelay = `${index * 0.1}s`;
                 card.classList.add('animate-in');
             });
+        });
+    }
+    
+    // Initialize documents tab functionality
+    const documentsTab = document.getElementById('documents-tab');
+    const documentsPane = document.getElementById('documents');
+    let documentsLoaded = false;
+    
+    if (documentsTab && documentsPane) {
+        documentsTab.addEventListener('shown.bs.tab', function() {
+            if (!documentsLoaded) {
+                loadDocumentsContent();
+                documentsLoaded = true;
+            }
         });
     }
     
@@ -793,5 +1014,675 @@ document.addEventListener('DOMContentLoaded', function() {
             alert(`コメント機能は今後実装予定です。\n対象セクション：${section}`);
         });
     });
+    
+    // Documents tab functionality
+    window.loadDocumentsContent = function() {
+        const documentsContent = document.getElementById('documentsContent');
+        const facilityId = window.facilityId;
+        
+        // Show loading state
+        documentsContent.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">読み込み中...</span>
+                </div>
+                <p class="mt-2">ドキュメントを読み込んでいます...</p>
+            </div>
+        `;
+        
+        // Create documents interface
+        setTimeout(() => {
+            documentsContent.innerHTML = `
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="fas fa-folder me-2"></i>ドキュメント管理
+                        </h6>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-primary btn-sm" id="uploadFileBtn">
+                                <i class="fas fa-upload me-1"></i>ファイルアップロード
+                            </button>
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="createFolderBtn">
+                                <i class="fas fa-folder-plus me-1"></i>フォルダ作成
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Breadcrumb Navigation -->
+                        <div class="documents-breadcrumb">
+                            <nav aria-label="breadcrumb" id="breadcrumbNav">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item active">
+                                        <i class="fas fa-home me-1"></i>ルート
+                                    </li>
+                                </ol>
+                            </nav>
+                        </div>
+
+                        <!-- View Controls -->
+                        <div class="documents-view-controls">
+                            <div class="documents-view-mode">
+                                <div class="btn-group" role="group" aria-label="表示モード">
+                                    <input type="radio" class="btn-check" name="viewMode" id="listView" value="list" checked>
+                                    <label class="btn btn-outline-secondary btn-sm" for="listView">
+                                        <i class="fas fa-list me-1"></i>一覧表示
+                                    </label>
+                                    <input type="radio" class="btn-check" name="viewMode" id="iconView" value="icon">
+                                    <label class="btn btn-outline-secondary btn-sm" for="iconView">
+                                        <i class="fas fa-th me-1"></i>アイコン表示
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="documents-sort-controls">
+                                <select class="form-select form-select-sm me-2" id="sortBy" style="width: auto;">
+                                    <option value="name">名前順</option>
+                                    <option value="date">日付順</option>
+                                    <option value="size">サイズ順</option>
+                                    <option value="type">種類順</option>
+                                </select>
+                                <select class="form-select form-select-sm" id="sortDirection" style="width: auto;">
+                                    <option value="asc">昇順</option>
+                                    <option value="desc">降順</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Document List -->
+                        <div id="documentList">
+                            <div class="documents-empty-state">
+                                <i class="fas fa-folder-open"></i>
+                                <h5>ドキュメントがありません</h5>
+                                <p class="text-muted">この施設にはまだドキュメントが登録されていません。</p>
+                                <button type="button" class="btn btn-primary" onclick="document.getElementById('uploadFileBtn').click()">
+                                    <i class="fas fa-upload me-1"></i>最初のファイルをアップロード
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Storage Stats -->
+                        <div class="documents-storage-stats">
+                            <h6 class="mb-3">ストレージ使用状況</h6>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <small class="text-muted">ファイル数</small>
+                                    <div class="fw-bold">0</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <small class="text-muted">フォルダ数</small>
+                                    <div class="fw-bold">0</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <small class="text-muted">使用容量</small>
+                                    <div class="fw-bold">0 B</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <small class="text-muted">最終更新</small>
+                                    <div class="fw-bold">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Initialize document management functionality
+            initializeDocumentManagement();
+        }, 500);
+    };
+    
+    window.initializeDocumentManagement = function() {
+        // Initialize navigation state
+        window.currentFolderId = null;
+        window.folderHistory = [];
+        window.breadcrumbs = [
+            { id: null, name: 'ルート', is_current: true }
+        ];
+        
+        // Event listeners for buttons
+        const uploadBtn = document.getElementById('uploadFileBtn');
+        const createFolderBtn = document.getElementById('createFolderBtn');
+        
+        if (uploadBtn) {
+            uploadBtn.addEventListener('click', function() {
+                alert('ファイルアップロード機能は次のタスクで実装予定です。');
+            });
+        }
+        
+        if (createFolderBtn) {
+            createFolderBtn.addEventListener('click', function() {
+                alert('フォルダ作成機能は次のタスクで実装予定です。');
+            });
+        }
+        
+        // View mode change listeners
+        document.querySelectorAll('input[name="viewMode"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                loadFolderContents();
+            });
+        });
+        
+        // Sort change listeners
+        const sortBy = document.getElementById('sortBy');
+        const sortDirection = document.getElementById('sortDirection');
+        
+        if (sortBy) {
+            sortBy.addEventListener('change', loadFolderContents);
+        }
+        
+        if (sortDirection) {
+            sortDirection.addEventListener('change', loadFolderContents);
+        }
+        
+        // Load initial content
+        loadFolderContents();
+    };
+    
+    window.loadFolderContents = function() {
+        const documentList = document.getElementById('documentList');
+        const viewMode = document.querySelector('input[name="viewMode"]:checked')?.value || 'list';
+        
+        // Show loading state
+        documentList.innerHTML = `
+            <div class="text-center py-4">
+                <div class="spinner-border spinner-border-sm" role="status">
+                    <span class="visually-hidden">読み込み中...</span>
+                </div>
+                <p class="mt-2 mb-0">フォルダ内容を読み込んでいます...</p>
+            </div>
+        `;
+        
+        // Simulate loading with sample data for demonstration
+        setTimeout(() => {
+            const sampleData = getSampleDataForFolder(window.currentFolderId);
+            renderFolderContents(sampleData, viewMode);
+        }, 300);
+    };
+    
+    window.renderFolderContents = function(data, viewMode) {
+        const documentList = document.getElementById('documentList');
+        
+        if (data.folders.length === 0 && data.files.length === 0) {
+            documentList.innerHTML = `
+                <div class="documents-empty-state">
+                    <i class="fas fa-folder-open"></i>
+                    <h5>このフォルダは空です</h5>
+                    <p class="text-muted">ファイルやフォルダがありません。</p>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('uploadFileBtn').click()">
+                        <i class="fas fa-upload me-1"></i>ファイルをアップロード
+                    </button>
+                </div>
+            `;
+            return;
+        }
+        
+        if (viewMode === 'list') {
+            renderListView(documentList, data);
+        } else {
+            renderIconView(documentList, data);
+        }
+    };
+    
+    window.renderListView = function(container, data) {
+        let html = `
+            <div class="documents-list-view">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-file me-2"></i>名前</th>
+                                <th><i class="fas fa-tag me-2"></i>種類</th>
+                                <th><i class="fas fa-weight-hanging me-2"></i>サイズ</th>
+                                <th><i class="fas fa-clock me-2"></i>更新日時</th>
+                                <th><i class="fas fa-user me-2"></i>作成者</th>
+                                <th><i class="fas fa-cog me-2"></i>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+        `;
+        
+        // Folders first
+        data.folders.forEach(folder => {
+            html += `
+                <tr class="folder-row" data-folder-id="${folder.id}" onclick="openFolder(${folder.id})" style="cursor: pointer;">
+                    <td>
+                        <i class="fas fa-folder text-warning me-2"></i>
+                        <span class="folder-name fw-semibold">${escapeHtml(folder.name)}</span>
+                        <small class="text-muted ms-2">(${folder.file_count} ファイル)</small>
+                    </td>
+                    <td><span class="badge bg-warning text-dark">フォルダ</span></td>
+                    <td>-</td>
+                    <td>${formatDate(folder.created_at)}</td>
+                    <td>${escapeHtml(folder.created_by)}</td>
+                    <td>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button class="btn btn-outline-primary" onclick="event.stopPropagation(); openFolder(${folder.id})" title="開く">
+                                <i class="fas fa-folder-open"></i>
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="event.stopPropagation(); renameFolder(${folder.id})" title="名前変更">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="event.stopPropagation(); deleteFolder(${folder.id})" title="削除">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        // Files
+        data.files.forEach(file => {
+            html += `
+                <tr class="file-row" data-file-id="${file.id}">
+                    <td>
+                        <i class="${file.icon} ${file.color} me-2"></i>
+                        <span class="file-name">${escapeHtml(file.name)}</span>
+                    </td>
+                    <td><span class="badge bg-secondary">${file.extension.toUpperCase()}</span></td>
+                    <td>${file.formatted_size}</td>
+                    <td>${formatDate(file.created_at)}</td>
+                    <td>${escapeHtml(file.uploaded_by)}</td>
+                    <td>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <a href="${file.download_url}" class="btn btn-outline-primary" title="ダウンロード">
+                                <i class="fas fa-download"></i>
+                            </a>
+                            <button class="btn btn-outline-info" onclick="previewFile(${file.id})" title="プレビュー">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="deleteFile(${file.id})" title="削除">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        html += `
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+        
+        container.innerHTML = html;
+    };
+    
+    window.renderIconView = function(container, data) {
+        let html = '<div class="documents-icon-view"><div class="row">';
+        
+        // Folders first
+        data.folders.forEach(folder => {
+            html += `
+                <div class="col-lg-2 col-md-3 col-sm-4 col-6 mb-3">
+                    <div class="card h-100 folder-card" data-folder-id="${folder.id}" onclick="openFolder(${folder.id})">
+                        <div class="card-body text-center">
+                            <i class="fas fa-folder fa-3x text-warning mb-2"></i>
+                            <p class="card-text small fw-semibold mb-1">${escapeHtml(folder.name)}</p>
+                            <small class="text-muted">${folder.file_count} ファイル</small>
+                            <div class="mt-2">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button class="btn btn-outline-primary btn-sm" onclick="event.stopPropagation(); openFolder(${folder.id})" title="開く">
+                                        <i class="fas fa-folder-open"></i>
+                                    </button>
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="event.stopPropagation(); renameFolder(${folder.id})" title="名前変更">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm" onclick="event.stopPropagation(); deleteFolder(${folder.id})" title="削除">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        // Files
+        data.files.forEach(file => {
+            html += `
+                <div class="col-lg-2 col-md-3 col-sm-4 col-6 mb-3">
+                    <div class="card h-100 file-card" data-file-id="${file.id}">
+                        <div class="card-body text-center">
+                            <i class="${file.icon} ${file.color} fa-3x mb-2"></i>
+                            <p class="card-text small mb-1" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</p>
+                            <small class="text-muted">${file.formatted_size}</small>
+                            <div class="mt-2">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="${file.download_url}" class="btn btn-outline-primary btn-sm" title="ダウンロード">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                    <button class="btn btn-outline-info btn-sm" onclick="previewFile(${file.id})" title="プレビュー">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm" onclick="deleteFile(${file.id})" title="削除">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += '</div></div>';
+        container.innerHTML = html;
+    };
+    
+    // Utility functions
+    window.escapeHtml = function(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    };
+    
+    window.formatDate = function(dateString) {
+        return new Date(dateString).toLocaleString('ja-JP', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+    
+    // Navigation functions
+    window.openFolder = function(folderId) {
+        // Add current folder to history if not already there
+        if (window.currentFolderId !== null) {
+            window.folderHistory.push(window.currentFolderId);
+        }
+        
+        // Update current folder
+        window.currentFolderId = folderId;
+        
+        // Update breadcrumbs
+        updateBreadcrumbs(folderId);
+        
+        // Load folder contents
+        loadFolderContents();
+    };
+    
+    window.navigateToFolder = function(folderId) {
+        // Clear history beyond this point
+        window.folderHistory = [];
+        
+        // Update current folder
+        window.currentFolderId = folderId;
+        
+        // Update breadcrumbs
+        updateBreadcrumbs(folderId);
+        
+        // Load folder contents
+        loadFolderContents();
+    };
+    
+    window.navigateBack = function() {
+        if (window.folderHistory.length > 0) {
+            const previousFolderId = window.folderHistory.pop();
+            window.currentFolderId = previousFolderId;
+            updateBreadcrumbs(previousFolderId);
+            loadFolderContents();
+        }
+    };
+    
+    window.updateBreadcrumbs = function(currentFolderId) {
+        // Sample folder structure for demonstration
+        const folderStructure = {
+            null: { name: 'ルート', parent: null },
+            1: { name: '契約書類', parent: null },
+            2: { name: '図面', parent: null },
+            3: { name: '点検記録', parent: null },
+            4: { name: '保守契約', parent: 1 },
+            5: { name: '清掃契約', parent: 1 },
+            6: { name: '建築図面', parent: 2 },
+            7: { name: '設備図面', parent: 2 }
+        };
+        
+        // Build breadcrumb path
+        const breadcrumbs = [];
+        let currentId = currentFolderId;
+        
+        // Build path from current to root
+        const path = [];
+        while (currentId !== null && folderStructure[currentId]) {
+            path.unshift({
+                id: currentId,
+                name: folderStructure[currentId].name,
+                is_current: false
+            });
+            currentId = folderStructure[currentId].parent;
+        }
+        
+        // Add root
+        breadcrumbs.push({
+            id: null,
+            name: 'ルート',
+            is_current: currentFolderId === null
+        });
+        
+        // Add path folders
+        path.forEach((folder, index) => {
+            folder.is_current = (index === path.length - 1);
+            breadcrumbs.push(folder);
+        });
+        
+        window.breadcrumbs = breadcrumbs;
+        renderBreadcrumbs();
+    };
+    
+    window.renderBreadcrumbs = function() {
+        const breadcrumbNav = document.getElementById('breadcrumbNav');
+        if (!breadcrumbNav) return;
+        
+        let html = '<ol class="breadcrumb">';
+        
+        window.breadcrumbs.forEach((crumb, index) => {
+            if (crumb.is_current) {
+                html += `
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <i class="fas fa-${crumb.id === null ? 'home' : 'folder'} me-1"></i>
+                        ${escapeHtml(crumb.name)}
+                    </li>
+                `;
+            } else {
+                html += `
+                    <li class="breadcrumb-item">
+                        <a href="#" onclick="navigateToFolder(${crumb.id})" class="text-decoration-none">
+                            <i class="fas fa-${crumb.id === null ? 'home' : 'folder'} me-1"></i>
+                            ${escapeHtml(crumb.name)}
+                        </a>
+                    </li>
+                `;
+            }
+        });
+        
+        // Add back button if not at root
+        if (window.currentFolderId !== null) {
+            html += `
+                <li class="breadcrumb-item">
+                    <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none" onclick="navigateBack()" title="戻る">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                </li>
+            `;
+        }
+        
+        html += '</ol>';
+        breadcrumbNav.innerHTML = html;
+    };
+    
+    window.getSampleDataForFolder = function(folderId) {
+        // Sample data structure for different folders
+        const folderData = {
+            // Root folder
+            null: {
+                folders: [
+                    {
+                        id: 1,
+                        name: '契約書類',
+                        created_at: '2024-01-15T10:30:00Z',
+                        created_by: '管理者',
+                        file_count: 5
+                    },
+                    {
+                        id: 2,
+                        name: '図面',
+                        created_at: '2024-01-20T14:15:00Z',
+                        created_by: '編集者',
+                        file_count: 12
+                    },
+                    {
+                        id: 3,
+                        name: '点検記録',
+                        created_at: '2024-02-01T09:45:00Z',
+                        created_by: '管理者',
+                        file_count: 8
+                    }
+                ],
+                files: [
+                    {
+                        id: 1,
+                        name: '施設概要.pdf',
+                        extension: 'pdf',
+                        formatted_size: '2.5 MB',
+                        created_at: '2024-01-10T16:20:00Z',
+                        uploaded_by: '管理者',
+                        icon: 'fas fa-file-pdf',
+                        color: 'text-danger',
+                        download_url: '#'
+                    },
+                    {
+                        id: 2,
+                        name: '設備一覧.xlsx',
+                        extension: 'xlsx',
+                        formatted_size: '1.2 MB',
+                        created_at: '2024-01-12T11:30:00Z',
+                        uploaded_by: '編集者',
+                        icon: 'fas fa-file-excel',
+                        color: 'text-success',
+                        download_url: '#'
+                    }
+                ]
+            },
+            // 契約書類フォルダ
+            1: {
+                folders: [
+                    {
+                        id: 4,
+                        name: '保守契約',
+                        created_at: '2024-01-16T09:15:00Z',
+                        created_by: '管理者',
+                        file_count: 3
+                    },
+                    {
+                        id: 5,
+                        name: '清掃契約',
+                        created_at: '2024-01-17T14:30:00Z',
+                        created_by: '管理者',
+                        file_count: 2
+                    }
+                ],
+                files: [
+                    {
+                        id: 4,
+                        name: '基本契約書.pdf',
+                        extension: 'pdf',
+                        formatted_size: '1.8 MB',
+                        created_at: '2024-01-16T10:00:00Z',
+                        uploaded_by: '管理者',
+                        icon: 'fas fa-file-pdf',
+                        color: 'text-danger',
+                        download_url: '#'
+                    }
+                ]
+            },
+            // 図面フォルダ
+            2: {
+                folders: [
+                    {
+                        id: 6,
+                        name: '建築図面',
+                        created_at: '2024-01-21T11:00:00Z',
+                        created_by: '編集者',
+                        file_count: 8
+                    },
+                    {
+                        id: 7,
+                        name: '設備図面',
+                        created_at: '2024-01-22T15:45:00Z',
+                        created_by: '編集者',
+                        file_count: 4
+                    }
+                ],
+                files: [
+                    {
+                        id: 5,
+                        name: '配置図.dwg',
+                        extension: 'dwg',
+                        formatted_size: '5.2 MB',
+                        created_at: '2024-01-21T12:30:00Z',
+                        uploaded_by: '編集者',
+                        icon: 'fas fa-file',
+                        color: 'text-secondary',
+                        download_url: '#'
+                    }
+                ]
+            },
+            // 点検記録フォルダ
+            3: {
+                folders: [],
+                files: [
+                    {
+                        id: 6,
+                        name: '2024年1月点検記録.pdf',
+                        extension: 'pdf',
+                        formatted_size: '3.1 MB',
+                        created_at: '2024-02-01T10:15:00Z',
+                        uploaded_by: '管理者',
+                        icon: 'fas fa-file-pdf',
+                        color: 'text-danger',
+                        download_url: '#'
+                    },
+                    {
+                        id: 7,
+                        name: '2024年2月点検記録.pdf',
+                        extension: 'pdf',
+                        formatted_size: '2.9 MB',
+                        created_at: '2024-03-01T09:30:00Z',
+                        uploaded_by: '管理者',
+                        icon: 'fas fa-file-pdf',
+                        color: 'text-danger',
+                        download_url: '#'
+                    }
+                ]
+            }
+        };
+        
+        return folderData[folderId] || { folders: [], files: [] };
+    };
+    
+    window.renameFolder = function(folderId) {
+        alert(`フォルダ ${folderId} の名前変更機能は次のタスクで実装予定です。`);
+    };
+    
+    window.deleteFolder = function(folderId) {
+        if (confirm('このフォルダを削除しますか？')) {
+            alert(`フォルダ ${folderId} の削除機能は次のタスクで実装予定です。`);
+        }
+    };
+    
+    window.previewFile = function(fileId) {
+        alert(`ファイル ${fileId} のプレビュー機能は次のタスクで実装予定です。`);
+    };
+    
+    window.deleteFile = function(fileId) {
+        if (confirm('このファイルを削除しますか？')) {
+            alert(`ファイル ${fileId} の削除機能は次のタスクで実装予定です。`);
+        }
+    };
 });
 </script>

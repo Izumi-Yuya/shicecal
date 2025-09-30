@@ -80,7 +80,7 @@
                                 @if($othersContractData['auto_renewal'])
                                     <div>{{ $othersContractData['auto_renewal'] }}</div>
                                     @if($othersContractData['auto_renewal_details'])
-                                        <small class="text-muted">詳細: {{ $othersContractData['auto_renewal_details'] }}</small>
+                                        <small class="text-muted">（詳細: {{ $othersContractData['auto_renewal_details'] }}）</small>
                                     @endif
                                 @else
                                     未設定
@@ -256,7 +256,7 @@
                                 @if($mealServiceContractData['auto_renewal'])
                                     <div>{{ $mealServiceContractData['auto_renewal'] }}</div>
                                     @if($mealServiceContractData['auto_renewal_details'] ?? false)
-                                        <small class="text-muted">{{ $mealServiceContractData['auto_renewal_details'] }}</small>
+                                        <small class="text-muted">（詳細: {{ $mealServiceContractData['auto_renewal_details'] }}）</small>
                                     @endif
                                 @else
                                     未設定

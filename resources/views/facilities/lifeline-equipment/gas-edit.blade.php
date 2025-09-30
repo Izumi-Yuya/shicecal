@@ -486,7 +486,7 @@ function initializeWaterHeaterEquipment() {
         equipmentItem.remove();
         updateWaterHeaterNumbers();
         
-        // 設備がなくなった場合、メッセージを表示
+        // 設備がなくなった場合はメッセージを表示
         const remainingItems = waterHeaterList.querySelectorAll('.water-heater-equipment-item');
         if (remainingItems.length === 0 && noEquipmentMessage) {
             noEquipmentMessage.style.display = 'block';
@@ -532,7 +532,7 @@ document.addEventListener('DOMContentLoaded', function() {
         finalInput.value = this.value;
     });
     
-    // 現在の値がプルダウンメニューの選択肢にない場合、カスタム入力フィールドを表示
+    // 現在の値がプルダウンメニューの選択肢にない場合はカスタム入力フィールドを表示
     if (currentValue && !['プロパンガス', '都市ガス'].includes(currentValue)) {
         selectElement.value = 'その他';
         selectElement.style.display = 'none';

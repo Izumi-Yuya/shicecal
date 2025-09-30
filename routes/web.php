@@ -144,6 +144,30 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/', [ContractsController::class, 'update'])->name('update');
         });
 
+        // Document management routes with enhanced security
+        Route::prefix('documents')->name('documents.')->middleware('document.security')->group(function () {
+            Route::get('/', [\App\Http\Controllers\DocumentController::class, 'index'])->name('index');
+            Route::get('/folders/{folder?}', [\App\Http\Controllers\DocumentController::class, 'show'])->name('show');
+            
+            // Performance optimization routes
+            Route::get('/folders/{folder?}/virtual', [\App\Http\Controllers\DocumentController::class, 'showVirtual'])->name('folders.virtual');
+            Route::get('/stats', [\App\Http\Controllers\DocumentController::class, 'getStats'])->name('stats');
+            
+            Route::post('/folders', [\App\Http\Controllers\DocumentController::class, 'createFolder'])->name('folders.store');
+            Route::put('/folders/{folder}', [\App\Http\Controllers\DocumentController::class, 'renameFolder'])->name('folders.update');
+            Route::get('/folders/{folder}/properties', [\App\Http\Controllers\DocumentController::class, 'getFolderProperties'])->name('folders.properties');
+            Route::delete('/folders/{folder}', [\App\Http\Controllers\DocumentController::class, 'deleteFolder'])->name('folders.destroy');
+            
+            Route::post('/files', [\App\Http\Controllers\DocumentController::class, 'uploadFile'])->name('files.store');
+            Route::get('/files/{file}/download', [\App\Http\Controllers\DocumentController::class, 'downloadFile'])->name('files.download');
+            Route::get('/files/{file}/preview', [\App\Http\Controllers\DocumentController::class, 'previewFile'])->name('files.preview');
+            Route::get('/files/{file}/properties', [\App\Http\Controllers\DocumentController::class, 'getFileProperties'])->name('files.properties');
+            Route::put('/files/{file}/rename', [\App\Http\Controllers\DocumentController::class, 'renameFile'])->name('files.rename');
+            Route::delete('/files/{file}', [\App\Http\Controllers\DocumentController::class, 'deleteFile'])->name('files.destroy');
+            
+            Route::post('/preferences/reset', [\App\Http\Controllers\DocumentController::class, 'resetPreferences'])->name('preferences.reset');
+        });
+
         // Facility-specific comment routes
         Route::prefix('comments')->name('comments.')->group(function () {
             Route::get('/', [CommentController::class, 'allFacilityComments'])->name('all');

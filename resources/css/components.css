@@ -3,6 +3,10 @@
 /* Import facility form components */
 @import 'components/facility-form.css';
 
+/* Import document management components */
+@import 'components/document-upload.css';
+@import 'components/document-context-menu.css';
+
 /* Button Styles */
 .btn {
   border-radius: 8px;

@@ -52,7 +52,7 @@ class ContractService
             // 契約書データを保存
             $contract->save();
 
-            Log::info('Contract updated', [
+            Log::info('Contract updated successfully', [
                 'facility_id' => $facility->id,
                 'user_id' => $user->id,
                 'contract_id' => $contract->id,

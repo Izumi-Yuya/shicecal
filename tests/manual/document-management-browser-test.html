@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ドキュメント管理 ブラウザテスト</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .test-section {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+        }
+        .test-case {
+            margin: 1rem 0;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 0.25rem;
+        }
+        .test-status {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .status-pending { background-color: #fff3cd; color: #856404; }
+        .status-pass { background-color: #d1edff; color: #0c5460; }
+        .status-fail { background-color: #f8d7da; color: #721c24; }
+        .mock-document-container {
+            min-height: 400px;
+            border: 2px dashed #dee2e6;
+            border-radius: 0.375rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+        }
+        .folder-item, .file-item {
+            display: inline-block;
+            margin: 0.5rem;
+            padding: 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .folder-item:hover, .file-item:hover {
+            background-color: #e9ecef;
+            transform: translateY(-2px);
+        }
+        .breadcrumb-mock {
+            background-color: #e9ecef;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            margin-bottom: 1rem;
+        }
+        .toolbar-mock {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background-color: #f8f9fa;
+            border-radius: 0.375rem;
+        }
+        .context-menu-mock {
+            position: absolute;
+            background-color: white;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            padding: 0.5rem 0;
+            z-index: 1000;
+            display: none;
+        }
+        .context-menu-item {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .context-menu-item:hover {
+            background-color: #f8f9fa;
+        }
+        .upload-progress-mock {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #e7f3ff;
+            border-radius: 0.375rem;
+            display: none;
+        }
+        .responsive-test {
+            border: 2px solid #007bff;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0.375rem;
+        }
+        @media (max-width: 768px) {
+            .responsive-test {
+                background-color: #fff3cd;
+            }
+            .responsive-test::before {
+                content: "📱 モバイル表示: ";
+                font-weight: bold;
+            }
+        }
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .responsive-test {
+                background-color: #d1ecf1;
+            }
+            .responsive-test::before {
+                content: "📱 タブレット表示: ";
+                font-weight: bold;
+            }
+        }
+        @media (min-width: 1025px) {
+            .responsive-test {
+                background-color: #d4edda;
+            }
+            .responsive-test::before {
+                content: "🖥️ デスクトップ表示: ";
+                font-weight: bold;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <h1 class="mb-4">
+            <i class="fas fa-folder-open me-2"></i>
+            ドキュメント管理システム ブラウザテスト
+        </h1>
+
+        <div class="alert alert-info">
+            <h5><i class="fas fa-info-circle me-2"></i>テスト概要</h5>
+            <p>このページは、ドキュメント管理システムのブラウザテストを手動で実行するためのものです。各テストケースを順番に実行し、結果を記録してください。</p>
+        </div>
+
+        <!-- Test Section 1: Navigation and Tab Functionality -->
+        <div class="test-section">
+            <h2><i class="fas fa-compass me-2"></i>1. ナビゲーションとタブ機能</h2>
+            
+            <div class="test-case">
+                <h5>1.1 ドキュメントタブへのナビゲーション</h5>
+                <p><strong>テスト手順:</strong></p>
+                <ol>
+                    <li>施設詳細ページにアクセス</li>
+                    <li>「ドキュメント」タブをクリック</li>
+                    <li>ドキュメント管理インターフェースが表示されることを確認</li>
+                </ol>
+                <p><strong>期待結果:</strong> ドキュメント管理画面が正常に表示される</p>
+                <span class="test-status status-pending">テスト待ち</span>
+            </div>
+
+            <div class="test-case">
+                <h5>1.2 タブ状態の保持</h5>
+                <p><strong>テスト手順:</strong></p>
+                <ol>
+                    <li>ドキュメントタブをアクティブにする</li>
+                    <li>ページを更新する</li>
+                    <li>ドキュメントタブがアクティブのままであることを確認</li>
+                </ol>
+                <p><strong>期待結果:</strong> ページ更新後もドキュメントタブがアクティブ</p>
+                <span class="test-status status-pending">テスト待ち</span>
+            </div>
+        </div>
+
+        <!-- Test Section 2: Folder Management -->
+        <div class="test-section">
+            <h2><i class="fas fa-folder-plus me-2"></i>2. フォルダ管理機能</h2>
+            
+            <div class="test-case">
+                <h5>2.1 新規フォルダ作成</h5>
+                <p><strong>テスト手順:</strong></p>
+                <ol>
+                    <li>「新しいフォルダ」ボタンをクリック</li>
+                    <li>フォルダ作成モーダルが表示されることを確認</li>
+                    <li>フォルダ名「契約書類」を入力</li>
+                    <li>「作成」ボタンをクリック</li>
+                    <li>新しいフォルダが表示されることを確認</li>
+                </ol>
+                <div class="mock-document-container">
+                    <div>
+                        <button class="btn btn-primary me-2" onclick="showCreateFolderDemo()">
+                            <i class="fas fa-folder-plus me-1"></i>新しいフォルダ
+                        </button>
+                        <div id="folderDemo" style="display: none;">
+                            <div class="folder-item">
+                                <i class="fas fa-folder me-2 text-warning"></i>契約書類
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <span class="test-status status-pending">テスト待ち</span>
+            </div>
+
+            <div class="test-case">
+                <h5>2.2 フォルダナビゲーション</h5>
+                <p><strong>テスト手順:</strong></p>
+                <ol>
+                    <li>作成したフォルダをダブルクリック</li>
+                    <li>フォルダ内に移動することを確認</li>
+                    <li>パンくずナビゲーションが表示されることを確認</li>
+                </ol>
+                <div class="breadcrumb-mock">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="#" onclick="showBreadcrumbDemo()">ルート</a></li>
+                            <li class="breadcrumb-item active">契約書類</li>
+                        </ol>
+                    </nav>
+                </div>
+                <span class="test-status status-pending">テスト待ち</span>
+            </div>
+
+            <div class="test-case">
+                <h5>2.3 フォルダ名変更</h5>
+                <p><strong>テスト手順:</strong></p>
+                <ol>
+                    <li>フォルダを右クリック</li>
+                    <li>コンテキストメニューから「名前を変更」を選択</li>
+                    <li>新しい名前を入力</li>
+                    <li>変更が反映されることを確認</li>
+                </ol>
+                <div class="context-menu-mock" id="contextMenu">
+                    <div class="context-menu-item"><i class="fas fa-folder-open me-2"></i>開く</div>
+                    <div class="context-menu-item"><i class="fas fa-edit me-2"></i>名前を変更</div>
+                    <div class="context-menu-item text-danger"><i class="fas fa-trash me-2"></i>削除</div>
+                </div>
+                <span class="test-status status-pending">テスト待ち</span>
+            </div>
+        </div>
+
+        <!-- Test Section 3: File Operations -->
+        <div class="test-section">
+            <h2><i class="fas fa-file-upload me-2"></i>3. ファイル操作機能</h2>
+            
+            <div class="test-case">
+                <h5>3.1 ファイルアップロード（ボタン）</h5>
+                <p><strong>テスト手順:</strong></p>
+                <ol>
+                    <li>「ファイルアップロード」ボタンをクリック</li>
+                    <li>ファイル選択ダイアログが表示されることを確認</li>
+                    <li>PDFファイルを選択</li>
+                    <li>アップロードが完了することを確認</li>
+                </ol>
+                <div class="toolbar-mock">
+                    <div>
+                        <button class="btn btn-success me-2" onclick="showUploadDemo()">
+                            <i class="fas fa-upload me-1"></i>ファイルアップロード
+                        </button>
+                        <button class="btn btn-outline-secondary">
+                            <i class="fas fa-list me-1"></i>リスト表示
+                        </button>
+                        <button class="btn btn-outline-secondary">
+                            <i class="fas fa-th me-1"></i>アイコン表示
+                        </button>
+                    </div>
+                    <div>
+                        <select class="form-select" style="width: auto;">
+                            <option>名前順（昇順）</option>
+                            <option>名前順（降順）</option>
+                            <option>日付順（新しい順）</option>
+                            <option>日付順（古い順）</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="upload-progress-mock" id="uploadProgress">
+                    <div class="d-flex align-items-center">
+                        <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                        <span>ファイルをアップロード中...</span>
+                    </div>
+                    <div class="progress mt-2">
+                        <div class="progress-bar" style="width: 75%"></div>
+                    </div>
+                </div>
+                <span class="test-status status-pending">テスト待ち</span>
+            </div>
+
+            <div class="test-case">
+                <h5>3.2 ドラッグ&ドロップアップロード</h5>
+                <p><strong>テスト手順:</strong></p>
+                <ol>
+                    <li>ファイルをドキュメント領域にドラッグ</li>
+                    <li>ドロップゾーンが強調表示されることを確認</li>
+                    <li>ファイルをドロップ</li>
+                    <li>アップロードが開始されることを確認</li>
+                </ol>
+                <div class="mock-document-container" ondragover="event.preventDefault()" ondrop="handleDrop(event)">
+                    <div class="text-center">
+                        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">ファイルをここにドラッグ&ドロップ</p>
+                    </div>
+                </div>
+                <span class="test-status status-pending">テスト待ち</span>
+            </div>
+
+            <div class="test-case">
+                <h5>3.3 ファイルダウンロード</h5>
+                <p><strong>テスト手順:</strong></p>
+                <ol>
+                    <li>アップロードされたファイルをクリック</li>
+                    <li>ダウンロードが開始されることを確認</li>
+                    <li>ファイルが正常にダウンロードされることを確認</li>
+                </ol>
+                <div class="file-item" onclick="showDownloadDemo()">
+                    <i class="fas fa-file-pdf me-2 text-danger"></i>契約書.pdf
+                    <small class="text-muted d-block">1.2 MB • 2024/01/15</small>
+                </div>
+                <span class="test-status status-pending">テスト待ち</span>
+            </div>
+        </div>
+
+        <!-- Test Section 4: View and Sort Functions -->
+        <div class="test-section">
+            <h2><i class="fas fa-sort me-2"></i>4. 表示・ソート機能</h2>
+            
+            <div class="test-case">
+                <h5>4.1 表示モード切り替え</h5>
+                <p><strong>テスト手順:</strong></p>
+                <ol>
+                    <li>リスト表示とアイコン表示を切り替え</li>
+                    <li>各モードで適切に表示されることを確認</li>
+                    <li>設定が保持されることを確認</li>
+                </ol>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>リスト表示</h6>
+                        <div class="list-group">
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-folder me-2 text-warning"></i>契約書類
+                                </div>
+                                <small class="text-muted">2024/01/15</small>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-file-pdf me-2 text-danger"></i>契約書.pdf
+                                </div>
+                                <small class="text-muted">1.2 MB</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>アイコン表示</h6>
+                        <div class="d-flex flex-wrap">
+                            <div class="text-center me-3 mb-3">
+                                <i class="fas fa-folder fa-3x text-warning d-block mb-1"></i>
+                                <small>契約書類</small>
+                            </div>
+                            <div class="text-center me-3 mb-3">
+                                <i class="fas fa-file-pdf fa-3x text-danger d-block mb-1"></i>
+                                <small>契約書.pdf</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <span class="test-status status-pending">テスト待ち</span>
+            </div>
+
+            <div class="test-case">
+                <h5>4.2 ソート機能</h5>
+                <p><strong>テスト手順:</strong></p>
+                <ol>
+                    <li>名前順（昇順・降順）でソート</li>
+                    <li>日付順（新しい順・古い順）でソート</li>
+                    <li>フォルダが常に最初に表示されることを確認</li>
+                </ol>
+                <div class="alert alert-info">
+                    <strong>ソート結果例:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li>📁 A_フォルダ</li>
+                        <li>📁 B_フォルダ</li>
+                        <li>📄 a_file.pdf</li>
+                        <li>📄 z_file.pdf</li>
+                    </ul>
+                </div>
+                <span class="test-status status-pending">テスト待ち</span>
+            </div>
+        </div>
+
+        <!-- Test Section 5: Responsive Design -->
+        <div class="test-section">
+            <h2><i class="fas fa-mobile-alt me-2"></i>5. レスポンシブデザイン</h2>
+            
+            <div class="test-case">
+                <h5>5.1 モバイル表示</h5>
+                <p><strong>テスト手順:</strong></p>
+                <ol>
+                    <li>ブラウザウィンドウを375px幅に縮小（iPhone SE サイズ）</li>
+                    <li>レイアウトが適切に調整されることを確認</li>
+                    <li>タッチフレンドリーなボタンサイズを確認</li>
+                </ol>
+                <div class="responsive-test">
+                    現在の画面サイズに応じた表示テスト
+                </div>
+                <span class="test-status status-pending">テスト待ち</span>
+            </div>
+
+            <div class="test-case">
+                <h5>5.2 タブレット表示</h5>
+                <p><strong>テスト手順:</strong></p>
+                <ol>
+                    <li>ブラウザウィンドウを768px幅に設定（iPad サイズ）</li>
+                    <li>中間サイズでの表示を確認</li>
+                    <li>アイコン表示で適切な列数が表示されることを確認</li>
+                </ol>
+                <span class="test-status status-pending">テスト待ち</span>
+            </div>
+        </div>
+
+        <!-- Test Section 6: Accessibility -->
+        <div class="test-section">
+            <h2><i class="fas fa-universal-access me-2"></i>6. アクセシビリティ</h2>
+            
+            <div class="test-case">
+                <h5>6.1 キーボードナビゲーション</h5>
+                <p><strong>テスト手順:</strong></p>
+                <ol>
+                    <li>Tabキーでフォーカス移動を確認</li>
+                    <li>Enterキーでフォルダを開く</li>
+                    <li>Escapeキーでモーダルを閉じる</li>
+                </ol>
+                <div class="alert alert-warning">
+                    <strong>キーボードショートカット:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li><kbd>Tab</kbd> - 次の要素にフォーカス</li>
+                        <li><kbd>Enter</kbd> - フォルダを開く/ファイルをダウンロード</li>
+                        <li><kbd>Escape</kbd> - モーダルを閉じる</li>
+                        <li><kbd>F2</kbd> - 名前を変更</li>
+                        <li><kbd>Delete</kbd> - 削除</li>
+                    </ul>
+                </div>
+                <span class="test-status status-pending">テスト待ち</span>
+            </div>
+
+            <div class="test-case">
+                <h5>6.2 ARIA属性とスクリーンリーダー対応</h5>
+                <p><strong>テスト手順:</strong></p>
+                <ol>
+                    <li>開発者ツールでARIA属性を確認</li>
+                    <li>role、aria-label、aria-describedby属性の存在を確認</li>
+                    <li>スクリーンリーダーでの読み上げを確認（可能であれば）</li>
+                </ol>
+                <span class="test-status status-pending">テスト待ち</span>
+            </div>
+        </div>
+
+        <!-- Test Section 7: Error Handling -->
+        <div class="test-section">
+            <h2><i class="fas fa-exclamation-triangle me-2"></i>7. エラーハンドリング</h2>
+            
+            <div class="test-case">
+                <h5>7.1 ファイルアップロードエラー</h5>
+                <p><strong>テスト手順:</strong></p>
+                <ol>
+                    <li>サポートされていないファイル形式をアップロード</li>
+                    <li>適切なエラーメッセージが表示されることを確認</li>
+                    <li>大きすぎるファイルをアップロード</li>
+                    <li>サイズ制限エラーが表示されることを確認</li>
+                </ol>
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    許可されていないファイル形式です。PDFファイルのみアップロード可能です。
+                </div>
+                <span class="test-status status-pending">テスト待ち</span>
+            </div>
+
+            <div class="test-case">
+                <h5>7.2 ネットワークエラー</h5>
+                <p><strong>テスト手順:</strong></p>
+                <ol>
+                    <li>ネットワークを切断</li>
+                    <li>ファイル操作を実行</li>
+                    <li>適切なエラーメッセージが表示されることを確認</li>
+                    <li>再試行機能が動作することを確認</li>
+                </ol>
+                <span class="test-status status-pending">テスト待ち</span>
+            </div>
+        </div>
+
+        <!-- Test Section 8: Permission Control -->
+        <div class="test-section">
+            <h2><i class="fas fa-shield-alt me-2"></i>8. 権限制御</h2>
+            
+            <div class="test-case">
+                <h5>8.1 閲覧者権限</h5>
+                <p><strong>テスト手順:</strong></p>
+                <ol>
+                    <li>閲覧者権限のユーザーでログイン</li>
+                    <li>編集ボタンが表示されないことを確認</li>
+                    <li>ファイルのダウンロードは可能であることを確認</li>
+                </ol>
+                <div class="alert alert-info">
+                    <strong>閲覧者権限での表示:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li>✅ ファイル・フォルダの表示</li>
+                        <li>✅ ファイルのダウンロード</li>
+                        <li>❌ ファイルのアップロード</li>
+                        <li>❌ フォルダの作成・編集・削除</li>
+                        <li>❌ ファイルの削除</li>
+                    </ul>
+                </div>
+                <span class="test-status status-pending">テスト待ち</span>
+            </div>
+
+            <div class="test-case">
+                <h5>8.2 編集者権限</h5>
+                <p><strong>テスト手順:</strong></p>
+                <ol>
+                    <li>編集者権限のユーザーでログイン</li>
+                    <li>すべての機能が利用可能であることを確認</li>
+                    <li>ファイル・フォルダの作成・編集・削除が可能であることを確認</li>
+                </ol>
+                <span class="test-status status-pending">テスト待ち</span>
+            </div>
+        </div>
+
+        <!-- Test Results Summary -->
+        <div class="test-section">
+            <h2><i class="fas fa-clipboard-check me-2"></i>テスト結果サマリー</h2>
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title text-warning">
+                                <i class="fas fa-clock"></i> 待機中
+                            </h5>
+                            <h2 class="text-warning" id="pendingCount">16</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title text-success">
+                                <i class="fas fa-check-circle"></i> 成功
+                            </h5>
+                            <h2 class="text-success" id="passCount">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title text-danger">
+                                <i class="fas fa-times-circle"></i> 失敗
+                            </h5>
+                            <h2 class="text-danger" id="failCount">0</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <h5>テスト実行ガイドライン</h5>
+                <ul>
+                    <li>各テストケースを順番に実行してください</li>
+                    <li>テスト結果に応じて、ステータスを更新してください</li>
+                    <li>失敗したテストケースについては、詳細な情報を記録してください</li>
+                    <li>すべてのテストが完了したら、結果をレポートしてください</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showCreateFolderDemo() {
+            document.getElementById('folderDemo').style.display = 'block';
+            setTimeout(() => {
+                alert('フォルダが作成されました！');
+            }, 500);
+        }
+
+        function showBreadcrumbDemo() {
+            alert('パンくずナビゲーションでルートに戻ります');
+        }
+
+        function showUploadDemo() {
+            document.getElementById('uploadProgress').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('uploadProgress').style.display = 'none';
+                alert('ファイルのアップロードが完了しました！');
+            }, 3000);
+        }
+
+        function showDownloadDemo() {
+            alert('ファイルのダウンロードを開始します');
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            alert('ファイルがドロップされました！アップロードを開始します。');
+        }
+
+        // Context menu demo
+        document.addEventListener('contextmenu', function(e) {
+            if (e.target.classList.contains('folder-item') || e.target.classList.contains('file-item')) {
+                e.preventDefault();
+                const menu = document.getElementById('contextMenu');
+                menu.style.display = 'block';
+                menu.style.left = e.pageX + 'px';
+                menu.style.top = e.pageY + 'px';
+            }
+        });
+
+        document.addEventListener('click', function() {
+            document.getElementById('contextMenu').style.display = 'none';
+        });
+
+        // Test status tracking
+        function updateTestStatus(element, status) {
+            element.className = `test-status status-${status}`;
+            element.textContent = status === 'pass' ? '成功' : status === 'fail' ? '失敗' : 'テスト待ち';
+            updateCounts();
+        }
+
+        function updateCounts() {
+            const pending = document.querySelectorAll('.status-pending').length;
+            const pass = document.querySelectorAll('.status-pass').length;
+            const fail = document.querySelectorAll('.status-fail').length;
+            
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('passCount').textContent = pass;
+            document.getElementById('failCount').textContent = fail;
+        }
+
+        // Add click handlers to test status elements
+        document.querySelectorAll('.test-status').forEach(element => {
+            element.addEventListener('click', function() {
+                const currentStatus = this.classList.contains('status-pending') ? 'pending' :
+                                    this.classList.contains('status-pass') ? 'pass' : 'fail';
+                const nextStatus = currentStatus === 'pending' ? 'pass' : 
+                                 currentStatus === 'pass' ? 'fail' : 'pending';
+                updateTestStatus(this, nextStatus);
+            });
+        });
+
+        // Initialize counts
+        updateCounts();
+    </script>
+</body>
+</html>

@@ -227,6 +227,38 @@ class Facility extends Model
     }
 
     /**
+     * Get the document folders associated with this facility
+     */
+    public function documentFolders(): HasMany
+    {
+        return $this->hasMany(DocumentFolder::class);
+    }
+
+    /**
+     * Get the root document folders (folders without parent)
+     */
+    public function rootDocumentFolders(): HasMany
+    {
+        return $this->hasMany(DocumentFolder::class)->whereNull('parent_id');
+    }
+
+    /**
+     * Get all document files associated with this facility
+     */
+    public function documentFiles(): HasMany
+    {
+        return $this->hasMany(DocumentFile::class);
+    }
+
+    /**
+     * Get document files in the root directory (no folder)
+     */
+    public function rootDocumentFiles(): HasMany
+    {
+        return $this->hasMany(DocumentFile::class)->whereNull('folder_id');
+    }
+
+    /**
      * Check if the facility is approved
      */
     public function isApproved(): bool

@@ -16,6 +16,8 @@ class AuthServiceProvider extends ServiceProvider
         \App\Models\LandInfo::class => \App\Policies\LandInfoPolicy::class,
         \App\Models\LifelineEquipment::class => \App\Policies\LifelineEquipmentPolicy::class,
         \App\Models\FacilityContract::class => \App\Policies\ContractPolicy::class,
+        \App\Models\DocumentFile::class => \App\Policies\DocumentPolicy::class,
+        \App\Models\DocumentFolder::class => \App\Policies\DocumentPolicy::class,
     ];
 
     /**

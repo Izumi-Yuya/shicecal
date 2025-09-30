@@ -4,8 +4,8 @@
     'showLabel' => true,
     'downloadText' => 'ダウンロード',
     'noFileText' => 'ファイルなし',
-    'size' => 'sm', // sm, md, lg
-    'style' => 'button' // button, link, badge
+    'size' => 'sm', // Options: sm, md, lg
+    'style' => 'button' // Options: button, link, badge
 ])
 
 @php

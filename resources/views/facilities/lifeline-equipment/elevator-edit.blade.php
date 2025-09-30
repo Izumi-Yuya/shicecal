@@ -98,7 +98,7 @@
                                                 </div>
                                                 
                                                 <div class="col-md-3 mb-3">
-                                                    <label class="form-label">種類</label>
+                                                    <label class="form-label">エレベーター種類</label>
                                                     <div class="input-group">
                                                         <select class="form-select elevator-type-select" 
                                                                 onchange="handleElevatorTypeChange(this, {{ $index }})">
@@ -424,7 +424,7 @@ function initializeElevatorEquipment() {
                     </div>
                     
                     <div class="col-md-3 mb-3">
-                        <label class="form-label">種類</label>
+                        <label class="form-label">エレベーター種類</label>
                         <div class="input-group">
                             <select class="form-select elevator-type-select" 
                                     onchange="handleElevatorTypeChange(this, ${elevatorIndex})">
@@ -485,7 +485,7 @@ function initializeElevatorEquipment() {
         equipmentItem.remove();
         updateElevatorNumbers();
         
-        // 設備がなくなった場合、メッセージを表示する
+        // 設備がなくなった場合はメッセージを表示する
         const remainingItems = elevatorList.querySelectorAll('.elevator-equipment-item');
         if (remainingItems.length === 0 && noEquipmentMessage) {
             noEquipmentMessage.style.display = 'block';
@@ -517,7 +517,7 @@ function initializeElevatorEquipment() {
 
 // ページ読み込み時の初期化
 document.addEventListener('DOMContentLoaded', function() {
-    // 既存のエレベーター種類フィールドの初期化
+    // 既存のエレベーター種類フィールドを初期化
     document.querySelectorAll('.elevator-equipment-item').forEach((item, index) => {
         const selectElement = item.querySelector('.elevator-type-select');
         const customInput = item.querySelector('.elevator-type-custom');
@@ -530,7 +530,7 @@ document.addEventListener('DOMContentLoaded', function() {
             finalInput.value = this.value;
         });
         
-        // 現在の値がプルダウンメニューの選択肢にない場合、カスタム入力フィールドを表示
+        // 現在の値がプルダウンメニューの選択肢にない場合はカスタム入力フィールドを表示
         if (currentValue && !['ロープ式', '油圧式'].includes(currentValue)) {
             selectElement.value = 'その他';
             selectElement.style.display = 'none';

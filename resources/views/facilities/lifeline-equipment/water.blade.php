@@ -36,7 +36,7 @@
                 ['label' => '浴槽循環方式', 'value' => $filterInfo['bath_system'] ?? null, 'type' => 'badge', 'options' => ['badge_class' => 'bg-info']],
             ]
         ],
-        // 第2行：3カラム（有無、メーカー、年式）
+        // 第2行：3カラム（設置の有無、メーカー、年式）
         [
             'type' => 'standard',
             'cells' => [
@@ -49,7 +49,7 @@
 
     // 受水槽テーブルデータの構築
     $tankData = [
-        // 第1行：3カラム（有無、メーカー、年式）
+        // 第1行：3カラム（設置の有無、メーカー、年式）
         [
             'type' => 'standard',
             'cells' => [
@@ -62,7 +62,7 @@
 
     // 浄化槽テーブルデータの構築
     $septicTankData = [
-        // 第1行：3カラム（有無、メーカー、年式）
+        // 第1行：3カラム（設置の有無、メーカー、年式）
         [
             'type' => 'standard',
             'cells' => [

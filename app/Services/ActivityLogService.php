@@ -298,4 +298,339 @@ class ActivityLogService
             $request
         );
     }
+
+    // ========================================
+    // Document Management Activity Logging
+    // ========================================
+
+    /**
+     * Log document folder creation.
+     */
+    public function logDocumentFolderCreated(int $folderId, string $folderName, int $facilityId, ?Request $request = null): ActivityLog
+    {
+        return $this->log(
+            'create',
+            'document_folder',
+            $folderId,
+            "ドキュメントフォルダ「{$folderName}」を作成しました（施設ID: {$facilityId}）",
+            $request
+        );
+    }
+
+    /**
+     * Log document folder rename.
+     */
+    public function logDocumentFolderRenamed(int $folderId, string $oldName, string $newName, int $facilityId, ?Request $request = null): ActivityLog
+    {
+        return $this->log(
+            'update',
+            'document_folder',
+            $folderId,
+            "ドキュメントフォルダ「{$oldName}」を「{$newName}」に名前変更しました（施設ID: {$facilityId}）",
+            $request
+        );
+    }
+
+    /**
+     * Log document folder deletion.
+     */
+    public function logDocumentFolderDeleted(int $folderId, string $folderName, int $facilityId, ?Request $request = null): ActivityLog
+    {
+        return $this->log(
+            'delete',
+            'document_folder',
+            $folderId,
+            "ドキュメントフォルダ「{$folderName}」を削除しました（施設ID: {$facilityId}）",
+            $request
+        );
+    }
+
+    /**
+     * Log document folder move.
+     */
+    public function logDocumentFolderMoved(int $folderId, string $folderName, ?string $oldParent, ?string $newParent, int $facilityId, ?Request $request = null): ActivityLog
+    {
+        $oldLocation = $oldParent ?: 'ルート';
+        $newLocation = $newParent ?: 'ルート';
+        
+        return $this->log(
+            'move',
+            'document_folder',
+            $folderId,
+            "ドキュメントフォルダ「{$folderName}」を「{$oldLocation}」から「{$newLocation}」に移動しました（施設ID: {$facilityId}）",
+            $request
+        );
+    }
+
+    /**
+     * Log document file upload.
+     */
+    public function logDocumentFileUploaded(int $fileId, string $fileName, ?string $folderName, int $facilityId, int $fileSize = 0, ?Request $request = null): ActivityLog
+    {
+        $location = $folderName ? "フォルダ「{$folderName}」" : 'ルート';
+        $sizeText = $fileSize > 0 ? "（サイズ: " . $this->formatFileSize($fileSize) . "）" : '';
+        
+        return $this->log(
+            'upload',
+            'document_file',
+            $fileId,
+            "ドキュメントファイル「{$fileName}」を{$location}にアップロードしました{$sizeText}（施設ID: {$facilityId}）",
+            $request
+        );
+    }
+
+    /**
+     * Log document file download.
+     */
+    public function logDocumentFileDownloaded(int $fileId, string $fileName, int $facilityId, ?Request $request = null): ActivityLog
+    {
+        return $this->log(
+            'download',
+            'document_file',
+            $fileId,
+            "ドキュメントファイル「{$fileName}」をダウンロードしました（施設ID: {$facilityId}）",
+            $request
+        );
+    }
+
+    /**
+     * Log document file preview.
+     */
+    public function logDocumentFilePreviewed(int $fileId, string $fileName, int $facilityId, ?Request $request = null): ActivityLog
+    {
+        return $this->log(
+            'preview',
+            'document_file',
+            $fileId,
+            "ドキュメントファイル「{$fileName}」をプレビューしました（施設ID: {$facilityId}）",
+            $request
+        );
+    }
+
+    /**
+     * Log document file deletion.
+     */
+    public function logDocumentFileDeleted(int $fileId, string $fileName, int $facilityId, ?Request $request = null): ActivityLog
+    {
+        return $this->log(
+            'delete',
+            'document_file',
+            $fileId,
+            "ドキュメントファイル「{$fileName}」を削除しました（施設ID: {$facilityId}）",
+            $request
+        );
+    }
+
+    /**
+     * Log document file rename.
+     */
+    public function logDocumentFileRenamed(int $fileId, string $oldName, string $newName, int $facilityId, ?Request $request = null): ActivityLog
+    {
+        return $this->log(
+            'update',
+            'document_file',
+            $fileId,
+            "ドキュメントファイル「{$oldName}」を「{$newName}」に名前変更しました（施設ID: {$facilityId}）",
+            $request
+        );
+    }
+
+    /**
+     * Log document file move.
+     */
+    public function logDocumentFileMoved(int $fileId, string $fileName, ?string $oldFolder, ?string $newFolder, int $facilityId, ?Request $request = null): ActivityLog
+    {
+        $oldLocation = $oldFolder ?: 'ルート';
+        $newLocation = $newFolder ?: 'ルート';
+        
+        return $this->log(
+            'move',
+            'document_file',
+            $fileId,
+            "ドキュメントファイル「{$fileName}」を「{$oldLocation}」から「{$newLocation}」に移動しました（施設ID: {$facilityId}）",
+            $request
+        );
+    }
+
+    /**
+     * Log document bulk operations.
+     */
+    public function logDocumentBulkOperation(string $operation, array $itemIds, string $itemType, int $facilityId, array $details = [], ?Request $request = null): ActivityLog
+    {
+        $itemCount = count($itemIds);
+        $itemTypeText = $itemType === 'folder' ? 'フォルダ' : 'ファイル';
+        $operationText = match($operation) {
+            'delete' => '削除',
+            'move' => '移動',
+            'copy' => 'コピー',
+            'download' => 'ダウンロード',
+            default => $operation
+        };
+        
+        $description = "{$itemCount}個のドキュメント{$itemTypeText}を{$operationText}しました（施設ID: {$facilityId}）";
+        
+        if (!empty($details)) {
+            $detailsText = [];
+            foreach ($details as $key => $value) {
+                $detailsText[] = "{$key}: {$value}";
+            }
+            $description .= "（" . implode(', ', $detailsText) . "）";
+        }
+        
+        return $this->log(
+            "bulk_{$operation}",
+            "document_{$itemType}",
+            null,
+            $description,
+            $request
+        );
+    }
+
+    /**
+     * Log document access permission changes.
+     */
+    public function logDocumentPermissionChanged(int $targetId, string $targetType, string $permission, string $action, int $facilityId, ?Request $request = null): ActivityLog
+    {
+        $targetTypeText = $targetType === 'folder' ? 'フォルダ' : 'ファイル';
+        $actionText = match($action) {
+            'grant' => '付与',
+            'revoke' => '取り消し',
+            'modify' => '変更',
+            default => $action
+        };
+        
+        return $this->log(
+            'permission_change',
+            "document_{$targetType}",
+            $targetId,
+            "ドキュメント{$targetTypeText}の「{$permission}」権限を{$actionText}しました（施設ID: {$facilityId}）",
+            $request
+        );
+    }
+
+    /**
+     * Log document search operations.
+     */
+    public function logDocumentSearch(string $query, array $filters, int $resultCount, int $facilityId, ?Request $request = null): ActivityLog
+    {
+        $filterText = '';
+        if (!empty($filters)) {
+            $filterParts = [];
+            foreach ($filters as $key => $value) {
+                if (!empty($value)) {
+                    $filterParts[] = "{$key}: {$value}";
+                }
+            }
+            if (!empty($filterParts)) {
+                $filterText = "（フィルタ: " . implode(', ', $filterParts) . "）";
+            }
+        }
+        
+        return $this->log(
+            'search',
+            'document',
+            null,
+            "ドキュメント検索を実行しました。クエリ: 「{$query}」{$filterText}、結果: {$resultCount}件（施設ID: {$facilityId}）",
+            $request
+        );
+    }
+
+    /**
+     * Log document export operations.
+     */
+    public function logDocumentExport(string $format, array $itemIds, string $itemType, int $facilityId, ?Request $request = null): ActivityLog
+    {
+        $itemCount = count($itemIds);
+        $itemTypeText = $itemType === 'folder' ? 'フォルダ' : 'ファイル';
+        $formatText = strtoupper($format);
+        
+        return $this->log(
+            'export',
+            'document',
+            null,
+            "{$itemCount}個のドキュメント{$itemTypeText}を{$formatText}形式でエクスポートしました（施設ID: {$facilityId}）",
+            $request
+        );
+    }
+
+    /**
+     * Log document system maintenance operations.
+     */
+    public function logDocumentMaintenance(string $operation, array $details = [], ?Request $request = null): ActivityLog
+    {
+        $operationText = match($operation) {
+            'cleanup' => 'クリーンアップ',
+            'backup' => 'バックアップ',
+            'restore' => '復元',
+            'migration' => 'マイグレーション',
+            'optimization' => '最適化',
+            default => $operation
+        };
+        
+        $description = "ドキュメントシステムの{$operationText}を実行しました";
+        
+        if (!empty($details)) {
+            $detailsText = [];
+            foreach ($details as $key => $value) {
+                $detailsText[] = "{$key}: {$value}";
+            }
+            $description .= "（" . implode(', ', $detailsText) . "）";
+        }
+        
+        return $this->log(
+            "maintenance_{$operation}",
+            'document_system',
+            null,
+            $description,
+            $request
+        );
+    }
+
+    /**
+     * Log security-related document operations.
+     */
+    public function logDocumentSecurityEvent(string $event, int $targetId, string $targetType, array $details = [], ?Request $request = null): ActivityLog
+    {
+        $targetTypeText = $targetType === 'folder' ? 'フォルダ' : 'ファイル';
+        $eventText = match($event) {
+            'unauthorized_access' => '不正アクセス試行',
+            'suspicious_download' => '疑わしいダウンロード',
+            'bulk_operation' => '大量操作',
+            'permission_escalation' => '権限昇格試行',
+            default => $event
+        };
+        
+        $description = "ドキュメント{$targetTypeText}で{$eventText}を検出しました";
+        
+        if (!empty($details)) {
+            $detailsText = [];
+            foreach ($details as $key => $value) {
+                $detailsText[] = "{$key}: {$value}";
+            }
+            $description .= "（" . implode(', ', $detailsText) . "）";
+        }
+        
+        return $this->log(
+            "security_{$event}",
+            "document_{$targetType}",
+            $targetId,
+            $description,
+            $request
+        );
+    }
+
+    /**
+     * Format file size for logging.
+     */
+    private function formatFileSize(int $bytes): string
+    {
+        $units = ['B', 'KB', 'MB', 'GB'];
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+        
+        $bytes /= pow(1024, $pow);
+        
+        return round($bytes, 2) . ' ' . $units[$pow];
+    }
 }
