@@ -9,18 +9,17 @@ use Illuminate\Support\Facades\Storage;
 
 /**
  * 統一されたファイル処理サービス
- * 
- * A unified file processing service for facility and lifeline equipment operations.
- * Provides consistent handling of file uploads, downloads, and display operations
- * throughout the application with comprehensive security validation and error handling.
- * 
+ *
+ * Unified file handling service for the facility management system.
+ * Provides secure file upload, download, and management operations
+ * with comprehensive validation and error handling.
+ *
  * Features:
- * - File type validation (MIME type and extension checking)
- * - File size validation with configurable limits
- * - Unique filename generation to prevent conflicts
+ * - File type and size validation with configurable limits
+ * - Unique filename generation to prevent naming conflicts
  * - Secure file storage with proper directory structure
  * - Comprehensive error logging and exception handling
- * - Support for multiple file types (PDF, images, documents)
+ * - Support for PDF, image, and document file types
  */
 class FileHandlingService
 {
@@ -97,7 +96,7 @@ class FileHandlingService
                 'directory' => $directory,
             ]);
 
-            throw new Exception('ファイルのアップロードに失敗しました：'.$e->getMessage());
+            throw new Exception('ファイルのアップロードに失敗しました。詳細: ' . $e->getMessage());
         }
     }
 

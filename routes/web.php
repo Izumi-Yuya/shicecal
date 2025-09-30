@@ -3,6 +3,7 @@
 use App\Http\Controllers\AnnualConfirmationController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\ContractsController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\LifelineEquipmentController;

@@ -36,7 +36,7 @@ class LifelineEquipmentService
     }
 
     /**
-     * Retrieves the lifeline equipment data for a specific facility and category.
+     * Retrieves lifeline equipment data for a specific facility and category.
      */
     public function getEquipmentData(Facility $facility, string $category): array
     {

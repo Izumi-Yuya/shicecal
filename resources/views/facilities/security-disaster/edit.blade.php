@@ -34,7 +34,7 @@
             <!-- エラーメッセージ表示 -->
             @if ($errors->any())
                 <div class="alert alert-danger">
-                    <h6>入力エラーがあります:</h6>
+                    <h6><i class="fas fa-exclamation-triangle me-2"></i>入力エラーがあります</h6>
                     <ul class="mb-0">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>

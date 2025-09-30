@@ -347,6 +347,10 @@
     background: linear-gradient(135deg, #fd7e14, #e55a00);
 }
 
+#contracts .card-header {
+    background: linear-gradient(135deg, #6f42c1, #59359a);
+}
+
 /* Security Disaster Styles */
 .security-disaster-container {
     margin-top: 1rem;
@@ -438,6 +442,82 @@
     padding: 0.125rem 0.375rem;
     border-radius: 10px;
 }
+
+/* Contracts Styles */
+.contracts-container {
+    margin-top: 1rem;
+}
+
+.contracts-container .nav-tabs {
+    border-bottom: 2px solid #dee2e6;
+    margin-bottom: 1.5rem;
+}
+
+.contracts-container .nav-tabs .nav-link {
+    border: none;
+    border-bottom: 3px solid transparent;
+    background: none;
+    color: #6c757d;
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+    margin-bottom: -2px;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.contracts-container .nav-tabs .nav-link:hover {
+    border-color: transparent;
+    color: #495057;
+    background-color: #f8f9fa;
+}
+
+.contracts-container .nav-tabs .nav-link.active {
+    color: #6f42c1;
+    border-bottom-color: #6f42c1;
+    background-color: transparent;
+}
+
+.contracts-container .card {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.contracts-container .card.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Contracts Subtabs */
+.contracts-subtabs {
+    border-bottom: 2px solid #dee2e6;
+    margin-bottom: 1.5rem;
+}
+
+.contracts-subtabs .nav-link {
+    border: none;
+    border-bottom: 3px solid transparent;
+    background: none;
+    color: #6c757d;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    margin-bottom: -2px;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.contracts-subtabs .nav-link:hover {
+    border-color: transparent;
+    color: #495057;
+    background-color: #f8f9fa;
+}
+
+.contracts-subtabs .nav-link.active {
+    color: #6f42c1;
+    border-bottom-color: #6f42c1;
+    background-color: transparent;
+    font-weight: 600;
+}
 </style>
 
 <script>
@@ -510,6 +590,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (activeTab === 'security-disaster') {
                             subTabContainer = '#securityDisasterTabs';
                             subTabContentContainer = '#securityDisasterTabContent';
+                        } else if (activeTab === 'contracts') {
+                            subTabContainer = '#contractsTabs';
+                            subTabContentContainer = '#contractsTabContent';
                         }
                         
                         // Remove active class from current active sub-tab
@@ -680,6 +763,47 @@ document.addEventListener('DOMContentLoaded', function() {
             // Animate cards in the newly active tab
             setTimeout(() => {
                 const activePane = document.querySelector('#lifeline-equipment .tab-pane.active .card');
+                if (activePane) {
+                    const cards = activePane.parentElement.querySelectorAll('.card');
+                    cards.forEach((card, index) => {
+                        card.style.animationDelay = `${index * 0.1}s`;
+                        card.classList.add('animate-in');
+                    });
+                }
+            }, 100);
+        });
+    });
+
+    // Contracts Tab Functionality
+    const contractsTab = document.getElementById('contracts-tab');
+    if (contractsTab) {
+        contractsTab.addEventListener('shown.bs.tab', function() {
+            console.log('Contracts tab activated: initializing animations and components');
+            
+            // Animate cards in the active sub-tab
+            setTimeout(() => {
+                const activePane = document.querySelector('#contracts .tab-pane.active .card');
+                if (activePane) {
+                    const cards = activePane.parentElement.querySelectorAll('.card');
+                    cards.forEach((card, index) => {
+                        card.style.animationDelay = `${index * 0.1}s`;
+                        card.classList.add('animate-in');
+                    });
+                }
+            }, 100);
+        });
+    }
+
+    // Handle contracts sub-tab switching
+    const contractsSubTabs = document.querySelectorAll('#contractsTabs .nav-link');
+    contractsSubTabs.forEach(tab => {
+        tab.addEventListener('shown.bs.tab', function(event) {
+            const targetId = event.target.getAttribute('data-bs-target');
+            console.log(`Switched to ${targetId.replace('#', '')} Contracts sub-tab`);
+            
+            // Animate cards in the newly active tab
+            setTimeout(() => {
+                const activePane = document.querySelector('#contracts .tab-pane.active .card');
                 if (activePane) {
                     const cards = activePane.parentElement.querySelectorAll('.card');
                     cards.forEach((card, index) => {

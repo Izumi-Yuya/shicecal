@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Cache;
  * 様々なデータタイプを適切にフォーマットし、空値の判定を行うサービスです。
  * パフォーマンス最適化のためのキャッシュ機能を含みます。
  * 
- * A service that formats various data types and determines empty values with caching optimization.
+ * A service that formats various data types, determines empty values, and includes caching optimization.
  */
 class ValueFormatter
 {

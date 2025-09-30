@@ -76,7 +76,7 @@ class SecurityDisasterEquipment extends Model
     }
 
     /**
-     * Check if security systems are configured.
+     * Checks if security systems are configured.
      */
     public function hasSecuritySystems(): bool
     {
@@ -84,7 +84,7 @@ class SecurityDisasterEquipment extends Model
     }
 
     /**
-     * Check if disaster prevention systems are configured.
+     * Checks if disaster prevention systems are configured.
      */
     public function hasDisasterPrevention(): bool
     {
@@ -92,7 +92,7 @@ class SecurityDisasterEquipment extends Model
     }
 
     /**
-     * Check if emergency equipment is configured.
+     * Checks if emergency equipment is configured.
      */
     public function hasEmergencyEquipment(): bool
     {
@@ -100,7 +100,7 @@ class SecurityDisasterEquipment extends Model
     }
 
     /**
-     * Check if fire and disaster prevention systems are configured.
+     * Checks if fire and disaster prevention systems are configured.
      */
     public function hasFireDisasterPrevention(): bool
     {
