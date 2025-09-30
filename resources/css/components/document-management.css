@@ -519,48 +519,7 @@
   width: 60%;
 }
 
-/* ========================================
-   Storage Statistics
-   ======================================== */
-.storage-stats {
-  background: linear-gradient(135deg, var(--doc-bg-secondary), var(--doc-bg-hover));
-  border-radius: var(--doc-radius-md);
-  padding: var(--doc-spacing-lg);
-  border: 1px solid var(--doc-border-light);
-  margin-top: var(--doc-spacing-xl);
-}
 
-.storage-stats .card-title {
-  color: var(--doc-text-secondary);
-  font-weight: 600;
-  font-size: 1rem;
-  margin-bottom: var(--doc-spacing-lg);
-  display: flex;
-  align-items: center;
-  gap: var(--doc-spacing-sm);
-}
-
-.storage-stats .stat-item {
-  text-align: center;
-}
-
-.storage-stats .stat-label {
-  font-size: 0.8rem;
-  color: var(--doc-text-muted);
-  margin-bottom: var(--doc-spacing-xs);
-  font-weight: 500;
-}
-
-.storage-stats .stat-value {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--doc-text-primary);
-}
-
-.storage-stats .stat-value.large {
-  font-size: 1.3rem;
-  color: var(--doc-primary);
-}
 
 /* ========================================
    Drag and Drop Enhancements
@@ -784,9 +743,7 @@
     display: none !important;
   }
 
-  .storage-stats .row>div {
-    margin-bottom: var(--doc-spacing-md);
-  }
+
 }
 
 /* Small Mobile (max-width: 576px) */
@@ -961,11 +918,7 @@
     display: none;
   }
 
-  .storage-stats {
-    background: #f0f0f0 !important;
-    border: 1px solid #000 !important;
-    -webkit-print-color-adjust: exact;
-  }
+
 }
 
 /* ========================================

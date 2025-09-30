@@ -53,7 +53,7 @@
                                 <label for="maintenance_date" class="form-label">修繕対応日 <span class="text-danger">*</span></label>
                                 <input type="date" name="maintenance_date" id="maintenance_date" 
                                     class="form-control @error('maintenance_date') is-invalid @enderror" 
-                                    value="{{ old('maintenance_date', $maintenanceHistory->maintenance_date->format('Y-m-d')) }}" required>
+                                    value="{{ old('maintenance_date', $maintenanceHistory->maintenance_date->format('Y-m-d')) }}">
                                 @error('maintenance_date')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror

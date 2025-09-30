@@ -73,8 +73,8 @@ class MaintenanceController extends Controller
     {
         $validatedData = $request->validate([
             'facility_id' => 'required|exists:facilities,id',
-            'maintenance_date' => 'required|date',
-            'content' => 'required|string',
+            'maintenance_date' => 'nullable|date',
+            'content' => 'nullable|string',
             'cost' => 'nullable|numeric|min:0',
             'contractor' => 'nullable|string|max:255',
         ]);
@@ -119,8 +119,8 @@ class MaintenanceController extends Controller
     {
         $validatedData = $request->validate([
             'facility_id' => 'required|exists:facilities,id',
-            'maintenance_date' => 'required|date',
-            'content' => 'required|string',
+            'maintenance_date' => 'nullable|date',
+            'content' => 'nullable|string',
             'cost' => 'nullable|numeric|min:0',
             'contractor' => 'nullable|string|max:255',
         ]);

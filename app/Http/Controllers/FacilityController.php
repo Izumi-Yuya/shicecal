@@ -63,7 +63,7 @@ class FacilityController extends Controller
         if ($request->filled('section')) {
             $query->whereHas('facilityBasic', function ($q) use ($request) {
                 $section = $request->section;
-                
+
                 // Special handling for combined section filter
                 if ($section === '有料老人ホーム・グループホーム') {
                     $q->whereIn('section', ['有料老人ホーム', 'グループホーム']);
@@ -137,23 +137,27 @@ class FacilityController extends Controller
             '訪問看護ステーション',
             'ヘルパーステーション',
             'ケアプランセンター',
-            '他（事務所など）'
+            '他（事務所など）',
         ];
 
         // Sort sections according to custom order
         $sections = $sections->sort(function ($a, $b) use ($sectionOrder) {
             $posA = array_search($a, $sectionOrder);
             $posB = array_search($b, $sectionOrder);
-            
+
             // If both sections are in the order array, sort by position
             if ($posA !== false && $posB !== false) {
                 return $posA - $posB;
             }
-            
+
             // If only one is in the order array, prioritize it
-            if ($posA !== false) return -1;
-            if ($posB !== false) return 1;
-            
+            if ($posA !== false) {
+                return -1;
+            }
+            if ($posB !== false) {
+                return 1;
+            }
+
             // If neither is in the order array, sort alphabetically
             return strcmp($a, $b);
         })->values();
@@ -283,25 +287,25 @@ class FacilityController extends Controller
             ->orderBy('maintenance_date', 'desc')
             ->get()
             ->groupBy('subcategory');
-        
+
         $interiorHistory = $facility->maintenanceHistories()
             ->where('category', 'interior')
             ->orderBy('maintenance_date', 'desc')
             ->get();
-        
+
         $otherHistory = $facility->maintenanceHistories()
             ->where('category', 'other')
             ->orderBy('maintenance_date', 'desc')
             ->get();
 
         return view('facilities.show', compact(
-            'facility', 
-            'landInfo', 
-            'buildingInfo', 
-            'viewMode', 
+            'facility',
+            'landInfo',
+            'buildingInfo',
+            'viewMode',
             'landInfoFileData',
             'exteriorHistory',
-            'interiorHistory', 
+            'interiorHistory',
             'otherHistory'
         ));
     }
@@ -584,12 +588,12 @@ class FacilityController extends Controller
                     if ($request->expectsJson()) {
                         return response()->json([
                             'success' => false,
-                            'message' => 'ファイルのアップロードに失敗しました: ' . $e->getMessage(),
+                            'message' => 'ファイルのアップロードに失敗しました: '.$e->getMessage(),
                         ], 422);
                     }
 
                     return redirect()->back()
-                        ->withErrors(['file_upload' => 'ファイルのアップロードに失敗しました: ' . $e->getMessage()])
+                        ->withErrors(['file_upload' => 'ファイルのアップロードに失敗しました: '.$e->getMessage()])
                         ->withInput();
                 }
             }

@@ -81,6 +81,16 @@
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="contracts-tab" data-bs-toggle="tab" data-bs-target="#contracts" type="button" role="tab" aria-controls="contracts" aria-selected="false">
+                                <i class="fas fa-file-contract me-2"></i>契約書
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="drawings-tab" data-bs-toggle="tab" data-bs-target="#drawings" type="button" role="tab" aria-controls="drawings" aria-selected="false">
+                                <i class="fas fa-drafting-compass me-2"></i>図面
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
                             <button class="nav-link" id="repair-history-tab" data-bs-toggle="tab" data-bs-target="#repair-history" type="button" role="tab" aria-controls="repair-history" aria-selected="false">
                                 <i class="fas fa-wrench me-2"></i>修繕履歴
                             </button>
@@ -243,7 +253,7 @@
                             <h4 class="mb-0">
                                 <i class="fas fa-shield-alt text-primary me-2"></i>防犯・防災
                             </h4>
-                            @if(auth()->user()->canEditFacility($facility->id))
+                            {{-- @if(auth()->user()->canEditFacility($facility->id))
                                 <a href="{{ route('facilities.security-disaster.edit', $facility) }}" class="btn btn-primary">
                                     <i class="fas fa-edit me-2"></i>
                                     @php
@@ -255,11 +265,81 @@
                                         登録
                                     @endif
                                 </a>
-                            @endif
+                            @endif --}}
                         </div>
                         
                         <!-- Security Disaster Content -->
                         @include('facilities.security-disaster.index', ['facility' => $facility])
+                    </div>
+                    
+                    <div class="tab-pane fade" id="contracts" role="tabpanel" aria-labelledby="contracts-tab">
+                        <!-- 契約書タブヘッダー -->
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="mb-0">
+                                <i class="fas fa-file-contract text-primary me-2"></i>契約書
+                            </h4>
+                            {{-- @if(auth()->user()->canEditFacility($facility->id))
+                                <a href="{{ route('facilities.contracts.edit', $facility) }}" class="btn btn-primary">
+                                    <i class="fas fa-edit me-2"></i>
+                                    @php
+                                        $contractService = app(\App\Services\ContractService::class);
+                                        $contract = $contractService->getContract($facility);
+                                    @endphp
+                                    @if($contract)
+                                        編集
+                                    @else
+                                        登録
+                                    @endif
+                                </a>
+                            @endif --}}
+                        </div>
+                        
+                        <!-- Contracts Content -->
+                        @php
+                            $contractService = app(\App\Services\ContractService::class);
+                            $contract = $contractService->getContract($facility);
+                            $contractsData = [];
+                            
+                            if ($contract) {
+                                $contractsData = $contractService->formatContractDataForDisplay($contract);
+                            }
+                        @endphp
+                        @include('facilities.contracts.index', ['facility' => $facility, 'contractsData' => $contractsData])
+                    </div>
+                    
+                    <div class="tab-pane fade" id="drawings" role="tabpanel" aria-labelledby="drawings-tab">
+                        <!-- 図面タブヘッダー -->
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="mb-0">
+                                <i class="fas fa-drafting-compass text-primary me-2"></i>図面
+                            </h4>
+                            @if(auth()->user()->canEditFacility($facility->id))
+                                <a href="{{ route('facilities.drawings.edit', $facility) }}" class="btn btn-primary">
+                                    <i class="fas fa-edit me-2"></i>
+                                    @php
+                                        $drawingService = app(\App\Services\DrawingService::class);
+                                        $drawing = $drawingService->getDrawing($facility);
+                                    @endphp
+                                    @if($drawing)
+                                        編集
+                                    @else
+                                        登録
+                                    @endif
+                                </a>
+                            @endif
+                        </div>
+                        
+                        <!-- Drawings Content -->
+                        @php
+                            $drawingService = app(\App\Services\DrawingService::class);
+                            $drawing = $drawingService->getDrawing($facility);
+                            $drawingsData = [];
+                            
+                            if ($drawing) {
+                                $drawingsData = $drawingService->formatDrawingDataForDisplay($drawing);
+                            }
+                        @endphp
+                        @include('facilities.drawings.index', ['facility' => $facility, 'drawingsData' => $drawingsData])
                     </div>
                     
                     <div class="tab-pane fade" id="repair-history" role="tabpanel" aria-labelledby="repair-history-tab">
@@ -301,7 +381,7 @@
 </div>
 @endsection
 
-@vite(['resources/css/pages/facilities.css', 'resources/js/modules/facilities.js'])
+@vite(['resources/css/pages/facilities.css', 'resources/css/water-equipment.css', 'resources/js/modules/facilities.js'])
 
 <style>
 /* Lifeline Equipment Styles */
@@ -545,6 +625,46 @@
     font-weight: 600;
 }
 
+/* Drawings Styles */
+.drawings-container {
+    margin-top: 1rem;
+}
+
+.drawings-container .card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.drawings-container .card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+#drawings .card-header {
+    background: linear-gradient(135deg, #6f42c1, #59359a);
+    color: white;
+    border: none;
+}
+
+.drawings-container .table td {
+    vertical-align: middle;
+    padding: 0.75rem 0.5rem;
+}
+
+.drawings-container .table .fw-bold {
+    color: #495057;
+    font-size: 0.9rem;
+}
+
+.drawings-container .table a {
+    color: #dc3545;
+    transition: color 0.2s ease;
+}
+
+.drawings-container .table a:hover {
+    color: #c82333;
+}
+
 /* Documents Styles */
 .documents-container {
     margin-top: 1rem;
@@ -676,27 +796,7 @@
     opacity: 0.5;
 }
 
-.documents-storage-stats {
-    background-color: #f8f9fa;
-    border-radius: 0.375rem;
-    padding: 1rem;
-    margin-top: 1.5rem;
-}
 
-.documents-storage-stats .row > div {
-    text-align: center;
-    padding: 0.5rem;
-}
-
-.documents-storage-stats .fw-bold {
-    font-size: 1.25rem;
-    color: #495057;
-}
-
-.documents-storage-stats small {
-    color: #6c757d;
-    font-size: 0.875rem;
-}
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
@@ -748,6 +848,62 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Initialize contracts tab functionality
+    const contractsTab = document.getElementById('contracts-tab');
+    const contractsPane = document.getElementById('contracts');
+    
+    if (contractsTab && contractsPane) {
+        contractsTab.addEventListener('shown.bs.tab', function() {
+            console.log('Contracts tab activated: initializing animations and components');
+            
+            // Trigger animation for contracts cards
+            const contractsCards = contractsPane.querySelectorAll('.card');
+            contractsCards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.classList.add('animate-in');
+            });
+            
+            // Animate cards in the active sub-tab
+            setTimeout(() => {
+                const activePane = document.querySelector('#contracts .tab-pane.active .card');
+                if (activePane) {
+                    const cards = activePane.parentElement.querySelectorAll('.card');
+                    cards.forEach((card, index) => {
+                        card.style.animationDelay = `${index * 0.1}s`;
+                        card.classList.add('animate-in');
+                    });
+                }
+            }, 100);
+            
+            // URLフラグメントまたはセッションに基づいてサブタブを設定
+            const hash = window.location.hash;
+            let targetSubTab = 'others'; // デフォルト
+            
+            // URLフラグメントから判定
+            if (hash === '#contracts-meal-service') {
+                targetSubTab = 'meal-service';
+            } else if (hash === '#contracts-parking') {
+                targetSubTab = 'parking';
+            } else if (hash === '#contracts' || hash === '#contracts-others') {
+                targetSubTab = 'others';
+            }
+            
+            // セッションからのサブタブ情報があれば優先
+            @if(session('activeSubTab'))
+                const sessionSubTab = '{{ session('activeSubTab') }}';
+                if (sessionSubTab && ['others', 'meal-service', 'parking'].includes(sessionSubTab)) {
+                    targetSubTab = sessionSubTab;
+                    console.log('Using session sub-tab:', sessionSubTab);
+                }
+            @endif
+            
+            setTimeout(() => {
+                console.log('Activating contracts sub-tab:', targetSubTab);
+                activateContractsSubTab(targetSubTab);
+            }, 100);
+        });
+    }
+    
     // Initialize documents tab functionality
     const documentsTab = document.getElementById('documents-tab');
     const documentsPane = document.getElementById('documents');
@@ -761,6 +917,93 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    
+    // URLフラグメントに基づいてタブとサブタブを自動的に開く
+    function handleUrlFragment() {
+        const hash = window.location.hash;
+        if (hash.startsWith('#contracts')) {
+            // 契約書タブを開く
+            const contractsTab = document.getElementById('contracts-tab');
+            const contractsPane = document.getElementById('contracts');
+            
+            if (contractsTab && contractsPane) {
+                // 他のタブを非アクティブにする
+                document.querySelectorAll('#facilityTabs .nav-link.active').forEach(tab => {
+                    tab.classList.remove('active');
+                    tab.setAttribute('aria-selected', 'false');
+                });
+                document.querySelectorAll('#facilityTabContent .tab-pane.active').forEach(pane => {
+                    pane.classList.remove('active', 'show');
+                });
+                
+                // 契約書タブをアクティブにする
+                contractsTab.classList.add('active');
+                contractsTab.setAttribute('aria-selected', 'true');
+                contractsPane.classList.add('active', 'show');
+                
+                // サブタブの処理
+                if (hash === '#contracts-meal-service') {
+                    setTimeout(() => activateContractsSubTab('meal-service'), 100);
+                } else if (hash === '#contracts-parking') {
+                    setTimeout(() => activateContractsSubTab('parking'), 100);
+                } else {
+                    setTimeout(() => activateContractsSubTab('others'), 100);
+                }
+            }
+        }
+    }
+    
+    // 契約書のサブタブを切り替える関数
+    function activateContractsSubTab(subTabName) {
+        const subTabButton = document.getElementById(subTabName + '-tab');
+        const subTabPane = document.getElementById(subTabName);
+        
+        console.log('Activating contracts sub-tab:', {
+            subTabName: subTabName,
+            subTabButtonId: subTabName + '-tab',
+            subTabPaneId: subTabName,
+            subTabButton: subTabButton,
+            subTabPane: subTabPane
+        });
+        
+        if (subTabButton && subTabPane) {
+            // 現在のアクティブサブタブを非アクティブにする
+            document.querySelectorAll('#contractsTabs .nav-link.active').forEach(tab => {
+                tab.classList.remove('active');
+                tab.setAttribute('aria-selected', 'false');
+            });
+            document.querySelectorAll('#contractsTabContent .tab-pane.active').forEach(pane => {
+                pane.classList.remove('active', 'show');
+            });
+            
+            // 指定されたサブタブをアクティブにする
+            subTabButton.classList.add('active');
+            subTabButton.setAttribute('aria-selected', 'true');
+            subTabPane.classList.add('active', 'show');
+            
+            // Bootstrapのタブイベントを発火
+            try {
+                const subTabEvent = new bootstrap.Tab(subTabButton);
+                subTabEvent.show();
+            } catch (e) {
+                console.warn('Bootstrap tab event failed:', e);
+            }
+            
+            console.log('Contracts sub-tab activated successfully:', subTabName);
+        } else {
+            console.error('Contracts sub-tab elements not found:', {
+                subTabName: subTabName,
+                subTabButtonId: subTabName + '-tab',
+                subTabPaneId: subTabName,
+                availableButtons: Array.from(document.querySelectorAll('#contractsTabs .nav-link')).map(btn => btn.id),
+                availablePanes: Array.from(document.querySelectorAll('#contractsTabContent .tab-pane')).map(pane => pane.id)
+            });
+        }
+    }
+    
+    // ページ読み込み時とハッシュ変更時にフラグメントを処理
+    handleUrlFragment();
+    window.addEventListener('hashchange', handleUrlFragment);
     
     @if(session('activeTab'))
         const activeTab = '{{ session('activeTab') }}';
@@ -790,62 +1033,24 @@ document.addEventListener('DOMContentLoaded', function() {
             const tabEvent = new bootstrap.Tab(tabButton);
             tabEvent.show();
             
-            console.log('Tab activated successfully:', activeTab);
-            
-            @if(session('activeSubTab'))
-                // Handle sub-tab activation for both lifeline equipment and security disaster
-                setTimeout(() => {
+            // Handle contracts sub-tab activation
+            if (activeTab === 'contracts') {
+                @if(session('activeSubTab'))
                     const activeSubTab = '{{ session('activeSubTab') }}';
-                    const subTabButton = document.getElementById(activeSubTab + '-tab');
-                    const subTabPane = document.getElementById(activeSubTab);
-                    
-                    console.log('Active sub-tab session:', activeSubTab);
-                    console.log('Sub-tab button element:', subTabButton);
-                    console.log('Sub-tab pane element:', subTabPane);
-                    
-                    if (subTabButton && subTabPane) {
-                        // Determine which sub-tab container to use based on active main tab
-                        let subTabContainer = '#lifelineSubTabs';
-                        let subTabContentContainer = '#lifelineSubTabContent';
-                        
-                        if (activeTab === 'security-disaster') {
-                            subTabContainer = '#securityDisasterTabs';
-                            subTabContentContainer = '#securityDisasterTabContent';
-                        } else if (activeTab === 'contracts') {
-                            subTabContainer = '#contractsTabs';
-                            subTabContentContainer = '#contractsTabContent';
-                        }
-                        
-                        // Remove active class from current active sub-tab
-                        document.querySelectorAll(subTabContainer + ' .nav-link.active').forEach(tab => {
-                            tab.classList.remove('active');
-                            tab.setAttribute('aria-selected', 'false');
-                        });
-                        document.querySelectorAll(subTabContentContainer + ' .tab-pane.active').forEach(pane => {
-                            pane.classList.remove('active', 'show');
-                        });
-                        
-                        // Activate the target sub-tab
-                        subTabButton.classList.add('active');
-                        subTabButton.setAttribute('aria-selected', 'true');
-                        subTabPane.classList.add('active', 'show');
-                        
-                        // Trigger Bootstrap tab event
-                        const subTabEvent = new bootstrap.Tab(subTabButton);
-                        subTabEvent.show();
-                        
-                        console.log('Sub-tab activated successfully:', activeSubTab);
-                    } else {
-                        console.log('Sub-tab elements not found:', {
-                            activeSubTab: activeSubTab,
-                            subTabButtonId: activeSubTab + '-tab',
-                            subTabPaneId: activeSubTab,
-                            subTabButton: subTabButton,
-                            subTabPane: subTabPane
-                        });
-                    }
-                }, 100); // Small delay to ensure main tab is activated first
-            @endif
+                    console.log('Restoring contracts sub-tab from session:', activeSubTab);
+                    setTimeout(() => {
+                        activateContractsSubTab(activeSubTab);
+                    }, 200); // 少し長めの遅延で確実に実行
+                @else
+                    // セッションにサブタブ情報がない場合はデフォルトを設定
+                    setTimeout(() => {
+                        activateContractsSubTab('others');
+                    }, 200);
+                @endif
+            }
+            
+            console.log('Tab activated successfully:', activeTab);
+
         } else {
             console.log('Tab elements not found:', {
                 activeTab: activeTab,
@@ -995,25 +1200,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Contracts Tab Functionality
-    const contractsTab = document.getElementById('contracts-tab');
-    if (contractsTab) {
-        contractsTab.addEventListener('shown.bs.tab', function() {
-            console.log('Contracts tab activated: initializing animations and components');
-            
-            // Animate cards in the active sub-tab
-            setTimeout(() => {
-                const activePane = document.querySelector('#contracts .tab-pane.active .card');
-                if (activePane) {
-                    const cards = activePane.parentElement.querySelectorAll('.card');
-                    cards.forEach((card, index) => {
-                        card.style.animationDelay = `${index * 0.1}s`;
-                        card.classList.add('animate-in');
-                    });
-                }
-            }, 100);
-        });
-    }
+    // Additional contracts tab functionality is handled above in the main contracts tab section
 
     // Handle contracts sub-tab switching
     const contractsSubTabs = document.querySelectorAll('#contractsTabs .nav-link');
@@ -1131,28 +1318,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                         </div>
 
-                        <!-- Storage Stats -->
-                        <div class="documents-storage-stats">
-                            <h6 class="mb-3">ストレージ使用状況</h6>
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <small class="text-muted">ファイル数</small>
-                                    <div class="fw-bold">0</div>
-                                </div>
-                                <div class="col-md-3">
-                                    <small class="text-muted">フォルダ数</small>
-                                    <div class="fw-bold">0</div>
-                                </div>
-                                <div class="col-md-3">
-                                    <small class="text-muted">使用容量</small>
-                                    <div class="fw-bold">0 B</div>
-                                </div>
-                                <div class="col-md-3">
-                                    <small class="text-muted">最終更新</small>
-                                    <div class="fw-bold">-</div>
-                                </div>
-                            </div>
-                        </div>
+
                     </div>
                 </div>
             `;

@@ -164,7 +164,7 @@ class ExportController extends Controller
             if ($result['success']) {
                 return response()->download($result['zip_path'], $result['zip_filename'])->deleteFileAfterSend(true);
             } else {
-                return back()->with('error', 'バッチPDF生成に失敗しました: ' . $result['error']);
+                return back()->with('error', 'バッチPDF生成に失敗しました: '.$result['error']);
             }
         } catch (\Exception $e) {
             return $this->handleException($e, 'Batch PDF generation');

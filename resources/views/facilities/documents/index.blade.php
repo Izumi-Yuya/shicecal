@@ -121,35 +121,7 @@
                         </div>
                     </div>
 
-                    <!-- Storage Stats -->
-                    <div class="row mt-4">
-                        <div class="col-md-12">
-                            <div class="storage-stats">
-                                <h6 class="card-title">
-                                    <i class="fas fa-chart-bar"></i>
-                                    ストレージ使用状況
-                                </h6>
-                                <div class="row">
-                                    <div class="col-md-3 stat-item">
-                                        <div class="stat-label">ファイル数</div>
-                                        <div class="stat-value">{{ $storageStats['total_files'] ?? 0 }}</div>
-                                    </div>
-                                    <div class="col-md-3 stat-item">
-                                        <div class="stat-label">フォルダ数</div>
-                                        <div class="stat-value">{{ $storageStats['total_folders'] ?? 0 }}</div>
-                                    </div>
-                                    <div class="col-md-3 stat-item">
-                                        <div class="stat-label">使用容量</div>
-                                        <div class="stat-value large">{{ $storageStats['formatted_total_size'] ?? '0 B' }}</div>
-                                    </div>
-                                    <div class="col-md-3 stat-item">
-                                        <div class="stat-label">最終更新</div>
-                                        <div class="stat-value">{{ $storageStats['last_updated']->format('Y-m-d H:i') ?? '-' }}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
             </div>
         </div>

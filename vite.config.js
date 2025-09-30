@@ -35,6 +35,7 @@ export default defineConfig({
         'resources/css/auth.css',
         'resources/css/admin.css',
         'resources/css/land-info-final.css',
+        'resources/css/water-equipment.css',
         // Shared CSS files
         'resources/css/shared/variables.css',
         'resources/css/shared/components.css',
@@ -155,6 +156,7 @@ export default defineConfig({
         'resources/css/auth.css',
         'resources/css/admin.css',
         'resources/css/land-info-final.css',
+        'resources/css/water-equipment.css',
         // Shared CSS files
         'resources/css/shared/variables.css',
         'resources/css/shared/components.css',

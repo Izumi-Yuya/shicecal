@@ -94,6 +94,40 @@ make logs                       # コンテナログ表示
 - **状態管理**: グローバル状態用のApplicationStateクラス
 - **後方互換性**: `window.ShiseCal` オブジェクト経由のレガシーAPI
 
+## 図面管理システム
+
+### 図面タブ構成
+- **引き渡し図面**: 施設の引き渡し時に提供される図面の管理
+- **完成図面**: 施設完成時の最終図面の管理
+- **その他図面**: 上記以外の図面ファイルの管理
+
+### 引き渡し図面テーブル仕様
+- **1行目固定**: 「就航図面」として固定表示
+- **動的行追加**: 2行目以降は動的に追加・削除可能
+- **ファイル管理**: 各行にPDFファイルのアップロード・ダウンロード機能
+- **データ構造**: `handover_drawings` JSON配列で管理
+
+### 図面管理の実装パターン
+```php
+// DrawingServiceを使用した統一処理
+$drawingService = app(DrawingService::class);
+
+// 図面データ取得
+$drawing = $drawingService->getDrawing($facility);
+
+// 図面データ更新
+$drawing = $drawingService->createOrUpdateDrawing($facility, $data, $user);
+
+// 表示用データ整形
+$drawingsData = $drawingService->formatDrawingDataForDisplay($drawing);
+```
+
+### 図面ファイル処理
+- **FileHandlingService**: 統一されたファイルアップロード・ダウンロード処理
+- **ストレージパス**: `storage/app/public/drawings/` 配下に保存
+- **セキュリティ**: 認証・認可チェック必須
+- **バリデーション**: PDFファイルのみ、最大10MB制限
+
 ## コード品質
 - 一貫したPHPフォーマットにLaravel Pintを使用
 - PSR-12コーディング標準に従う

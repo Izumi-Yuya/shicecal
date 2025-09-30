@@ -569,62 +569,7 @@ class DocumentService
         return $breadcrumbs;
     }
 
-    /**
-     * ストレージ統計情報取得
-     */
-    public function getStorageStats(Facility $facility): array
-    {
-        try {
-            // データベースからの統計
-            $totalFiles = DocumentFile::where('facility_id', $facility->id)->count();
-            $totalFolders = DocumentFolder::where('facility_id', $facility->id)->count();
-            $totalSize = DocumentFile::where('facility_id', $facility->id)->sum('file_size');
 
-            // ファイルタイプ別統計
-            $fileTypeStats = DocumentFile::where('facility_id', $facility->id)
-                ->selectRaw('file_extension, COUNT(*) as count, SUM(file_size) as total_size')
-                ->groupBy('file_extension')
-                ->get()
-                ->mapWithKeys(function ($item) {
-                    return [
-                        $item->file_extension => [
-                            'count' => $item->count,
-                            'size' => $item->total_size,
-                            'formatted_size' => $this->fileHandlingService->formatFileSize($item->total_size),
-                        ]
-                    ];
-                });
-
-            // 物理ストレージ使用量
-            $physicalUsage = $this->fileHandlingService->getStorageUsage("facility_{$facility->id}");
-
-            return [
-                'total_files' => $totalFiles,
-                'total_folders' => $totalFolders,
-                'total_size' => $totalSize,
-                'formatted_total_size' => $this->fileHandlingService->formatFileSize($totalSize),
-                'file_types' => $fileTypeStats,
-                'physical_usage' => $physicalUsage,
-                'last_updated' => now(),
-            ];
-
-        } catch (Exception $e) {
-            Log::error('Failed to get storage stats', [
-                'facility_id' => $facility->id,
-                'error' => $e->getMessage(),
-            ]);
-
-            return [
-                'total_files' => 0,
-                'total_folders' => 0,
-                'total_size' => 0,
-                'formatted_total_size' => '0 B',
-                'file_types' => [],
-                'physical_usage' => [],
-                'last_updated' => now(),
-            ];
-        }
-    }
 
     /**
      * フォルダ統計情報取得
@@ -928,17 +873,7 @@ class DocumentService
         }
     }
 
-    /**
-     * 統計情報のキャッシュ対応取得
-     */
-    public function getCachedStorageStats(Facility $facility, int $cacheTtl = 300): array
-    {
-        $cacheKey = "facility_document_stats_{$facility->id}";
-        
-        return cache()->remember($cacheKey, $cacheTtl, function () use ($facility) {
-            return $this->getStorageStats($facility);
-        });
-    }
+
 
     /**
      * バッチ処理用のフォルダ削除（大量データ対応）

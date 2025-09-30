@@ -14,7 +14,7 @@ $subcategory = $fixedSubcategory ?: ($history ? $history->subcategory : old("his
 // 内装カテゴリ専用フィールド（内装・意匠履歴用の追加項目）
 $content = $history ? $history->content : old("histories.{$index}.content", '');
 $cost = $history ? $history->cost : old("histories.{$index}.cost", '');
-$classification = $history ? $history->classification : old("histories.{$index}.classification", '');
+
 
 // 外装カテゴリ専用フィールド
 $warrantyPeriodYears = $history ? $history->warranty_period_years : old("histories.{$index}.warranty_period_years", '');
@@ -56,14 +56,13 @@ $hasWarranty = $history ? ($history->warranty_period_years !== null) : false;
         <!-- Subcategory field (hidden for other category and exterior with fixed subcategory) -->
         @if($category === 'exterior' && !$fixedSubcategory)
         <div class="col-md-4">
-            <label for="histories_{{ $index }}_subcategory" class="form-label required">種別</label>
+            <label for="histories_{{ $index }}_subcategory" class="form-label">種別</label>
             <input type="text"
                 class="form-control @error(" histories.{$index}.subcategory") is-invalid @enderror"
                 id="histories_{{ $index }}_subcategory"
                 name="histories[{{ $index }}][subcategory]"
                 value="{{ $subcategory }}"
                 maxlength="50"
-                required
                 placeholder="例：防水工事、外壁塗装、屋根修繕など">
             @error("histories.{$index}.subcategory")
             <div class="invalid-feedback">{{ $message }}</div>
@@ -74,14 +73,13 @@ $hasWarranty = $history ? ($history->warranty_period_years !== null) : false;
         <input type="hidden" name="histories[{{ $index }}][subcategory]" value="{{ $fixedSubcategory }}">
         @elseif($category === 'interior' && !$fixedSubcategory)
         <div class="col-md-4">
-            <label for="histories_{{ $index }}_subcategory" class="form-label required">種別</label>
+            <label for="histories_{{ $index }}_subcategory" class="form-label">種別</label>
             <input type="text"
                 class="form-control @error(" histories.{$index}.subcategory") is-invalid @enderror"
                 id="histories_{{ $index }}_subcategory"
                 name="histories[{{ $index }}][subcategory]"
                 value="{{ $subcategory }}"
                 maxlength="50"
-                required
                 placeholder="例：内装改修、意匠変更、設備更新など">
             @error("histories.{$index}.subcategory")
             <div class="invalid-feedback">{{ $message }}</div>
@@ -97,13 +95,12 @@ $hasWarranty = $history ? ($history->warranty_period_years !== null) : false;
 
         <!-- Date field (label changes based on subcategory) -->
         <div class="{{ $category === 'other' ? 'col-md-6' : ($fixedSubcategory ? 'col-md-6' : 'col-md-4') }}">
-            <label for="histories_{{ $index }}_maintenance_date" class="form-label required" id="date_label_{{ $index }}">施工日</label>
+            <label for="histories_{{ $index }}_maintenance_date" class="form-label" id="date_label_{{ $index }}">施工日</label>
             <input type="date"
                 class="form-control @error(" histories.{$index}.maintenance_date") is-invalid @enderror"
                 id="histories_{{ $index }}_maintenance_date"
                 name="histories[{{ $index }}][maintenance_date]"
-                value="{{ $maintenanceDate }}"
-                required>
+                value="{{ $maintenanceDate }}">
             @error("histories.{$index}.maintenance_date")
             <div class="invalid-feedback">{{ $message }}</div>
             @enderror
@@ -111,14 +108,13 @@ $hasWarranty = $history ? ($history->warranty_period_years !== null) : false;
 
         <!-- Company name -->
         <div class="{{ $category === 'other' ? 'col-md-6' : ($fixedSubcategory ? 'col-md-6' : 'col-md-4') }}">
-            <label for="histories_{{ $index }}_contractor" class="form-label required" id="company_label_{{ $index }}">会社名</label>
+            <label for="histories_{{ $index }}_contractor" class="form-label" id="company_label_{{ $index }}">会社名</label>
             <input type="text"
                 class="form-control @error(" histories.{$index}.contractor") is-invalid @enderror"
                 id="histories_{{ $index }}_contractor"
                 name="histories[{{ $index }}][contractor]"
                 value="{{ $contractor }}"
-                maxlength="255"
-                required>
+                maxlength="255">
             @error("histories.{$index}.contractor")
             <div class="invalid-feedback">{{ $message }}</div>
             @enderror
@@ -161,10 +157,10 @@ $hasWarranty = $history ? ($history->warranty_period_years !== null) : false;
     <!-- Other category specific fields -->
     @if($category === 'other')
     <div class="other-category-fields">
-        <!-- Cost and classification row -->
+        <!-- Cost row -->
         <div class="row form-row">
             <!-- Cost -->
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <label for="histories_{{ $index }}_cost" class="form-label">金額（円）</label>
                 <input type="number"
                     class="form-control @error(" histories.{$index}.cost") is-invalid @enderror"
@@ -174,20 +170,6 @@ $hasWarranty = $history ? ($history->warranty_period_years !== null) : false;
                     min="0"
                     step="1">
                 @error("histories.{$index}.cost")
-                <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <!-- Classification -->
-            <div class="col-md-6">
-                <label for="histories_{{ $index }}_classification" class="form-label">区分</label>
-                <input type="text"
-                    class="form-control @error(" histories.{$index}.classification") is-invalid @enderror"
-                    id="histories_{{ $index }}_classification"
-                    name="histories[{{ $index }}][classification]"
-                    value="{{ $classification }}"
-                    maxlength="100">
-                @error("histories.{$index}.classification")
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
@@ -263,10 +245,10 @@ $hasWarranty = $history ? ($history->warranty_period_years !== null) : false;
 
     <!-- Interior design history specific fields -->
     <div class="interior-design-fields mb-3" id="interior_design_fields_{{ $index }}" style="display: {{ $interiorType === 'design' ? 'block' : 'none' }};">
-        <!-- Cost and classification row -->
+        <!-- Cost row -->
         <div class="row form-row">
             <!-- Cost -->
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <label for="histories_{{ $index }}_cost" class="form-label">金額（円）</label>
                 <input type="number"
                     class="form-control @error(" histories.{$index}.cost") is-invalid @enderror"
@@ -276,20 +258,6 @@ $hasWarranty = $history ? ($history->warranty_period_years !== null) : false;
                     min="0"
                     step="1">
                 @error("histories.{$index}.cost")
-                <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <!-- Classification -->
-            <div class="col-md-6">
-                <label for="histories_{{ $index }}_classification" class="form-label">区分</label>
-                <input type="text"
-                    class="form-control @error(" histories.{$index}.classification") is-invalid @enderror"
-                    id="histories_{{ $index }}_classification"
-                    name="histories[{{ $index }}][classification]"
-                    value="{{ $classification }}"
-                    maxlength="100">
-                @error("histories.{$index}.classification")
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>

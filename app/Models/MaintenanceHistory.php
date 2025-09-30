@@ -46,7 +46,6 @@ class MaintenanceHistory extends Model
         'subcategory',
         'contact_person',
         'phone_number',
-        'classification',
         'notes',
         'warranty_period_years',
         'warranty_start_date',

@@ -24,7 +24,7 @@
                         <th class="detail-label" style="padding: 0.5rem; width: 12% !important; min-width: 100px; max-width: 120px; border: none;">施工日</th>
                         <th class="detail-label" style="padding: 0.5rem; width: 15% !important; min-width: 120px; max-width: 150px; border: none;">施工会社</th>
                         <th class="detail-label" style="padding: 0.5rem; width: 12% !important; min-width: 100px; max-width: 120px; border: none;">金額</th>
-                        <th class="detail-label" style="padding: 0.5rem; width: 10% !important; min-width: 80px; max-width: 100px; border: none;">区分</th>
+
                         <th class="detail-label" style="padding: 0.5rem; width: 23% !important; min-width: 180px; border: none;">修繕内容</th>
                         <th class="detail-label" style="padding: 0.5rem; width: 23% !important; min-width: 180px; border: none;">備考</th>
                     </tr>
@@ -42,9 +42,7 @@
                         <td class="detail-value {{ !$history->cost ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 12% !important; max-width: 120px; border: none; background-color: transparent !important;">
                             {{ $history->cost ? number_format($history->cost) . '円' : '未設定' }}
                         </td>
-                        <td class="detail-value {{ !$history->classification || trim($history->classification) === '' ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 10% !important; max-width: 100px; border: none; background-color: transparent !important; word-wrap: break-word; white-space: normal;">
-                            {{ $history->classification ?? '未設定' }}
-                        </td>
+
                         <td class="detail-value {{ !$history->content || trim($history->content) === '' ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 23% !important; word-wrap: break-word; white-space: normal; border: none; background-color: transparent !important;">
                             {{ $history->content ?? '未設定' }}
                         </td>

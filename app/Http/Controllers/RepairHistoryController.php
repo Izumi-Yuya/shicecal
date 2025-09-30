@@ -205,8 +205,8 @@ class RepairHistoryController extends Controller
         $baseRules = [
             'histories' => 'array',
             'histories.*.id' => 'nullable|exists:maintenance_histories,id',
-            'histories.*.maintenance_date' => 'required|date',
-            'histories.*.contractor' => 'required|string|max:255',
+            'histories.*.maintenance_date' => 'nullable|date',
+            'histories.*.contractor' => 'nullable|string|max:255',
             'histories.*.contact_person' => 'nullable|string|max:255',
             'histories.*.phone_number' => 'nullable|string|max:20',
             'histories.*.notes' => 'nullable|string',
@@ -215,7 +215,7 @@ class RepairHistoryController extends Controller
         // Add subcategory validation based on category
         if ($category === 'exterior') {
             // For exterior category, allow free text input
-            $baseRules['histories.*.subcategory'] = 'required|string|max:50';
+            $baseRules['histories.*.subcategory'] = 'nullable|string|max:50';
         } elseif ($category === 'interior') {
             // For interior category, allow both English and Japanese input
             $allowedSubcategories = array_merge(
@@ -224,7 +224,7 @@ class RepairHistoryController extends Controller
                 ['内装リニューアル', '内装・意匠履歴'] // Additional Japanese variations for backward compatibility
             );
             $baseRules['histories.*.subcategory'] = [
-                'required',
+                'nullable',
                 'string',
                 Rule::in($allowedSubcategories)
             ];
@@ -238,7 +238,6 @@ class RepairHistoryController extends Controller
             // Interior design history and other category-specific fields
             $baseRules['histories.*.content'] = 'nullable|string|max:500';
             $baseRules['histories.*.cost'] = 'nullable|numeric|min:0';
-            $baseRules['histories.*.classification'] = 'nullable|string|max:100';
         }
 
         // Add category-specific validation rules
@@ -262,18 +261,14 @@ class RepairHistoryController extends Controller
     private function getValidationMessages(): array
     {
         return [
-            'histories.*.maintenance_date.required' => '施工日は必須項目です。',
             'histories.*.maintenance_date.date' => '施工日は有効な日付形式で入力してください。',
-            'histories.*.contractor.required' => '会社名は必須項目です。',
             'histories.*.contractor.max' => '会社名は255文字以内で入力してください。',
-            'histories.*.content.required' => '修繕内容は必須項目です。',
             'histories.*.content.max' => '修繕内容は500文字以内で入力してください。',
             'histories.*.cost.numeric' => '金額は数値で入力してください。',
             'histories.*.cost.min' => '金額は0以上で入力してください。',
             'histories.*.contact_person.max' => '担当者名は255文字以内で入力してください。',
             'histories.*.phone_number.max' => '連絡先は20文字以内で入力してください。',
-            'histories.*.classification.max' => '区分は100文字以内で入力してください。',
-            'histories.*.subcategory.required' => '種別の入力は必須です。',
+
             'histories.*.subcategory.in' => '選択された種別が無効です。',
             'histories.*.subcategory.max' => '種別は50文字以内で入力してください。',
             'histories.*.warranty_period_years.integer' => '保証期間は整数で入力してください。',
@@ -348,21 +343,30 @@ class RepairHistoryController extends Controller
                 $history->update($preparedData);
                 $processedIds[] = $history->id;
             } else {
-                // Create new record
-                $preparedData = $this->prepareHistoryData($historyData, $category, $facility->id, $userId);
-                Log::info('Creating new history', [
-                    'facility_id' => $facility->id,
-                    'category' => $category,
-                    'prepared_data' => $preparedData,
-                    'reason' => empty($historyData['id']) ? 'no_id' : 'invalid_id',
-                ]);
-                $newHistory = MaintenanceHistory::create($preparedData);
-                Log::info('New history created', [
-                    'facility_id' => $facility->id,
-                    'category' => $category,
-                    'new_history_id' => $newHistory->id,
-                ]);
-                $processedIds[] = $newHistory->id;
+                // Check if the data has meaningful content before creating new record
+                if ($this->hasValidHistoryData($historyData)) {
+                    // Create new record only if it has valid data
+                    $preparedData = $this->prepareHistoryData($historyData, $category, $facility->id, $userId);
+                    Log::info('Creating new history', [
+                        'facility_id' => $facility->id,
+                        'category' => $category,
+                        'prepared_data' => $preparedData,
+                        'reason' => empty($historyData['id']) ? 'no_id' : 'invalid_id',
+                    ]);
+                    $newHistory = MaintenanceHistory::create($preparedData);
+                    Log::info('New history created', [
+                        'facility_id' => $facility->id,
+                        'category' => $category,
+                        'new_history_id' => $newHistory->id,
+                    ]);
+                    $processedIds[] = $newHistory->id;
+                } else {
+                    Log::info('Skipping empty history record', [
+                        'facility_id' => $facility->id,
+                        'category' => $category,
+                        'index' => $index,
+                    ]);
+                }
             }
         }
 
@@ -379,6 +383,31 @@ class RepairHistoryController extends Controller
     }
 
     /**
+     * Check if history data has valid content worth saving.
+     * 
+     * @param array $data The raw history data
+     * @return bool True if the data has meaningful content
+     */
+    private function hasValidHistoryData(array $data): bool
+    {
+        // Check if any of the key fields have meaningful content
+        $keyFields = ['maintenance_date', 'contractor', 'content', 'subcategory'];
+        
+        foreach ($keyFields as $field) {
+            if (!empty($data[$field]) && trim($data[$field]) !== '') {
+                return true;
+            }
+        }
+        
+        // Check if cost has a value (including 0)
+        if (isset($data['cost']) && is_numeric($data['cost'])) {
+            return true;
+        }
+        
+        return false;
+    }
+
+    /**
      * Prepare history data for database insertion/update.
      * 
      * @param array $data The raw history data
@@ -389,17 +418,27 @@ class RepairHistoryController extends Controller
      */
     private function prepareHistoryData(array $data, string $category, int $facilityId, int $userId): array
     {
+        // Ensure required fields have values or provide defaults
+        $maintenanceDate = $data['maintenance_date'] ?? null;
+        if (empty($maintenanceDate)) {
+            $maintenanceDate = now()->format('Y-m-d'); // Use current date as default
+        }
+        
+        $content = $data['content'] ?? null;
+        if (empty($content)) {
+            $content = '修繕工事'; // Default content
+        }
+        
         $prepared = [
             'facility_id' => $facilityId,
             'category' => $category,
-            'subcategory' => $category === 'other' ? 'renovation_work' : $data['subcategory'],
-            'maintenance_date' => $data['maintenance_date'],
-            'contractor' => $data['contractor'],
-            'content' => $data['content'] ?? '修繕工事', // Default content if not provided
+            'subcategory' => $category === 'other' ? 'renovation_work' : ($data['subcategory'] ?? null),
+            'maintenance_date' => $maintenanceDate,
+            'contractor' => $data['contractor'] ?? null,
+            'content' => $content,
             'cost' => $data['cost'] ?? null,
             'contact_person' => $data['contact_person'] ?? null,
             'phone_number' => $data['phone_number'] ?? null,
-            'classification' => $data['classification'] ?? null,
             'notes' => $data['notes'] ?? null,
             'created_by' => $userId,
         ];

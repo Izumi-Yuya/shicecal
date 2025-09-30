@@ -204,42 +204,120 @@
     <div class="equipment-section mb-4">
         <h6 class="section-title">基本情報</h6>
         <div class="water-six-column-equal">
-            <x-common-table 
-                :data="$basicInfoData"
-                :showHeader="false"
-                :tableAttributes="['class' => 'table table-bordered water-info-table']"
-                bodyClass=""
-                cardClass=""
-                tableClass="table table-bordered facility-basic-info-table-clean"
-            />
+            <div class="table-responsive">
+                <table class="table facility-basic-info-table-clean" style="table-layout: fixed; margin-bottom: 0; border: 1px solid #e9ecef;">
+                    <colgroup>
+                        <col style="width: 16.67%;">
+                        <col style="width: 16.67%;">
+                        <col style="width: 16.67%;">
+                        <col style="width: 16.67%;">
+                        <col style="width: 16.67%;">
+                        <col style="width: 16.67%;">
+                    </colgroup>
+                    <tbody>
+                        @foreach($basicInfoData as $row)
+                            <tr>
+                                @if($row['type'] === 'standard')
+                                    @foreach($row['cells'] as $cell)
+                                        @if($cell['width'] === '100%')
+                                            <td class="detail-label" style="padding: 0.5rem; border: 1px solid #e9ecef !important;">{{ $cell['label'] }}</td>
+                                            <td class="detail-value {{ empty($cell['value']) ? 'empty-field' : '' }}" style="padding: 0.5rem; border: 1px solid #e9ecef !important;" colspan="5">
+                                                {{ $cell['value'] ?? '未設定' }}
+                                            </td>
+                                        @elseif($cell['width'] === '33.33%')
+                                            <td class="detail-label" style="padding: 0.5rem; border: 1px solid #e9ecef !important;">{{ $cell['label'] }}</td>
+                                            <td class="detail-value {{ empty($cell['value']) ? 'empty-field' : '' }}" style="padding: 0.5rem; border: 1px solid #e9ecef !important;">
+                                                @if($cell['type'] === 'date' && !empty($cell['value']))
+                                                    {{ \Carbon\Carbon::parse($cell['value'])->format('Y年m月d日') }}
+                                                @elseif($cell['type'] === 'file_display' && !empty($cell['value']))
+                                                    <a href="{{ route($cell['options']['route'], $cell['options']['params']) }}" 
+                                                       class="text-decoration-none" 
+                                                       target="_blank">
+                                                        <i class="fas fa-file-pdf me-1 text-danger"></i>{{ $cell['options']['display_name'] }}
+                                                    </a>
+                                                @else
+                                                    {{ $cell['value'] ?? '未設定' }}
+                                                @endif
+                                            </td>
+                                        @endif
+                                    @endforeach
+                                @endif
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <div class="equipment-section mb-4">
         <h6 class="section-title">ろ過器</h6>
         <div class="water-six-column-equal">
-            <x-common-table 
-                :data="$filterData"
-                :showHeader="false"
-                :tableAttributes="['class' => 'table table-bordered water-info-table']"
-                bodyClass=""
-                cardClass=""
-                tableClass="table table-bordered facility-basic-info-table-clean"
-            />
+            <div class="table-responsive">
+                <table class="table facility-basic-info-table-clean" style="table-layout: fixed; margin-bottom: 0; border: 1px solid #e9ecef;">
+                    <colgroup>
+                        <col style="width: 16.67%;">
+                        <col style="width: 16.67%;">
+                        <col style="width: 16.67%;">
+                        <col style="width: 16.67%;">
+                        <col style="width: 16.67%;">
+                        <col style="width: 16.67%;">
+                    </colgroup>
+                    <tbody>
+                        @foreach($filterData as $row)
+                            <tr>
+                                @if($row['type'] === 'standard')
+                                    @foreach($row['cells'] as $cell)
+                                        @if($cell['width'] === '100%')
+                                            <td class="detail-label" style="padding: 0.5rem; border: 1px solid #e9ecef !important;">{{ $cell['label'] }}</td>
+                                            <td class="detail-value {{ empty($cell['value']) ? 'empty-field' : '' }}" style="padding: 0.5rem; border: 1px solid #e9ecef !important;" colspan="5">
+                                                {{ $cell['value'] ?? '未設定' }}
+                                            </td>
+                                        @elseif($cell['width'] === '33.33%')
+                                            <td class="detail-label" style="padding: 0.5rem; border: 1px solid #e9ecef !important;">{{ $cell['label'] }}</td>
+                                            <td class="detail-value {{ empty($cell['value']) ? 'empty-field' : '' }}" style="padding: 0.5rem; border: 1px solid #e9ecef !important;">
+                                                {{ $cell['value'] ?? '未設定' }}
+                                            </td>
+                                        @endif
+                                    @endforeach
+                                @endif
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <div class="equipment-section mb-4">
         <h6 class="section-title">受水槽</h6>
         <div class="water-six-column-equal">
-            <x-common-table 
-                :data="$tankData"
-                :showHeader="false"
-                :tableAttributes="['class' => 'table table-bordered water-info-table']"
-                bodyClass=""
-                cardClass=""
-                tableClass="table table-bordered facility-basic-info-table-clean"
-            />
+            <div class="table-responsive">
+                <table class="table facility-basic-info-table-clean" style="table-layout: fixed; margin-bottom: 0; border: 1px solid #e9ecef;">
+                    <colgroup>
+                        <col style="width: 16.67%;">
+                        <col style="width: 16.67%;">
+                        <col style="width: 16.67%;">
+                        <col style="width: 16.67%;">
+                        <col style="width: 16.67%;">
+                        <col style="width: 16.67%;">
+                    </colgroup>
+                    <tbody>
+                        @foreach($tankData as $row)
+                            <tr>
+                                @if($row['type'] === 'standard')
+                                    @foreach($row['cells'] as $cell)
+                                        <td class="detail-label" style="padding: 0.5rem; border: 1px solid #e9ecef !important;">{{ $cell['label'] }}</td>
+                                        <td class="detail-value {{ empty($cell['value']) ? 'empty-field' : '' }}" style="padding: 0.5rem; border: 1px solid #e9ecef !important;">
+                                            {{ $cell['value'] ?? '未設定' }}
+                                        </td>
+                                    @endforeach
+                                @endif
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -253,14 +331,36 @@
                     </div>
                 @endif
                 <div class="water-six-column-equal">
-                    <x-common-table 
-                        :data="$pumpSet['data']"
-                        :showHeader="false"
-                        :tableAttributes="['class' => 'table table-bordered water-info-table']"
-                        bodyClass=""
-                        cardClass=""
-                        tableClass="table table-bordered facility-basic-info-table-clean"
-                    />
+                    <div class="table-responsive">
+                        <table class="table facility-basic-info-table-clean" style="table-layout: fixed; margin-bottom: 0; border: 1px solid #e9ecef;">
+                            <colgroup>
+                                <col style="width: 16.67%;">
+                                <col style="width: 16.67%;">
+                                <col style="width: 16.67%;">
+                                <col style="width: 16.67%;">
+                                <col style="width: 16.67%;">
+                                <col style="width: 16.67%;">
+                            </colgroup>
+                            <tbody>
+                                @foreach($pumpSet['data'] as $row)
+                                    <tr>
+                                        @if($row['type'] === 'standard')
+                                            @foreach($row['cells'] as $cell)
+                                                <td class="detail-label" style="padding: 0.5rem; border: 1px solid #e9ecef !important;">{{ $cell['label'] }}</td>
+                                                <td class="detail-value {{ empty($cell['value']) ? 'empty-field' : '' }}" style="padding: 0.5rem; border: 1px solid #e9ecef !important;">
+                                                    @if($cell['type'] === 'date' && !empty($cell['value']))
+                                                        {{ \Carbon\Carbon::parse($cell['value'])->format('Y年m月d日') }}
+                                                    @else
+                                                        {{ $cell['value'] ?? '未設定' }}
+                                                    @endif
+                                                </td>
+                                            @endforeach
+                                        @endif
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         @endforeach
@@ -269,14 +369,42 @@
     <div class="equipment-section mb-4">
         <h6 class="section-title">浄化槽</h6>
         <div class="water-six-column-equal">
-            <x-common-table 
-                :data="$septicTankData"
-                :showHeader="false"
-                :tableAttributes="['class' => 'table table-bordered water-info-table']"
-                bodyClass=""
-                cardClass=""
-                tableClass="table table-bordered facility-basic-info-table-clean"
-            />
+            <div class="table-responsive">
+                <table class="table facility-basic-info-table-clean" style="table-layout: fixed; margin-bottom: 0; border: 1px solid #e9ecef;">
+                    <colgroup>
+                        <col style="width: 16.67%;">
+                        <col style="width: 16.67%;">
+                        <col style="width: 16.67%;">
+                        <col style="width: 16.67%;">
+                        <col style="width: 16.67%;">
+                        <col style="width: 16.67%;">
+                    </colgroup>
+                    <tbody>
+                        @foreach($septicTankData as $row)
+                            <tr>
+                                @if($row['type'] === 'standard')
+                                    @foreach($row['cells'] as $cell)
+                                        <td class="detail-label" style="padding: 0.5rem; border: 1px solid #e9ecef !important;">{{ $cell['label'] }}</td>
+                                        <td class="detail-value {{ empty($cell['value']) ? 'empty-field' : '' }}" style="padding: 0.5rem; border: 1px solid #e9ecef !important;">
+                                            @if($cell['type'] === 'date' && !empty($cell['value']))
+                                                {{ \Carbon\Carbon::parse($cell['value'])->format('Y年m月d日') }}
+                                            @elseif($cell['type'] === 'file_display' && !empty($cell['value']))
+                                                <a href="{{ route($cell['options']['route'], $cell['options']['params']) }}" 
+                                                   class="text-decoration-none" 
+                                                   target="_blank">
+                                                    <i class="fas fa-file-pdf me-1 text-danger"></i>{{ $cell['options']['display_name'] }}
+                                                </a>
+                                            @else
+                                                {{ $cell['value'] ?? '未設定' }}
+                                            @endif
+                                        </td>
+                                    @endforeach
+                                @endif
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 

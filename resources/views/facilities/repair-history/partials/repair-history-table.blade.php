@@ -3,7 +3,7 @@
     $histories = $histories ?? collect();
     $showNo = $showNo ?? true;
     $showAmount = $showAmount ?? true;
-    $showClassification = $showClassification ?? true;
+
     $showContent = $showContent ?? true;
     $tableClass = $tableClass ?? 'repair-history-table';
     $columns = $columns ?? [];
@@ -16,7 +16,7 @@
         'maintenance_date' => ['label' => '施工日', 'width' => '15%', 'show' => true],
         'contractor' => ['label' => '施工会社', 'width' => '20%', 'show' => true],
         'cost' => ['label' => '金額', 'width' => '15%', 'show' => $showAmount],
-        'classification' => ['label' => '区分', 'width' => '12%', 'show' => $showClassification],
+
         'content' => ['label' => '修繕内容', 'width' => '20%', 'show' => $showContent],
         'notes' => ['label' => '備考', 'width' => '10%', 'show' => true]
     ];
@@ -56,9 +56,7 @@
                                             ¥{{ number_format($history->cost) }}
                                         @endif
                                         @break
-                                    @case('classification')
-                                        {{ $history->classification ?? '' }}
-                                        @break
+
                                     @case('content')
                                         {{ $history->content ?? '' }}
                                         @break

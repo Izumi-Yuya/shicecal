@@ -310,37 +310,7 @@ class DocumentManagementIntegrationTest extends TestCase
         $response->assertStatus(403); // Should be forbidden due to policy check
     }
 
-    /** @test */
-    public function storage_stats_are_calculated_correctly()
-    {
-        $this->actingAs($this->user);
 
-        // Create test data
-        $folder = DocumentFolder::factory()->create([
-            'facility_id' => $this->facility->id,
-            'created_by' => $this->user->id,
-        ]);
-
-        $file1 = DocumentFile::factory()->create([
-            'facility_id' => $this->facility->id,
-            'folder_id' => $folder->id,
-            'file_size' => 1024,
-            'uploaded_by' => $this->user->id,
-        ]);
-
-        $file2 = DocumentFile::factory()->create([
-            'facility_id' => $this->facility->id,
-            'file_size' => 2048,
-            'uploaded_by' => $this->user->id,
-        ]);
-
-        $stats = $this->documentService->getStorageStats($this->facility);
-
-        $this->assertEquals(1, $stats['total_folders']);
-        $this->assertEquals(2, $stats['total_files']);
-        $this->assertEquals(3072, $stats['total_size']); // 1024 + 2048
-        $this->assertEquals('3 KB', $stats['formatted_total_size']);
-    }
 
     /** @test */
     public function document_management_respects_facility_access_permissions()

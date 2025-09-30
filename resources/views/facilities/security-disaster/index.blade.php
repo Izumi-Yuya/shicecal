@@ -263,7 +263,7 @@
                                             'label' => 'ハザードマップ（PDF）',
                                             'value' => !empty($fireDisasterInfo['basic_info']['hazard_map_pdf_name']) ? $fireDisasterInfo['basic_info']['hazard_map_pdf_name'] : null,
                                             'type' => 'file_display',
-                                            'colspan' => 2,
+                                            'colspan' => 3,
                                             'options' => [
                                                 'route' => 'facilities.security-disaster.download-file',
                                                 'params' => [$facility, 'hazard_map'],
@@ -302,75 +302,74 @@
                             <h5 class="mb-0">消防</h5>
                         </div>
 
-                        @php
-                            $firePreventionData = [
-                                [
-                                    'type' => 'standard',
-                                    'cells' => [
-                                        [
-                                            'label' => '防火管理者',
-                                            'value' => $fireDisasterInfo['fire_prevention']['fire_manager'] ?? null,
-                                            'type' => 'text',
-                                            'colspan' => 2
-                                        ],
-                                        [
-                                            'label' => '訓練実施日',
-                                            'value' => $fireDisasterInfo['fire_prevention']['training_date'] ?? null,
-                                            'type' => 'date',
-                                            'colspan' => 1
-                                        ],
-                                        [
-                                            'label' => '訓練報告書（PDF）',
-                                            'value' => !empty($fireDisasterInfo['fire_prevention']['training_report_pdf_name']) ? $fireDisasterInfo['fire_prevention']['training_report_pdf_name'] : null,
-                                            'type' => 'file_display',
-                                            'colspan' => 2,
-                                            'options' => [
-                                                'route' => 'facilities.security-disaster.download-file',
-                                                'params' => [$facility, 'fire_training_report'],
-                                                'display_name' => $fireDisasterInfo['fire_prevention']['training_report_pdf_name'] ?? null
-                                            ]
-                                        ]
-                                    ]
-                                ],
-                                [
-                                    'type' => 'standard',
-                                    'cells' => [
-                                        [
-                                            'label' => '消防設備点検業者',
-                                            'value' => $fireDisasterInfo['fire_prevention']['inspection_company'] ?? null,
-                                            'type' => 'text',
-                                            'colspan' => 2
-                                        ],
-                                        [
-                                            'label' => '点検実施日',
-                                            'value' => $fireDisasterInfo['fire_prevention']['inspection_date'] ?? null,
-                                            'type' => 'date',
-                                            'colspan' => 1
-                                        ],
-                                        [
-                                            'label' => '点検実施報告書（PDF）',
-                                            'value' => !empty($fireDisasterInfo['fire_prevention']['inspection_report_pdf_name']) ? $fireDisasterInfo['fire_prevention']['inspection_report_pdf_name'] : null,
-                                            'type' => 'file_display',
-                                            'colspan' => 2,
-                                            'options' => [
-                                                'route' => 'facilities.security-disaster.download-file',
-                                                'params' => [$facility, 'fire_inspection_report'],
-                                                'display_name' => $fireDisasterInfo['fire_prevention']['inspection_report_pdf_name'] ?? null
-                                            ]
-                                        ]
-                                    ]
-                                ]
-                            ];
-                        @endphp
                         
-                        <x-common-table 
-                            :data="$firePreventionData"
-                            :showHeader="false"
-                            :tableAttributes="['class' => 'table table-bordered fire-prevention-table']"
-                            bodyClass=""
-                            cardClass=""
-                            tableClass="table table-bordered facility-basic-info-table-clean"
-                        />
+                        {{-- 直接HTMLテーブルで6列均等幅を実現 --}}
+                        <table class="table table-bordered fire-prevention-table-direct" style="table-layout: fixed !important; width: 100% !important;"
+                            <tbody>
+                                <tr style="display: flex !important; width: 100% !important;">
+                                    <td class="detail-label" style="flex: 1 1 16.666667% !important; width: 16.666667% !important; min-width: 16.666667% !important; max-width: 16.666667% !important; padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; display: flex !important; align-items: center !important; font-weight: 600 !important; color: #495057 !important; background-color: #f8f9fa !important; box-sizing: border-box !important;">
+                                        防火管理者
+                                    </td>
+                                    <td class="detail-value" style="flex: 1 1 16.666667% !important; width: 16.666667% !important; min-width: 16.666667% !important; max-width: 16.666667% !important; padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; display: flex !important; align-items: center !important; box-sizing: border-box !important;">
+                                        {{ $fireDisasterInfo['fire_prevention']['fire_manager'] ?? '未設定' }}
+                                    </td>
+                                    <td class="detail-label" style="flex: 1 1 16.666667% !important; width: 16.666667% !important; min-width: 16.666667% !important; max-width: 16.666667% !important; padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; display: flex !important; align-items: center !important; font-weight: 600 !important; color: #495057 !important; background-color: #f8f9fa !important; box-sizing: border-box !important;">
+                                        訓練実施日
+                                    </td>
+                                    <td class="detail-value" style="flex: 1 1 16.666667% !important; width: 16.666667% !important; min-width: 16.666667% !important; max-width: 16.666667% !important; padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; display: flex !important; align-items: center !important; box-sizing: border-box !important;">
+                                        @if(!empty($fireDisasterInfo['fire_prevention']['training_date']))
+                                            {{ \Carbon\Carbon::parse($fireDisasterInfo['fire_prevention']['training_date'])->format('Y年m月d日') }}
+                                        @else
+                                            未設定
+                                        @endif
+                                    </td>
+                                    <td class="detail-label" style="flex: 1 1 16.666667% !important; width: 16.666667% !important; min-width: 16.666667% !important; max-width: 16.666667% !important; padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; display: flex !important; align-items: center !important; font-weight: 600 !important; color: #495057 !important; background-color: #f8f9fa !important; box-sizing: border-box !important;">
+                                        訓練報告書（PDF）
+                                    </td>
+                                    <td class="detail-value" style="flex: 1 1 16.666667% !important; width: 16.666667% !important; min-width: 16.666667% !important; max-width: 16.666667% !important; padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; display: flex !important; align-items: center !important; box-sizing: border-box !important;">
+                                        @if(!empty($fireDisasterInfo['fire_prevention']['training_report_pdf_name']))
+                                            <a href="{{ route('facilities.security-disaster.download-file', [$facility, 'fire_training_report']) }}" 
+                                               class="text-decoration-none" target="_blank">
+                                                <i class="fas fa-file-pdf text-danger me-1"></i>{{ $fireDisasterInfo['fire_prevention']['training_report_pdf_name'] }}
+                                            </a>
+                                        @else
+                                            未設定
+                                        @endif
+                                    </td>
+                                </tr>
+                                <tr style="display: flex !important; width: 100% !important;">
+                                    <td class="detail-label" style="flex: 1 1 16.666667% !important; width: 16.666667% !important; min-width: 16.666667% !important; max-width: 16.666667% !important; padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-top: none !important; display: flex !important; align-items: center !important; font-weight: 600 !important; color: #495057 !important; background-color: #f8f9fa !important; box-sizing: border-box !important;">
+                                        消防設備点検業者
+                                    </td>
+                                    <td class="detail-value" style="flex: 1 1 16.666667% !important; width: 16.666667% !important; min-width: 16.666667% !important; max-width: 16.666667% !important; padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; border-top: none !important; display: flex !important; align-items: center !important; box-sizing: border-box !important;">
+                                        {{ $fireDisasterInfo['fire_prevention']['inspection_company'] ?? '未設定' }}
+                                    </td>
+                                    <td class="detail-label" style="flex: 1 1 16.666667% !important; width: 16.666667% !important; min-width: 16.666667% !important; max-width: 16.666667% !important; padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; border-top: none !important; display: flex !important; align-items: center !important; font-weight: 600 !important; color: #495057 !important; background-color: #f8f9fa !important; box-sizing: border-box !important;">
+                                        点検実施日
+                                    </td>
+                                    <td class="detail-value" style="flex: 1 1 16.666667% !important; width: 16.666667% !important; min-width: 16.666667% !important; max-width: 16.666667% !important; padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; border-top: none !important; display: flex !important; align-items: center !important; box-sizing: border-box !important;">
+                                        @if(!empty($fireDisasterInfo['fire_prevention']['inspection_date']))
+                                            {{ \Carbon\Carbon::parse($fireDisasterInfo['fire_prevention']['inspection_date'])->format('Y年m月d日') }}
+                                        @else
+                                            未設定
+                                        @endif
+                                    </td>
+                                    <td class="detail-label" style="flex: 1 1 16.666667% !important; width: 16.666667% !important; min-width: 16.666667% !important; max-width: 16.666667% !important; padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; border-top: none !important; display: flex !important; align-items: center !important; font-weight: 600 !important; color: #495057 !important; background-color: #f8f9fa !important; box-sizing: border-box !important;">
+                                        点検実施報告書（PDF）
+                                    </td>
+                                    <td class="detail-value" style="flex: 1 1 16.666667% !important; width: 16.666667% !important; min-width: 16.666667% !important; max-width: 16.666667% !important; padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; border-top: none !important; display: flex !important; align-items: center !important; box-sizing: border-box !important;">
+                                        @if(!empty($fireDisasterInfo['fire_prevention']['inspection_report_pdf_name']))
+                                            <a href="{{ route('facilities.security-disaster.download-file', [$facility, 'fire_inspection_report']) }}" 
+                                               class="text-decoration-none" target="_blank">
+                                                <i class="fas fa-file-pdf text-danger me-1"></i>{{ $fireDisasterInfo['fire_prevention']['inspection_report_pdf_name'] }}
+                                            </a>
+                                        @else
+                                            未設定
+                                        @endif
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
 
                     <!-- 防災 -->
@@ -388,7 +387,7 @@
                                             'label' => '実地訓練実施日',
                                             'value' => $fireDisasterInfo['disaster_prevention']['practical_training_date'] ?? null,
                                             'type' => 'date',
-                                            'colspan' => 2
+                                            'colspan' => 3
                                         ],
                                         [
                                             'label' => '訓練実施報告書（PDF）',
@@ -410,7 +409,7 @@
                                             'label' => '起動訓練実施日',
                                             'value' => $fireDisasterInfo['disaster_prevention']['riding_training_date'] ?? null,
                                             'type' => 'date',
-                                            'colspan' => 2
+                                            'colspan' => 3
                                         ],
                                         [
                                             'label' => '訓練実施報告書（PDF）',
@@ -432,7 +431,7 @@
                                             'label' => '備蓄品（PDF）',
                                             'value' => !empty($fireDisasterInfo['disaster_prevention']['emergency_supplies_pdf_name']) ? $fireDisasterInfo['disaster_prevention']['emergency_supplies_pdf_name'] : null,
                                             'type' => 'file_display',
-                                            'colspan' => 5,
+                                            'colspan' => 6,
                                             'options' => [
                                                 'route' => 'facilities.security-disaster.download-file',
                                                 'params' => [$facility, 'emergency_supplies'],
@@ -465,7 +464,7 @@
                                             'label' => '備考',
                                             'value' => $fireDisasterInfo['notes'] ?? null,
                                             'type' => 'text',
-                                            'colspan' => 5
+                                            'colspan' => 6
                                         ]
                                     ]
                                 ]
@@ -535,6 +534,138 @@
 .disaster-prevention-table,
 .fire-disaster-notes-table {
     margin-bottom: 0;
+    table-layout: fixed;
+}
+
+/* 消防・防災タブの6列均等幅設定 - 最強セレクター */
+#fire-disaster .fire-disaster-basic-info-table,
+#fire-disaster .fire-prevention-table,
+#fire-disaster .disaster-prevention-table,
+#fire-disaster .fire-disaster-notes-table,
+.security-disaster-container #fire-disaster .fire-disaster-basic-info-table,
+.security-disaster-container #fire-disaster .fire-prevention-table,
+.security-disaster-container #fire-disaster .disaster-prevention-table,
+.security-disaster-container #fire-disaster .fire-disaster-notes-table {
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    table-layout: auto !important;
+}
+
+/* 行をフレックスコンテナに変換 - 最強セレクター */
+#fire-disaster .fire-disaster-basic-info-table tbody tr,
+#fire-disaster .fire-prevention-table tbody tr,
+#fire-disaster .disaster-prevention-table tbody tr,
+#fire-disaster .fire-disaster-notes-table tbody tr,
+.security-disaster-container #fire-disaster .fire-disaster-basic-info-table tbody tr,
+.security-disaster-container #fire-disaster .fire-prevention-table tbody tr,
+.security-disaster-container #fire-disaster .disaster-prevention-table tbody tr,
+.security-disaster-container #fire-disaster .fire-disaster-notes-table tbody tr {
+    display: flex !important;
+    width: 100% !important;
+}
+
+/* 基本情報テーブル - 2列均等（50% + 50%） */
+#fire-disaster .fire-disaster-basic-info-table tbody tr td,
+.security-disaster-container #fire-disaster .fire-disaster-basic-info-table tbody tr td {
+    flex: 1 1 50% !important;
+    width: 50% !important;
+    max-width: 50% !important;
+    min-width: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0.5rem !important;
+    border: 1px solid #dee2e6 !important;
+    border-right: none !important;
+    box-sizing: border-box !important;
+}
+#fire-disaster .fire-disaster-basic-info-table tbody tr td:last-child,
+.security-disaster-container #fire-disaster .fire-disaster-basic-info-table tbody tr td:last-child {
+    border-right: 1px solid #dee2e6 !important;
+}
+
+/* 消防テーブル - 3列均等（33.33% + 33.33% + 33.33%） */
+#fire-disaster .fire-prevention-table tbody tr td,
+.security-disaster-container #fire-disaster .fire-prevention-table tbody tr td {
+    flex: 1 1 33.333333% !important;
+    width: 33.333333% !important;
+    max-width: 33.333333% !important;
+    min-width: 33.333333% !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0.5rem !important;
+    border: 1px solid #dee2e6 !important;
+    border-right: none !important;
+    box-sizing: border-box !important;
+}
+#fire-disaster .fire-prevention-table tbody tr td:last-child,
+.security-disaster-container #fire-disaster .fire-prevention-table tbody tr td:last-child {
+    border-right: 1px solid #dee2e6 !important;
+}
+
+/* 防災テーブル - 動的な列幅 */
+#fire-disaster .disaster-prevention-table tbody tr td[colspan="3"],
+.security-disaster-container #fire-disaster .disaster-prevention-table tbody tr td[colspan="3"] {
+    flex: 1 1 50% !important;
+    width: 50% !important;
+    max-width: 50% !important;
+    min-width: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0.5rem !important;
+    border: 1px solid #dee2e6 !important;
+    border-right: none !important;
+    box-sizing: border-box !important;
+}
+#fire-disaster .disaster-prevention-table tbody tr td[colspan="6"],
+.security-disaster-container #fire-disaster .disaster-prevention-table tbody tr td[colspan="6"] {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0.5rem !important;
+    border: 1px solid #dee2e6 !important;
+    box-sizing: border-box !important;
+}
+#fire-disaster .disaster-prevention-table tbody tr td:last-child,
+.security-disaster-container #fire-disaster .disaster-prevention-table tbody tr td:last-child {
+    border-right: 1px solid #dee2e6 !important;
+}
+
+/* 備考テーブル - 1列全幅 */
+#fire-disaster .fire-disaster-notes-table tbody tr td,
+.security-disaster-container #fire-disaster .fire-disaster-notes-table tbody tr td {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0.5rem !important;
+    border: 1px solid #dee2e6 !important;
+    box-sizing: border-box !important;
+}
+
+/* テキスト調整 */
+#fire-disaster .fire-disaster-basic-info-table td .detail-label,
+#fire-disaster .fire-prevention-table td .detail-label,
+#fire-disaster .disaster-prevention-table td .detail-label,
+#fire-disaster .fire-disaster-notes-table td .detail-label {
+    font-weight: 600 !important;
+    color: #495057 !important;
+    margin-right: 0.5rem !important;
+    white-space: nowrap !important;
+}
+
+#fire-disaster .fire-disaster-basic-info-table td .detail-value,
+#fire-disaster .fire-prevention-table td .detail-value,
+#fire-disaster .disaster-prevention-table td .detail-value,
+#fire-disaster .fire-disaster-notes-table td .detail-value {
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    flex: 1 !important;
 }
 </style>
 @endpush
@@ -556,6 +687,103 @@ document.addEventListener('DOMContentLoaded', function() {
             fireDisasterTabInstance.show();
         }
     }
+    
+    // 消防・防災テーブルの幅を強制的に均等にする
+    function adjustFireDisasterTableWidths() {
+        // 全てのテーブルに対して強制的にスタイルを適用
+        const tables = [
+            { selector: '#fire-disaster .fire-disaster-basic-info-table', columns: 2 },
+            { selector: '#fire-disaster .fire-prevention-table', columns: 3 },
+            { selector: '#fire-disaster .disaster-prevention-table', columns: 'dynamic' },
+            { selector: '#fire-disaster .fire-disaster-notes-table', columns: 1 }
+        ];
+        
+        tables.forEach(tableConfig => {
+            const table = document.querySelector(tableConfig.selector);
+            if (table) {
+                // テーブル自体のスタイル強制適用
+                table.style.setProperty('width', '100%', 'important');
+                table.style.setProperty('table-layout', 'fixed', 'important');
+                table.style.setProperty('border-collapse', 'separate', 'important');
+                
+                // 全ての行をフレックスに変換
+                const rows = table.querySelectorAll('tbody tr');
+                rows.forEach((row, rowIndex) => {
+                    row.style.setProperty('display', 'flex', 'important');
+                    row.style.setProperty('width', '100%', 'important');
+                    
+                    const cells = row.querySelectorAll('td');
+                    cells.forEach((cell, cellIndex) => {
+                        // セルの基本スタイル
+                        cell.style.setProperty('display', 'flex', 'important');
+                        cell.style.setProperty('align-items', 'center', 'important');
+                        cell.style.setProperty('padding', '0.75rem 0.5rem', 'important');
+                        cell.style.setProperty('border', '1px solid #dee2e6', 'important');
+                        cell.style.setProperty('box-sizing', 'border-box', 'important');
+                        cell.style.setProperty('vertical-align', 'middle', 'important');
+                        
+                        // テーブル別の幅設定
+                        if (tableConfig.columns === 2) {
+                            // 基本情報テーブル: 2列均等
+                            cell.style.setProperty('flex', '1 1 50%', 'important');
+                            cell.style.setProperty('width', '50%', 'important');
+                            cell.style.setProperty('max-width', '50%', 'important');
+                            cell.style.setProperty('min-width', '50%', 'important');
+                        } else if (tableConfig.columns === 3) {
+                            // 消防テーブル: 3列均等
+                            cell.style.setProperty('flex', '1 1 33.333333%', 'important');
+                            cell.style.setProperty('width', '33.333333%', 'important');
+                            cell.style.setProperty('max-width', '33.333333%', 'important');
+                            cell.style.setProperty('min-width', '33.333333%', 'important');
+                        } else if (tableConfig.columns === 'dynamic') {
+                            // 防災テーブル: colspanに応じて動的
+                            const colspan = parseInt(cell.getAttribute('colspan') || '1');
+                            if (colspan === 3) {
+                                cell.style.setProperty('flex', '1 1 50%', 'important');
+                                cell.style.setProperty('width', '50%', 'important');
+                                cell.style.setProperty('max-width', '50%', 'important');
+                                cell.style.setProperty('min-width', '50%', 'important');
+                            } else if (colspan === 6) {
+                                cell.style.setProperty('flex', '1 1 100%', 'important');
+                                cell.style.setProperty('width', '100%', 'important');
+                                cell.style.setProperty('max-width', '100%', 'important');
+                                cell.style.setProperty('min-width', '100%', 'important');
+                            }
+                        } else if (tableConfig.columns === 1) {
+                            // 備考テーブル: 1列全幅
+                            cell.style.setProperty('flex', '1 1 100%', 'important');
+                            cell.style.setProperty('width', '100%', 'important');
+                            cell.style.setProperty('max-width', '100%', 'important');
+                            cell.style.setProperty('min-width', '100%', 'important');
+                        }
+                        
+                        // ボーダー調整
+                        if (cellIndex === cells.length - 1) {
+                            cell.style.setProperty('border-right', '1px solid #dee2e6', 'important');
+                        } else {
+                            cell.style.setProperty('border-right', 'none', 'important');
+                        }
+                    });
+                });
+            }
+        });
+    }
+
+    
+    // 初期調整
+    adjustFireDisasterTableWidths();
+    
+    // タブ切り替え時にも調整
+    document.addEventListener('shown.bs.tab', function(event) {
+        if (event.target.id === 'fire-disaster-tab') {
+            setTimeout(adjustFireDisasterTableWidths, 100);
+        }
+    });
+    
+    // ウィンドウリサイズ時にも調整
+    window.addEventListener('resize', function() {
+        adjustFireDisasterTableWidths();
+    });
 });
 </script>
 @endpush

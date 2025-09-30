@@ -89,12 +89,12 @@
                             ];
                         @endphp
                         
-                        <div class="equipment-item mb-3">
-                            <div class="equipment-header d-flex align-items-center mb-2">
-                                <span class="equipment-number badge bg-warning text-dark me-2">{{ $index + 1 }}</span>
+                        <div class="equipment-item mb-3 d-flex align-items-start">
+                            <div class="equipment-number-container me-3 flex-shrink-0">
+                                <span class="equipment-number badge bg-warning text-dark">{{ $index + 1 }}</span>
                             </div>
                             
-                            <div class="elevator-eight-column-equal">
+                            <div class="elevator-eight-column-equal flex-grow-1">
                                 <x-common-table 
                                     :data="$elevatorData"
                                     :showHeader="false"

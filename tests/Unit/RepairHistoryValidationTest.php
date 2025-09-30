@@ -99,29 +99,36 @@ class RepairHistoryValidationTest extends TestCase
     }
 
     /**
-     * Test required field validation.
+     * Test optional field validation (no required fields).
      */
-    public function test_required_field_validation()
+    public function test_optional_field_validation()
     {
         $rules = $this->getValidationRules('exterior');
         
-        // Test with empty data
+        // Test with empty data - should pass since no fields are required
         $data = [
             'histories' => [
                 [
-                    // All required fields missing
+                    // All fields optional
                 ]
             ]
         ];
 
         $validator = Validator::make($data, $rules);
-        $this->assertTrue($validator->fails());
+        $this->assertFalse($validator->fails());
         
-        $errors = $validator->errors();
-        $this->assertTrue($errors->has('histories.0.maintenance_date'));
-        $this->assertTrue($errors->has('histories.0.contractor'));
-        $this->assertTrue($errors->has('histories.0.content'));
-        $this->assertTrue($errors->has('histories.0.subcategory'));
+        // Test with minimal valid data
+        $data = [
+            'histories' => [
+                [
+                    'maintenance_date' => '2024-01-01',
+                    'contractor' => 'テスト会社',
+                ]
+            ]
+        ];
+
+        $validator = Validator::make($data, $rules);
+        $this->assertFalse($validator->fails());
     }
 
     /**
@@ -436,7 +443,7 @@ class RepairHistoryValidationTest extends TestCase
     {
         $rules = $this->getValidationRules('exterior');
         
-        // Test with only required fields
+        // Test with some optional fields filled
         $data = [
             'histories' => [
                 [
@@ -444,7 +451,19 @@ class RepairHistoryValidationTest extends TestCase
                     'contractor' => '業者名',
                     'content' => '工事内容',
                     'subcategory' => 'waterproof',
-                    // Optional fields omitted
+                    // All fields are now optional
+                ]
+            ]
+        ];
+
+        $validator = Validator::make($data, $rules);
+        $this->assertFalse($validator->fails());
+        
+        // Test with completely empty data - should also pass
+        $data = [
+            'histories' => [
+                [
+                    // All fields empty - should pass since all are optional
                 ]
             ]
         ];
@@ -490,18 +509,18 @@ class RepairHistoryValidationTest extends TestCase
     {
         $messages = $this->getValidationMessages();
 
-        // Test that messages exist and are in Japanese
-        $this->assertArrayHasKey('histories.*.maintenance_date.required', $messages);
-        $this->assertEquals('施工日は必須です。', $messages['histories.*.maintenance_date.required']);
+        // Test that messages exist and are in Japanese for non-required fields
+        $this->assertArrayHasKey('histories.*.maintenance_date.date', $messages);
+        $this->assertEquals('施工日は有効な日付形式で入力してください。', $messages['histories.*.maintenance_date.date']);
 
-        $this->assertArrayHasKey('histories.*.contractor.required', $messages);
-        $this->assertEquals('施工会社は必須です。', $messages['histories.*.contractor.required']);
+        $this->assertArrayHasKey('histories.*.contractor.max', $messages);
+        $this->assertEquals('会社名は255文字以内で入力してください。', $messages['histories.*.contractor.max']);
 
-        $this->assertArrayHasKey('histories.*.content.required', $messages);
-        $this->assertEquals('修繕内容は必須です。', $messages['histories.*.content.required']);
+        $this->assertArrayHasKey('histories.*.content.max', $messages);
+        $this->assertEquals('修繕内容は500文字以内で入力してください。', $messages['histories.*.content.max']);
 
-        $this->assertArrayHasKey('histories.*.subcategory.required', $messages);
-        $this->assertEquals('区分は必須です。', $messages['histories.*.subcategory.required']);
+        $this->assertArrayHasKey('histories.*.subcategory.max', $messages);
+        $this->assertEquals('種別は50文字以内で入力してください。', $messages['histories.*.subcategory.max']);
     }
 
     /**

@@ -1239,5 +1239,45 @@ function toggleAutoRenewalDetails() {
 // ページ読み込み時に初期状態を設定
 document.addEventListener('DOMContentLoaded', function() {
     toggleAutoRenewalDetails();
+    
+    // サブタブの切り替えを追跡
+    const subTabs = document.querySelectorAll('#contractsEditTabs .nav-link');
+    const activeSubTabField = document.getElementById('activeSubTabField');
+    const backButton = document.querySelector('.facility-actions a');
+    
+    // 初期のアクティブサブタブに基づいて戻るボタンのURLを設定
+    updateBackButtonUrl();
+    
+    subTabs.forEach(tab => {
+        tab.addEventListener('shown.bs.tab', function(event) {
+            const targetId = event.target.getAttribute('data-bs-target');
+            let subTabName = 'others';
+            
+            if (targetId === '#meal-service-edit') {
+                subTabName = 'meal-service';
+            } else if (targetId === '#parking-edit') {
+                subTabName = 'parking';
+            }
+            
+            // 隠しフィールドを更新
+            if (activeSubTabField) {
+                activeSubTabField.value = subTabName;
+            }
+            
+            // 戻るボタンのURLを更新
+            updateBackButtonUrl(subTabName);
+        });
+    });
+    
+    function updateBackButtonUrl(subTab = null) {
+        if (!backButton) return;
+        
+        const currentSubTab = subTab || (activeSubTabField ? activeSubTabField.value : 'others');
+        const baseUrl = '{{ route("facilities.show", $facility) }}#contracts';
+        
+        // サブタブ情報をURLフラグメントに追加
+        const newUrl = baseUrl + (currentSubTab !== 'others' ? '-' + currentSubTab : '');
+        backButton.href = newUrl;
+    }
 });
 </script>

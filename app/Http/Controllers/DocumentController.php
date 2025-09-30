@@ -54,16 +54,12 @@ class DocumentController extends Controller
             // Get root folder contents with saved settings
             $folderContents = $this->documentService->getFolderContents($facility, null, $settings);
 
-            // Get storage statistics
-            $storageStats = $this->documentService->getStorageStats($facility);
-
             // Get available file types for filtering
             $availableFileTypes = $this->documentService->getAvailableFileTypes($facility);
 
             return view('facilities.documents.index', compact(
                 'facility',
                 'folderContents',
-                'storageStats',
                 'availableFileTypes'
             ));
 
@@ -79,7 +75,6 @@ class DocumentController extends Controller
                 return view('facilities.documents.index', [
                     'facility' => $facility,
                     'folderContents' => ['folders' => [], 'files' => [], 'sort_options' => []],
-                    'storageStats' => ['total_files' => 0, 'total_size' => 0],
                     'availableFileTypes' => [],
                     'error' => 'ドキュメントの読み込みに失敗しました。'
                 ]);
@@ -1123,27 +1118,5 @@ class DocumentController extends Controller
         }
     }
 
-    /**
-     * キャッシュされた統計情報取得
-     */
-    public function getStats(Facility $facility): JsonResponse
-    {
-        try {
-            $this->authorize('viewAny', [DocumentFolder::class, $facility]);
 
-            $stats = $this->documentService->getCachedStorageStats($facility);
-
-            return response()->json([
-                'success' => true,
-                'data' => $stats,
-                'message' => '統計情報を取得しました。'
-            ]);
-
-        } catch (Exception $e) {
-            return DocumentErrorHandler::handleError($e, request(), [
-                'facility_id' => $facility->id,
-                'operation' => 'document_get_stats'
-            ]);
-        }
-    }
 }

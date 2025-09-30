@@ -139,11 +139,24 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/download/{type}', [\App\Http\Controllers\SecurityDisasterController::class, 'downloadFile'])->name('download-file');
         });
 
+        // Contracts routes
+        Route::prefix('contracts')->name('contracts.')->group(function () {
+            Route::get('/edit', [ContractsController::class, 'edit'])->name('edit');
+            Route::put('/', [ContractsController::class, 'update'])->name('update');
+        });
+
         // Repair history routes
         Route::prefix('repair-history')->name('repair-history.')->group(function () {
             Route::get('/', [\App\Http\Controllers\RepairHistoryController::class, 'index'])->name('index');
             Route::get('/{category}/edit', [\App\Http\Controllers\RepairHistoryController::class, 'edit'])->name('edit');
             Route::put('/{category}', [\App\Http\Controllers\RepairHistoryController::class, 'update'])->name('update');
+        });
+
+        // Drawings routes
+        Route::prefix('drawings')->name('drawings.')->group(function () {
+            Route::get('/edit', [\App\Http\Controllers\DrawingController::class, 'edit'])->name('edit');
+            Route::put('/', [\App\Http\Controllers\DrawingController::class, 'update'])->name('update');
+            Route::get('/download/{type}', [\App\Http\Controllers\DrawingController::class, 'downloadFile'])->name('download');
         });
 
         // Document management routes with enhanced security
@@ -153,7 +166,7 @@ Route::middleware(['auth'])->group(function () {
             
             // Performance optimization routes
             Route::get('/folders/{folder?}/virtual', [\App\Http\Controllers\DocumentController::class, 'showVirtual'])->name('folders.virtual');
-            Route::get('/stats', [\App\Http\Controllers\DocumentController::class, 'getStats'])->name('stats');
+
             
             Route::post('/folders', [\App\Http\Controllers\DocumentController::class, 'createFolder'])->name('folders.store');
             Route::put('/folders/{folder}', [\App\Http\Controllers\DocumentController::class, 'renameFolder'])->name('folders.update');

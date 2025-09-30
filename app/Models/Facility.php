@@ -279,6 +279,14 @@ class Facility extends Model
     }
 
     /**
+     * Get the drawing information associated with this facility
+     */
+    public function drawing(): HasOne
+    {
+        return $this->hasOne(FacilityDrawing::class);
+    }
+
+    /**
      * Get document files in the root directory (no folder)
      */
     public function rootDocumentFiles(): HasMany

@@ -375,27 +375,7 @@ class DocumentServiceTest extends TestCase
         $this->assertEquals('Child', $breadcrumbs[2]['name']);
     }
 
-    /** @test */
-    public function it_calculates_storage_stats_correctly()
-    {
-        DocumentFile::factory()->create([
-            'facility_id' => $this->facility->id,
-            'file_size' => 1024,
-            'uploaded_by' => $this->user->id,
-        ]);
 
-        DocumentFile::factory()->create([
-            'facility_id' => $this->facility->id,
-            'file_size' => 2048,
-            'uploaded_by' => $this->user->id,
-        ]);
-
-        $stats = $this->documentService->getStorageStats($this->facility);
-
-        $this->assertEquals(2, $stats['total_files']);
-        $this->assertEquals(3072, $stats['total_size']);
-        $this->assertEquals('3.00 KB', $stats['formatted_size']);
-    }
 
     /** @test */
     public function it_moves_file_to_different_folder()

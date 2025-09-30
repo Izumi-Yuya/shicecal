@@ -86,6 +86,13 @@ class ContractsController extends Controller
 
             // Get the active sub-tab
             $activeSubTab = $request->input('active_sub_tab', 'others');
+            
+            Log::info('Contracts update redirect', [
+                'facility_id' => $facility->id,
+                'user_id' => auth()->id(),
+                'active_sub_tab' => $activeSubTab,
+                'request_data' => $request->only(['active_sub_tab'])
+            ]);
 
             // Return appropriate response based on request type
             if ($request->expectsJson()) {
@@ -96,8 +103,17 @@ class ContractsController extends Controller
                 ]);
             }
 
-            return redirect()
-                ->route('facilities.show', $facility)
+            // 契約書詳細画面（該当するサブタブ）にリダイレクト
+            $fragmentSuffix = '';
+            if ($activeSubTab === 'meal-service') {
+                $fragmentSuffix = '-meal-service';
+            } elseif ($activeSubTab === 'parking') {
+                $fragmentSuffix = '-parking';
+            }
+            
+            $redirectUrl = route('facilities.show', $facility) . '#contracts' . $fragmentSuffix;
+            
+            return redirect($redirectUrl)
                 ->with('success', '契約書を更新しました。')
                 ->with('activeTab', 'contracts')
                 ->with('activeSubTab', $activeSubTab);

@@ -58,13 +58,7 @@
                 <tr>
                     <td class="detail-label" style="padding: 0.5rem;">有無</td>
                     <td class="detail-value {{ empty($pasInfo['availability']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
-                        @if(!empty($pasInfo['availability']))
-                            <span class="badge {{ $pasInfo['availability'] === '有' ? 'bg-success' : 'bg-secondary' }}">
-                                {{ $pasInfo['availability'] }}
-                            </span>
-                        @else
-                            未設定
-                        @endif
+                        {{ $pasInfo['availability'] ?? '未設定' }}
                     </td>
                     <td class="detail-label" style="padding: 0.5rem;">更新年月日</td>
                     <td class="detail-value {{ empty($pasInfo['update_date']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
@@ -83,18 +77,20 @@
 <div class="mb-3" style="position: relative; overflow: visible;">
     <h6 style="margin: 0 0 0.5rem 0; font-weight: bold; color: #333;">キュービクル</h6>
     <div class="table-responsive" style="overflow: visible;">
-        <table class="table table-bordered facility-basic-info-table-clean" style="--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0;">
+        <table class="table table-bordered facility-basic-info-table-clean" style="--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0; table-layout: fixed;">
+            <colgroup>
+                <col style="width: 16.67%;">
+                <col style="width: 16.67%;">
+                <col style="width: 16.67%;">
+                <col style="width: 16.67%;">
+                <col style="width: 16.67%;">
+                <col style="width: 16.67%;">
+            </colgroup>
             <tbody>
                 <tr>
                     <td class="detail-label" style="padding: 0.5rem;">有無</td>
-                    <td class="detail-value {{ empty($cubicleInfo['availability']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
-                        @if(!empty($cubicleInfo['availability']))
-                            <span class="badge {{ $cubicleInfo['availability'] === '有' ? 'bg-success' : 'bg-secondary' }}">
-                                {{ $cubicleInfo['availability'] }}
-                            </span>
-                        @else
-                            未設定
-                        @endif
+                    <td class="detail-value {{ empty($cubicleInfo['availability']) ? 'empty-field' : '' }}" style="padding: 0.5rem;" colspan="5">
+                        {{ $cubicleInfo['availability'] ?? '未設定' }}
                     </td>
                 </tr>
                 @if(!empty($cubicleInfo['availability']) && $cubicleInfo['availability'] === '有')
@@ -148,18 +144,20 @@
 <div class="mb-3" style="position: relative; overflow: visible;">
     <h6 style="margin: 0 0 0.5rem 0; font-weight: bold; color: #333;">非常用発電機</h6>
     <div class="table-responsive" style="overflow: visible;">
-        <table class="table table-bordered facility-basic-info-table-clean" style="--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0;">
+        <table class="table table-bordered facility-basic-info-table-clean" style="--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0; table-layout: fixed;">
+            <colgroup>
+                <col style="width: 16.67%;">
+                <col style="width: 16.67%;">
+                <col style="width: 16.67%;">
+                <col style="width: 16.67%;">
+                <col style="width: 16.67%;">
+                <col style="width: 16.67%;">
+            </colgroup>
             <tbody>
                 <tr>
                     <td class="detail-label" style="padding: 0.5rem;">有無</td>
-                    <td class="detail-value {{ empty($generatorInfo['availability']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
-                        @if(!empty($generatorInfo['availability']))
-                            <span class="badge {{ $generatorInfo['availability'] === '有' ? 'bg-success' : 'bg-secondary' }}">
-                                {{ $generatorInfo['availability'] }}
-                            </span>
-                        @else
-                            未設定
-                        @endif
+                    <td class="detail-value {{ empty($generatorInfo['availability']) ? 'empty-field' : '' }}" style="padding: 0.5rem;" colspan="5">
+                        {{ $generatorInfo['availability'] ?? '未設定' }}
                     </td>
                 </tr>
                 @if(!empty($generatorInfo['availability']) && $generatorInfo['availability'] === '有')

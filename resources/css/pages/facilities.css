@@ -368,6 +368,54 @@
   font-weight: 600;
 }
 
+/* Gas Equipment Number Layout - Number beside table */
+.gas-equipment-sections .equipment-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.gas-equipment-sections .equipment-number-badge {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-top: 2px;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.gas-equipment-sections .equipment-table-container {
+  flex: 1;
+  min-width: 0;
+}
+
+.gas-equipment-sections .equipment-table-container .table {
+  margin-bottom: 0;
+}
+
+/* Responsive adjustments for gas equipment number layout */
+@media (max-width: 768px) {
+  .gas-equipment-sections .equipment-item {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .gas-equipment-sections .equipment-number-badge {
+    align-self: flex-start;
+    width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
+  }
+}
+
 /* File Upload Styles */
 .current-file .alert {
   margin-bottom: 0;
@@ -691,12 +739,12 @@
 
 /* Base Table Styles */
 .table-bordered {
-  border: 2px solid var(--border-light);
+  border: 1px solid var(--border-light);
 }
 
 .table-bordered td,
 .table-bordered th {
-  border: 1px solid var(--border-lighter);
+  border: 1px solid var(--border-light);
 }
 
 /* Unified Column Layout for Facility Tables */
@@ -792,7 +840,8 @@
 .facility-basic-info-table-clean {
   width: 100% !important;
   margin-bottom: 0 !important;
-  border-collapse: collapse !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
   display: table !important;
 }
 
@@ -838,7 +887,7 @@
   width: 15% !important;
   padding: var(--spacing-sm) !important;
   font-size: var(--font-size-sm) !important;
-  border: 1px solid var(--border-light) !important;
+  border: 1px solid var(--border-lighter) !important;
   vertical-align: middle !important;
   color: var(--text-secondary) !important;
 }
@@ -848,7 +897,7 @@
   background-color: var(--bg-white) !important;
   padding: var(--spacing-sm) !important;
   font-size: var(--font-size-sm) !important;
-  border: 1px solid var(--border-light) !important;
+  border: 1px solid var(--border-lighter) !important;
   vertical-align: middle !important;
   color: var(--text-primary) !important;
 }
@@ -893,12 +942,23 @@
 /* ========================================
    Services Table
    ======================================== */
+/* Water Equipment Tables - Override border-collapse */
+.water-equipment-sections .table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+.water-equipment-sections .table td {
+  border: 1px solid #e9ecef !important;
+}
+
 .facility-services-table,
 .facility-services-table-clean {
   width: 100%;
   margin-bottom: 0;
   background-color: transparent;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
 .facility-services-table td,
@@ -974,4 +1034,280 @@
 .facility-services-table tr:hover .service-type-value,
 .facility-services-table tr:hover .service-period-value {
   background-color: var(--bg-light) !important;
+}
+
+/* ========================================
+   Gas Equipment Styles
+   ======================================== */
+
+/* Gas Equipment Number Layout - Number beside table */
+.gas-equipment-sections .equipment-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md) !important;
+}
+
+.gas-equipment-sections .equipment-number-badge {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-top: 2px;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.gas-equipment-sections .equipment-table-container {
+  flex: 1;
+  min-width: 0;
+}
+
+.gas-equipment-sections .equipment-table-container .table {
+  margin-bottom: 0;
+}
+
+/* Gas Equipment 3-Column Equal Width Layout */
+.gas-equipment-sections .water-heater-equipment-table {
+  table-layout: fixed !important;
+  width: 100% !important;
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+}
+
+.gas-equipment-sections .water-heater-equipment-table td {
+  width: 33.33% !important;
+  max-width: 33.33% !important;
+  min-width: 33.33% !important;
+  padding: 8px 6px !important;
+  border: 1px solid var(--border-light) !important;
+  vertical-align: middle !important;
+  font-size: var(--font-size-xs) !important;
+  line-height: 1.3 !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  box-sizing: border-box !important;
+}
+
+/* Force equal width for each column specifically */
+.gas-equipment-sections .water-heater-equipment-table td:nth-child(1),
+.gas-equipment-sections .water-heater-equipment-table td:nth-child(2),
+.gas-equipment-sections .water-heater-equipment-table td:nth-child(3) {
+  width: 33.33% !important;
+  max-width: 33.33% !important;
+  min-width: 33.33% !important;
+}
+
+/* Override any existing table column width rules */
+.gas-equipment-sections .facility-basic-info-table-clean tr td:nth-child(1),
+.gas-equipment-sections .facility-basic-info-table-clean tr td:nth-child(2),
+.gas-equipment-sections .facility-basic-info-table-clean tr td:nth-child(3),
+.gas-equipment-sections .facility-basic-info-table-clean tr td:nth-child(4) {
+  width: 33.33% !important;
+  max-width: 33.33% !important;
+  min-width: 33.33% !important;
+}
+
+/* Ensure gas equipment tables ignore global table rules */
+.gas-equipment-sections .table.facility-basic-info-table-clean {
+  table-layout: fixed !important;
+}
+
+.gas-equipment-sections .table.facility-basic-info-table-clean td {
+  width: 33.33% !important;
+  max-width: 33.33% !important;
+  min-width: 33.33% !important;
+}
+
+/* Gas Equipment Wrapper (水道の加圧ポンプスタイルを参考) */
+.gas-equipment-wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md) !important;
+}
+
+.gas-equipment-wrapper.numbered-equipment {
+  position: relative;
+}
+
+.gas-equipment-wrapper .equipment-number-badge {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.gas-equipment-wrapper .equipment-number-badge .badge {
+  font-size: 0.9rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.gas-equipment-wrapper .gas-six-column-equal {
+  flex: 1;
+  min-width: 0;
+}
+
+/* No Equipment Message */
+.no-equipment-message {
+  margin-top: var(--spacing-md);
+}
+
+.gas-equipment-sections .water-heater-equipment-table .detail-label {
+  background-color: var(--bg-light) !important;
+  font-weight: 600 !important;
+  color: var(--text-secondary) !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.gas-equipment-sections .water-heater-equipment-table .detail-value {
+  background-color: var(--bg-white) !important;
+  color: var(--text-primary) !important;
+  text-align: center !important;
+}
+
+/* Remove gaps between equipment items */
+.gas-equipment-sections .equipment-list {
+  margin-top: var(--spacing-md) !important;
+}
+
+.gas-equipment-sections .equipment-item:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Responsive adjustments for gas equipment */
+@media (max-width: 1200px) {
+  .gas-equipment-sections .water-heater-equipment-table td {
+    padding: 6px 4px !important;
+    font-size: 0.7rem !important;
+  }
+}
+
+@media (max-width: 992px) {
+  .gas-equipment-sections .water-heater-equipment-table td {
+    padding: 4px 2px !important;
+    font-size: 0.65rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .gas-unified-table {
+    table-layout: auto !important;
+  }
+
+  .gas-unified-table tr:first-child td:nth-child(1) {
+    width: 30% !important;
+    min-width: 80px !important;
+  }
+
+  .gas-unified-table tr:first-child td:nth-child(2) {
+    width: 70% !important;
+  }
+
+  .gas-equipment-with-number {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    align-items: flex-start;
+  }
+
+  .gas-equipment-number-badge {
+    width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
+    align-self: flex-start;
+  }
+
+  .gas-equipment-inner-table td {
+    width: 33.33% !important;
+    padding: 6px 8px !important;
+    font-size: 0.75rem !important;
+  }
+
+  .gas-unified-table td {
+    padding: 6px 8px !important;
+    font-size: 0.75rem !important;
+  }
+}
+
+/* =====
+===================================
+   Elevator Equipment Number Layout - Horizontal
+   ======================================== */
+.elevator-equipment-sections .equipment-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.elevator-equipment-sections .equipment-number-container {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  padding-top: 8px;
+  /* Align with table content */
+}
+
+.elevator-equipment-sections .equipment-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 50%;
+  background-color: #ffc107;
+  color: #212529;
+  border: 2px solid #ffca2c;
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+  transition: all var(--transition-fast);
+}
+
+.elevator-equipment-sections .equipment-number:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+}
+
+.elevator-equipment-sections .elevator-eight-column-equal {
+  flex: 1;
+  min-width: 0;
+}
+
+.elevator-equipment-sections .elevator-eight-column-equal .table {
+  margin-bottom: 0;
+}
+
+/* Responsive adjustments for elevator equipment number layout */
+@media (max-width: 768px) {
+  .elevator-equipment-sections .equipment-item {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .elevator-equipment-sections .equipment-number-container {
+    align-self: flex-start;
+    padding-top: 0;
+  }
+
+  .elevator-equipment-sections .equipment-number {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
 }

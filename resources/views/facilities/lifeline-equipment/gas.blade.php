@@ -11,7 +11,7 @@
             'type' => 'standard',
             'cells' => [
                 ['label' => 'ガス契約会社', 'value' => $basicInfo['gas_supplier'] ?? null, 'type' => 'text', 'width' => '50%'],
-                ['label' => 'ガスの種類', 'value' => $basicInfo['gas_type'] ?? null, 'type' => 'badge', 'options' => ['badge_class' => 'bg-info'], 'width' => '50%'],
+                ['label' => 'ガスの種類', 'value' => $basicInfo['gas_type'] ?? null, 'type' => 'text', 'width' => '50%'],
             ]
         ],
     ];
@@ -51,37 +51,35 @@
         ],
     ];
 
-    // 給湯器テーブルデータの構築
-    $waterHeaterData = [
-        // 第1行：1カラム（設置の有無）
-        [
-            'type' => 'standard',
-            'cells' => [
-                [
-                    'label' => '設置の有無', 
-                    'value' => $waterHeaterInfo['availability'] ?? null, 
-                    'type' => 'text', 
-                    'width' => '100%'
-                ],
-            ]
-        ],
+    // 給湯器データセットの構築（水道の加圧ポンプロジックを参考）
+    $waterHeaterDataSets = [];
+    
+    // 設置の有無を最初に追加
+    $waterHeaterDataSets[] = [
+        'type' => 'availability',
+        'data' => [
+            [
+                'type' => 'standard',
+                'cells' => [
+                    ['label' => '設置の有無', 'value' => $waterHeaterInfo['availability'] ?? null, 'type' => 'text', 'width' => '100%'],
+                ]
+            ],
+        ]
     ];
-
-    // 給湯器設備一覧データの構築（設置の有無が「有」の場合のみ）
-    $waterHeaterEquipmentData = [];
+    
+    // 給湯器が配列形式（複数台）の場合
     if (($waterHeaterInfo['availability'] ?? '') === '有' && !empty($waterHeaters)) {
         foreach ($waterHeaters as $index => $heater) {
-            $waterHeaterEquipmentData[] = [
+            $waterHeaterDataSets[] = [
+                'type' => 'equipment',
                 'number' => $index + 1,
                 'data' => [
-                    // 第1行：メーカー、年式、更新年月日
                     [
                         'type' => 'standard',
                         'cells' => [
-                            ['label' => 'メーカー', 'value' => $heater['manufacturer'] ?? null, 'type' => 'text', 'width' => '25%'],
-                            ['label' => '種類', 'value' => $heater['type'] ?? null, 'type' => 'text', 'width' => '25%'],
-                            ['label' => '年式', 'value' => !empty($heater['model_year']) ? $heater['model_year'] . '年式' : null, 'type' => 'text', 'width' => '25%'],
-                            ['label' => '更新年月日', 'value' => $heater['update_date'] ?? null, 'type' => 'date', 'width' => '25%'],
+                            ['label' => 'メーカー', 'value' => $heater['manufacturer'] ?? null, 'type' => 'text', 'width' => '33.33%'],
+                            ['label' => '年式', 'value' => !empty($heater['model_year']) ? $heater['model_year'] . '年式' : null, 'type' => 'text', 'width' => '33.33%'],
+                            ['label' => '更新年月日', 'value' => $heater['update_date'] ?? null, 'type' => 'date', 'width' => '33.33%'],
                         ]
                     ],
                 ]
@@ -120,49 +118,76 @@
             @endcan
         </div>
 
-        <!-- 給湯器基本情報 -->
-        <x-common-table 
-            :data="$waterHeaterData"
-            :showHeader="false"
-            :tableAttributes="['class' => 'table table-bordered water-heater-info-table']"
-            bodyClass=""
-            cardClass=""
-            tableClass="table table-bordered facility-basic-info-table-clean"
-        />
+        <!-- 設置の有無テーブル -->
+        <div class="gas-six-column-equal">
+            <div class="table-responsive">
+                <table class="table facility-basic-info-table-clean" style="table-layout: fixed; margin-bottom: 0; border: 1px solid #e9ecef;">
+                    <colgroup>
+                        <col style="width: 16.67%;">
+                        <col style="width: 83.33%;">
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <td class="detail-label" style="padding: 0.5rem; border: 1px solid #e9ecef !important;">設置の有無</td>
+                            <td class="detail-value {{ empty($waterHeaterInfo['availability']) ? 'empty-field' : '' }}" style="padding: 0.5rem; border: 1px solid #e9ecef !important;">
+                                {{ $waterHeaterInfo['availability'] ?? '未設定' }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
         <!-- 給湯器設備一覧（設置の有無が「有」の場合のみ表示） -->
-        @if(($waterHeaterInfo['availability'] ?? '') === '有')
-            @if(!empty($waterHeaterEquipmentData))
-                <div class="equipment-list mt-3">
-                   
-                    @foreach($waterHeaterEquipmentData as $equipmentItem)
-                        <div class="equipment-item mb-3">
-                            <div class="equipment-header d-flex align-items-center mb-2">
-                                <span class="equipment-number badge bg-warning text-dark me-2">{{ $equipmentItem['number'] }}</span>
-                                <span class="equipment-title">給湯器 {{ $equipmentItem['number'] }}</span>
-                            </div>
-                            
-                            <div class="gas-eight-column-equal">
-                                <x-common-table 
-                                    :data="$equipmentItem['data']"
-                                    :showHeader="false"
-                                    :tableAttributes="['class' => 'table table-bordered water-heater-equipment-table']"
-                                    bodyClass=""
-                                    cardClass=""
-                                    tableClass="table table-bordered facility-basic-info-table-clean"
-                                />
-                            </div>
+        @if(($waterHeaterInfo['availability'] ?? '') === '有' && !empty($waterHeaters))
+            @foreach($waterHeaters as $index => $heater)
+                <div class="gas-equipment-wrapper mb-3 numbered-equipment">
+                    <div class="equipment-number-badge">
+                        <span class="badge bg-success">{{ $index + 1 }}</span>
+                    </div>
+                    <div class="gas-six-column-equal">
+                        <div class="table-responsive">
+                            <table class="table facility-basic-info-table-clean" style="table-layout: fixed; margin-bottom: 0; border: 1px solid #e9ecef;">
+                                <colgroup>
+                                    <col style="width: 16.67%;">
+                                    <col style="width: 16.67%;">
+                                    <col style="width: 16.67%;">
+                                    <col style="width: 16.67%;">
+                                    <col style="width: 16.67%;">
+                                    <col style="width: 16.67%;">
+                                </colgroup>
+                                <tbody>
+                                    <tr>
+                                        <td class="detail-label" style="padding: 0.5rem; border: 1px solid #e9ecef !important;">メーカー</td>
+                                        <td class="detail-value {{ empty($heater['manufacturer']) ? 'empty-field' : '' }}" style="padding: 0.5rem; border: 1px solid #e9ecef !important;">
+                                            {{ $heater['manufacturer'] ?? '未設定' }}
+                                        </td>
+                                        <td class="detail-label" style="padding: 0.5rem; border: 1px solid #e9ecef !important;">年式</td>
+                                        <td class="detail-value {{ empty($heater['model_year']) ? 'empty-field' : '' }}" style="padding: 0.5rem; border: 1px solid #e9ecef !important;">
+                                            {{ !empty($heater['model_year']) ? $heater['model_year'] . '年式' : '未設定' }}
+                                        </td>
+                                        <td class="detail-label" style="padding: 0.5rem; border: 1px solid #e9ecef !important;">更新年月日</td>
+                                        <td class="detail-value {{ empty($heater['update_date']) ? 'empty-field' : '' }}" style="padding: 0.5rem; border: 1px solid #e9ecef !important;">
+                                            @if(!empty($heater['update_date']))
+                                                {{ \Carbon\Carbon::parse($heater['update_date'])->format('Y年m月d日') }}
+                                            @else
+                                                未設定
+                                            @endif
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                    @endforeach
-                </div>
-            @else
-                <div class="no-equipment-message mt-3">
-                    <div class="alert alert-info mb-0">
-                        <i class="fas fa-info-circle me-2"></i>
-                        給湯器設備の詳細情報が登録されていません。
                     </div>
                 </div>
-            @endif
+            @endforeach
+        @elseif(($waterHeaterInfo['availability'] ?? '') === '有')
+            <div class="no-equipment-message">
+                <div class="alert alert-info mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    給湯器設備の詳細情報が登録されていません。
+                </div>
+            </div>
         @endif
     </div>
 

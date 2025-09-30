@@ -209,7 +209,7 @@
                             <td class="detail-value {{ empty($mealServiceContractData['contract_content']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 {{ $mealServiceContractData['contract_content'] ?: '未設定' }}
                             </td>
-                            <td class="detail-label" style="padding: 0.5rem;">朝食単価</td>
+                            <td class="detail-label" style="padding: 0.5rem;">食単価　朝食</td>
                             <td class="detail-value {{ empty($mealServiceContractData['breakfast_price']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 @if($mealServiceContractData['breakfast_price'])
                                     {{ number_format($mealServiceContractData['breakfast_price']) }}円
@@ -227,7 +227,7 @@
                                     未設定
                                 @endif
                             </td>
-                            <td class="detail-label" style="padding: 0.5rem;">昼食単価</td>
+                            <td class="detail-label" style="padding: 0.5rem;">　　　　昼食</td>
                             <td class="detail-value {{ empty($mealServiceContractData['lunch_price']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 @if($mealServiceContractData['lunch_price'])
                                     {{ number_format($mealServiceContractData['lunch_price']) }}円
@@ -241,7 +241,7 @@
                             <td class="detail-value {{ empty($mealServiceContractData['contract_type']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 {{ $mealServiceContractData['contract_type'] ?: '未設定' }}
                             </td>
-                            <td class="detail-label" style="padding: 0.5rem;">夕食単価</td>
+                            <td class="detail-label" style="padding: 0.5rem;">　　　　夕食</td>
                             <td class="detail-value {{ empty($mealServiceContractData['dinner_price']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 @if($mealServiceContractData['dinner_price'])
                                     {{ number_format($mealServiceContractData['dinner_price']) }}円
@@ -262,7 +262,7 @@
                                     未設定
                                 @endif
                             </td>
-                            <td class="detail-label" style="padding: 0.5rem;">おやつ単価</td>
+                            <td class="detail-label" style="padding: 0.5rem;">　　　　おやつ</td>
                             <td class="detail-value {{ empty($mealServiceContractData['snack_price']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 @if($mealServiceContractData['snack_price'])
                                     {{ number_format($mealServiceContractData['snack_price']) }}円
@@ -285,7 +285,7 @@
                                     未設定
                                 @endif
                             </td>
-                            <td class="detail-label" style="padding: 0.5rem;">行事食単価</td>
+                            <td class="detail-label" style="padding: 0.5rem;">　　　　行事食</td>
                             <td class="detail-value {{ empty($mealServiceContractData['event_meal_price']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 @if($mealServiceContractData['event_meal_price'])
                                     {{ number_format($mealServiceContractData['event_meal_price']) }}円
@@ -299,7 +299,7 @@
                             <td class="detail-value {{ empty($mealServiceContractData['other_matters']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 {{ $mealServiceContractData['other_matters'] ?: '未設定' }}
                             </td>
-                            <td class="detail-label" style="padding: 0.5rem;">職員食単価</td>
+                            <td class="detail-label" style="padding: 0.5rem;">　　　　職員食</td>
                             <td class="detail-value {{ empty($mealServiceContractData['staff_meal_price']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 @if($mealServiceContractData['staff_meal_price'])
                                     {{ number_format($mealServiceContractData['staff_meal_price']) }}円
@@ -618,3 +618,29 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 契約書サブタブのクリックイベントを監視
+    const contractsSubTabs = document.querySelectorAll('#contractsTabs .nav-link');
+    
+    contractsSubTabs.forEach(tab => {
+        tab.addEventListener('shown.bs.tab', function(event) {
+            const targetId = event.target.getAttribute('data-bs-target');
+            let fragmentSuffix = '';
+            
+            if (targetId === '#meal-service') {
+                fragmentSuffix = '-meal-service';
+            } else if (targetId === '#parking') {
+                fragmentSuffix = '-parking';
+            }
+            
+            // URLフラグメントを更新（履歴に追加しない）
+            const newHash = '#contracts' + fragmentSuffix;
+            if (window.location.hash !== newHash) {
+                history.replaceState(null, null, newHash);
+            }
+        });
+    });
+});
+</script>
