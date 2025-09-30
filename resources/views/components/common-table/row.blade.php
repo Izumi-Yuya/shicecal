@@ -100,6 +100,7 @@ Row Component
                     :isLabel="false"
                     :isEmpty="$isEmpty && !$hasLabel"
                     :class="$cellClass"
+                    :width="$cellData['width'] ?? null"
                     :options="$cellData['options'] ?? []"
                     key="cell-single-{{ $rowIndex }}-{{ $cellIndex }}"
                 />
@@ -114,6 +115,7 @@ Row Component
                         :rowspan="$rowspan"
                         :isLabel="true"
                         :class="$cellClass"
+                        :width="$cellData['width'] ?? null"
                         :groupNumber="$cellData['options']['group_number'] ?? null"
                         key="cell-grouped-label-{{ $rowIndex }}-{{ $cellIndex }}"
                     />
@@ -128,6 +130,7 @@ Row Component
                     :isLabel="false"
                     :isEmpty="$isEmpty"
                     :class="$cellClass"
+                    :width="$cellData['width'] ?? null"
                     :options="$cellData['options'] ?? []"
                     key="cell-grouped-value-{{ $rowIndex }}-{{ $cellIndex }}"
                 />
@@ -143,6 +146,7 @@ Row Component
                         :rowspan="$rowspan"
                         :isLabel="true"
                         :class="$cellClass"
+                        :width="$cellData['width'] ?? null"
                         key="cell-label-only-{{ $rowIndex }}-{{ $cellIndex }}"
                     />
                 @elseif($hasLabel)
@@ -155,6 +159,7 @@ Row Component
                         :rowspan="$rowspan"
                         :isLabel="true"
                         :class="$cellClass"
+                        :width="$cellData['width'] ?? null"
                         key="cell-standard-label-{{ $rowIndex }}-{{ $cellIndex }}"
                     />
                     
@@ -167,6 +172,7 @@ Row Component
                         :isLabel="false"
                         :isEmpty="$isEmpty"
                         :class="$cellClass"
+                        :width="$cellData['width'] ?? null"
                         :options="$cellData['options'] ?? []"
                         key="cell-standard-value-{{ $rowIndex }}-{{ $cellIndex }}"
                     />
@@ -181,6 +187,7 @@ Row Component
                         :isLabel="false"
                         :isEmpty="$isEmpty"
                         :class="$cellClass"
+                        :width="$cellData['width'] ?? null"
                         :options="$cellData['options'] ?? []"
                         key="cell-value-only-{{ $rowIndex }}-{{ $cellIndex }}"
                     />

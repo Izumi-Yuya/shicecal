@@ -10,5 +10,8 @@
 @import 'land-info-final.css';
 @import 'components/facility-form.css';
 @import 'detail-table-clean.css';
+@import 'water-equipment.css';
+@import 'gas-equipment.css';
+@import 'elevator-equipment.css';
 
 /* Page-specific styles can be added here if needed */

@@ -80,6 +80,11 @@
                                 <i class="fas fa-shield-alt me-2"></i>防犯・防災
                             </button>
                         </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="repair-history-tab" data-bs-toggle="tab" data-bs-target="#repair-history" type="button" role="tab" aria-controls="repair-history" aria-selected="false">
+                                <i class="fas fa-wrench me-2"></i>修繕履歴
+                            </button>
+                        </li>
                     </ul>
                 </div>
                 
@@ -250,6 +255,18 @@
                         
                         <!-- Security Disaster Content -->
                         @include('facilities.security-disaster.index', ['facility' => $facility])
+                    </div>
+                    
+                    <div class="tab-pane fade" id="repair-history" role="tabpanel" aria-labelledby="repair-history-tab">
+                        <!-- 修繕履歴タブヘッダー -->
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="mb-0">
+                                <i class="fas fa-wrench text-primary me-2"></i>修繕履歴
+                            </h4>
+                        </div>
+                        
+                        <!-- Repair History Content -->
+                        @include('facilities.repair-history.index', ['facility' => $facility])
                     </div>
                 </div>
             </div>
@@ -536,10 +553,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     @endif
     
-    // Handle URL fragments for lifeline equipment tabs
-    function handleLifelineFragment() {
+    // Handle URL fragments for lifeline equipment and repair history tabs
+    function handleFragments() {
         const hash = window.location.hash.substring(1); // Remove #
         const lifelineCategories = ['electrical', 'water', 'gas', 'elevator', 'hvac-lighting'];
+        const repairHistoryCategories = ['interior', 'exterior', 'other'];
         
         if (lifelineCategories.includes(hash)) {
             // First activate the lifeline equipment main tab
@@ -582,14 +600,55 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }, 100);
             }
+        } else if (repairHistoryCategories.includes(hash)) {
+            // First activate the repair history main tab
+            const repairHistoryTab = document.getElementById('repair-history-tab');
+            const repairHistoryPane = document.getElementById('repair-history');
+            
+            if (repairHistoryTab && repairHistoryPane) {
+                // Activate main repair history tab
+                document.querySelectorAll('#facilityTabs .nav-link').forEach(tab => {
+                    tab.classList.remove('active');
+                    tab.setAttribute('aria-selected', 'false');
+                });
+                document.querySelectorAll('#facilityTabContent .tab-pane').forEach(pane => {
+                    pane.classList.remove('active', 'show');
+                });
+                
+                repairHistoryTab.classList.add('active');
+                repairHistoryTab.setAttribute('aria-selected', 'true');
+                repairHistoryPane.classList.add('active', 'show');
+                
+                // Then activate the specific repair history sub-tab
+                setTimeout(() => {
+                    const subTabButton = document.getElementById(hash + '-tab');
+                    const subTabPane = document.getElementById(hash);
+                    
+                    if (subTabButton && subTabPane) {
+                        // Deactivate all repair history sub-tabs
+                        document.querySelectorAll('#repairHistoryTabs .nav-link').forEach(tab => {
+                            tab.classList.remove('active');
+                            tab.setAttribute('aria-selected', 'false');
+                        });
+                        document.querySelectorAll('#repairHistoryTabContent .tab-pane').forEach(pane => {
+                            pane.classList.remove('active', 'show');
+                        });
+                        
+                        // Activate target sub-tab
+                        subTabButton.classList.add('active');
+                        subTabButton.setAttribute('aria-selected', 'true');
+                        subTabPane.classList.add('active', 'show');
+                    }
+                }, 100);
+            }
         }
     }
     
     // Handle fragment on page load
-    handleLifelineFragment();
+    handleFragments();
     
     // Handle fragment changes
-    window.addEventListener('hashchange', handleLifelineFragment);
+    window.addEventListener('hashchange', handleFragments);
 
     // Lifeline Equipment Tab Functionality
     const lifelineTab = document.getElementById('lifeline-tab');

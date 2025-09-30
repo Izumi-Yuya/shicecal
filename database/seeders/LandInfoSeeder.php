@@ -343,8 +343,8 @@ class LandInfoSeeder extends Seeder
             'management_company_postal_code' => fake()->regexify('\d{3}-\d{4}'),
             'management_company_address' => $this->getManagementCompanyAddress($facility),
             'management_company_building' => $this->getManagementCompanyBuilding(),
-            'management_company_phone' => fake()->regexify('0\d{1,3}-\d{2,4}-\d{4}'),
-            'management_company_fax' => fake()->regexify('0\d{1,3}-\d{2,4}-\d{4}'),
+            'management_company_phone' => fake()->regexify('0\d{1,2}-\d{2,3}-\d{4}'),
+            'management_company_fax' => fake()->regexify('0\d{1,2}-\d{2,3}-\d{4}'),
             'management_company_email' => $this->getManagementCompanyEmail(),
             'management_company_url' => $this->getManagementCompanyUrl(),
             'management_company_notes' => $this->getManagementCompanyNotes(),
@@ -354,8 +354,8 @@ class LandInfoSeeder extends Seeder
             'owner_postal_code' => fake()->regexify('\d{3}-\d{4}'),
             'owner_address' => $this->getOwnerAddress($facility),
             'owner_building' => $this->getOwnerBuilding(),
-            'owner_phone' => fake()->regexify('0\d{1,3}-\d{2,4}-\d{4}'),
-            'owner_fax' => fake()->optional(0.6)->regexify('0\d{1,3}-\d{2,4}-\d{4}'),
+            'owner_phone' => fake()->regexify('0\d{1,2}-\d{2,3}-\d{4}'),
+            'owner_fax' => fake()->optional(0.6)->regexify('0\d{1,2}-\d{2,3}-\d{4}'),
             'owner_email' => fake()->optional(0.8)->safeEmail(),
             'owner_url' => fake()->optional(0.3)->url(),
             'owner_notes' => $this->getOwnerNotes(),
@@ -416,8 +416,8 @@ class LandInfoSeeder extends Seeder
             'owner_postal_code' => fake()->regexify('\d{3}-\d{4}'),
             'owner_address' => $this->getTenantAddress($facility),
             'owner_building' => $this->getTenantBuilding(),
-            'owner_phone' => fake()->regexify('0\d{1,3}-\d{2,4}-\d{4}'),
-            'owner_fax' => fake()->regexify('0\d{1,3}-\d{2,4}-\d{4}'),
+            'owner_phone' => fake()->regexify('0\d{1,2}-\d{2,3}-\d{4}'),
+            'owner_fax' => fake()->regexify('0\d{1,2}-\d{2,3}-\d{4}'),
             'owner_email' => $this->getTenantEmail(),
             'owner_url' => $this->getTenantUrl(),
             'owner_notes' => $this->getTenantNotes(),
@@ -613,22 +613,23 @@ class LandInfoSeeder extends Seeder
         // Try to get same prefecture as facility
         if (str_contains($facility->address, '東京都')) {
             return fake()->randomElement([
-                '東京都新宿区西新宿2-8-1',
-                '東京都港区赤坂1-12-32',
-                '東京都千代田区丸の内1-6-5',
-                '東京都渋谷区道玄坂1-2-3',
+                '新宿区西新宿2-8-1',
+                '港区赤坂1-12-32',
+                '千代田区丸の内1-6-5',
+                '渋谷区道玄坂1-2-3',
             ]);
         }
 
         if (str_contains($facility->address, '大阪府')) {
             return fake()->randomElement([
-                '大阪府大阪市北区梅田1-1-3',
-                '大阪府大阪市中央区本町4-1-13',
-                '大阪府大阪市西区江戸堀1-9-1',
+                '北区梅田1-1-3',
+                '中央区本町4-1-13',
+                '西区江戸堀1-9-1',
             ]);
         }
 
-        return fake()->address();
+        // Generate short address for other locations
+        return fake()->city() . fake()->numberBetween(1, 9) . '-' . fake()->numberBetween(1, 20) . '-' . fake()->numberBetween(1, 30);
     }
 
     /**
@@ -692,22 +693,23 @@ class LandInfoSeeder extends Seeder
         if (fake()->boolean(60)) {
             if (str_contains($facilityAddress, '東京都')) {
                 return fake()->randomElement([
-                    '東京都世田谷区成城1-2-3',
-                    '東京都杉並区阿佐谷南1-4-5',
-                    '東京都練馬区石神井町2-6-7',
-                    '東京都大田区田園調布1-8-9',
+                    '世田谷区成城1-2-3',
+                    '杉並区阿佐谷南1-4-5',
+                    '練馬区石神井町2-6-7',
+                    '大田区田園調布1-8-9',
                 ]);
             }
             if (str_contains($facilityAddress, '大阪府')) {
                 return fake()->randomElement([
-                    '大阪府豊中市緑丘1-2-3',
-                    '大阪府吹田市千里山東1-4-5',
-                    '大阪府枚方市楠葉並木2-6-7',
+                    '豊中市緑丘1-2-3',
+                    '吹田市千里山東1-4-5',
+                    '枚方市楠葉並木2-6-7',
                 ]);
             }
         }
 
-        return fake()->address();
+        // Generate short address for other locations
+        return fake()->city() . fake()->numberBetween(1, 9) . '-' . fake()->numberBetween(1, 20) . '-' . fake()->numberBetween(1, 30);
     }
 
     /**
@@ -720,22 +722,23 @@ class LandInfoSeeder extends Seeder
         // Tenant companies often have offices in business districts
         if (str_contains($facilityAddress, '東京都')) {
             return fake()->randomElement([
-                '東京都千代田区丸の内1-1-1',
-                '東京都港区虎ノ門1-2-3',
-                '東京都新宿区西新宿2-4-5',
-                '東京都渋谷区恵比寿1-6-7',
+                '千代田区丸の内1-1-1',
+                '港区虎ノ門1-2-3',
+                '新宿区西新宿2-4-5',
+                '渋谷区恵比寿1-6-7',
             ]);
         }
 
         if (str_contains($facilityAddress, '大阪府')) {
             return fake()->randomElement([
-                '大阪府大阪市北区梅田1-1-1',
-                '大阪府大阪市中央区本町2-3-4',
-                '大阪府大阪市西区江戸堀1-5-6',
+                '北区梅田1-1-1',
+                '中央区本町2-3-4',
+                '西区江戸堀1-5-6',
             ]);
         }
 
-        return fake()->address();
+        // Generate short address for other locations
+        return fake()->city() . fake()->numberBetween(1, 9) . '-' . fake()->numberBetween(1, 20) . '-' . fake()->numberBetween(1, 30);
     }
 
     /**

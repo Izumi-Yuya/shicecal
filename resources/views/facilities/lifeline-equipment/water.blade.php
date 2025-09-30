@@ -13,71 +13,71 @@
         [
             'type' => 'standard',
             'cells' => [
-                ['label' => '水道契約会社', 'value' => $basicInfo['water_contractor'] ?? null, 'type' => 'text'],
+                ['label' => '水道契約会社', 'value' => $basicInfo['water_contractor'] ?? null, 'type' => 'text', 'width' => '100%'],
             ]
         ],
-        // 第2行：3カラム（受水槽清掃関連）
+        // 第2行：3カラム（受水槽清掃業者、実施日、報告書）
         [
             'type' => 'standard',
             'cells' => [
-                ['label' => '受水槽清掃業者', 'value' => $basicInfo['tank_cleaning_company'] ?? null, 'type' => 'text'],
-                ['label' => '受水槽清掃実施日', 'value' => $basicInfo['tank_cleaning_date'] ?? null, 'type' => 'date'],
-                ['label' => '受水槽清掃報告書', 'value' => $basicInfo['tank_cleaning']['tank_cleaning_report_pdf'] ?? null, 'type' => 'file_display', 'options' => ['route' => 'facilities.lifeline-equipment.download-file', 'params' => [$facility, 'water', 'tank_cleaning_report'], 'display_name' => 'ダウンロード']],
+                ['label' => '受水槽清掃業者', 'value' => $basicInfo['tank_cleaning_company'] ?? null, 'type' => 'text', 'width' => '33.33%'],
+                ['label' => '受水槽清掃実施日', 'value' => $basicInfo['tank_cleaning_date'] ?? null, 'type' => 'date', 'width' => '33.33%'],
+                ['label' => '受水槽清掃報告書', 'value' => $basicInfo['tank_cleaning']['tank_cleaning_report_pdf'] ?? null, 'type' => 'file_display', 'options' => ['route' => 'facilities.lifeline-equipment.download-file', 'params' => [$facility, 'water', 'tank_cleaning_report'], 'display_name' => 'ダウンロード'], 'width' => '33.33%'],
             ]
         ],
     ];
 
     // ろ過器テーブルデータの構築
     $filterData = [
-        // 第1行：1カラム（浴槽方式）
+        // 第1行：1カラム（浴槽循環方式）
         [
             'type' => 'standard',
             'cells' => [
-                ['label' => '浴槽循環方式', 'value' => $filterInfo['bath_system'] ?? null, 'type' => 'badge', 'options' => ['badge_class' => 'bg-info']],
+                ['label' => '浴槽循環方式', 'value' => $filterInfo['bath_system'] ?? null, 'type' => 'badge', 'options' => ['badge_class' => 'bg-info'], 'width' => '100%'],
             ]
         ],
-        // 第2行：3カラム（有無、メーカー、年式）
+        // 第2行：3カラム（設置の有無、メーカー、年式）
         [
             'type' => 'standard',
             'cells' => [
-                ['label' => '設置の有無', 'value' => $filterInfo['availability'] ?? null, 'type' => 'badge', 'options' => ['badge_class' => 'availability']],
-                ['label' => 'メーカー', 'value' => $filterInfo['manufacturer'] ?? null, 'type' => 'text'],
-                ['label' => '年式', 'value' => !empty($filterInfo['model_year']) ? $filterInfo['model_year'] . '年式' : null, 'type' => 'text'],
+                ['label' => '設置の有無', 'value' => $filterInfo['availability'] ?? null, 'type' => 'badge', 'options' => ['badge_class' => 'availability'], 'width' => '33.33%'],
+                ['label' => 'メーカー', 'value' => $filterInfo['manufacturer'] ?? null, 'type' => 'text', 'width' => '33.33%'],
+                ['label' => '年式', 'value' => !empty($filterInfo['model_year']) ? $filterInfo['model_year'] . '年式' : null, 'type' => 'text', 'width' => '33.33%'],
             ]
         ],
     ];
 
     // 受水槽テーブルデータの構築
     $tankData = [
-        // 第1行：3カラム（有無、メーカー、年式）
+        // 第1行：3カラム（有無、メーカー、年式）- 6列レイアウト
         [
             'type' => 'standard',
             'cells' => [
-                ['label' => '設置の有無', 'value' => $tankInfo['availability'] ?? null, 'type' => 'badge', 'options' => ['badge_class' => 'availability']],
-                ['label' => 'メーカー', 'value' => $tankInfo['manufacturer'] ?? null, 'type' => 'text'],
-                ['label' => '年式', 'value' => !empty($tankInfo['model_year']) ? $tankInfo['model_year'] . '年式' : null, 'type' => 'text'],
+                ['label' => '設置の有無', 'value' => $tankInfo['availability'] ?? null, 'type' => 'badge', 'options' => ['badge_class' => 'availability'], 'width' => '33.33%'],
+                ['label' => 'メーカー', 'value' => $tankInfo['manufacturer'] ?? null, 'type' => 'text', 'width' => '33.33%'],
+                ['label' => '年式', 'value' => !empty($tankInfo['model_year']) ? $tankInfo['model_year'] . '年式' : null, 'type' => 'text', 'width' => '33.33%'],
             ]
         ],
     ];
 
     // 浄化槽テーブルデータの構築
     $septicTankData = [
-        // 第1行：3カラム（有無、メーカー、年式）
+        // 第1行：3カラム（有無、メーカー、年式）- 6列レイアウト
         [
             'type' => 'standard',
             'cells' => [
-                ['label' => '設置の有無', 'value' => $septicTankInfo['availability'] ?? null, 'type' => 'badge', 'options' => ['badge_class' => 'availability']],
-                ['label' => 'メーカー', 'value' => $septicTankInfo['manufacturer'] ?? null, 'type' => 'text'],
-                ['label' => '年式', 'value' => !empty($septicTankInfo['model_year']) ? $septicTankInfo['model_year'] . '年式' : null, 'type' => 'text'],
+                ['label' => '設置の有無', 'value' => $septicTankInfo['availability'] ?? null, 'type' => 'badge', 'options' => ['badge_class' => 'availability'], 'width' => '33.33%'],
+                ['label' => 'メーカー', 'value' => $septicTankInfo['manufacturer'] ?? null, 'type' => 'text', 'width' => '33.33%'],
+                ['label' => '年式', 'value' => !empty($septicTankInfo['model_year']) ? $septicTankInfo['model_year'] . '年式' : null, 'type' => 'text', 'width' => '33.33%'],
             ]
         ],
         // 第2行：3カラム（点検・清掃業者、実施日、実施報告書）
         [
             'type' => 'standard',
             'cells' => [
-                ['label' => '点検清掃業者', 'value' => $septicTankInfo['inspection_company'] ?? null, 'type' => 'text'],
-                ['label' => '点検清掃実施日', 'value' => $septicTankInfo['inspection_date'] ?? null, 'type' => 'date'],
-                ['label' => '点検清掃実施報告書', 'value' => $septicTankInfo['inspection']['inspection_report_pdf'] ?? null, 'type' => 'file_display', 'options' => ['route' => 'facilities.lifeline-equipment.download-file', 'params' => [$facility, 'water', 'septic_tank_inspection_report'], 'display_name' => 'ダウンロード']],
+                ['label' => '点検清掃業者', 'value' => $septicTankInfo['inspection_company'] ?? null, 'type' => 'text', 'width' => '33.33%'],
+                ['label' => '点検清掃実施日', 'value' => $septicTankInfo['inspection_date'] ?? null, 'type' => 'date', 'width' => '33.33%'],
+                ['label' => '点検清掃実施報告書', 'value' => $septicTankInfo['inspection']['inspection_report_pdf'] ?? null, 'type' => 'file_display', 'options' => ['route' => 'facilities.lifeline-equipment.download-file', 'params' => [$facility, 'water', 'septic_tank_inspection_report'], 'display_name' => 'ダウンロード'], 'width' => '33.33%'],
             ]
         ],
     ];
@@ -94,9 +94,9 @@
                     [
                         'type' => 'standard',
                         'cells' => [
-                            ['label' => 'メーカー', 'value' => $pump['manufacturer'] ?? null, 'type' => 'text'],
-                            ['label' => '年式', 'value' => !empty($pump['model_year']) ? $pump['model_year'] . '年式' : null, 'type' => 'text'],
-                            ['label' => '更新年月日', 'value' => $pump['update_date'] ?? null, 'type' => 'date'],
+                            ['label' => 'メーカー', 'value' => $pump['manufacturer'] ?? null, 'type' => 'text', 'width' => '33.33%'],
+                            ['label' => '年式', 'value' => !empty($pump['model_year']) ? $pump['model_year'] . '年式' : null, 'type' => 'text', 'width' => '33.33%'],
+                            ['label' => '更新年月日', 'value' => $pump['update_date'] ?? null, 'type' => 'date', 'width' => '33.33%'],
                         ]
                     ],
                 ]
@@ -110,9 +110,9 @@
                 [
                     'type' => 'standard',
                     'cells' => [
-                        ['label' => 'メーカー', 'value' => $pumpInfo['manufacturer'] ?? null, 'type' => 'text'],
-                        ['label' => '年式', 'value' => !empty($pumpInfo['model_year']) ? $pumpInfo['model_year'] . '年式' : null, 'type' => 'text'],
-                        ['label' => '更新年月日', 'value' => $pumpInfo['update_date'] ?? null, 'type' => 'date'],
+                        ['label' => 'メーカー', 'value' => $pumpInfo['manufacturer'] ?? null, 'type' => 'text', 'width' => '33.33%'],
+                        ['label' => '年式', 'value' => !empty($pumpInfo['model_year']) ? $pumpInfo['model_year'] . '年式' : null, 'type' => 'text', 'width' => '33.33%'],
+                        ['label' => '更新年月日', 'value' => $pumpInfo['update_date'] ?? null, 'type' => 'date', 'width' => '33.33%'],
                     ]
                 ],
             ]
@@ -132,24 +132,24 @@
                     [
                         'type' => 'standard',
                         'cells' => [
-                            ['label' => '実施日', 'value' => $inspection['inspection_date'] ?? null, 'type' => 'date'],
-                            ['label' => '検査結果報告書', 'value' => $inspection['report']['report_pdf'] ?? null, 'type' => 'file_display', 'options' => ['route' => 'facilities.lifeline-equipment.download-file', 'params' => [$facility, 'water', 'legionella_report_' . $index], 'display_name' => 'ダウンロード']],
+                            ['label' => '実施日', 'value' => $inspection['inspection_date'] ?? null, 'type' => 'date', 'width' => '50%'],
+                            ['label' => '検査結果報告書', 'value' => $inspection['report']['report_pdf'] ?? null, 'type' => 'file_display', 'options' => ['route' => 'facilities.lifeline-equipment.download-file', 'params' => [$facility, 'water', 'legionella_report_' . $index], 'display_name' => 'ダウンロード'], 'width' => '50%'],
                         ]
                     ],
                     // 第2行：検査結果（初回）、数値（陽性の場合）
                     [
                         'type' => 'standard',
                         'cells' => [
-                            ['label' => '検査結果（初回）', 'value' => $inspection['first_result'] ?? null, 'type' => 'badge', 'options' => ['badge_class' => ($inspection['first_result'] ?? '') === '陽性' ? 'bg-danger' : 'bg-success']],
-                            ['label' => '数値（陽性の場合）', 'value' => $inspection['first_value'] ?? null, 'type' => 'text'],
+                            ['label' => '検査結果（初回）', 'value' => $inspection['first_result'] ?? null, 'type' => 'badge', 'options' => ['badge_class' => ($inspection['first_result'] ?? '') === '陽性' ? 'bg-danger' : 'bg-success'], 'width' => '50%'],
+                            ['label' => '数値（陽性の場合）', 'value' => $inspection['first_value'] ?? null, 'type' => 'text', 'width' => '50%'],
                         ]
                     ],
                     // 第3行：検査結果（2回目）、数値（陽性の場合）
                     [
                         'type' => 'standard',
                         'cells' => [
-                            ['label' => '検査結果（2回目）', 'value' => $inspection['second_result'] ?? null, 'type' => 'badge', 'options' => ['badge_class' => ($inspection['second_result'] ?? '') === '陽性' ? 'bg-danger' : 'bg-success']],
-                            ['label' => '数値（陽性の場合）', 'value' => $inspection['second_value'] ?? null, 'type' => 'text'],
+                            ['label' => '検査結果（2回目）', 'value' => $inspection['second_result'] ?? null, 'type' => 'badge', 'options' => ['badge_class' => ($inspection['second_result'] ?? '') === '陽性' ? 'bg-danger' : 'bg-success'], 'width' => '50%'],
+                            ['label' => '数値（陽性の場合）', 'value' => $inspection['second_value'] ?? null, 'type' => 'text', 'width' => '50%'],
                         ]
                     ],
                 ]
@@ -164,24 +164,24 @@
                 [
                     'type' => 'standard',
                     'cells' => [
-                        ['label' => '実施日', 'value' => $legionellaInfo['inspection_date'] ?? null, 'type' => 'date'],
-                        ['label' => '検査結果報告書', 'value' => $legionellaInfo['report']['report_pdf'] ?? null, 'type' => 'file_display', 'options' => ['route' => 'facilities.lifeline-equipment.download-file', 'params' => [$facility, 'water', 'legionella_report_0'], 'display_name' => 'ダウンロード']],
+                        ['label' => '実施日', 'value' => $legionellaInfo['inspection_date'] ?? null, 'type' => 'date', 'width' => '50%'],
+                        ['label' => '検査結果報告書', 'value' => $legionellaInfo['report']['report_pdf'] ?? null, 'type' => 'file_display', 'options' => ['route' => 'facilities.lifeline-equipment.download-file', 'params' => [$facility, 'water', 'legionella_report_0'], 'display_name' => 'ダウンロード'], 'width' => '50%'],
                     ]
                 ],
                 // 第2行：検査結果（初回）、数値（陽性の場合）
                 [
                     'type' => 'standard',
                     'cells' => [
-                        ['label' => '検査結果（初回）', 'value' => $legionellaInfo['first_result'] ?? null, 'type' => 'badge', 'options' => ['badge_class' => ($legionellaInfo['first_result'] ?? '') === '陽性' ? 'bg-danger' : 'bg-success']],
-                        ['label' => '数値（陽性の場合）', 'value' => $legionellaInfo['first_value'] ?? null, 'type' => 'text'],
+                        ['label' => '検査結果（初回）', 'value' => $legionellaInfo['first_result'] ?? null, 'type' => 'badge', 'options' => ['badge_class' => ($legionellaInfo['first_result'] ?? '') === '陽性' ? 'bg-danger' : 'bg-success'], 'width' => '50%'],
+                        ['label' => '数値（陽性の場合）', 'value' => $legionellaInfo['first_value'] ?? null, 'type' => 'text', 'width' => '50%'],
                     ]
                 ],
                 // 第3行：検査結果（2回目）、数値（陽性の場合）
                 [
                     'type' => 'standard',
                     'cells' => [
-                        ['label' => '検査結果（2回目）', 'value' => $legionellaInfo['second_result'] ?? null, 'type' => 'badge', 'options' => ['badge_class' => ($legionellaInfo['second_result'] ?? '') === '陽性' ? 'bg-danger' : 'bg-success']],
-                        ['label' => '数値（陽性の場合）', 'value' => $legionellaInfo['second_value'] ?? null, 'type' => 'text'],
+                        ['label' => '検査結果（2回目）', 'value' => $legionellaInfo['second_result'] ?? null, 'type' => 'badge', 'options' => ['badge_class' => ($legionellaInfo['second_result'] ?? '') === '陽性' ? 'bg-danger' : 'bg-success'], 'width' => '50%'],
+                        ['label' => '数値（陽性の場合）', 'value' => $legionellaInfo['second_value'] ?? null, 'type' => 'text', 'width' => '50%'],
                     ]
                 ],
             ]
@@ -194,7 +194,7 @@
         [
             'type' => 'standard',
             'cells' => [
-                ['label' => '備考', 'value' => $waterEquipment?->notes ?? null, 'type' => 'text'],
+                ['label' => '備考', 'value' => $waterEquipment?->notes ?? null, 'type' => 'text', 'width' => '100%'],
             ]
         ],
     ];
@@ -203,38 +203,44 @@
 <div class="water-equipment-sections">
     <div class="equipment-section mb-4">
         <h6 class="section-title">基本情報</h6>
-        <x-common-table 
-            :data="$basicInfoData"
-            :showHeader="false"
-            :tableAttributes="['class' => 'table table-bordered water-info-table']"
-            bodyClass=""
-            cardClass=""
-            tableClass="table table-bordered facility-basic-info-table-clean"
-        />
+        <div class="water-six-column-equal">
+            <x-common-table 
+                :data="$basicInfoData"
+                :showHeader="false"
+                :tableAttributes="['class' => 'table table-bordered water-info-table']"
+                bodyClass=""
+                cardClass=""
+                tableClass="table table-bordered facility-basic-info-table-clean"
+            />
+        </div>
     </div>
 
     <div class="equipment-section mb-4">
         <h6 class="section-title">ろ過器</h6>
-        <x-common-table 
-            :data="$filterData"
-            :showHeader="false"
-            :tableAttributes="['class' => 'table table-bordered water-info-table']"
-            bodyClass=""
-            cardClass=""
-            tableClass="table table-bordered facility-basic-info-table-clean"
-        />
+        <div class="water-six-column-equal">
+            <x-common-table 
+                :data="$filterData"
+                :showHeader="false"
+                :tableAttributes="['class' => 'table table-bordered water-info-table']"
+                bodyClass=""
+                cardClass=""
+                tableClass="table table-bordered facility-basic-info-table-clean"
+            />
+        </div>
     </div>
 
     <div class="equipment-section mb-4">
         <h6 class="section-title">受水槽</h6>
-        <x-common-table 
-            :data="$tankData"
-            :showHeader="false"
-            :tableAttributes="['class' => 'table table-bordered water-info-table']"
-            bodyClass=""
-            cardClass=""
-            tableClass="table table-bordered facility-basic-info-table-clean"
-        />
+        <div class="water-six-column-equal">
+            <x-common-table 
+                :data="$tankData"
+                :showHeader="false"
+                :tableAttributes="['class' => 'table table-bordered water-info-table']"
+                bodyClass=""
+                cardClass=""
+                tableClass="table table-bordered facility-basic-info-table-clean"
+            />
+        </div>
     </div>
 
     <div class="equipment-section mb-4">
@@ -246,28 +252,32 @@
                         <span class="badge bg-primary">{{ $pumpSet['number'] }}</span>
                     </div>
                 @endif
-                <x-common-table 
-                    :data="$pumpSet['data']"
-                    :showHeader="false"
-                    :tableAttributes="['class' => 'table table-bordered water-info-table']"
-                    bodyClass=""
-                    cardClass=""
-                    tableClass="table table-bordered facility-basic-info-table-clean"
-                />
+                <div class="water-six-column-equal">
+                    <x-common-table 
+                        :data="$pumpSet['data']"
+                        :showHeader="false"
+                        :tableAttributes="['class' => 'table table-bordered water-info-table']"
+                        bodyClass=""
+                        cardClass=""
+                        tableClass="table table-bordered facility-basic-info-table-clean"
+                    />
+                </div>
             </div>
         @endforeach
     </div>
 
     <div class="equipment-section mb-4">
         <h6 class="section-title">浄化槽</h6>
-        <x-common-table 
-            :data="$septicTankData"
-            :showHeader="false"
-            :tableAttributes="['class' => 'table table-bordered water-info-table']"
-            bodyClass=""
-            cardClass=""
-            tableClass="table table-bordered facility-basic-info-table-clean"
-        />
+        <div class="water-six-column-equal">
+            <x-common-table 
+                :data="$septicTankData"
+                :showHeader="false"
+                :tableAttributes="['class' => 'table table-bordered water-info-table']"
+                bodyClass=""
+                cardClass=""
+                tableClass="table table-bordered facility-basic-info-table-clean"
+            />
+        </div>
     </div>
 
     <div class="equipment-section mb-4">

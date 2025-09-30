@@ -26,19 +26,38 @@ class MaintenanceHistorySeeder extends Seeder
             return;
         }
 
-        // Create maintenance histories for each facility
+        // Create repair history data for each facility
         foreach ($facilities as $facility) {
-            // Create 2-5 maintenance histories per facility
-            $historyCount = rand(2, 5);
+            $editor = $editors->random();
 
-            for ($i = 0; $i < $historyCount; $i++) {
-                MaintenanceHistory::factory()->create([
+            // Create exterior maintenance histories (防水・塗装)
+            $exteriorCount = rand(2, 4);
+            for ($i = 0; $i < $exteriorCount; $i++) {
+                MaintenanceHistory::factory()->exterior()->create([
                     'facility_id' => $facility->id,
-                    'created_by' => $editors->random()->id,
+                    'created_by' => $editor->id,
+                ]);
+            }
+
+            // Create interior maintenance histories (内装リニューアル・意匠)
+            $interiorCount = rand(1, 3);
+            for ($i = 0; $i < $interiorCount; $i++) {
+                MaintenanceHistory::factory()->interior()->create([
+                    'facility_id' => $facility->id,
+                    'created_by' => $editor->id,
+                ]);
+            }
+
+            // Create other maintenance histories (改修工事)
+            $otherCount = rand(3, 6);
+            for ($i = 0; $i < $otherCount; $i++) {
+                MaintenanceHistory::factory()->other()->create([
+                    'facility_id' => $facility->id,
+                    'created_by' => $editor->id,
                 ]);
             }
         }
 
-        $this->command->info('Maintenance histories seeded successfully.');
+        $this->command->info('Repair history maintenance data seeded successfully.');
     }
 }

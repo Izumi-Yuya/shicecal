@@ -1,0 +1,378 @@
+/* Gas Equipment Specific Styles */
+
+/* Gas equipment sections styling */
+.gas-equipment-sections {
+  margin: 0;
+  padding: 0;
+}
+
+.gas-equipment-sections .equipment-section {
+  margin-bottom: 1.5rem;
+}
+
+.gas-equipment-sections .section-title {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 2px solid #e9ecef;
+}
+
+/* Gas equipment table specific styling */
+.gas-info-table,
+.water-heater-info-table,
+.water-heater-equipment-table,
+.floor-heating-info-table {
+  table-layout: fixed !important;
+  width: 100% !important;
+  margin-bottom: 0 !important;
+}
+
+/* Six-column equal width layout for gas equipment */
+.gas-six-column-equal table {
+  table-layout: fixed !important;
+  width: 100% !important;
+}
+
+.gas-six-column-equal td {
+  width: 16.667% !important;
+  max-width: 16.667% !important;
+  min-width: 16.667% !important;
+}
+
+.gas-six-column-equal .detail-label,
+.gas-six-column-equal .detail-value {
+  width: 16.667% !important;
+  max-width: 16.667% !important;
+  min-width: 16.667% !important;
+}
+
+/* Four-column equal width layout for gas equipment (2 columns) */
+.gas-four-column-equal table {
+  table-layout: fixed !important;
+  width: 100% !important;
+}
+
+.gas-four-column-equal td {
+  width: 25% !important;
+  max-width: 25% !important;
+  min-width: 25% !important;
+}
+
+.gas-four-column-equal .detail-label,
+.gas-four-column-equal .detail-value {
+  width: 25% !important;
+  max-width: 25% !important;
+  min-width: 25% !important;
+}
+
+/* Eight-column equal width layout for gas equipment (4 columns) */
+.gas-eight-column-equal table {
+  table-layout: fixed !important;
+  width: 100% !important;
+}
+
+.gas-eight-column-equal td {
+  width: 12.5% !important;
+  max-width: 12.5% !important;
+  min-width: 12.5% !important;
+}
+
+.gas-eight-column-equal .detail-label,
+.gas-eight-column-equal .detail-value {
+  width: 12.5% !important;
+  max-width: 12.5% !important;
+  min-width: 12.5% !important;
+}
+
+/* Balanced column widths for gas equipment tables */
+.gas-info-table td,
+.water-heater-info-table td,
+.water-heater-equipment-table td,
+.floor-heating-info-table td {
+  padding: 0.75rem !important;
+  vertical-align: middle !important;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Label column styling */
+.gas-info-table .detail-label,
+.water-heater-info-table .detail-label,
+.water-heater-equipment-table .detail-label,
+.floor-heating-info-table .detail-label {
+  background-color: #495057 !important;
+  color: white !important;
+  font-weight: 600;
+  text-align: left;
+  min-width: 120px;
+}
+
+/* Value column styling */
+.gas-info-table .detail-value,
+.water-heater-info-table .detail-value,
+.water-heater-equipment-table .detail-value,
+.floor-heating-info-table .detail-value {
+  background-color: #f8f9fa;
+  color: #212529;
+  text-align: left;
+}
+
+/* Equipment number badges */
+.equipment-number {
+  margin-bottom: 0.5rem;
+}
+
+.equipment-number .badge {
+  font-size: 0.875rem;
+  padding: 0.375rem 0.75rem;
+}
+
+.equipment-item {
+  position: relative;
+  padding-top: 0.5rem;
+}
+
+.equipment-header {
+  margin-bottom: 0.75rem;
+}
+
+.equipment-title {
+  font-weight: 600;
+  color: #495057;
+}
+
+/* Section header styling */
+.section-header {
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* File display improvements */
+.gas-info-table .detail-value a,
+.water-heater-info-table .detail-value a,
+.water-heater-equipment-table .detail-value a,
+.floor-heating-info-table .detail-value a {
+  color: #0d6efd;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.gas-info-table .detail-value a:hover,
+.water-heater-info-table .detail-value a:hover,
+.water-heater-equipment-table .detail-value a:hover,
+.floor-heating-info-table .detail-value a:hover {
+  color: #0a58ca;
+  text-decoration: underline;
+}
+
+.gas-info-table .detail-value i,
+.water-heater-info-table .detail-value i,
+.water-heater-equipment-table .detail-value i,
+.floor-heating-info-table .detail-value i {
+  margin-right: 0.5rem;
+  color: #6c757d;
+}
+
+/* Badge styling improvements */
+.gas-info-table .badge,
+.water-heater-info-table .badge,
+.water-heater-equipment-table .badge,
+.floor-heating-info-table .badge {
+  font-size: 0.875rem;
+  padding: 0.375rem 0.75rem;
+}
+
+.gas-info-table .badge.bg-info,
+.water-heater-info-table .badge.bg-info,
+.water-heater-equipment-table .badge.bg-info,
+.floor-heating-info-table .badge.bg-info {
+  background-color: #0dcaf0 !important;
+}
+
+.gas-info-table .badge.bg-success,
+.water-heater-info-table .badge.bg-success,
+.water-heater-equipment-table .badge.bg-success,
+.floor-heating-info-table .badge.bg-success {
+  background-color: #198754 !important;
+}
+
+.gas-info-table .badge.bg-danger,
+.water-heater-info-table .badge.bg-danger,
+.water-heater-equipment-table .badge.bg-danger,
+.floor-heating-info-table .badge.bg-danger {
+  background-color: #dc3545 !important;
+}
+
+/* Empty field styling */
+.gas-info-table .empty-field,
+.water-heater-info-table .empty-field,
+.water-heater-equipment-table .empty-field,
+.floor-heating-info-table .empty-field {
+  color: #6c757d !important;
+  font-style: italic;
+}
+
+/* No equipment message styling */
+.no-equipment-message .alert {
+  border-left: 4px solid #0dcaf0;
+}
+
+/* Responsive adjustments for gas equipment */
+@media (max-width: 768px) {
+  .gas-equipment-sections .equipment-section {
+    margin-bottom: 1rem;
+  }
+
+  .gas-info-table td,
+  .water-heater-info-table td,
+  .water-heater-equipment-table td,
+  .floor-heating-info-table td {
+    padding: 0.5rem !important;
+    font-size: 0.9rem;
+  }
+
+  .gas-equipment-sections .section-title {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Reset column widths for mobile - stack vertically */
+  .gas-info-table .detail-label,
+  .gas-info-table .detail-value,
+  .water-heater-info-table .detail-label,
+  .water-heater-info-table .detail-value,
+  .water-heater-equipment-table .detail-label,
+  .water-heater-equipment-table .detail-value,
+  .floor-heating-info-table .detail-label,
+  .floor-heating-info-table .detail-value,
+  .gas-six-column-equal .detail-label,
+  .gas-six-column-equal .detail-value,
+  .gas-four-column-equal .detail-label,
+  .gas-four-column-equal .detail-value,
+  .gas-eight-column-equal .detail-label,
+  .gas-eight-column-equal .detail-value {
+    width: 100% !important;
+    display: block !important;
+  }
+
+  .gas-info-table tr,
+  .water-heater-info-table tr,
+  .water-heater-equipment-table tr,
+  .floor-heating-info-table tr,
+  .gas-six-column-equal tr,
+  .gas-four-column-equal tr,
+  .gas-eight-column-equal tr {
+    display: block;
+    margin-bottom: 0.5rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    overflow: hidden;
+  }
+
+  .gas-info-table td,
+  .water-heater-info-table td,
+  .water-heater-equipment-table td,
+  .floor-heating-info-table td,
+  .gas-six-column-equal td,
+  .gas-four-column-equal td,
+  .gas-eight-column-equal td {
+    display: block !important;
+    border: none !important;
+  }
+
+  .gas-info-table .detail-label,
+  .water-heater-info-table .detail-label,
+  .water-heater-equipment-table .detail-label,
+  .floor-heating-info-table .detail-label,
+  .gas-six-column-equal .detail-label,
+  .gas-four-column-equal .detail-label,
+  .gas-eight-column-equal .detail-label {
+    border-bottom: 1px solid #dee2e6;
+    border-right: none;
+  }
+
+  .gas-info-table .detail-value,
+  .water-heater-info-table .detail-value,
+  .water-heater-equipment-table .detail-value,
+  .floor-heating-info-table .detail-value,
+  .gas-six-column-equal .detail-value,
+  .gas-four-column-equal .detail-value,
+  .gas-eight-column-equal .detail-value {
+    border-top: none;
+  }
+
+  .equipment-header {
+    margin-bottom: 0.5rem;
+  }
+
+  .equipment-title {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .gas-info-table td,
+  .water-heater-info-table td,
+  .water-heater-equipment-table td,
+  .floor-heating-info-table td {
+    padding: 0.4rem !important;
+    font-size: 0.85rem;
+  }
+
+  .equipment-number .badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .gas-equipment-sections .section-title {
+    font-size: 0.95rem;
+  }
+
+  .section-header .btn {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+/* Print styles for gas equipment */
+@media print {
+  .gas-equipment-sections {
+    page-break-inside: avoid;
+  }
+
+  .gas-equipment-sections .equipment-section {
+    page-break-inside: avoid;
+    margin-bottom: 1rem;
+  }
+
+  .gas-info-table,
+  .water-heater-info-table,
+  .water-heater-equipment-table,
+  .floor-heating-info-table {
+    font-size: 12pt;
+  }
+
+  .gas-info-table .detail-label,
+  .water-heater-info-table .detail-label,
+  .water-heater-equipment-table .detail-label,
+  .floor-heating-info-table .detail-label {
+    background-color: #f0f0f0 !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .gas-info-table .detail-value,
+  .water-heater-info-table .detail-value,
+  .water-heater-equipment-table .detail-value,
+  .floor-heating-info-table .detail-value {
+    background-color: white !important;
+    color: black !important;
+  }
+
+  .section-header .btn {
+    display: none;
+  }
+}

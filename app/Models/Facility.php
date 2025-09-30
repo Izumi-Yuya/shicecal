@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Facility Model
+ * 
+ * Eloquent model for managing comprehensive facility information including
+ * basic details, land information, maintenance records, and lifeline equipment data.
+ * 
+ * @package App\Models
+ * @author Shise-Cal Development Team
+ */
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -39,6 +49,9 @@ class Facility extends Model
         'approved_by',
         'created_by',
         'updated_by',
+        'exterior_special_notes',
+        'interior_special_notes',
+        'other_special_notes',
     ];
 
     protected $casts = [
@@ -126,7 +139,7 @@ class Facility extends Model
     }
 
     /**
-     * Get the lifeline equipment associated with this facility
+     * Get all lifeline equipment records associated with this facility (plural form)
      */
     public function lifelineEquipments(): HasMany
     {
@@ -134,7 +147,7 @@ class Facility extends Model
     }
 
     /**
-     * Get the lifeline equipment associated with this facility
+     * Get lifeline equipment records associated with this facility (singular form for compatibility)
      */
     public function lifelineEquipment(): HasMany
     {
@@ -143,6 +156,9 @@ class Facility extends Model
 
     /**
      * Get lifeline equipment by category
+     *
+     * @param string $category The equipment category
+     * @return LifelineEquipment|null
      */
     public function getLifelineEquipmentByCategory(string $category): ?LifelineEquipment
     {
@@ -150,7 +166,9 @@ class Facility extends Model
     }
 
     /**
-     * Get electrical equipment
+     * Get electrical equipment for this facility
+     *
+     * @return ElectricalEquipment|null
      */
     public function getElectricalEquipment(): ?ElectricalEquipment
     {
@@ -161,6 +179,8 @@ class Facility extends Model
 
     /**
      * Get gas equipment for this facility
+     *
+     * @return GasEquipment|null
      */
     public function getGasEquipment(): ?GasEquipment
     {
@@ -171,6 +191,8 @@ class Facility extends Model
 
     /**
      * Get water equipment for this facility
+     *
+     * @return WaterEquipment|null
      */
     public function getWaterEquipment(): ?WaterEquipment
     {
@@ -181,6 +203,8 @@ class Facility extends Model
 
     /**
      * Get elevator equipment for this facility
+     *
+     * @return ElevatorEquipment|null
      */
     public function getElevatorEquipment(): ?ElevatorEquipment
     {
@@ -191,6 +215,8 @@ class Facility extends Model
 
     /**
      * Get HVAC/Lighting equipment for this facility
+     *
+     * @return HvacLightingEquipment|null
      */
     public function getHvacLightingEquipment(): ?HvacLightingEquipment
     {
@@ -201,6 +227,8 @@ class Facility extends Model
 
     /**
      * Get security/disaster equipment for this facility
+     *
+     * @return SecurityDisasterEquipment|null
      */
     public function getSecurityDisasterEquipment(): ?SecurityDisasterEquipment
     {
@@ -220,6 +248,8 @@ class Facility extends Model
 
     /**
      * Check if the facility is approved
+     *
+     * @return bool
      */
     public function isApproved(): bool
     {
@@ -228,6 +258,9 @@ class Facility extends Model
 
     /**
      * Scope to get only approved facilities
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeApproved($query)
     {
@@ -236,6 +269,8 @@ class Facility extends Model
 
     /**
      * Get formatted address with building name
+     *
+     * @return string
      */
     public function getFullAddressAttribute(): string
     {
@@ -249,6 +284,8 @@ class Facility extends Model
 
     /**
      * Get formatted postal code
+     *
+     * @return string|null
      */
     public function getFormattedPostalCodeAttribute(): ?string
     {
@@ -267,6 +304,8 @@ class Facility extends Model
 
     /**
      * Check if facility has complete basic information
+     *
+     * @return bool
      */
     public function hasCompleteBasicInfo(): bool
     {
@@ -288,6 +327,8 @@ class Facility extends Model
 
     /**
      * Get service types as formatted string
+     *
+     * @return string
      */
     public function getServiceTypesStringAttribute(): string
     {
@@ -300,6 +341,8 @@ class Facility extends Model
 
     /**
      * Calculate years in operation from opening date
+     *
+     * @return int|null
      */
     public function calculateYearsInOperation(): ?int
     {
@@ -315,6 +358,8 @@ class Facility extends Model
 
     /**
      * Update years in operation based on opening date
+     *
+     * @return void
      */
     public function updateYearsInOperation(): void
     {

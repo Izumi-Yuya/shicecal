@@ -14,11 +14,8 @@
                 [
                     'label' => '設置の有無',
                     'value' => $availability,
-                    'type' => 'badge',
-                    'colspan' => 5,
-                    'options' => [
-                        'badge_class' => $availability === '有' ? 'bg-success' : 'bg-secondary'
-                    ]
+                    'type' => 'text',
+                    'width' => '100%'
                 ]
             ]
         ]
@@ -66,23 +63,26 @@
                                         [
                                             'label' => 'メーカー',
                                             'value' => $elevator['manufacturer'] ?? null,
-                                            'type' => 'text'
+                                            'type' => 'text',
+                                            'width' => '25%'
                                         ],
                                         [
                                             'label' => '種類',
                                             'value' => $elevator['type'] ?? null,
-                                            'type' => 'text'
+                                            'type' => 'text',
+                                            'width' => '25%'
                                         ],
                                         [
                                             'label' => '年式',
                                             'value' => $elevator['model_year'] ? $elevator['model_year'] . '年式' : null,
-                                            'type' => 'text'
+                                            'type' => 'text',
+                                            'width' => '25%'
                                         ],
                                         [
                                             'label' => '更新年月日',
                                             'value' => $elevator['update_date'] ? \Carbon\Carbon::parse($elevator['update_date'])->format('Y年m月d日') : null,
                                             'type' => 'date',
-                                            'colspan' => 5
+                                            'width' => '25%'
                                         ]
                                     ]
                                 ]
@@ -94,14 +94,16 @@
                                 <span class="equipment-number badge bg-warning text-dark me-2">{{ $index + 1 }}</span>
                             </div>
                             
-                            <x-common-table 
-                                :data="$elevatorData"
-                                :showHeader="false"
-                                :tableAttributes="['class' => 'table table-bordered elevator-equipment-table']"
-                                bodyClass=""
-                                cardClass=""
-                                tableClass="table table-bordered facility-basic-info-table-clean"
-                            />
+                            <div class="elevator-eight-column-equal">
+                                <x-common-table 
+                                    :data="$elevatorData"
+                                    :showHeader="false"
+                                    :tableAttributes="['class' => 'table table-bordered elevator-equipment-table']"
+                                    bodyClass=""
+                                    cardClass=""
+                                    tableClass="table table-bordered facility-basic-info-table-clean"
+                                />
+                            </div>
                         </div>
                     @endforeach
                 @else
@@ -132,17 +134,20 @@
                             [
                                 'label' => '保守業者',
                                 'value' => $inspectionInfo['maintenance_contractor'] ?? null,
-                                'type' => 'text'
+                                'type' => 'text',
+                                'width' => '33.33%'
                             ],
                             [
                                 'label' => '保守点検実施日',
                                 'value' => $inspectionInfo['inspection_date'] ? \Carbon\Carbon::parse($inspectionInfo['inspection_date'])->format('Y年m月d日') : null,
-                                'type' => 'text'
+                                'type' => 'text',
+                                'width' => '33.33%'
                             ],
                             [
                                 'label' => '保守点検報告書',
                                 'value' => !empty($inspectionInfo['inspection_report_filename']) ? $inspectionInfo['inspection_report_filename'] : null,
                                 'type' => 'file_display',
+                                'width' => '33.33%',
                                 'options' => [
                                     'route' => 'facilities.lifeline-equipment.download-file',
                                     'params' => [$facility, 'elevator', 'inspection_report'],
@@ -154,14 +159,16 @@
                 ];
             @endphp
             
-            <x-common-table 
-                :data="$inspectionData"
-                :showHeader="false"
-                :tableAttributes="['class' => 'table table-bordered elevator-inspection-table']"
-                bodyClass=""
-                cardClass=""
-                tableClass="table table-bordered facility-basic-info-table-clean"
-            />
+            <div class="elevator-six-column-equal">
+                <x-common-table 
+                    :data="$inspectionData"
+                    :showHeader="false"
+                    :tableAttributes="['class' => 'table table-bordered elevator-inspection-table']"
+                    bodyClass=""
+                    cardClass=""
+                    tableClass="table table-bordered facility-basic-info-table-clean"
+                />
+            </div>
         </div>
 
         {{-- 備考セクション --}}
@@ -184,7 +191,7 @@
                                 'label' => '備考',
                                 'value' => $elevatorEquipment->notes ?? null,
                                 'type' => 'text',
-                                'colspan' => 5
+                                'width' => '100%'
                             ]
                         ]
                     ]

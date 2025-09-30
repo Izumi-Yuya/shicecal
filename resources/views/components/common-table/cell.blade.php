@@ -15,6 +15,7 @@ Cell Component
     'key' => null,          // セルの一意キー
     'options' => [],        // フォーマッターオプション
     'groupNumber' => null,  // グループ番号（grouped行タイプ用）
+    'width' => null,        // セル幅（CSS width属性）
 ])
 
 @php
@@ -92,9 +93,15 @@ Cell Component
     // データ属性の追加（デバッグ用）
     $attributes['data-cell-type'] = $type;
     $attributes['data-is-empty'] = $isEmpty ? 'true' : 'false';
+    
+    // width属性の処理
+    $widthStyle = '';
+    if ($width) {
+        $widthStyle = 'width: ' . $width . ';';
+    }
 @endphp
 
-<td class="{{ $cellClass }}" @foreach($attributes as $attr => $val) {{ $attr }}="{{ $val }}" @endforeach style="@if($groupNumber && $isLabel) position: relative; @endif padding: 0.5rem;">
+<td class="{{ $cellClass }}" @foreach($attributes as $attr => $val) {{ $attr }}="{{ $val }}" @endforeach style="@if($groupNumber && $isLabel) position: relative; @endif {{ $widthStyle }} padding: 0.5rem;">
     @if($groupNumber && $isLabel)
         {{-- グループ番号の表示（grouped行タイプ用） --}}
         <div style="position: absolute; left: -30px; top: 50%; transform: translateY(-50%); z-index: 1000;">

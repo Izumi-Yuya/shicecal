@@ -10,18 +10,6 @@ use Illuminate\Support\Facades\Log;
 
 class FacilityMasterImportSeeder extends Seeder
 {
-    /**
-     * サービスタイプとセクションのマッピング
-     */
-    private const SERVICE_SECTIONS = [
-        'デイサービス' => '通所系サービス',
-        '有料老人ホーム' => '入居系サービス',
-        'グループホーム' => '認知症対応サービス',
-        '訪問看護' => '在宅系サービス',
-        'ヘルパー' => '在宅系サービス',
-        'ケアプラン' => '在宅系サービス',
-        '本社' => '管理部門',
-    ];
 
     /**
      * Run the database seeds.
@@ -102,7 +90,6 @@ class FacilityMasterImportSeeder extends Seeder
                 DB::table('facility_services')->insert([
                     'facility_id' => $facility->id,
                     'service_type' => $serviceType,
-                    'section' => $this->getServiceSection($serviceType),
                     'renewal_start_date' => '2024-04-01',
                     'renewal_end_date' => '2030-03-31',
                     'created_at' => now(),
@@ -147,13 +134,7 @@ class FacilityMasterImportSeeder extends Seeder
         return '株式会社シダー';
     }
 
-    /**
-     * サービスタイプに基づいてセクションを取得
-     */
-    private function getServiceSection(string $serviceType): string
-    {
-        return self::SERVICE_SECTIONS[$serviceType] ?? '在宅系サービス';
-    }
+
 
     /**
      * 施設コードに基づいて指定番号を生成

@@ -218,7 +218,33 @@ class FacilityController extends Controller
             }
         }
 
-        return view('facilities.show', compact('facility', 'landInfo', 'buildingInfo', 'viewMode', 'landInfoFileData'));
+        // 修繕履歴データの準備
+        $exteriorHistory = $facility->maintenanceHistories()
+            ->where('category', 'exterior')
+            ->orderBy('maintenance_date', 'desc')
+            ->get()
+            ->groupBy('subcategory');
+        
+        $interiorHistory = $facility->maintenanceHistories()
+            ->where('category', 'interior')
+            ->orderBy('maintenance_date', 'desc')
+            ->get();
+        
+        $otherHistory = $facility->maintenanceHistories()
+            ->where('category', 'other')
+            ->orderBy('maintenance_date', 'desc')
+            ->get();
+
+        return view('facilities.show', compact(
+            'facility', 
+            'landInfo', 
+            'buildingInfo', 
+            'viewMode', 
+            'landInfoFileData',
+            'exteriorHistory',
+            'interiorHistory', 
+            'otherHistory'
+        ));
     }
 
     /**
