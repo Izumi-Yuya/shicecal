@@ -1,9 +1,6 @@
 {{-- 統合されたドキュメント管理システム --}}
-<div id="document-management-container" class="document-management"
-     data-facility-id="{{ $facility->id }}"
-     data-can-create="@json(auth()->user()->can('create', [App\Models\DocumentFile::class, $facility]))"
-     data-can-update="@json(auth()->user()->can('update', [App\Models\DocumentFile::class, $facility]))"
-     data-can-delete="@json(auth()->user()->can('delete', [App\Models\DocumentFile::class, $facility]))">
+<div class="document-management"
+     data-facility-id="{{ $facility->id }}">
     
     {{-- ツールバー --}}
     <div class="document-toolbar mb-3">
@@ -12,14 +9,14 @@
                 <div class="d-flex align-items-center gap-2">
                     {{-- フォルダ作成ボタン --}}
                     @can('create', [App\Models\DocumentFolder::class, $facility])
-                        <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#create-folder-modal">
+                        <button type="button" id="create-folder-btn" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#create-folder-modal">
                             <i class="fas fa-folder-plus me-1"></i>フォルダ作成
                         </button>
                     @endcan
                     
                     {{-- ファイルアップロードボタン --}}
                     @can('create', [App\Models\DocumentFile::class, $facility])
-                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#upload-file-modal">
+                        <button type="button" id="upload-file-btn" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#upload-file-modal">
                             <i class="fas fa-upload me-1"></i>ファイルアップロード
                         </button>
                     @endcan
@@ -134,7 +131,7 @@
                 ファイルをアップロードするか、新しいフォルダを作成してください。
             </p>
             @can('create', [App\Models\DocumentFile::class, $facility])
-                <button type="button" class="btn btn-primary" id="empty-upload-btn">
+                <button type="button" class="btn btn-primary" id="empty-upload-btn" data-bs-toggle="modal" data-bs-target="#upload-file-modal">
                     <i class="fas fa-upload me-1"></i>ファイルをアップロード
                 </button>
             @endcan
@@ -268,11 +265,7 @@
     </div>
 </div>
 
-{{-- 緊急時のバックドロップ削除ボタン --}}
-<button id="emergency-backdrop-remover" class="emergency-backdrop-remover" style="display: none;" 
-        title="バックドロップが残っている場合にクリック">
-    🚨 バックドロップ削除
-</button>
+
 
 {{-- 
   統合されたドキュメント管理システム

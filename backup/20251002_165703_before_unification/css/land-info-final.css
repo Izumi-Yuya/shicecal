@@ -1,0 +1,861 @@
+/**
+ * Land Information Form - Final Unified CSS
+ * All styling consolidated into a single, maintainable file
+ */
+
+/* ========================================
+   BASE STYLES & VARIABLES
+   ======================================== */
+
+:root {
+  --land-info-primary: #667eea;
+  --land-info-secondary: #764ba2;
+  --land-info-success: #28a745;
+  --land-info-warning: #ffc107;
+  --land-info-danger: #dc3545;
+  --land-info-info: #17a2b8;
+  --land-info-light: #f8f9fa;
+  --land-info-dark: #343a40;
+
+  --land-info-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --land-info-gradient-hover: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+
+  --land-info-border-radius: 0.375rem;
+  --land-info-border-radius-lg: 15px;
+  --land-info-spacing: 1.5rem;
+  --land-info-transition: all 0.3s ease;
+
+  --land-info-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  --land-info-shadow-hover: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* ========================================
+   FACILITY DETAIL CONTAINER & TABS
+   ======================================== */
+
+.facility-detail-container .nav-tabs {
+  border-bottom: 2px solid #dee2e6;
+  margin-bottom: 0;
+  background-color: var(--land-info-light);
+  border-radius: var(--land-info-border-radius) var(--land-info-border-radius) 0 0;
+  padding: 0.5rem 0.5rem 0;
+}
+
+.facility-detail-container .nav-tabs .nav-link {
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: none;
+  color: #6c757d;
+  font-weight: 500;
+  padding: 1rem 1.5rem;
+  margin-bottom: -2px;
+  transition: var(--land-info-transition);
+  border-radius: var(--land-info-border-radius) var(--land-info-border-radius) 0 0;
+  margin-right: 0.25rem;
+}
+
+.facility-detail-container .nav-tabs .nav-link:hover {
+  border-color: transparent;
+  color: #495057;
+  background-color: #e9ecef;
+  transform: translateY(-2px);
+}
+
+.facility-detail-container .nav-tabs .nav-link.active {
+  color: var(--land-info-primary);
+  border-bottom-color: var(--land-info-primary);
+  background-color: #ffffff;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.facility-detail-container .tab-content {
+  padding-top: 2rem;
+  background-color: #ffffff;
+  border-radius: 0 0 var(--land-info-border-radius) var(--land-info-border-radius);
+  min-height: 400px;
+}
+
+/* ========================================
+   LAND INFO FORM STYLES
+   ======================================== */
+
+.land-info-form,
+.land-info-edit-form {
+  background: var(--land-info-light);
+  min-height: 100vh;
+  padding: 2rem 0;
+}
+
+.land-info-form .card,
+.land-info-edit-form .card {
+  border: none;
+  box-shadow: var(--land-info-shadow);
+  margin-bottom: var(--land-info-spacing);
+  border-radius: var(--land-info-border-radius-lg);
+  overflow: hidden;
+  transition: var(--land-info-transition);
+}
+
+.land-info-form .card:hover,
+.land-info-edit-form .card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--land-info-shadow-hover);
+}
+
+.land-info-form .card-header,
+.land-info-edit-form .card-header {
+  background: var(--land-info-gradient);
+  color: white;
+  border: none;
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+}
+
+.land-info-form .card-body,
+.land-info-edit-form .card-body {
+  padding: 1.5rem;
+  background: white;
+}
+
+/* ========================================
+   FORM ELEMENTS
+   ======================================== */
+
+.land-info-form .form-label,
+.land-info-edit-form .form-label {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+.land-info-form .form-label.required::after,
+.land-info-edit-form .form-label.required::after {
+  content: " *";
+  color: var(--land-info-danger);
+  font-weight: bold;
+}
+
+.land-info-form .form-control,
+.land-info-form .form-select,
+.land-info-edit-form .form-control,
+.land-info-edit-form .form-select {
+  border: 1px solid #dee2e6;
+  border-radius: var(--land-info-border-radius);
+  padding: 0.75rem;
+  transition: var(--land-info-transition);
+}
+
+.land-info-form .form-control:focus,
+.land-info-form .form-select:focus,
+.land-info-edit-form .form-control:focus,
+.land-info-edit-form .form-select:focus {
+  border-color: var(--land-info-primary);
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+  outline: none;
+}
+
+.land-info-form .input-group-text,
+.land-info-edit-form .input-group-text {
+  background-color: var(--land-info-light);
+  border: 1px solid #dee2e6;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.land-info-form .currency-input,
+.land-info-edit-form .currency-input {
+  text-align: right;
+  font-family: 'Courier New', monospace;
+}
+
+/* ========================================
+   CONDITIONAL SECTIONS
+   ======================================== */
+
+.conditional-section {
+  transition: var(--land-info-transition);
+  overflow: visible;
+  /* Default state - always visible */
+  display: block;
+}
+
+/* Force visibility when JavaScript sets display: block */
+.conditional-section[style*="display: block"],
+.conditional-section.section-visible {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Force hiding when JavaScript sets display: none */
+.conditional-section[style*="display: none"],
+.conditional-section.section-hidden {
+  display: none;
+  visibility: hidden;
+  opacity: 0;
+}
+
+/* Ensure proper display for specific sections */
+#owned_section[style*="display: block"],
+#leased_section[style*="display: block"],
+#management_section[style*="display: block"],
+#owner_section[style*="display: block"],
+#file_section[style*="display: block"] {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* Ultra-specific rules to override any conflicting CSS */
+.conditional-section#owned_section,
+.conditional-section#leased_section,
+.conditional-section#management_section,
+.conditional-section#owner_section,
+.conditional-section#file_section {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* Force display with maximum specificity */
+body .conditional-section[style*="display: block"] {
+  display: block !important;
+}
+
+body .conditional-section[style*="visibility: visible"] {
+  visibility: visible !important;
+}
+
+.conditional-section.section-visible {
+  animation: fadeInSlide 0.35s ease-out;
+}
+
+.conditional-section.section-hidden {
+  animation: fadeOutSlide 0.35s ease-out;
+}
+
+@keyframes fadeInSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOutSlide {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+/* Section highlight effect */
+.conditional-section.show-highlight {
+  border-left: 4px solid var(--land-info-primary);
+  background-color: rgba(102, 126, 234, 0.05);
+  animation: highlightPulse 1s ease-in-out;
+}
+
+@keyframes highlightPulse {
+
+  0%,
+  100% {
+    background-color: rgba(102, 126, 234, 0.05);
+  }
+
+  50% {
+    background-color: rgba(102, 126, 234, 0.1);
+  }
+}
+
+/* ========================================
+   CALCULATION FEEDBACK
+   ======================================== */
+
+.calculated {
+  background-color: rgba(40, 167, 69, 0.1) !important;
+  border-color: var(--land-info-success) !important;
+  animation: calculatedPulse 1s ease-in-out;
+}
+
+@keyframes calculatedPulse {
+
+  0%,
+  100% {
+    background-color: rgba(40, 167, 69, 0.1);
+  }
+
+  50% {
+    background-color: rgba(40, 167, 69, 0.2);
+  }
+}
+
+/* ========================================
+   BUTTONS
+   ======================================== */
+
+.land-info-form .btn-primary,
+.land-info-edit-form .btn-primary {
+  background: var(--land-info-gradient);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  transition: var(--land-info-transition);
+}
+
+.land-info-form .btn-primary:hover,
+.land-info-edit-form .btn-primary:hover {
+  background: var(--land-info-gradient-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.land-info-form .btn-outline-secondary,
+.land-info-edit-form .btn-outline-secondary {
+  border-color: #6c757d;
+  color: #6c757d;
+  transition: var(--land-info-transition);
+}
+
+.land-info-form .btn-outline-secondary:hover,
+.land-info-edit-form .btn-outline-secondary:hover {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  transform: translateY(-1px);
+}
+
+.btn-preview {
+  background: linear-gradient(45deg, var(--land-info-primary), var(--land-info-secondary));
+  border: none;
+  color: white;
+  transition: var(--land-info-transition);
+}
+
+.btn-preview:hover {
+  background: linear-gradient(45deg, var(--land-info-secondary), var(--land-info-primary));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+/* ========================================
+   FILE UPLOAD
+   ======================================== */
+
+.file-upload-area {
+  border: 2px dashed #dee2e6;
+  border-radius: var(--land-info-border-radius);
+  padding: 2rem;
+  text-align: center;
+  transition: var(--land-info-transition);
+  cursor: pointer;
+}
+
+.file-upload-area:hover {
+  border-color: var(--land-info-primary);
+  background-color: rgba(102, 126, 234, 0.05);
+}
+
+.file-upload-area.dragover {
+  border-color: var(--land-info-success);
+  background-color: rgba(40, 167, 69, 0.1);
+}
+
+.file-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  border: 1px solid #dee2e6;
+  border-radius: var(--land-info-border-radius);
+  margin-bottom: 0.5rem;
+  background: white;
+  transition: var(--land-info-transition);
+}
+
+.file-list-item:hover {
+  background-color: var(--land-info-light);
+}
+
+.file-list-item .file-info {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.file-list-item .file-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ========================================
+   VALIDATION STYLES
+   ======================================== */
+
+.validation-errors {
+  margin-bottom: 1rem;
+}
+
+.form-control.is-invalid,
+.form-select.is-invalid {
+  border-color: var(--land-info-danger);
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.form-control.is-valid,
+.form-select.is-valid {
+  border-color: var(--land-info-success);
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.invalid-feedback {
+  display: block;
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--land-info-danger);
+}
+
+.valid-feedback {
+  display: block;
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--land-info-success);
+}
+
+/* ========================================
+   CHARACTER COUNTER
+   ======================================== */
+
+.character-counter {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+.character-counter.text-warning {
+  color: var(--land-info-warning) !important;
+  font-weight: 600;
+}
+
+.character-counter.text-danger {
+  color: var(--land-info-danger) !important;
+  font-weight: 600;
+}
+
+/* ========================================
+   LOADING STATES
+   ======================================== */
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid var(--land-info-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid var(--land-info-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* ========================================
+   DETAIL ROWS & CARDS
+   ======================================== */
+
+.land-info-form .detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.land-info-form .detail-row:last-child {
+  border-bottom: none;
+}
+
+.land-info-form .detail-label {
+  font-weight: 600;
+  color: #495057;
+  min-width: 120px;
+  flex-shrink: 0;
+}
+
+.land-info-form .detail-value {
+  text-align: right;
+  flex-grow: 1;
+  margin-left: 1rem;
+}
+
+.land-info-form .card-section {
+  background: var(--land-info-gradient);
+  border-radius: var(--land-info-border-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--land-info-shadow);
+}
+
+.land-info-form .card-section-header {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 1.5rem;
+  color: white;
+  font-weight: 600;
+  font-size: 1.1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.land-info-form .card-section-content {
+  background: white;
+  padding: 0;
+}
+
+/* ========================================
+   BADGES & STATUS
+   ======================================== */
+
+.land-info-form .badge {
+  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.land-info-form .text-center {
+  padding: 3rem 1rem;
+}
+
+.land-info-form .fa-4x {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.6;
+}
+
+/* ========================================
+   TAB ANIMATIONS
+   ======================================== */
+
+.facility-detail-container .tab-pane {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.facility-detail-container .tab-pane.show.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.facility-detail-container .tab-pane.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.facility-detail-container .tab-pane.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2rem;
+  height: 2rem;
+  margin: -1rem 0 0 -1rem;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid var(--land-info-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+@media (max-width: 992px) {
+  .facility-detail-container .tab-content {
+    padding-top: 1.5rem;
+  }
+
+  .land-info-form,
+  .land-info-edit-form {
+    padding: 1rem 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .facility-detail-container .nav-tabs .nav-link {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .facility-detail-container .nav-tabs .nav-link i {
+    display: none;
+  }
+
+  .facility-detail-container .tab-content {
+    padding-top: 1rem;
+  }
+
+  .land-info-form .detail-row,
+  .land-info-edit-form .detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .land-info-form .detail-value,
+  .land-info-edit-form .detail-value {
+    text-align: left;
+    margin-left: 0;
+    margin-top: 0.25rem;
+  }
+
+  .land-info-form .detail-label,
+  .land-info-edit-form .detail-label {
+    min-width: auto;
+  }
+
+  .land-info-form .card-section-header,
+  .land-info-edit-form .card-section-header {
+    padding: 1rem;
+    font-size: 1rem;
+  }
+
+  .land-info-form .card-body,
+  .land-info-edit-form .card-body {
+    padding: 1rem;
+  }
+
+  .land-info-form .d-flex.justify-content-between,
+  .land-info-edit-form .d-flex.justify-content-between {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .land-info-form .d-flex.justify-content-between>div,
+  .land-info-edit-form .d-flex.justify-content-between>div {
+    text-align: center;
+  }
+
+  .file-list-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .file-list-item .file-actions {
+    align-self: flex-end;
+  }
+}
+
+@media (max-width: 576px) {
+  .facility-detail-container .nav-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0.25rem;
+  }
+
+  .facility-detail-container .nav-tabs .nav-item {
+    flex-shrink: 0;
+  }
+
+  .facility-detail-container .nav-tabs .nav-link {
+    white-space: nowrap;
+    padding: 0.75rem;
+    margin-right: 0.125rem;
+  }
+
+  .land-info-form .text-center,
+  .land-info-edit-form .text-center {
+    padding: 2rem 0.5rem;
+  }
+
+  .land-info-form .fa-4x,
+  .land-info-edit-form .fa-4x {
+    font-size: 3rem;
+  }
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+
+@media print {
+
+  .land-info-form .btn,
+  .land-info-edit-form .btn,
+  .land-info-form .file-upload-area,
+  .land-info-edit-form .file-upload-area {
+    display: none !important;
+  }
+
+  .land-info-form .card,
+  .land-info-edit-form .card {
+    box-shadow: none !important;
+    border: 1px solid #dee2e6 !important;
+  }
+}
+
+/* ========================================
+   ACCESSIBILITY
+   ======================================== */
+
+.land-info-form .card-header:focus,
+.land-info-edit-form .card-header:focus {
+  outline: 2px solid var(--land-info-primary);
+  outline-offset: 2px;
+}
+
+.land-info-form .btn:focus,
+.land-info-edit-form .btn:focus {
+  outline: 2px solid var(--land-info-primary);
+  outline-offset: 2px;
+}
+
+.facility-detail-container .nav-tabs .nav-link:focus {
+  outline: 2px solid var(--land-info-primary);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ========================================
+   HIGH CONTRAST MODE
+   ======================================== */
+
+@media (prefers-contrast: high) {
+  .facility-detail-container .nav-tabs .nav-link {
+    border: 1px solid #000;
+  }
+
+  .facility-detail-container .nav-tabs .nav-link.active {
+    background-color: #000;
+    color: #fff;
+  }
+
+  .land-info-form .card-header,
+  .land-info-edit-form .card-header {
+    background: #000 !important;
+    color: #fff !important;
+  }
+
+  .land-info-form .form-control,
+  .land-info-edit-form .form-control {
+    border-color: #000 !important;
+  }
+}
+
+/* ========================================
+   REDUCED MOTION
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .facility-detail-container .nav-tabs .nav-link,
+  .facility-detail-container .tab-pane,
+  .land-info-form .card,
+  .land-info-edit-form .card,
+  .conditional-section,
+  .land-info-form .btn,
+  .land-info-edit-form .btn {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .facility-detail-container .nav-tabs .nav-link:hover {
+    transform: none;
+  }
+
+  .conditional-section.section-visible,
+  .conditional-section.section-hidden {
+    animation: none !important;
+  }
+
+  /* Ensure conditional sections are still visible in reduced motion mode */
+  .conditional-section[style*="display: block"] {
+    display: block !important;
+  }
+
+  .conditional-section[style*="display: none"] {
+    display: none !important;
+  }
+
+  .calculated {
+    animation: none !important;
+  }
+
+  .show-highlight {
+    animation: none !important;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+}
+
+/*
+ ========================================
+   DEBUG STYLES (Removed for production)
+   ======================================== */

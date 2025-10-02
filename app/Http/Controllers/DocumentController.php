@@ -95,6 +95,12 @@ class DocumentController extends Controller
     public function show(Facility $facility, ?DocumentFolder $folder = null): JsonResponse
     {
         try {
+            Log::info('DocumentController::show called', [
+                'facility_id' => $facility->id,
+                'folder_id' => $folder?->id,
+                'request_params' => request()->all()
+            ]);
+            
             // Check authorization
             $this->authorize('viewAny', [DocumentFolder::class, $facility]);
 
@@ -144,7 +150,7 @@ class DocumentController extends Controller
                 fn() => $this->documentService->getAvailableFileTypes($facility)
             );
 
-            return response()->json([
+            $responseData = [
                 'success' => true,
                 'data' => [
                     'folders' => $folderContents['folders'],
@@ -156,7 +162,16 @@ class DocumentController extends Controller
                     'pagination' => $folderContents['pagination'] ?? null,
                     'available_file_types' => $availableFileTypes,
                 ]
+            ];
+
+            Log::info('DocumentController::show response', [
+                'facility_id' => $facility->id,
+                'folder_count' => count($folderContents['folders']),
+                'file_count' => count($folderContents['files']),
+                'response_data' => $responseData
             ]);
+
+            return response()->json($responseData);
 
         } catch (Exception $e) {
             return DocumentErrorHandler::handleError($e, request(), [

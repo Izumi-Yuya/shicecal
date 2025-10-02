@@ -1,0 +1,94 @@
+/* Page-specific Styles */
+
+/* Facilities Page */
+.facilities-page .card-section-content {
+  max-height: 450px;
+}
+
+.facilities-page .service-card {
+  border-left: 4px solid transparent;
+  transition: var(--transition-fast);
+}
+
+.facilities-page .service-card:hover {
+  border-left-color: var(--primary-color);
+}
+
+/* Dashboard Page */
+.dashboard-page .stats-card {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: white;
+  text-align: center;
+  padding: 2rem;
+}
+
+.dashboard-page .stats-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-page .stats-label {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+/* Reports Page */
+.reports-page .filter-section {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.reports-page .chart-container {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Settings Page */
+.settings-page .settings-section {
+  margin-bottom: 2rem;
+}
+
+.settings-page .settings-section h3 {
+  color: var(--primary-color);
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Profile Page */
+.profile-page .profile-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 4px solid var(--primary-color);
+  object-fit: cover;
+}
+
+.profile-page .profile-info {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: var(--shadow-md);
+}
+
+/* Responsive adjustments for pages */
+@media (max-width: 768px) {
+  .facilities-page .card-section-content {
+    max-height: 300px;
+  }
+
+  .dashboard-page .stats-number {
+    font-size: 2rem;
+  }
+
+  .profile-page .profile-avatar {
+    width: 80px;
+    height: 80px;
+  }
+}

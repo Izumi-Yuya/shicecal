@@ -363,7 +363,8 @@
                         </div>
                         
                         <!-- Documents Content -->
-                        <div id="document-management-container" 
+                        <div id="document-management-container" class="document-management"
+                             data-facility-id="{{ $facility->id }}"
                              data-can-create="@json(auth()->user()->can('create', [App\Models\DocumentFile::class, $facility]))"
                              data-can-update="@json(auth()->user()->can('update', [App\Models\DocumentFile::class, $facility]))"
                              data-can-delete="@json(auth()->user()->can('delete', [App\Models\DocumentFile::class, $facility]))">

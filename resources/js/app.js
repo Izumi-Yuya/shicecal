@@ -9,7 +9,6 @@ import {
   Application,
   AppUtils,
   ApiClient,
-  ModalManager,
   FacilityManager,
   DocumentManager,
   app

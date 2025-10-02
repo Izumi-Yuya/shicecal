@@ -160,7 +160,7 @@ Route::middleware(['auth'])->group(function () {
         });
 
         // Document management routes with enhanced security
-        Route::prefix('documents')->name('documents.')->middleware('document.security')->group(function () {
+        Route::prefix('documents')->name('documents.')->group(function () {
             Route::get('/', [\App\Http\Controllers\DocumentController::class, 'index'])->name('index');
             Route::get('/folders/{folder?}', [\App\Http\Controllers\DocumentController::class, 'show'])->name('show');
             

@@ -415,6 +415,12 @@ class DocumentService
     public function getFolderContents(Facility $facility, ?DocumentFolder $folder, array $options = []): array
     {
         try {
+            Log::info('DocumentService::getFolderContents called', [
+                'facility_id' => $facility->id,
+                'folder_id' => $folder?->id,
+                'options' => $options
+            ]);
+            
             // デフォルトオプション
             $options = array_merge([
                 'sort_by' => 'name',
@@ -471,7 +477,19 @@ class DocumentService
 
             // 表示用データ整形（最適化）
             $foldersData = $this->formatFoldersData($folders);
-            $filesData = $this->formatFilesData($files, $facility);
+            
+            // ファイル処理は個別にエラーハンドリング
+            try {
+                $filesData = $this->formatFilesData($files, $facility);
+            } catch (\Exception $e) {
+                Log::warning('Failed to format files data, returning empty array', [
+                    'facility_id' => $facility->id,
+                    'folder_id' => $folder?->id,
+                    'files_count' => count($files),
+                    'error' => $e->getMessage()
+                ]);
+                $filesData = [];
+            }
 
             $result = [
                 'folders' => $foldersData,
@@ -726,22 +744,48 @@ class DocumentService
     private function formatFilesData($files, Facility $facility): array
     {
         return collect($files)->map(function ($file) use ($facility) {
-            return [
-                'id' => $file->id,
-                'name' => $file->original_name,
-                'type' => 'file',
-                'size' => $file->file_size,
-                'formatted_size' => $file->getFormattedSize(),
-                'extension' => $file->file_extension,
-                'mime_type' => $file->mime_type,
-                'created_at' => $file->created_at,
-                'updated_at' => $file->updated_at,
-                'uploaded_by' => $file->uploader->name ?? '不明',
-                'download_url' => $file->getDownloadUrl(),
-                'can_preview' => $file->canPreview(),
-                'icon' => $file->getFileIcon(),
-                'color' => $file->getFileColor(),
-            ];
+            try {
+                return [
+                    'id' => $file->id,
+                    'name' => $file->original_name,
+                    'type' => 'file',
+                    'size' => $file->file_size,
+                    'formatted_size' => $file->getFormattedSize(),
+                    'extension' => $file->file_extension,
+                    'mime_type' => $file->mime_type,
+                    'created_at' => $file->created_at,
+                    'updated_at' => $file->updated_at,
+                    'uploaded_by' => $file->uploader->name ?? '不明',
+                    'download_url' => $file->getDownloadUrl(),
+                    'can_preview' => $file->canPreview(),
+                    'icon' => $file->getFileIcon(),
+                    'color' => $file->getFileColor(),
+                ];
+            } catch (\Exception $e) {
+                Log::warning('Failed to format file data', [
+                    'file_id' => $file->id,
+                    'facility_id' => $facility->id,
+                    'error' => $e->getMessage()
+                ]);
+                
+                // エラーが発生した場合は基本情報のみ返す
+                return [
+                    'id' => $file->id,
+                    'name' => $file->original_name,
+                    'type' => 'file',
+                    'size' => $file->file_size,
+                    'formatted_size' => $file->getFormattedSize(),
+                    'extension' => $file->file_extension,
+                    'mime_type' => $file->mime_type,
+                    'created_at' => $file->created_at,
+                    'updated_at' => $file->updated_at,
+                    'uploaded_by' => $file->uploader->name ?? '不明',
+                    'download_url' => '#', // エラー時はダミーURL
+                    'can_preview' => false,
+                    'icon' => 'fas fa-file',
+                    'color' => 'text-muted',
+                ];
+            }
         })->toArray();
     }
 

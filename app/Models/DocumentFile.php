@@ -161,8 +161,8 @@ class DocumentFile extends Model
     public function getDownloadUrl(): string
     {
         return route('facilities.documents.files.download', [
-            'facility' => $this->facility_id,
-            'file' => $this->id,
+            'facility' => $this->facility,
+            'file' => $this,
         ]);
     }
 
@@ -176,8 +176,8 @@ class DocumentFile extends Model
         }
 
         return route('facilities.documents.files.preview', [
-            'facility' => $this->facility_id,
-            'file' => $this->id,
+            'facility' => $this->facility,
+            'file' => $this,
         ]);
     }
 
