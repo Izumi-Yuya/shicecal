@@ -1,14 +1,20 @@
-/* Main Application Styles */
+/**
+ * 統合されたメインアプリケーションCSS
+ * - 重複を排除し、統合されたスタイル
+ * - パフォーマンス最適化
+ */
 
-/* Import CSS modules */
-@import 'variables.css';
-@import 'base.css';
-@import 'components.css';
+/* 統合されたアプリケーションスタイル */
+@import 'app-unified.css';
+
+/* ドキュメント管理の統合スタイル */
+@import 'document-management-unified.css';
+
+/* 重要なレイアウトスタイル */
 @import 'layout.css';
-@import 'utilities.css';
-@import 'animations.css';
+
+/* 必要最小限の個別スタイル */
 @import 'land-info-final.css';
-@import 'components/facility-form.css';
 @import 'detail-table-clean.css';
 @import 'water-equipment.css';
 @import 'gas-equipment.css';

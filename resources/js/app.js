@@ -1,42 +1,32 @@
 /**
- * Main Application JavaScript - ES6 Module Entry Point
- * Shise-Cal Facility Management System
+ * 統合されたメインアプリケーションJavaScript
+ * - 重複を排除し、統合されたモジュール
+ * - パフォーマンス最適化
  */
 
-// Import land-info module
+// 統合されたアプリケーションJavaScript
+import {
+  Application,
+  AppUtils,
+  ApiClient,
+  ModalManager,
+  FacilityManager,
+  DocumentManager,
+  app
+} from './app-unified.js';
+
+// 必要最小限の個別モジュール
 import './land-info-final.js';
 
-// Import facility form layout module
+// 個別に必要なモジュール（統合されていないもの）
 import { initializeFacilityFormLayout, FacilityFormUtils } from './modules/facility-form-layout.js';
-
-// Import shared utilities and modules
-import {
-  formatCurrency,
-  formatArea,
-  formatDate,
-  debounce,
-  showToast,
-  confirmDialog,
-  showLoading,
-  hideLoading
-} from './shared/utils.js';
-
 import { initializeLayout } from './shared/layout.js';
-
-import { get, post, put, del, downloadFile } from './shared/api.js';
 import { validateForm, displayFormErrors, clearFormErrors } from './shared/validation.js';
-
-// Import feature modules
-import { initializeFacilityManager } from './modules/facilities.js';
 import { initializeNotificationManager } from './modules/notifications.js';
 import { initializeExportManager } from './modules/export.js';
 import { initializeLifelineEquipmentManager } from './modules/lifeline-equipment.js';
-
 import { initializeFacilityViewToggle } from './modules/facility-view-toggle.js';
 import { initializeDetailCardController } from './modules/detail-card-controller.js';
-
-
-// Import component modules
 import {
   FormValidator,
   SearchComponent,
@@ -44,7 +34,6 @@ import {
   ModalComponent,
   ServiceCardsComponent
 } from './shared/components.js';
-
 import { initializeSidebar } from './shared/sidebar.js';
 
 /**
@@ -56,7 +45,7 @@ const AppConfig = {
 };
 
 /**
- * Application State Management
+ * Application State Management (統合版と併用)
  */
 class ApplicationState {
   constructor() {
@@ -104,55 +93,31 @@ function createLegacyAPI() {
   return {
     config: AppConfig,
     utils: {
-      formatCurrency,
-      formatArea,
-      formatDate,
-      debounce,
-      showToast,
-      confirmDialog,
-      showLoading,
-      hideLoading,
+      formatCurrency: AppUtils.formatCurrency,
+      formatArea: AppUtils.formatArea,
+      formatDate: AppUtils.formatDate,
+      debounce: AppUtils.debounce,
+      showToast: AppUtils.showToast,
+      confirmDialog: AppUtils.confirmDialog,
+      showLoading: AppUtils.showLoading,
+      hideLoading: AppUtils.hideLoading,
       // Legacy AJAX function
       ajax: function (url, options = {}) {
-        const defaultOptions = {
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': AppConfig.csrfToken || '',
-            'Accept': 'application/json',
-            ...options.headers
-          },
-          ...options
-        };
-
-        return fetch(url, defaultOptions)
-          .then(response => {
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-          })
-          .catch(error => {
-            console.error('AJAX Error:', error);
-            showToast('通信エラーが発生しました。', 'error');
-            throw error;
-          });
+        const api = new ApiClient();
+        return api.request(url, options);
       },
       // Facility form utilities
       ...FacilityFormUtils,
       // Legacy confirm function
       confirm: function (message, callback) {
-        if (window.confirm(message)) {
-          callback();
-        }
+        AppUtils.confirmDialog(message).then(result => {
+          if (result && callback) {
+            callback();
+          }
+        });
       }
     },
-    api: {
-      get,
-      post,
-      put,
-      del,
-      downloadFile
-    },
+    api: new ApiClient(),
     validation: {
       validateForm,
       displayFormErrors,
@@ -207,76 +172,13 @@ function createLegacyAPI() {
 }
 
 /**
- * Application Initialization
+ * Extended Application Class (統合版を拡張)
  */
-class Application {
-  constructor() {
-    this.initialized = false;
-    this.detailCardObserver = null;
-  }
-
-  async init() {
-    if (this.initialized) return;
-
-    console.log('Initializing Shise-Cal application...');
-
-    // Initialize components
-    this.initializeComponents();
-
-    // Initialize feature modules based on page context
-    await this.initializeModules();
-
-    // Initialize sidebar
-    appState.setModule('sidebar', initializeSidebar());
-
-    // Initialize layout functionality (notifications, etc.)
-    initializeLayout();
-
-    // Setup global event handlers
-    this.setupGlobalEventHandlers();
-
-    // Setup UI enhancements
-    this.setupUIEnhancements();
-
-    this.initialized = true;
-    console.log('Shise-Cal application initialized successfully');
-  }
-
-  /**
-   * Cleanup application resources
-   */
-  cleanup() {
-    try {
-      // Cleanup detail card observer
-      if (this.detailCardObserver) {
-        this.detailCardObserver.disconnect();
-        this.detailCardObserver = null;
-      }
-
-      // Cleanup detail card controller
-      const controller = appState.getModule('detailCardController');
-      if (controller && typeof controller.destroy === 'function') {
-        controller.destroy();
-      }
-
-      console.log('Application cleanup completed');
-    } catch (error) {
-      console.error('Error during application cleanup:', error);
-    }
-  }
-
-  initializeComponents() {
-    // Initialize search component
-    appState.setComponent('search', new SearchComponent());
-
-    // Initialize table component
-    appState.setComponent('table', new TableComponent());
-
-    // Initialize service cards component
-    appState.setComponent('serviceCards', new ServiceCardsComponent());
-  }
-
+class ExtendedApplication extends Application {
   async initializeModules() {
+    // 統合版の初期化を実行
+    await super.initializeModules();
+
     const currentPath = window.location.pathname;
 
     // Initialize facility form layout on form pages
@@ -289,14 +191,11 @@ class Application {
       }));
     }
 
-
-
     // Initialize facility module on facility pages
     if (currentPath.includes('/facilities/')) {
       const facilityIdMatch = currentPath.match(/\/facilities\/(\d+)/);
       if (facilityIdMatch) {
         const facilityId = facilityIdMatch[1];
-        appState.setModule('facility', initializeFacilityManager(facilityId));
 
         // Initialize view toggle on facility show pages
         if (currentPath.match(/\/facilities\/\d+$/)) {
@@ -336,156 +235,40 @@ class Application {
     } catch (error) {
       console.error('Failed to initialize detail card controller:', error);
       // Fallback: Continue without detail card functionality
-      showToast('詳細カード機能の初期化に失敗しました。基本機能は利用できます。', 'warning');
+      AppUtils.showToast('詳細カード機能の初期化に失敗しました。基本機能は利用できます。', 'warning');
     }
 
+    // Initialize sidebar
+    appState.setModule('sidebar', initializeSidebar());
 
+    // Initialize layout functionality (notifications, etc.)
+    initializeLayout();
   }
 
-  setupGlobalEventHandlers() {
-    // Handle form submissions with loading states
-    const forms = document.querySelectorAll('form[data-loading]');
-    forms.forEach(form => {
-      form.addEventListener('submit', (event) => {
-        const submitButton = form.querySelector('button[type="submit"]');
-        if (submitButton) {
-          submitButton.disabled = true;
-          submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>処理中...';
-        }
-      });
-    });
+  initializeComponents() {
+    // Initialize search component
+    appState.setComponent('search', new SearchComponent());
 
-    // Auto-hide alerts after 5 seconds
-    const alerts = document.querySelectorAll('.alert:not(.alert-permanent)');
-    alerts.forEach(alert => {
-      setTimeout(() => {
-        alert.style.transition = 'opacity 0.5s ease-in-out';
-        alert.style.opacity = '0';
-        setTimeout(() => alert.remove(), 500);
-      }, 5000);
-    });
-  }
+    // Initialize table component
+    appState.setComponent('table', new TableComponent());
 
-  setupUIEnhancements() {
-    // Add fade-in animation to main content
-    const mainContent = document.querySelector('main');
-    if (mainContent) {
-      mainContent.classList.add('fade-in');
-    }
-
-    // Initialize tooltips
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map((tooltipTriggerEl) => {
-      return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-
-    // Initialize popovers
-    const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
-    popoverTriggerList.map((popoverTriggerEl) => {
-      return new bootstrap.Popover(popoverTriggerEl);
-    });
-
-    // Setup detail card refresh on dynamic content changes
-    this.setupDetailCardRefresh();
-  }
-
-  /**
-   * Setup detail card controller refresh for dynamic content - Performance Optimized
-   */
-  setupDetailCardRefresh() {
-    try {
-      let refreshTimeout = null;
-      const REFRESH_DEBOUNCE_DELAY = 250; // ms
-
-      // Create a MutationObserver with optimized configuration
-      const observer = new MutationObserver((mutations) => {
-        let shouldRefresh = false;
-
-        // Use more efficient checking
-        for (const mutation of mutations) {
-          if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-            for (const node of mutation.addedNodes) {
-              if (node.nodeType === Node.ELEMENT_NODE) {
-                // More specific and efficient selector checking
-                if (node.matches?.('.detail-card-improved, .facility-info-card, .card') ||
-                  node.querySelector?.('.detail-card-improved, .facility-info-card, .card')) {
-                  shouldRefresh = true;
-                  break;
-                }
-              }
-            }
-            if (shouldRefresh) break;
-          }
-        }
-
-        if (shouldRefresh) {
-          // Debounce refresh calls to avoid excessive updates
-          if (refreshTimeout) {
-            clearTimeout(refreshTimeout);
-          }
-
-          refreshTimeout = setTimeout(() => {
-            this.refreshDetailCardController();
-            refreshTimeout = null;
-          }, REFRESH_DEBOUNCE_DELAY);
-        }
-      });
-
-      // Optimized observer configuration
-      observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-        // Only observe what we need
-        attributes: false,
-        attributeOldValue: false,
-        characterData: false,
-        characterDataOldValue: false
-      });
-
-      // Store observer reference for cleanup
-      this.detailCardObserver = observer;
-    } catch (error) {
-      console.warn('Failed to setup detail card refresh observer:', error);
-      // Continue without dynamic refresh capability
-    }
-  }
-
-  /**
-   * Refresh detail card controller when new content is added - Optimized
-   */
-  async refreshDetailCardController() {
-    try {
-      const controller = appState.getModule('detailCardController');
-      if (controller && typeof controller.refresh === 'function') {
-        // Use the optimized async refresh method
-        await controller.refresh();
-      } else {
-        // Try to initialize if not already done
-        const newController = await initializeDetailCardController();
-        if (newController) {
-          appState.setModule('detailCardController', newController);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to refresh detail card controller:', error);
-      // Fallback: Show warning but continue
-      showToast('詳細カード機能の更新に失敗しました。', 'warning');
-    }
+    // Initialize service cards component
+    appState.setComponent('serviceCards', new ServiceCardsComponent());
   }
 }
 
-// Create application instance
-const app = new Application();
+// Create extended application instance
+const extendedApp = new ExtendedApplication();
 
 /**
  * DOM Content Loaded Event Handler
  */
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    await app.init();
+    await extendedApp.init();
   } catch (error) {
     console.error('Failed to initialize application:', error);
-    showToast('アプリケーションの初期化に失敗しました。', 'error');
+    AppUtils.showToast('アプリケーションの初期化に失敗しました。', 'error');
 
     // Try to initialize critical components individually as fallback
     try {
@@ -514,7 +297,7 @@ window.ShiseCal = createLegacyAPI();
  */
 window.addEventListener('beforeunload', () => {
   try {
-    app.cleanup();
+    extendedApp.cleanup();
   } catch (error) {
     console.error('Error during page unload cleanup:', error);
   }
@@ -524,26 +307,14 @@ window.addEventListener('beforeunload', () => {
  * Export main application components and utilities for ES6 module usage
  */
 export {
-  Application,
+  ExtendedApplication,
   ApplicationState,
   AppConfig,
   appState,
-  app,
+  extendedApp as app,
   // Re-export utilities for convenience
-  formatCurrency,
-  formatArea,
-  formatDate,
-  debounce,
-  showToast,
-  confirmDialog,
-  showLoading,
-  hideLoading,
-  // Re-export API functions
-  get,
-  post,
-  put,
-  del,
-  downloadFile,
+  AppUtils,
+  ApiClient,
   // Re-export validation functions
   validateForm,
   displayFormErrors,
@@ -555,7 +326,6 @@ export {
   ModalComponent,
   ServiceCardsComponent,
   // Re-export module initializers
-  initializeFacilityManager,
   initializeNotificationManager,
   initializeExportManager,
   initializeLifelineEquipmentManager,

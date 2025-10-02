@@ -8,18 +8,14 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, 'resources/js'),
     },
-    // Optimize module resolution
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.json', '.vue'],
-    // Dedupe dependencies
     dedupe: ['lodash', 'axios'],
   },
-  // Enable dependency pre-bundling optimization
+
   optimizeDeps: {
     include: ['lodash', 'axios'],
     exclude: [],
-    // Force optimization of specific dependencies
     force: false,
-    // ESBuild options for dependency optimization
     esbuildOptions: {
       target: 'es2020',
       supported: {
@@ -31,41 +27,62 @@ export default defineConfig({
   plugins: [
     laravel({
       input: [
+        // 統合されたメインファイル
         'resources/css/app.css',
+        'resources/css/app-unified.css',
+        'resources/css/document-management-unified.css',
+        'resources/js/app.js',
+        'resources/js/app-unified.js',
+
+
+
+        // 個別に必要なファイル
         'resources/css/auth.css',
         'resources/css/admin.css',
         'resources/css/land-info-final.css',
         'resources/css/water-equipment.css',
-        // Shared CSS files
-        'resources/css/shared/variables.css',
-        'resources/css/shared/components.css',
-        'resources/css/shared/utilities.css',
-        // Page-specific CSS files
+        'resources/css/gas-equipment.css',
+        'resources/css/elevator-equipment.css',
+        'resources/css/detail-table-clean.css',
+
+        // ページ固有CSS
         'resources/css/pages/facilities.css',
         'resources/css/pages/notifications.css',
         'resources/css/pages/export.css',
-        // Component CSS files
-        // JavaScript files
-        'resources/js/app.js',
+        'resources/css/pages/lifeline-equipment.css',
+
+        // 共有CSS（統合されていないもの）
+        'resources/css/shared/components.css',
+        'resources/css/shared/utilities.css',
+        'resources/css/shared/variables.css',
+        'resources/css/layout.css',
+        'resources/css/pages.css',
+
+        // 個別JavaScript
         'resources/js/admin.js',
         'resources/js/land-info-final.js',
-        // JavaScript modules (for proper bundling)
-        'resources/js/modules/facilities.js',
+
+        // 統合されていない必要なモジュール
         'resources/js/modules/notifications.js',
         'resources/js/modules/export.js',
         'resources/js/modules/facility-view-toggle.js',
         'resources/js/modules/comment-manager.js',
         'resources/js/modules/comment-ui.js',
-        'resources/js/shared/utils.js',
-        'resources/js/shared/api.js',
+        'resources/js/modules/lifeline-equipment.js',
+        'resources/js/modules/facility-form-layout.js',
+        'resources/js/modules/detail-card-controller.js',
+        'resources/js/modules/facilities.js',
         'resources/js/shared/validation.js',
         'resources/js/shared/components.js',
         'resources/js/shared/sidebar.js',
-        'resources/js/shared/layout.js'
+        'resources/js/shared/layout.js',
+        'resources/js/shared/utils.js',
+        'resources/js/shared/api.js'
       ],
       refresh: true,
     }),
   ],
+
   css: {
     preprocessorOptions: {
       css: {
@@ -86,11 +103,10 @@ export default defineConfig({
         }
       ]
     },
-    // Enable CSS minification and optimization
     devSourcemap: true,
-    // CSS optimization options
     minify: true
   },
+
   server: {
     host: '0.0.0.0',
     port: 5173,
@@ -98,10 +114,10 @@ export default defineConfig({
       host: 'localhost',
     },
   },
+
   build: {
     outDir: 'public/build',
     manifest: true,
-    // Enable minification and compression
     minify: 'terser',
     terserOptions: {
       compress: {
@@ -138,71 +154,36 @@ export default defineConfig({
         ascii_only: true,
       },
     },
-    // Enable asset versioning for cache busting
     assetsDir: 'assets',
-    // Optimize chunk size
     chunkSizeWarningLimit: 1000,
-    // Enable source maps for production debugging (optional)
     sourcemap: false,
-    // Enable CSS code splitting
     cssCodeSplit: true,
-    // Asset inlining threshold (files smaller than this will be inlined as base64)
     assetsInlineLimit: 4096,
-    // Enable compression
     reportCompressedSize: true,
     rollupOptions: {
-      input: [
-        'resources/css/app.css',
-        'resources/css/auth.css',
-        'resources/css/admin.css',
-        'resources/css/land-info-final.css',
-        'resources/css/water-equipment.css',
-        // Shared CSS files
-        'resources/css/shared/variables.css',
-        'resources/css/shared/components.css',
-        'resources/css/shared/utilities.css',
-        // Page-specific CSS files
-        'resources/css/pages/facilities.css',
-        'resources/css/pages/notifications.css',
-        'resources/css/pages/export.css',
-        // Component CSS files
-        // JavaScript files
-        'resources/js/app.js',
-        'resources/js/admin.js',
-        'resources/js/land-info-final.js',
-        // JavaScript modules (for proper bundling)
-        'resources/js/modules/facilities.js',
-        'resources/js/modules/notifications.js',
-        'resources/js/modules/export.js',
-        'resources/js/modules/facility-view-toggle.js',
-        'resources/js/modules/comment-manager.js',
-        'resources/js/modules/comment-ui.js',
-        'resources/js/shared/utils.js',
-        'resources/js/shared/api.js',
-        'resources/js/shared/validation.js',
-        'resources/js/shared/components.js',
-        'resources/js/shared/sidebar.js',
-        'resources/js/shared/layout.js'
-      ],
       output: {
-        // Ensure proper ES6 module chunking with optimized file names
         manualChunks: {
-          'shared-utils': ['resources/js/shared/utils.js'],
-          'shared-api': ['resources/js/shared/api.js'],
-          'shared-validation': ['resources/js/shared/validation.js'],
-          'shared-components': ['resources/js/shared/components.js'],
-          'shared-sidebar': ['resources/js/shared/sidebar.js'],
-          'shared-layout': ['resources/js/shared/layout.js'],
-          'modules': [
-            'resources/js/modules/facilities.js',
+          'app-unified': ['resources/js/app-unified.js'],
+          'shared-modules': [
+            'resources/js/shared/utils.js',
+            'resources/js/shared/api.js',
+            'resources/js/shared/validation.js',
+            'resources/js/shared/components.js',
+            'resources/js/shared/sidebar.js',
+            'resources/js/shared/layout.js'
+          ],
+          'feature-modules': [
             'resources/js/modules/notifications.js',
             'resources/js/modules/export.js',
             'resources/js/modules/facility-view-toggle.js',
             'resources/js/modules/comment-manager.js',
-            'resources/js/modules/comment-ui.js'
+            'resources/js/modules/comment-ui.js',
+            'resources/js/modules/lifeline-equipment.js',
+            'resources/js/modules/facility-form-layout.js',
+            'resources/js/modules/detail-card-controller.js',
+            'resources/js/modules/facilities.js'
           ]
         },
-        // Optimize file naming for better caching
         entryFileNames: (chunkInfo) => {
           const hash = createHash('md5').update(chunkInfo.name).digest('hex').substring(0, 8);
           return `js/[name]-${hash}.[hash].js`;
@@ -225,26 +206,21 @@ export default defineConfig({
           }
           return `assets/[name].[hash].${ext}`;
         },
-        // Enable tree shaking
         preserveModules: false,
-        // Optimize for modern browsers
         format: 'es',
-        // Enable compression hints
         compact: true,
       },
-      // Enable tree shaking
       treeshake: {
         moduleSideEffects: false,
         propertyReadSideEffects: false,
         tryCatchDeoptimization: false,
         unknownGlobalSideEffects: false,
       },
-      // External dependencies (don't bundle these)
       external: [],
-      // Plugin optimizations
       plugins: []
     }
   },
+
   test: {
     environment: 'jsdom',
     globals: true,
