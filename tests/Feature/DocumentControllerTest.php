@@ -53,9 +53,11 @@ class DocumentControllerTest extends TestCase
                 'files',
                 'breadcrumbs',
                 'current_folder',
-                'sort_by',
-                'sort_direction',
-                'view_mode'
+                'sort_options' => [
+                    'sort_by',
+                    'sort_direction',
+                    'view_mode'
+                ]
             ]
         ]);
     }

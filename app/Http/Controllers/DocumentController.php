@@ -944,8 +944,8 @@ class DocumentController extends Controller
             throw new Exception('ダウンロード制限に達しました。しばらく待ってから再試行してください。');
         }
         
-        cache()->increment($downloadKey, 1);
-        cache()->expire($downloadKey, 3600); // 1 hour
+        $currentCount = cache()->get($downloadKey, 0) + 1;
+        cache()->put($downloadKey, $currentCount, 3600); // 1 hour
 
         // Check file age - warn about very old files
         if ($file->created_at->diffInDays(now()) > 365) {

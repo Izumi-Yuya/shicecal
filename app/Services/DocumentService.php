@@ -490,6 +490,15 @@ class DocumentService
                 'load_stats' => true,
             ], $options);
 
+            // ソートパラメータの正規化（name-asc形式からsort_byとsort_directionに分離）
+            if (isset($options['sort']) && !isset($options['sort_by'])) {
+                $sortParts = explode('-', $options['sort']);
+                if (count($sortParts) === 2) {
+                    $options['sort_by'] = $sortParts[0];
+                    $options['sort_direction'] = $sortParts[1];
+                }
+            }
+
             // N+1問題を解決するため、必要な関連データのみを事前に読み込み
             $foldersQuery = DocumentFolder::select([
                 'id', 'name', 'path', 'created_at', 'updated_at', 'created_by'
@@ -596,12 +605,18 @@ class DocumentService
                 'pagination' => [
                     'current_page' => 1,
                     'last_page' => 1,
-                    'per_page' => $options['per_page'],
+                    'per_page' => $options['per_page'] ?? 50,
                     'total' => 0,
                     'has_more_pages' => false,
                 ],
                 'stats' => [],
-                'sort_options' => $options,
+                'sort_options' => [
+                    'sort_by' => $options['sort_by'] ?? 'name',
+                    'sort_direction' => $options['sort_direction'] ?? 'asc',
+                    'view_mode' => $options['view_mode'] ?? 'list',
+                    'filter_type' => $options['filter_type'] ?? null,
+                    'search' => $options['search'] ?? null,
+                ],
             ];
         }
     }
@@ -726,8 +741,11 @@ class DocumentService
      */
     private function applySorting($foldersQuery, $filesQuery, array $options): void
     {
-        $sortBy = $options['sort_by'];
-        $direction = $options['sort_direction'];
+        $sortBy = $options['sort_by'] ?? 'name';
+        $direction = $options['sort_direction'] ?? 'asc';
+
+        // 有効なソート方向を確認
+        $direction = in_array($direction, ['asc', 'desc']) ? $direction : 'asc';
 
         switch ($sortBy) {
             case 'name':

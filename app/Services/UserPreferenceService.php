@@ -141,6 +141,15 @@ class UserPreferenceService
             }
         }
         
+        // ソートパラメータの正規化（name-asc形式からsort_byとsort_directionに分離）
+        if (isset($requestParams['sort']) && !isset($settings['sort_by'])) {
+            $sortParts = explode('-', $requestParams['sort']);
+            if (count($sortParts) === 2) {
+                $settings['sort_by'] = $sortParts[0];
+                $settings['sort_direction'] = $sortParts[1];
+            }
+        }
+        
         return $settings;
     }
 

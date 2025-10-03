@@ -2028,7 +2028,7 @@ class DocumentManager {
   // ドキュメント表示
   renderDocuments(data) {
     console.log('renderDocuments called with data:', data);
-    const { folders = [], files = [] } = data;
+    const { folders = [], files = [], sort_options = {} } = data;
     const hasContent = folders.length > 0 || files.length > 0;
 
     console.log('Content check:', {
@@ -2036,12 +2036,16 @@ class DocumentManager {
       filesCount: files.length,
       hasContent: hasContent,
       folders: folders,
-      files: files
+      files: files,
+      sort_options: sort_options
     });
 
     // 空の状態を隠す（常に実行）
     this.hideEmptyState();
     this.hideError();
+
+    // ソート状態を更新
+    this.updateSortState(sort_options);
 
     if (!hasContent) {
       console.log('No content found, showing empty state');
@@ -2316,6 +2320,21 @@ class DocumentManager {
 
     // 実装: ソートでドキュメントを再読み込み
     this.loadDocuments(this.getCurrentFolderId(), { sort: sortValue });
+  }
+
+  // ソート状態を更新
+  updateSortState(sortOptions) {
+    const sortSelect = document.getElementById('sort-select');
+    if (sortSelect && sortOptions) {
+      const sortBy = sortOptions.sort_by || 'name';
+      const sortDirection = sortOptions.sort_direction || 'asc';
+      const sortValue = `${sortBy}-${sortDirection}`;
+
+      // セレクトボックスの値を更新
+      if (sortSelect.value !== sortValue) {
+        sortSelect.value = sortValue;
+      }
+    }
   }
 
   // 表示モード変更
