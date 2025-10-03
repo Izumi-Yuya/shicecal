@@ -10,7 +10,6 @@ use App\Http\Controllers\LifelineEquipmentController;
 use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\MyPageController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\RepairHistoryController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -163,18 +162,17 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('documents')->name('documents.')->group(function () {
             Route::get('/', [\App\Http\Controllers\DocumentController::class, 'index'])->name('index');
             Route::get('/folders/{folder?}', [\App\Http\Controllers\DocumentController::class, 'show'])->name('show');
-            
+
             // Performance optimization routes
             Route::get('/folders/{folder?}/virtual', [\App\Http\Controllers\DocumentController::class, 'showVirtual'])->name('folders.virtual');
 
-            
             Route::get('/folder-tree', [\App\Http\Controllers\DocumentController::class, 'getFolderTree'])->name('folder-tree');
             Route::post('/folders', [\App\Http\Controllers\DocumentController::class, 'createFolder'])->name('folders.store');
             Route::put('/folders/{folder}', [\App\Http\Controllers\DocumentController::class, 'renameFolder'])->name('folders.update');
             Route::put('/folders/{folder}/move', [\App\Http\Controllers\DocumentController::class, 'moveFolder'])->name('folders.move');
             Route::get('/folders/{folder}/properties', [\App\Http\Controllers\DocumentController::class, 'getFolderProperties'])->name('folders.properties');
             Route::delete('/folders/{folder}', [\App\Http\Controllers\DocumentController::class, 'deleteFolder'])->name('folders.destroy');
-            
+
             Route::post('/files', [\App\Http\Controllers\DocumentController::class, 'uploadFile'])->name('files.store');
             Route::get('/files/{file}/download', [\App\Http\Controllers\DocumentController::class, 'downloadFile'])->name('files.download');
             Route::get('/files/{file}/preview', [\App\Http\Controllers\DocumentController::class, 'previewFile'])->name('files.preview');
@@ -182,7 +180,7 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/files/{file}/rename', [\App\Http\Controllers\DocumentController::class, 'renameFile'])->name('files.rename');
             Route::put('/files/{file}/move', [\App\Http\Controllers\DocumentController::class, 'moveFile'])->name('files.move');
             Route::delete('/files/{file}', [\App\Http\Controllers\DocumentController::class, 'deleteFile'])->name('files.destroy');
-            
+
             Route::post('/preferences/reset', [\App\Http\Controllers\DocumentController::class, 'resetPreferences'])->name('preferences.reset');
         });
 
