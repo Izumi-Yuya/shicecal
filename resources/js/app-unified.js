@@ -125,10 +125,10 @@ class AppUtils {
 
   static async confirmDialog(message, title = '確認', options = {}) {
     return new Promise(async (resolve) => {
-      // 既に確認ダイアログが開いている場合は、その結果を待つ
+      // 既に確認ダイアログが開いている場合は、その結果を待機する
       if (AppUtils._confirmOpen && AppUtils._confirmPromise) {
         console.warn('confirmDialog is already open. Reusing existing promise.');
-        const priorResult = await AppUtils._confirmPromise; // 直前のダイアログ結果を待ってから続行
+        const priorResult = await AppUtils._confirmPromise; // 既存のダイアログの結果を待ってから続行する
       }
       // このダイアログを現在開いているものとしてマーク
       AppUtils._confirmOpen = true;
@@ -1139,6 +1139,108 @@ class DocumentManager {
     }
   }
 
+  // サブフォルダ作成モーダル表示
+  showCreateSubfolderModal(parentFolderId) {
+    const modal = this.getModalByIds(['create-folder-modal', 'createFolderModal']);
+
+    if (modal && window.bootstrap) {
+      try {
+        // 親フォルダIDを設定
+        const parentIdInput = modal.querySelector('#parent-folder-id');
+        if (parentIdInput) {
+          parentIdInput.value = parentFolderId || '';
+        }
+
+        // 作成場所の表示を更新
+        this.updateCreateLocationDisplay(parentFolderId);
+
+        this.ensureModalInBody(modal);
+        this.cleanupExtraBackdrops();
+        const modalInstance = bootstrap.Modal.getOrCreateInstance(modal, { backdrop: true, focus: true, keyboard: true });
+        modalInstance.show();
+
+        // フォルダ名入力にフォーカス
+        modal.addEventListener('shown.bs.modal', () => {
+          const folderNameInput = modal.querySelector('#folder-name');
+          if (folderNameInput) {
+            folderNameInput.focus();
+            folderNameInput.select();
+          }
+        }, { once: true });
+      } catch (error) {
+        console.error('Failed to show create subfolder modal:', error);
+      }
+    }
+  }
+
+  // アイテム移動モーダル表示
+  async showMoveItemModal(itemId, itemType) {
+    const modal = document.getElementById('move-item-modal');
+
+    if (modal && window.bootstrap) {
+      try {
+        // アイテム名を設定
+        const itemNameSpan = modal.querySelector('#move-item-name');
+        if (itemNameSpan) {
+          const itemName = this.getCurrentItemName(itemId, itemType);
+          itemNameSpan.textContent = itemName;
+        }
+
+        // フォルダツリーを読み込み
+        await this.loadFolderTree();
+
+        // 移動確認ボタンのイベント設定
+        const confirmBtn = modal.querySelector('#confirm-move-btn');
+        if (confirmBtn) {
+          // 既存のイベントリスナーを削除
+          confirmBtn.replaceWith(confirmBtn.cloneNode(true));
+          const newConfirmBtn = modal.querySelector('#confirm-move-btn');
+
+          newConfirmBtn.addEventListener('click', async () => {
+            const selectedFolderId = this.getSelectedFolderId();
+            const success = await this.moveItem(itemId, itemType, selectedFolderId);
+
+            if (success) {
+              const modalInstance = bootstrap.Modal.getInstance(modal);
+              if (modalInstance) {
+                modalInstance.hide();
+              }
+            }
+          });
+        }
+
+        const modalInstance = bootstrap.Modal.getOrCreateInstance(modal);
+        modalInstance.show();
+      } catch (error) {
+        console.error('Failed to show move item modal:', error);
+      }
+    }
+  }
+
+  // 作成場所の表示を更新
+  updateCreateLocationDisplay(parentFolderId) {
+    const locationDisplay = document.getElementById('create-location-display');
+    if (!locationDisplay) return;
+
+    if (!parentFolderId) {
+      locationDisplay.innerHTML = '<i class="fas fa-home me-1"></i>ルート';
+      return;
+    }
+
+    // 現在のフォルダ名を取得（パンくずナビゲーションから）
+    const breadcrumbs = document.querySelectorAll('#breadcrumb-nav .breadcrumb-item');
+    let folderName = 'フォルダ';
+
+    breadcrumbs.forEach(breadcrumb => {
+      const link = breadcrumb.querySelector('.breadcrumb-link');
+      if (link && link.dataset.folderId === parentFolderId) {
+        folderName = link.textContent.replace(/^\s*[\w\s]*\s*/, '').trim();
+      }
+    });
+
+    locationDisplay.innerHTML = `<i class="fas fa-folder me-1"></i>${folderName}`;
+  }
+
   /**
    * デバウンス関数（統合前の実装）
    */
@@ -1158,7 +1260,129 @@ class DocumentManager {
   getCurrentFolderId() {
     // URLパラメータまたはブレッドクラムから現在のフォルダIDを取得
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('folder_id') || '';
+    return urlParams.get('folder_id') || this.currentFolderId || '';
+  }
+
+  // フォルダを開く
+  async openFolder(folderId) {
+    try {
+      this.currentFolderId = folderId;
+
+      // URLを更新（ブラウザ履歴に追加）
+      const url = new URL(window.location);
+      if (folderId) {
+        url.searchParams.set('folder_id', folderId);
+      } else {
+        url.searchParams.delete('folder_id');
+      }
+      window.history.pushState({ folderId }, '', url);
+
+      // フォルダ内容を読み込み
+      await this.loadDocuments(folderId);
+
+      // パンくずナビゲーションを更新
+      this.updateBreadcrumbs();
+
+    } catch (error) {
+      console.error('Failed to open folder:', error);
+      this.showError('フォルダを開けませんでした。');
+    }
+  }
+
+  // サブフォルダ作成
+  async createSubfolder(parentFolderId, folderName) {
+    if (!folderName || folderName.trim() === '') {
+      this.showError('フォルダ名を入力してください。');
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('_token', this.csrfToken);
+      formData.append('parent_id', parentFolderId || '');
+      formData.append('name', folderName.trim());
+
+      const response = await fetch(`/facilities/${this.facilityId}/documents/folders`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        this.showSuccess('サブフォルダが作成されました。');
+        await this.refreshDocumentList();
+        return result.folder;
+      } else {
+        this.showError(result.message || 'サブフォルダの作成に失敗しました。');
+        return null;
+      }
+    } catch (error) {
+      console.error('Subfolder creation error:', error);
+      this.showError('ネットワークエラーが発生しました。');
+      return null;
+    }
+  }
+
+  // フォルダツリーを取得
+  async getFolderTree() {
+    try {
+      const response = await fetch(`/facilities/${this.facilityId}/documents/folder-tree`, {
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        return result.data || [];
+      } else {
+        console.error('Failed to fetch folder tree');
+        return [];
+      }
+    } catch (error) {
+      console.error('Error fetching folder tree:', error);
+      return [];
+    }
+  }
+
+  // アイテム移動
+  async moveItem(itemId, itemType, targetFolderId) {
+    try {
+      const endpoint = itemType === 'folder'
+        ? `/facilities/${this.facilityId}/documents/folders/${itemId}/move`
+        : `/facilities/${this.facilityId}/documents/files/${itemId}/move`;
+
+      const response = await fetch(endpoint, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRF-TOKEN': this.csrfToken
+        },
+        body: JSON.stringify({
+          target_folder_id: targetFolderId
+        })
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        this.showSuccess('アイテムを移動しました。');
+        await this.refreshDocumentList();
+        return true;
+      } else {
+        this.showError(result.message || 'アイテムの移動に失敗しました。');
+        return false;
+      }
+    } catch (error) {
+      console.error('Move item error:', error);
+      this.showError('ネットワークエラーが発生しました。');
+      return false;
+    }
   }
 
   // エラーメッセージ表示 (duplicate method removed - using main showError method above)
@@ -1475,6 +1699,16 @@ class DocumentManager {
 
   // ドキュメントリストクリックハンドラー
   handleDocumentListClick(e) {
+    // フォルダのダブルクリック処理
+    if (e.detail === 2) { // ダブルクリック
+      const folderRow = e.target.closest('[data-type="folder"]');
+      if (folderRow) {
+        const folderId = folderRow.dataset.id;
+        this.openFolder(folderId);
+        return;
+      }
+    }
+
     const target = e.target.closest('button');
     if (!target) return;
 
@@ -1491,6 +1725,16 @@ class DocumentManager {
     }
 
     switch (action) {
+      case 'open':
+        if (itemType === 'folder') {
+          this.openFolder(itemId);
+        }
+        break;
+      case 'create-subfolder':
+        if (itemType === 'folder') {
+          this.showCreateSubfolderModal(itemId);
+        }
+        break;
       case 'rename':
       case 'edit':
         // data-name 属性から名前を取得、なければ getCurrentItemName を使用
@@ -1500,6 +1744,9 @@ class DocumentManager {
         } else if (itemType === 'folder') {
           this.handleRenameFolder(itemId, currentName);
         }
+        break;
+      case 'move':
+        this.showMoveItemModal(itemId, itemType);
         break;
       case 'delete':
         if (itemType === 'file') {
@@ -1571,6 +1818,85 @@ class DocumentManager {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+  }
+
+  // フォルダツリーを読み込む
+  async loadFolderTree() {
+    try {
+      const folderTree = await this.getFolderTree();
+      this.renderFolderTree(folderTree);
+    } catch (error) {
+      console.error('Failed to load folder tree:', error);
+      this.showError('フォルダツリーの読み込みに失敗しました。');
+    }
+  }
+
+  // フォルダツリーを表示する
+  renderFolderTree(folders) {
+    const treeContainer = document.getElementById('folder-tree');
+    if (!treeContainer) return;
+
+    // ルートフォルダオプション
+    const rootOption = document.createElement('div');
+    rootOption.className = 'folder-tree-item';
+    rootOption.innerHTML = `
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="target-folder" value="" id="folder-root">
+        <label class="form-check-label" for="folder-root">
+          <i class="fas fa-home me-1"></i>ルート
+        </label>
+      </div>
+    `;
+
+    treeContainer.innerHTML = '';
+    treeContainer.appendChild(rootOption);
+
+    // フォルダツリーを再帰的に構築
+    this.renderFolderTreeRecursive(folders, treeContainer, 0);
+
+    // デフォルトでルートを選択
+    const rootRadio = treeContainer.querySelector('#folder-root');
+    if (rootRadio) {
+      rootRadio.checked = true;
+    }
+  }
+
+  // フォルダツリーを再帰的に表示する
+  renderFolderTreeRecursive(folders, container, level) {
+    folders.forEach(folder => {
+      const folderItem = document.createElement('div');
+      folderItem.className = 'folder-tree-item';
+      folderItem.style.marginLeft = `${level * 20}px`;
+
+      folderItem.innerHTML = `
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="target-folder" value="${folder.id}" id="folder-${folder.id}">
+          <label class="form-check-label" for="folder-${folder.id}">
+            <i class="fas fa-folder me-1"></i>${this.escapeHtml(folder.name)}
+          </label>
+        </div>
+      `;
+
+      container.appendChild(folderItem);
+
+      // 子フォルダがある場合は再帰的に表示
+      if (folder.children && folder.children.length > 0) {
+        this.renderFolderTreeRecursive(folder.children, container, level + 1);
+      }
+    });
+  }
+
+  // 選択されたフォルダIDを取得する
+  getSelectedFolderId() {
+    const selectedRadio = document.querySelector('input[name="target-folder"]:checked');
+    return selectedRadio ? selectedRadio.value : '';
+  }
+
+
+  // パンくずナビゲーションを更新する
+  updateBreadcrumbs() {
+    // この機能は loadDocuments メソッド内で処理される
+    // 必要に応じて個別の実装を追加
   }
 
   // アップロードプログレスバーの表示/非表示
@@ -1875,11 +2201,11 @@ class DocumentManager {
                   <i class="fas fa-ellipsis-v"></i>
                 </button>
                 <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="#" data-action="rename" data-id="${folder.id}" data-type="folder">
+                  <li><a class="dropdown-item" href="#" data-action="rename" data-id="${folder.id}" data-type="folder" data-name="${AppUtils.escapeHtml(folder.name)}">
                     <i class="fas fa-edit me-2"></i>名前変更
                   </a></li>
                   <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item text-danger" href="#" data-action="delete" data-id="${folder.id}" data-type="folder">
+                  <li><a class="dropdown-item text-danger" href="#" data-action="delete" data-id="${folder.id}" data-type="folder" data-name="${AppUtils.escapeHtml(folder.name)}">
                     <i class="fas fa-trash me-2"></i>削除
                   </a></li>
                 </ul>
@@ -1912,11 +2238,11 @@ class DocumentManager {
                   <li><a class="dropdown-item" href="${file.download_url}" target="_blank">
                     <i class="fas fa-download me-2"></i>ダウンロード
                   </a></li>
-                  <li><a class="dropdown-item" href="#" data-action="rename" data-id="${file.id}" data-type="file">
+                  <li><a class="dropdown-item" href="#" data-action="rename" data-id="${file.id}" data-type="file" data-name="${AppUtils.escapeHtml(file.name)}">
                     <i class="fas fa-edit me-2"></i>名前変更
                   </a></li>
                   <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item text-danger" href="#" data-action="delete" data-id="${file.id}" data-type="file">
+                  <li><a class="dropdown-item text-danger" href="#" data-action="delete" data-id="${file.id}" data-type="file" data-name="${AppUtils.escapeHtml(file.name)}">
                     <i class="fas fa-trash me-2"></i>削除
                   </a></li>
                 </ul>
@@ -2028,12 +2354,7 @@ class DocumentManager {
 
   // ドキュメントリストのクリック処理
   handleDocumentListClick(e) {
-    // ドロップダウンメニューのクリックは処理しない
-    if (e.target.closest('.dropdown-menu')) {
-      return;
-    }
-
-    // ドロップダウンボタンのクリックは処理しない
+    // ドロップダウンボタンのクリックは処理しない（メニューを開くため）
     if (e.target.closest('[data-bs-toggle="dropdown"]')) {
       return;
     }
@@ -2050,9 +2371,15 @@ class DocumentManager {
       // ファイルをクリック（ダウンロード）- デフォルトの動作を許可
       return;
     } else if (target.dataset.action) {
-      // アクションボタンをクリック
+      // アクションボタンをクリック（ドロップダウンメニュー内も含む）
       e.preventDefault();
-      this.handleAction(target.dataset.action, target.dataset.id, target.dataset.type);
+      console.log('Action clicked:', {
+        action: target.dataset.action,
+        id: target.dataset.id,
+        type: target.dataset.type,
+        name: target.dataset.name
+      });
+      this.handleAction(target.dataset.action, target.dataset.id, target.dataset.type, target.dataset.name);
     }
   }
 
@@ -2100,13 +2427,26 @@ class DocumentManager {
   }
 
   // アクション処理
-  async handleAction(action, id, type) {
+  async handleAction(action, id, type, name = null) {
+    // ドロップダウンメニューを閉じる
+    const openDropdowns = document.querySelectorAll('.dropdown-menu.show');
+    openDropdowns.forEach(dropdown => {
+      const toggle = dropdown.previousElementSibling;
+      if (toggle && toggle.hasAttribute('data-bs-toggle')) {
+        const bsDropdown = bootstrap.Dropdown.getInstance(toggle);
+        if (bsDropdown) {
+          bsDropdown.hide();
+        }
+      }
+    });
+
     switch (action) {
       case 'rename':
+        const currentName = name || this.getCurrentItemName(id, type);
         if (type === 'file') {
-          await this.handleRenameFile(id, this.getCurrentItemName(id, 'file'));
+          await this.handleRenameFile(id, currentName);
         } else if (type === 'folder') {
-          await this.handleRenameFolder(id, this.getCurrentItemName(id, 'folder'));
+          await this.handleRenameFolder(id, currentName);
         }
         break;
       case 'delete':
@@ -2295,7 +2635,7 @@ class DocumentManager {
 
   // コンテキストメニュー処理
   handleContextMenu(e) {
-    const item = e.target.closest('.document-item, .document-card');
+    const item = e.target.closest('.document-item, .document-card, tr[data-type]');
     if (!item) return;
 
     e.preventDefault();
@@ -2311,30 +2651,102 @@ class DocumentManager {
     const itemId = item.dataset.id;
 
     // メニュー項目の表示/非表示を制御
-    const downloadItem = contextMenu.querySelector('[data-action="download"]');
-    if (downloadItem) {
-      downloadItem.style.display = itemType === 'file' ? 'block' : 'none';
-    }
+    const menuItems = contextMenu.querySelectorAll('.context-menu-item');
+    menuItems.forEach(menuItem => {
+      const action = menuItem.dataset.action;
+      const folderOnly = menuItem.dataset.folderOnly === 'true';
+      const fileOnly = menuItem.dataset.fileOnly === 'true';
+
+      let shouldShow = true;
+
+      if (folderOnly && itemType !== 'folder') {
+        shouldShow = false;
+      } else if (fileOnly && itemType !== 'file') {
+        shouldShow = false;
+      }
+
+      menuItem.style.display = shouldShow ? 'block' : 'none';
+    });
+
+    // 区切り線の表示制御
+    const dividers = contextMenu.querySelectorAll('.context-menu-divider');
+    dividers.forEach(divider => {
+      const folderOnly = divider.dataset.folderOnly === 'true';
+      divider.style.display = (folderOnly && itemType !== 'folder') ? 'none' : 'block';
+    });
 
     // メニューにデータを設定
     contextMenu.dataset.itemId = itemId;
     contextMenu.dataset.itemType = itemType;
 
-    // 位置を調整
-    contextMenu.style.left = `${x}px`;
-    contextMenu.style.top = `${y}px`;
+    // 位置を調整（画面外に出ないように）
+    const menuWidth = 200;
+    const menuHeight = 250;
+    const adjustedX = Math.min(x, window.innerWidth - menuWidth);
+    const adjustedY = Math.min(y, window.innerHeight - menuHeight);
+
+    contextMenu.style.left = `${adjustedX}px`;
+    contextMenu.style.top = `${adjustedY}px`;
     contextMenu.style.display = 'block';
 
     // メニュー項目のクリックイベント
-    const menuItems = contextMenu.querySelectorAll('.context-menu-item');
-    menuItems.forEach(menuItem => {
+    const visibleMenuItems = contextMenu.querySelectorAll('.context-menu-item[style*="block"], .context-menu-item:not([style*="none"])');
+    visibleMenuItems.forEach(menuItem => {
       menuItem.onclick = (e) => {
         e.stopPropagation();
         const action = menuItem.dataset.action;
-        this.handleAction(action, itemId, itemType);
+        this.handleContextMenuAction(action, itemId, itemType);
         this.hideContextMenu();
       };
     });
+  }
+
+  // コンテキストメニューアクション処理
+  handleContextMenuAction(action, itemId, itemType) {
+    switch (action) {
+      case 'open':
+        if (itemType === 'folder') {
+          this.openFolder(itemId);
+        }
+        break;
+      case 'create-subfolder':
+        if (itemType === 'folder') {
+          this.showCreateSubfolderModal(itemId);
+        }
+        break;
+      case 'rename':
+        const currentName = this.getCurrentItemName(itemId, itemType);
+        if (itemType === 'file') {
+          this.handleRenameFile(itemId, currentName);
+        } else if (itemType === 'folder') {
+          this.handleRenameFolder(itemId, currentName);
+        }
+        break;
+      case 'download':
+        if (itemType === 'file') {
+          this.downloadFile(itemId);
+        }
+        break;
+      case 'move':
+        this.showMoveItemModal(itemId, itemType);
+        break;
+      case 'properties':
+        this.showProperties(itemType, itemId);
+        break;
+      case 'delete':
+        if (itemType === 'file') {
+          this.handleDeleteFile(itemId);
+        } else if (itemType === 'folder') {
+          this.handleDeleteFolder(itemId);
+        }
+        break;
+    }
+  }
+
+  // ファイルダウンロード
+  downloadFile(fileId) {
+    const downloadUrl = `/facilities/${this.facilityId}/documents/files/${fileId}/download`;
+    window.open(downloadUrl, '_blank');
   }
 
   // コンテキストメニューを隠す
