@@ -1,8 +1,8 @@
 /**
  * 統合アプリケーション用スタイル
- * - 重複コードをすべて削除
- * - 論理的な順序で整理
- * - パフォーマンスを最適化
+ * - 重複コードをすべて削除済み
+ * - 論理的な順序で整理済み
+ * - パフォーマンスを最適化済み
  */
 
 /* ========================================
@@ -660,6 +660,155 @@ html {
 /* Document Management Styles */
 .document-management {
   min-height: 400px;
+}
+
+/* Folder Hierarchy Styles */
+.folder-hierarchy {
+  background-color: var(--bs-light);
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+  border: 1px solid var(--bs-border-color);
+}
+
+.folder-path {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.path-segment {
+  display: flex;
+  align-items: center;
+  color: var(--bs-primary);
+  font-weight: 500;
+}
+
+/* Folder Tree Styles */
+.folder-tree {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+  background-color: var(--bs-body-bg);
+}
+
+.folder-tree-item {
+  padding: 0.25rem 0;
+}
+
+.folder-tree-item .form-check {
+  margin-bottom: 0;
+}
+
+.folder-tree-item .form-check-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.folder-tree-item .form-check-label:hover {
+  background-color: var(--bs-light);
+}
+
+.folder-tree-item .form-check-input:checked+.form-check-label {
+  background-color: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary);
+}
+
+/* Context Menu Enhancements */
+.context-menu {
+  position: fixed;
+  background: white;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.375rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  z-index: 1050;
+  min-width: 180px;
+  padding: 0.5rem 0;
+}
+
+.context-menu-item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+  font-size: 0.875rem;
+}
+
+.context-menu-item:hover {
+  background-color: var(--bs-light);
+}
+
+.context-menu-item.text-danger:hover {
+  background-color: var(--bs-danger-bg-subtle);
+  color: var(--bs-danger);
+}
+
+.context-menu-divider {
+  height: 1px;
+  background-color: var(--bs-border-color);
+  margin: 0.5rem 0;
+}
+
+/* Document List Enhancements */
+.document-list tr[data-type="folder"] {
+  cursor: pointer;
+}
+
+.document-list tr[data-type="folder"]:hover {
+  background-color: var(--bs-light);
+}
+
+.document-list .item-name {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.document-list .folder-icon {
+  color: var(--bs-warning);
+}
+
+.document-list .file-icon {
+  color: var(--bs-info);
+}
+
+/* Breadcrumb Enhancements */
+.breadcrumb-link {
+  text-decoration: none;
+  color: var(--bs-primary);
+  transition: color 0.15s ease-in-out;
+}
+
+.breadcrumb-link:hover {
+  color: var(--bs-primary-emphasis);
+  text-decoration: underline;
+}
+
+/* Modal Enhancements */
+.modal .alert {
+  margin-bottom: 1rem;
+}
+
+.modal .bg-light {
+  background-color: var(--bs-light) !important;
+}
+
+/* Expand/Collapse Buttons */
+#expand-all-folders,
+#collapse-all-folders {
+  color: var(--bs-secondary);
+  font-size: 0.75rem;
+}
+
+#expand-all-folders:hover,
+#collapse-all-folders:hover {
+  color: var(--bs-primary);
 }
 
 .document-toolbar {

@@ -24,7 +24,7 @@ graph TB
 - **DocumentService**: 既存のdeleteFile, deleteFolder, renameFileメソッドを使用
 - **JavaScript**: app-unified.jsのDocumentManagerクラスを拡張
 
-## コンポーネントと インターフェース
+## コンポーネントとインターフェース
 
 ### フロントエンド設計
 

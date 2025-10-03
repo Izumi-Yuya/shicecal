@@ -1127,5 +1127,247 @@ class DocumentController extends Controller
         }
     }
 
+    /**
+     * Get folder tree for facility.
+     * 
+     * @param Facility $facility
+     * @return JsonResponse
+     */
+    public function getFolderTree(Facility $facility): JsonResponse
+    {
+        try {
+            // Check authorization
+            $this->authorize('viewAny', [DocumentFolder::class, $facility]);
+
+            // Get folder tree
+            $folderTree = $this->documentService->getFolderTree($facility);
+
+            return response()->json([
+                'success' => true,
+                'data' => $folderTree,
+                'message' => 'フォルダツリーを取得しました。'
+            ]);
+
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'フォルダツリーを表示する権限がありません。'
+            ], 403);
+        } catch (Exception $e) {
+            Log::error('Folder tree fetch failed', [
+                'facility_id' => $facility->id,
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'フォルダツリーの取得に失敗しました。'
+            ], 500);
+        }
+    }
+
+    /**
+     * Move file to different folder.
+     * 
+     * @param Request $request
+     * @param Facility $facility
+     * @param DocumentFile $file
+     * @return JsonResponse
+     */
+    public function moveFile(Request $request, Facility $facility, DocumentFile $file): JsonResponse
+    {
+        try {
+            // Check authorization
+            $this->authorize('update', $file);
+
+            // Validate file belongs to facility
+            if ($file->facility_id !== $facility->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '指定されたファイルが見つかりません。'
+                ], 404);
+            }
+
+            $request->validate([
+                'target_folder_id' => ['nullable', 'integer', 'exists:document_folders,id']
+            ]);
+
+            $targetFolderId = $request->input('target_folder_id');
+            $targetFolder = null;
+
+            // Get target folder if specified
+            if ($targetFolderId) {
+                $targetFolder = DocumentFolder::where('facility_id', $facility->id)
+                    ->where('id', $targetFolderId)
+                    ->first();
+
+                if (!$targetFolder) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => '指定された移動先フォルダが見つかりません。'
+                    ], 404);
+                }
+            }
+
+            // Move file using service
+            $updatedFile = $this->documentService->moveFile($file, $targetFolder, auth()->user());
+
+            return response()->json([
+                'success' => true,
+                'message' => 'ファイルを移動しました。',
+                'file' => [
+                    'id' => $updatedFile->id,
+                    'name' => $updatedFile->original_name,
+                    'folder_id' => $updatedFile->folder_id,
+                    'folder_name' => $updatedFile->folder ? $updatedFile->folder->name : 'ルート'
+                ]
+            ]);
+
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'ファイルを移動する権限がありません。'
+            ], 403);
+        } catch (Exception $e) {
+            Log::error('File move failed', [
+                'file_id' => $file->id,
+                'facility_id' => $file->facility_id,
+                'target_folder_id' => $request->input('target_folder_id'),
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'ファイルの移動に失敗しました。'
+            ], 500);
+        }
+    }
+
+    /**
+     * Move folder to different parent folder.
+     * 
+     * @param Request $request
+     * @param Facility $facility
+     * @param DocumentFolder $folder
+     * @return JsonResponse
+     */
+    public function moveFolder(Request $request, Facility $facility, DocumentFolder $folder): JsonResponse
+    {
+        try {
+            // Check authorization
+            $this->authorize('update', $folder);
+
+            // Validate folder belongs to facility
+            if ($folder->facility_id !== $facility->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '指定されたフォルダが見つかりません。'
+                ], 404);
+            }
+
+            $request->validate([
+                'target_folder_id' => ['nullable', 'integer', 'exists:document_folders,id']
+            ]);
+
+            $targetFolderId = $request->input('target_folder_id');
+            $targetFolder = null;
+
+            // Get target folder if specified
+            if ($targetFolderId) {
+                $targetFolder = DocumentFolder::where('facility_id', $facility->id)
+                    ->where('id', $targetFolderId)
+                    ->first();
+
+                if (!$targetFolder) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => '指定された移動先フォルダが見つかりません。'
+                    ], 404);
+                }
+
+                // Prevent moving folder into itself or its descendants
+                if ($targetFolder->id === $folder->id || $targetFolder->path === $folder->path || 
+                    str_starts_with($targetFolder->path, $folder->path . '/')) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'フォルダを自分自身または子フォルダに移動することはできません。'
+                    ], 400);
+                }
+            }
+
+            // Update folder parent
+            $oldParentId = $folder->parent_id;
+            $oldPath = $folder->path;
+            
+            $folder->parent_id = $targetFolderId;
+            $newPath = $targetFolder ? $targetFolder->path . '/' . $folder->name : $folder->name;
+            $folder->path = $newPath;
+            $folder->save();
+
+            // Update child folder paths recursively
+            $this->updateChildFolderPaths($folder, $oldPath, $newPath);
+
+            // Log activity
+            $this->activityLogService->log(
+                'move',
+                'document_folder',
+                $folder->id,
+                "フォルダ「{$folder->name}」を移動しました"
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'フォルダを移動しました。',
+                'folder' => [
+                    'id' => $folder->id,
+                    'name' => $folder->name,
+                    'parent_id' => $folder->parent_id,
+                    'parent_name' => $targetFolder ? $targetFolder->name : 'ルート',
+                    'path' => $folder->path
+                ]
+            ]);
+
+        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'フォルダを移動する権限がありません。'
+            ], 403);
+        } catch (Exception $e) {
+            Log::error('Folder move failed', [
+                'folder_id' => $folder->id,
+                'facility_id' => $folder->facility_id,
+                'target_folder_id' => $request->input('target_folder_id'),
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'フォルダの移動に失敗しました。'
+            ], 500);
+        }
+    }
+
+    /**
+     * Update child folder paths recursively.
+     * 
+     * @param DocumentFolder $folder
+     * @param string $oldPath
+     * @param string $newPath
+     */
+    private function updateChildFolderPaths(DocumentFolder $folder, string $oldPath, string $newPath): void
+    {
+        $children = DocumentFolder::where('facility_id', $folder->facility_id)
+            ->where('path', 'like', $oldPath . '/%')
+            ->get();
+
+        foreach ($children as $child) {
+            $child->path = str_replace($oldPath, $newPath, $child->path);
+            $child->saveQuietly(); // Save without triggering events
+        }
+    }
+
 
 }

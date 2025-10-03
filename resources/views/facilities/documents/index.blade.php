@@ -10,14 +10,14 @@
                     {{-- フォルダ作成ボタン --}}
                     @can('create', [App\Models\DocumentFolder::class, $facility])
                         <button type="button" id="create-folder-btn" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#create-folder-modal">
-                            <i class="fas fa-folder-plus me-1"></i> 新しいフォルダ
+                            <i class="fas fa-folder-plus me-1"></i>新しいフォルダ
                         </button>
                     @endcan
                     
                     {{-- ファイルアップロードボタン --}}
                     @can('create', [App\Models\DocumentFile::class, $facility])
                         <button type="button" id="upload-file-btn" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#upload-file-modal">
-                            <i class="fas fa-upload me-1"></i> ファイルアップロード
+                            <i class="fas fa-upload me-1"></i>ファイルアップロード
                         </button>
                     @endcan
                     
@@ -79,6 +79,19 @@
         </ol>
     </nav>
     
+    {{-- フォルダ階層表示 --}}
+    <div class="folder-hierarchy mb-3" id="folder-hierarchy" style="display: none;">
+        <div class="d-flex align-items-center gap-2">
+            <small class="text-muted">現在の場所:</small>
+            <div class="folder-path" id="folder-path-display">
+                <span class="path-segment">
+                    <i class="fas fa-folder-open me-1"></i>
+                    <span id="current-folder-name">ルート</span>
+                </span>
+            </div>
+        </div>
+    </div>
+    
     {{-- 統計情報 --}}
     <div class="document-stats mb-3" id="document-stats" style="display: none;">
         <div class="row">
@@ -132,7 +145,7 @@
             </p>
             @can('create', [App\Models\DocumentFile::class, $facility])
                 <button type="button" class="btn btn-primary" id="empty-upload-btn" data-bs-toggle="modal" data-bs-target="#upload-file-modal">
-                    <i class="fas fa-upload me-1"></i> ファイルアップロード
+                    <i class="fas fa-upload me-1"></i>ファイルアップロード
                 </button>
             @endcan
         </div>
@@ -148,7 +161,17 @@
                                 <th style="width: 40px;">
                                     <input type="checkbox" class="form-check-input" id="select-all">
                                 </th>
-                                <th>名前</th>
+                                <th>
+                                    <div class="d-flex align-items-center">
+                                        <span>名前</span>
+                                        <button class="btn btn-sm btn-link p-0 ms-2" id="expand-all-folders" title="すべてのフォルダを展開">
+                                            <i class="fas fa-expand-arrows-alt"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-link p-0 ms-1" id="collapse-all-folders" title="すべてのフォルダを折りたたむ">
+                                            <i class="fas fa-compress-arrows-alt"></i>
+                                        </button>
+                                    </div>
+                                </th>
                                 <th style="width: 100px;">サイズ</th>
                                 <th style="width: 120px;">更新日時</th>
                                 <th style="width: 100px;">作成者</th>
@@ -190,14 +213,35 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
                 </div>
                 <div class="modal-body">
+                    {{-- 作成場所の表示 --}}
+                    <div class="mb-3">
+                        <label class="form-label">作成場所</label>
+                        <div class="bg-light p-2 rounded">
+                            <i class="fas fa-folder-open me-1"></i>
+                            <span id="create-location-display">ルート</span>
+                        </div>
+                    </div>
+                    
                     <div class="mb-3">
                         <label for="folder-name" class="form-label">フォルダ名</label>
-                        <input type="text" class="form-control" id="folder-name" name="name" required>
+                        <input type="text" class="form-control" id="folder-name" name="name" required autofocus>
+                        <div class="form-text">フォルダ名は255文字以内で入力してください。</div>
+                    </div>
+                    
+                    {{-- サブフォルダ作成のヒント --}}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-1"></i>
+                        <small>
+                            サブフォルダを作成することで、ドキュメントを階層的に整理できます。
+                            作成後は、フォルダをダブルクリックして移動できます。
+                        </small>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-                    <button type="submit" class="btn btn-primary">作成</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-folder-plus me-1"></i>作成
+                    </button>
                 </div>
             </form>
         </div>
@@ -272,11 +316,21 @@
 
 {{-- コンテキストメニュー --}}
 <div class="context-menu" id="context-menu" style="display: none;">
+    <div class="context-menu-item" data-action="open" data-folder-only="true">
+        <i class="fas fa-folder-open me-2"></i>開く
+    </div>
+    <div class="context-menu-item" data-action="create-subfolder" data-folder-only="true">
+        <i class="fas fa-folder-plus me-2"></i>サブフォルダを作成
+    </div>
+    <div class="context-menu-divider" data-folder-only="true"></div>
     <div class="context-menu-item" data-action="rename">
         <i class="fas fa-edit me-2"></i>名前変更
     </div>
-    <div class="context-menu-item" data-action="download">
+    <div class="context-menu-item" data-action="download" data-file-only="true">
         <i class="fas fa-download me-2"></i>ダウンロード
+    </div>
+    <div class="context-menu-item" data-action="move">
+        <i class="fas fa-arrows-alt me-2"></i>移動
     </div>
     <div class="context-menu-item" data-action="properties">
         <i class="fas fa-info-circle me-2"></i>プロパティ
@@ -284,6 +338,38 @@
     <div class="context-menu-divider"></div>
     <div class="context-menu-item text-danger" data-action="delete">
         <i class="fas fa-trash me-2"></i>削除
+    </div>
+</div>
+
+{{-- フォルダ移動モーダル --}}
+<div class="modal" id="move-item-modal" tabindex="-1" aria-labelledby="move-item-modal-title" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="move-item-modal-title">アイテムを移動</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">移動先フォルダを選択</label>
+                    <div class="folder-tree" id="folder-tree">
+                        {{-- 動的に生成 --}}
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">選択されたアイテム</label>
+                    <div class="bg-light p-2 rounded">
+                        <span id="move-item-name"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                <button type="button" class="btn btn-primary" id="confirm-move-btn">
+                    <i class="fas fa-arrows-alt me-1"></i>移動
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 

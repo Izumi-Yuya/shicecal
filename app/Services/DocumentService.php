@@ -198,7 +198,7 @@ class DocumentService
 
             // 削除可能性チェック
             if (!$folder->canDelete()) {
-                throw new Exception('このフォルダは削除できません。子フォルダまたはファイルが存在します。');
+                throw new Exception('このフォルダは削除できません。サブフォルダまたはファイルが存在します。');
             }
 
             $folderName = $folder->name;
@@ -975,6 +975,54 @@ class DocumentService
     }
 
 
+
+    /**
+     * フォルダツリーを取得（階層構造）
+     */
+    public function getFolderTree(Facility $facility): array
+    {
+        try {
+            // 全フォルダを取得（パフォーマンス最適化のため一度に取得）
+            $folders = DocumentFolder::where('facility_id', $facility->id)
+                ->orderBy('path')
+                ->get();
+
+            // 階層構造を構築
+            return $this->buildFolderTree($folders);
+
+        } catch (Exception $e) {
+            Log::error('Failed to get folder tree', [
+                'facility_id' => $facility->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return [];
+        }
+    }
+
+    /**
+     * フォルダツリーを構築（階層構造）
+     */
+    private function buildFolderTree($folders, $parentId = null): array
+    {
+        $tree = [];
+
+        foreach ($folders as $folder) {
+            if ($folder->parent_id == $parentId) {
+                $folderData = [
+                    'id' => $folder->id,
+                    'name' => $folder->name,
+                    'path' => $folder->path,
+                    'parent_id' => $folder->parent_id,
+                    'children' => $this->buildFolderTree($folders, $folder->id)
+                ];
+
+                $tree[] = $folderData;
+            }
+        }
+
+        return $tree;
+    }
 
     /**
      * バッチ処理用のフォルダ削除（大量データ対応）
