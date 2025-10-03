@@ -10,14 +10,14 @@
                     {{-- フォルダ作成ボタン --}}
                     @can('create', [App\Models\DocumentFolder::class, $facility])
                         <button type="button" id="create-folder-btn" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#create-folder-modal">
-                            <i class="fas fa-folder-plus me-1"></i>フォルダ作成
+                            <i class="fas fa-folder-plus me-1"></i> 新しいフォルダ
                         </button>
                     @endcan
                     
                     {{-- ファイルアップロードボタン --}}
                     @can('create', [App\Models\DocumentFile::class, $facility])
                         <button type="button" id="upload-file-btn" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#upload-file-modal">
-                            <i class="fas fa-upload me-1"></i>ファイルアップロード
+                            <i class="fas fa-upload me-1"></i> ファイルアップロード
                         </button>
                     @endcan
                     
@@ -40,7 +40,7 @@
                 <div class="d-flex align-items-center gap-2 justify-content-end">
                     {{-- 検索 --}}
                     <div class="input-group input-group-sm" style="max-width: 200px;">
-                        <input type="text" class="form-control" id="search-input" placeholder="検索...">
+                        <input type="text" class="form-control" id="search-input" placeholder="ファイル・フォルダを検索...">
                         <button class="btn btn-outline-secondary" type="button" id="search-btn">
                             <i class="fas fa-search"></i>
                         </button>
@@ -126,13 +126,13 @@
             <div class="mb-4">
                 <i class="fas fa-folder-open fa-4x text-muted"></i>
             </div>
-            <h5 class="text-muted mb-3">フォルダが空です</h5>
+            <h5 class="text-muted mb-3">このフォルダは空です</h5>
             <p class="text-muted mb-4">
                 ファイルをアップロードするか、新しいフォルダを作成してください。
             </p>
             @can('create', [App\Models\DocumentFile::class, $facility])
                 <button type="button" class="btn btn-primary" id="empty-upload-btn" data-bs-toggle="modal" data-bs-target="#upload-file-modal">
-                    <i class="fas fa-upload me-1"></i>ファイルをアップロード
+                    <i class="fas fa-upload me-1"></i> ファイルアップロード
                 </button>
             @endcan
         </div>
@@ -178,7 +178,7 @@
 </div>
 
 {{-- フォルダ作成モーダル --}}
-<div class="modal fade" id="create-folder-modal" tabindex="-1" aria-labelledby="create-folder-modal-title" aria-hidden="true">
+<div class="modal" id="create-folder-modal" tabindex="-1" aria-labelledby="create-folder-modal-title" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <form id="create-folder-form" method="POST">
@@ -205,7 +205,7 @@
 </div>
 
 {{-- ファイルアップロードモーダル --}}
-<div class="modal fade" id="upload-file-modal" tabindex="-1" aria-labelledby="upload-file-modal-title" aria-hidden="true">
+<div class="modal" id="upload-file-modal" tabindex="-1" aria-labelledby="upload-file-modal-title" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form id="upload-file-form" method="POST" enctype="multipart/form-data">
@@ -220,7 +220,7 @@
                     <div class="mb-3">
                         <label for="file-input" class="form-label">ファイル選択</label>
                         <input type="file" class="form-control" id="file-input" name="files[]" multiple>
-                        <div class="form-text">複数のファイルを同時にアップロードできます。最大10MBまで。</div>
+                        <div class="form-text">複数のファイルを同時にアップロードできます（最大10MBまで）。</div>
                     </div>
                     
                     {{-- 選択されたファイル一覧 --}}
@@ -244,6 +244,28 @@
                     <button type="submit" class="btn btn-primary" id="upload-submit-btn">アップロード</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+{{-- 名前変更モーダル --}}
+<div class="modal" id="rename-modal" tabindex="-1" aria-labelledby="rename-modal-title" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rename-modal-title">名前変更</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="new-name" class="form-label">新しい名前</label>
+                    <input type="text" class="form-control" id="new-name" placeholder="新しい名前を入力してください">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                <button type="button" class="btn btn-primary" id="save-rename-btn">保存</button>
+            </div>
         </div>
     </div>
 </div>

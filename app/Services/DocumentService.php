@@ -352,6 +352,63 @@ class DocumentService
     }
 
     /**
+     * ファイル名変更
+     */
+    public function renameFile(DocumentFile $file, string $newName, User $user): DocumentFile
+    {
+        try {
+            DB::beginTransaction();
+
+            $oldName = $file->original_name;
+
+            // 同一フォルダ内での名前重複チェック
+            $existingFile = DocumentFile::where('facility_id', $file->facility_id)
+                ->where('folder_id', $file->folder_id)
+                ->where('original_name', $newName)
+                ->where('id', '!=', $file->id)
+                ->first();
+
+            if ($existingFile) {
+                throw new Exception('同じ名前のファイルが既に存在します。');
+            }
+
+            // ファイル名更新
+            $file->update(['original_name' => $newName]);
+
+            // アクティビティログ
+            $this->activityLogService->logDocumentFileRenamed(
+                $file->id,
+                $oldName,
+                $newName,
+                $file->facility_id
+            );
+
+            DB::commit();
+
+            Log::info('Document file renamed successfully', [
+                'file_id' => $file->id,
+                'old_name' => $oldName,
+                'new_name' => $newName,
+                'user_id' => $user->id,
+            ]);
+
+            return $file->fresh();
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            
+            Log::error('Document file rename failed', [
+                'file_id' => $file->id,
+                'new_name' => $newName,
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            throw new Exception('ファイル名の変更に失敗しました: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * ファイル移動
      */
     public function moveFile(DocumentFile $file, ?DocumentFolder $newFolder, User $user): DocumentFile

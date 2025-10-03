@@ -1,17 +1,20 @@
 /**
- * 統合されたアプリケーションJavaScript
- * - 全ての重複を削除
+ * 統合アプリケーション用JavaScript
+ * - 重複コードをすべて削除
  * - モジュラー設計
- * - パフォーマンス最適化
+ * - パフォーマンスを最適化
  */
 
-// Bootstrap is loaded via CDN in the HTML, so no import needed
-// window.bootstrap is available globally
+// Bootstrap is loaded via CDN in the HTML, so no import needed.
+// window.bootstrap is available globally.
 
 /* ========================================
    Core Utilities (統合版)
    ======================================== */
 class AppUtils {
+  // Guard for confirmDialog re-entrancy
+  static _confirmPromise = null;
+  static _confirmOpen = false;
   static getCsrfToken() {
     return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
   }
@@ -120,51 +123,200 @@ class AppUtils {
     });
   }
 
-  static confirmDialog(message, title = '確認') {
-    return new Promise((resolve) => {
-      let modal = document.getElementById('confirm-modal');
-      if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'confirm-modal';
-        modal.className = 'modal fade';
-        modal.innerHTML = `
+  static async confirmDialog(message, title = '確認', options = {}) {
+    return new Promise(async (resolve) => {
+      // 既に確認ダイアログが開いている場合は、その結果を待つ
+      if (AppUtils._confirmOpen && AppUtils._confirmPromise) {
+        console.warn('confirmDialog is already open. Reusing existing promise.');
+        const priorResult = await AppUtils._confirmPromise; // 直前のダイアログ結果を待ってから続行
+      }
+      // このダイアログを現在開いているものとしてマーク
+      AppUtils._confirmOpen = true;
+      // 既存のモーダルをクリーンアップ（表示中なら先にhide→hidden後にdispose/remove）
+      const existingModal = document.getElementById('confirm-modal');
+      if (existingModal) {
+        try {
+          const inst = bootstrap.Modal.getInstance(existingModal) || bootstrap.Modal.getOrCreateInstance(existingModal);
+          if (existingModal.classList.contains('show')) {
+            await new Promise((done) => {
+              existingModal.addEventListener('hidden.bs.modal', () => {
+                try { inst.dispose(); } catch { }
+                try { existingModal.remove(); } catch { }
+                done();
+              }, { once: true });
+              inst.hide();
+            });
+          } else {
+            try { inst.dispose(); } catch { }
+            try { existingModal.remove(); } catch { }
+          }
+        } catch (e) {
+          console.warn('Error cleaning up existing confirm modal:', e);
+          try { existingModal.remove(); } catch { }
+        }
+      }
+
+      // アイコンとボタンの設定
+      let iconClass = 'fas fa-question-circle text-primary me-3 fa-2x';
+      let buttonClass = 'btn btn-primary';
+      let buttonText = 'OK';
+
+      if (options.type === 'delete') {
+        iconClass = 'fas fa-trash text-danger me-3 fa-2x';
+        buttonClass = 'btn btn-danger';
+        buttonText = '削除';
+      } else if (options.type === 'warning') {
+        iconClass = 'fas fa-exclamation-triangle text-warning me-3 fa-2x';
+        buttonClass = 'btn btn-warning';
+        buttonText = 'OK';
+      }
+
+      // モーダルHTML作成
+      const modalHtml = `
+        <div class="modal" id="confirm-modal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="confirm-modal-title">${title}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title" id="confirmModalLabel">${AppUtils.escapeHtml(title)}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
-              <div class="modal-body" id="confirm-modal-body"></div>
+              <div class="modal-body">
+                <div class="d-flex align-items-center">
+                  <i class="${iconClass}" aria-hidden="true"></i>
+                  <div>${AppUtils.escapeHtml(message).replace(/\n/g, '<br>')}</div>
+                </div>
+              </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-                <button type="button" class="btn btn-primary" id="confirm-modal-ok">OK</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="confirm-cancel-btn">キャンセル</button>
+                <button type="button" class="${buttonClass}" id="confirm-ok-btn">${buttonText}</button>
               </div>
             </div>
           </div>
-        `;
-        document.body.appendChild(modal);
+        </div>
+      `;
+
+      // モーダルをDOMに追加
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+      // モーダル要素を取得
+      const modal = document.getElementById('confirm-modal');
+      if (!modal) {
+        console.error('Failed to create modal element');
+        resolve(false);
+        return;
       }
 
-      document.getElementById('confirm-modal-title').textContent = title;
-      document.getElementById('confirm-modal-body').textContent = message;
+      // Bootstrap modal instance variable
+      let bsModal = null;
 
-      const okButton = document.getElementById('confirm-modal-ok');
-      const newOkButton = okButton.cloneNode(true);
-      okButton.parentNode.replaceChild(newOkButton, okButton);
+      // ボタン要素を取得
+      const okButton = modal.querySelector('#confirm-ok-btn');
+      const cancelButton = modal.querySelector('#confirm-cancel-btn');
+      const closeButton = modal.querySelector('.btn-close');
 
-      newOkButton.addEventListener('click', () => {
-        bootstrap.Modal.getInstance(modal).hide();
-        resolve(true);
-      });
-
-      modal.addEventListener('hidden.bs.modal', () => {
+      if (!okButton || !cancelButton || !closeButton) {
+        console.error('Failed to find modal buttons');
+        modal.remove();
         resolve(false);
+        return;
+      }
+
+      // 解決済みフラグ - より厳密な管理
+      let isResolved = false;
+
+      // 解決処理 - 安全なバージョン
+      const resolveDialog = (result) => {
+        if (isResolved) {
+          console.log('ダイアログは既に解決済みです。重複呼び出しを無視します。結果:', result);
+          return;
+        }
+
+        isResolved = true;
+        console.log('Resolving dialog with result:', result);
+
+        try {
+          if (modal) {
+            // hidden 後に実撤去（インスタンス破棄→DOM削除→Promise resolve）
+            modal.addEventListener('hidden.bs.modal', () => {
+              try {
+                const inst = bootstrap.Modal.getInstance(modal);
+                if (inst) inst.dispose();
+              } catch (e) {
+                console.warn('Error disposing modal:', e);
+              } finally {
+                if (modal.parentNode) modal.parentNode.removeChild(modal);
+              }
+              AppUtils._confirmOpen = false;
+              AppUtils._confirmPromise = null;
+              resolve(result);
+            }, { once: true });
+
+            // 既に表示中でも未表示でも安全に hide()
+            const inst = bootstrap.Modal.getOrCreateInstance(modal);
+            inst.hide();
+          } else {
+            AppUtils._confirmOpen = false;
+            AppUtils._confirmPromise = null;
+            resolve(result);
+          }
+        } catch (e) {
+          console.warn('Error during modal close:', e);
+          try { if (modal?.parentNode) modal.parentNode.removeChild(modal); } catch { }
+          AppUtils._confirmOpen = false;
+          AppUtils._confirmPromise = null;
+          resolve(result);
+        }
+      };
+
+      // イベントリスナーを直接追加（シンプル化）
+      okButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('OK button clicked');
+        resolveDialog(true);
       }, { once: true });
 
-      const bsModal = new bootstrap.Modal(modal);
-      bsModal.show();
+      cancelButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Cancel button clicked');
+        resolveDialog(false);
+      }, { once: true });
+
+      closeButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Close button clicked');
+        resolveDialog(false);
+      }, { once: true });
+
+      // モーダルを表示
+      try {
+        // body直下へ移動（タブ内やoverflow隠しの影響を回避）
+        if (modal.parentElement !== document.body) {
+          document.body.appendChild(modal);
+        }
+
+        bsModal = new bootstrap.Modal(modal, {
+          backdrop: 'static',
+          keyboard: true
+        });
+
+        modal.addEventListener('shown.bs.modal', () => {
+          okButton.focus();
+        }, { once: true });
+
+        bsModal.show();
+        console.log('Modal displayed');
+      } catch (e) {
+        console.error('Error showing modal:', e);
+        AppUtils._confirmOpen = false;
+        AppUtils._confirmPromise = null;
+        resolveDialog(false);
+      }
     });
   }
+  // END AppUtils
 }
 
 /* ========================================
@@ -390,11 +542,32 @@ class FacilityManager {
 class DocumentManager {
   constructor(options = {}) {
     console.log('DocumentManager constructor called with options:', options);
+
+    // Validate required options
+    if (!options.facilityId) {
+      console.error('DocumentManager: facilityId is required');
+      throw new Error('DocumentManager: facilityId is required');
+    }
+
     this.facilityId = options.facilityId;
     this.baseUrl = options.baseUrl;
     this.csrfToken = options.csrfToken || document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
     this.initialized = false;
     this.currentFolderId = '';
+
+    // 重複防止フラグ
+    this.isCreatingFolder = false;
+    this.isUploadingFile = false;
+    this.isDeletingFile = false;
+    this.isDeletingFolder = false;
+    this.isRenamingItem = false;
+    this.documentEventsbound = false;
+    this.uiEventsBound = false;
+
+    if (!this.csrfToken) {
+      console.warn('DocumentManager: CSRF token not found');
+    }
+
     console.log('DocumentManager initialized with facilityId:', this.facilityId);
 
     // DOM読み込み完了後に初期化
@@ -409,111 +582,163 @@ class DocumentManager {
 
   // イベントバインディング
   bindEvents() {
-    // フォルダ作成ボタン
-    const createBtn = document.getElementById('create-folder-btn');
-    if (createBtn) {
-      createBtn.addEventListener('click', (e) => {
-        this.showCreateFolderModal();
+    try {
+      // 二重バインド防止
+      if (this.uiEventsBound) {
+        console.log('bindEvents skipped: already bound');
+        return;
+      }
+      console.log('DocumentManager bindEvents called');
+
+      // フォルダ作成ボタン
+      const createBtn = document.getElementById('create-folder-btn');
+      if (createBtn) {
+        createBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          this.showCreateFolderModal();
+        });
+        console.log('Create folder button event bound');
+      }
+
+      // ファイルアップロードボタン
+      const uploadBtn = document.getElementById('upload-file-btn');
+      if (uploadBtn) {
+        uploadBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          this.showUploadFileModal();
+        });
+        console.log('Upload file button event bound');
+      }
+
+      // 空の状態のアップロードボタン
+      const emptyUploadBtn = document.getElementById('empty-upload-btn');
+      if (emptyUploadBtn) {
+        emptyUploadBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          this.showUploadFileModal();
+        });
+      }
+
+      // フォーム送信（重複防止）
+      const createForm = document.getElementById('create-folder-form');
+      if (createForm) {
+        if (createForm.dataset.bound === 'true') {
+          console.log('create-folder-form is already bound, skip');
+        } else {
+          createForm.dataset.bound = 'true';
+          // Capture phaseで先に止めて、他のsubmitリスナーやネイティブsubmitを抑止
+          createForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+            this.handleCreateFolder(e);
+          }, { capture: true });
+        }
+      }
+
+      const uploadForm = document.getElementById('upload-file-form');
+      if (uploadForm) {
+        if (uploadForm.dataset.bound === 'true') {
+          console.log('upload-file-form is already bound, skip');
+        } else {
+          uploadForm.dataset.bound = 'true';
+          uploadForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+            this.handleUploadFile(e);
+          }, { capture: true });
+        }
+      }
+
+      // ファイル選択時の表示
+      const fileInput = document.getElementById('file-input');
+      if (fileInput) {
+        fileInput.addEventListener('change', (e) => {
+          this.handleFileSelection(e);
+        });
+      }
+
+      // 検索機能
+      const searchInput = document.getElementById('search-input');
+      const searchBtn = document.getElementById('search-btn');
+      if (searchInput && searchBtn) {
+        const debouncedSearch = this.debounce(() => this.handleSearch(), 300);
+        searchInput.addEventListener('input', debouncedSearch);
+        searchBtn.addEventListener('click', () => this.handleSearch());
+      }
+
+      // フィルターとソート
+      const fileTypeFilter = document.getElementById('file-type-filter');
+      const sortSelect = document.getElementById('sort-select');
+      if (fileTypeFilter) {
+        fileTypeFilter.addEventListener('change', () => this.handleFilterChange());
+      }
+      if (sortSelect) {
+        sortSelect.addEventListener('change', () => this.handleSortChange());
+      }
+
+      // 表示モード切替
+      const viewModeInputs = document.querySelectorAll('input[name="view-mode"]');
+      viewModeInputs.forEach(input => {
+        input.addEventListener('change', (e) => {
+          this.handleViewModeChange(e.target.value);
+        });
       });
-    }
 
-    // ファイルアップロードボタン
-    const uploadBtn = document.getElementById('upload-file-btn');
-    if (uploadBtn) {
-      uploadBtn.addEventListener('click', (e) => {
-        this.showUploadFileModal();
-      });
-    }
+      // 全選択チェックボックス
+      const selectAllCheckbox = document.getElementById('select-all');
+      if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', (e) => {
+          this.handleSelectAll(e.target.checked);
+        });
+      }
 
-    // 空の状態のアップロードボタン
-    const emptyUploadBtn = document.getElementById('empty-upload-btn');
-    if (emptyUploadBtn) {
-      emptyUploadBtn.addEventListener('click', (e) => {
-        this.showUploadFileModal();
-      });
-    }
+      // ドキュメントリストのイベント委譲
+      const documentList = document.getElementById('document-list');
+      if (documentList) {
+        documentList.addEventListener('click', (e) => {
+          this.handleDocumentListClick(e);
+        });
 
-    // フォーム送信
-    const createForm = document.getElementById('create-folder-form');
-    if (createForm) {
-      createForm.addEventListener('submit', (e) => {
-        this.handleCreateFolder(e);
-      });
-    }
+        documentList.addEventListener('contextmenu', (e) => {
+          this.handleContextMenu(e);
+        });
+      }
 
-    const uploadForm = document.getElementById('upload-file-form');
-    if (uploadForm) {
-      uploadForm.addEventListener('submit', (e) => {
-        this.handleUploadFile(e);
-      });
-    }
+      // グリッド表示のイベント委譲
+      const gridContainer = document.getElementById('document-grid-container');
+      if (gridContainer) {
+        gridContainer.addEventListener('click', (e) => {
+          this.handleDocumentListClick(e);
+        });
 
-    // ファイル選択時の表示
-    const fileInput = document.getElementById('file-input');
-    if (fileInput) {
-      fileInput.addEventListener('change', (e) => {
-        this.handleFileSelection(e);
-      });
-    }
+        gridContainer.addEventListener('contextmenu', (e) => {
+          this.handleContextMenu(e);
+        });
+      }
 
-    // 検索機能
-    const searchInput = document.getElementById('search-input');
-    const searchBtn = document.getElementById('search-btn');
-    if (searchInput && searchBtn) {
-      const debouncedSearch = this.debounce(() => this.handleSearch(), 300);
-      searchInput.addEventListener('input', debouncedSearch);
-      searchBtn.addEventListener('click', () => this.handleSearch());
-    }
-
-    // フィルターとソート
-    const fileTypeFilter = document.getElementById('file-type-filter');
-    const sortSelect = document.getElementById('sort-select');
-    if (fileTypeFilter) {
-      fileTypeFilter.addEventListener('change', () => this.handleFilterChange());
-    }
-    if (sortSelect) {
-      sortSelect.addEventListener('change', () => this.handleSortChange());
-    }
-
-    // 表示モード切替
-    const viewModeInputs = document.querySelectorAll('input[name="view-mode"]');
-    viewModeInputs.forEach(input => {
-      input.addEventListener('change', (e) => {
-        this.handleViewModeChange(e.target.value);
-      });
-    });
-
-    // 全選択チェックボックス
-    const selectAllCheckbox = document.getElementById('select-all');
-    if (selectAllCheckbox) {
-      selectAllCheckbox.addEventListener('change', (e) => {
-        this.handleSelectAll(e.target.checked);
-      });
-    }
-
-    // ドキュメントリストのイベント委譲
-    const documentList = document.getElementById('document-list');
-    if (documentList) {
-      documentList.addEventListener('click', (e) => {
-        this.handleDocumentListClick(e);
+      // コンテキストメニューを隠す
+      document.addEventListener('click', () => {
+        this.hideContextMenu();
       });
 
-      documentList.addEventListener('contextmenu', (e) => {
-        this.handleContextMenu(e);
-      });
-    }
+      // パンくずナビゲーション
+      const breadcrumbNav = document.getElementById('breadcrumb-nav');
+      if (breadcrumbNav) {
+        breadcrumbNav.addEventListener('click', (e) => {
+          this.handleBreadcrumbClick(e);
+        });
+      }
 
-    // コンテキストメニューを隠す
-    document.addEventListener('click', () => {
-      this.hideContextMenu();
-    });
-
-    // パンくずナビゲーション
-    const breadcrumbNav = document.getElementById('breadcrumb-nav');
-    if (breadcrumbNav) {
-      breadcrumbNav.addEventListener('click', (e) => {
-        this.handleBreadcrumbClick(e);
+      // キーボードショートカット
+      document.addEventListener('keydown', (e) => {
+        this.handleKeyboardShortcuts(e);
       });
+      // バインド成功時にフラグを立てる
+      this.uiEventsBound = true;
+    } catch (error) {
+      console.error('Error in bindEvents:', error);
     }
   }
 
@@ -596,6 +821,12 @@ class DocumentManager {
   async handleCreateFolder(e) {
     e.preventDefault();
 
+    // 重複送信防止
+    if (this.isCreatingFolder) {
+      console.log('Folder creation already in progress, ignoring duplicate request');
+      return;
+    }
+
     const form = e.target;
     const formData = new FormData(form);
     const folderName = formData.get('name');
@@ -605,6 +836,9 @@ class DocumentManager {
       this.showError('フォルダ名を入力してください。');
       return;
     }
+
+    // 送信中フラグを設定
+    this.isCreatingFolder = true;
 
     // 送信ボタンを無効化
     const submitButton = form.querySelector('button[type="submit"]');
@@ -647,11 +881,19 @@ class DocumentManager {
       // 送信ボタンを復元
       submitButton.disabled = false;
       submitButton.textContent = originalText;
+      // 送信中フラグをリセット
+      this.isCreatingFolder = false;
     }
   }
 
   async handleUploadFile(e) {
     e.preventDefault();
+
+    // 重複送信防止
+    if (this.isUploadingFile) {
+      console.log('File upload already in progress, ignoring duplicate request');
+      return;
+    }
 
     const form = e.target;
     const formData = new FormData(form);
@@ -671,6 +913,9 @@ class DocumentManager {
         return;
       }
     }
+
+    // 送信中フラグを設定
+    this.isUploadingFile = true;
 
     // 送信ボタンを無効化
     const submitButton = form.querySelector('button[type="submit"]');
@@ -723,6 +968,8 @@ class DocumentManager {
       submitButton.disabled = false;
       submitButton.textContent = originalText;
       this.showUploadProgress(false);
+      // 送信中フラグをリセット
+      this.isUploadingFile = false;
     }
   }
 
@@ -741,12 +988,18 @@ class DocumentManager {
           const modalInstance = bootstrap.Modal.getInstance(modal) || bootstrap.Modal.getOrCreateInstance(modal);
           if (modalInstance) {
             modalInstance.hide();
+            modal.addEventListener('hidden.bs.modal', () => {
+              this.cleanupExtraBackdrops();
+            }, { once: true });
           }
         }, 10);
       } else {
         const modalInstance = bootstrap.Modal.getInstance(modal) || bootstrap.Modal.getOrCreateInstance(modal);
         if (modalInstance) {
           modalInstance.hide();
+          modal.addEventListener('hidden.bs.modal', () => {
+            this.cleanupExtraBackdrops();
+          }, { once: true });
         }
       }
     }
@@ -781,34 +1034,51 @@ class DocumentManager {
     // No DOM queries or manipulation - pure delegation to Bootstrap
   }
   showLoading() {
-    const loading = document.getElementById('loading-indicator');
-    const documentList = document.getElementById('document-list');
-    const errorMessage = document.getElementById('error-message');
-    const emptyState = document.getElementById('empty-state');
+    try {
+      const loading = document.getElementById('loading-indicator');
+      const documentList = document.getElementById('document-list');
+      const errorMessage = document.getElementById('error-message');
+      const emptyState = document.getElementById('empty-state');
 
-    if (loading) loading.style.display = 'block';
-    if (documentList) documentList.style.display = 'none';
-    if (errorMessage) errorMessage.style.display = 'none';
-    if (emptyState) emptyState.style.display = 'none';
+      if (loading) loading.style.display = 'block';
+      if (documentList) documentList.style.display = 'none';
+      if (errorMessage) errorMessage.style.display = 'none';
+      if (emptyState) emptyState.style.display = 'none';
+    } catch (error) {
+      console.error('Error in showLoading:', error);
+    }
   }
 
   hideLoading() {
-    const loading = document.getElementById('loading-indicator');
-    if (loading) loading.style.display = 'none';
+    try {
+      const loading = document.getElementById('loading-indicator');
+      if (loading) loading.style.display = 'none';
+    } catch (error) {
+      console.error('Error in hideLoading:', error);
+    }
   }
 
   showError(message) {
-    const errorText = document.getElementById('error-text');
-    const errorMessage = document.getElementById('error-message');
-    const documentList = document.getElementById('document-list');
-    const emptyState = document.getElementById('empty-state');
-    const loading = document.getElementById('loading-indicator');
+    try {
+      const errorText = document.getElementById('error-text');
+      const errorMessage = document.getElementById('error-message');
+      const documentList = document.getElementById('document-list');
+      const emptyState = document.getElementById('empty-state');
+      const loading = document.getElementById('loading-indicator');
 
-    if (errorText) errorText.textContent = message;
-    if (errorMessage) errorMessage.style.display = 'block';
-    if (documentList) documentList.style.display = 'none';
-    if (emptyState) emptyState.style.display = 'none';
-    if (loading) loading.style.display = 'none';
+      if (errorText) errorText.textContent = message;
+      if (errorMessage) errorMessage.style.display = 'block';
+      if (documentList) documentList.style.display = 'none';
+      if (emptyState) emptyState.style.display = 'none';
+      if (loading) loading.style.display = 'none';
+
+      // Also show toast for better user feedback
+      AppUtils.showToast(message, 'error');
+    } catch (error) {
+      console.error('Error in showError:', error);
+      // Fallback to toast only
+      AppUtils.showToast(message, 'error');
+    }
   }
 
   showEmptyState() {
@@ -827,20 +1097,6 @@ class DocumentManager {
 
   // モーダル管理はModalManagerクラスに統一
 
-  /**
-   * デバウンス関数（統合前の実装）
-   */
-  debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-      const later = () => {
-        clearTimeout(timeout);
-        func(...args);
-      };
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-    };
-  }
 
   // 統合前の最もシンプルなモーダル表示
   showCreateFolderModal() {
@@ -905,21 +1161,416 @@ class DocumentManager {
     return urlParams.get('folder_id') || '';
   }
 
-  // エラーメッセージ表示
-  showError(message) {
-    AppUtils.showToast(message, 'error');
-  }
+  // エラーメッセージ表示 (duplicate method removed - using main showError method above)
 
   // 成功メッセージ表示
   showSuccess(message) {
     AppUtils.showToast(message, 'success');
   }
 
+  // 削除機能
+  async handleDeleteFile(fileId) {
+    console.log('handleDeleteFile called:', { fileId });
+
+    if (!fileId) {
+      AppUtils.showToast('ファイルIDが無効です', 'error');
+      return;
+    }
+
+    // 重複削除防止
+    if (this.isDeletingFile) {
+      console.log('File deletion already in progress, ignoring duplicate request');
+      return;
+    }
+
+    const confirmed = await AppUtils.confirmDialog(
+      'このファイルを削除しますか？\n削除したファイルは復元できません。',
+      '削除確認',
+      { type: 'delete' }
+    );
+    if (!confirmed) {
+      this.isDeletingFile = false;
+      return;
+    }
+
+    // 削除中フラグを設定
+    this.isDeletingFile = true;
+
+    try {
+      const response = await fetch(`/facilities/${this.facilityId}/documents/files/${fileId}`, {
+        method: 'DELETE',
+        headers: {
+          'X-CSRF-TOKEN': this.csrfToken,
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        AppUtils.showToast('ファイルを削除しました', 'success');
+        console.log('File deleted successfully, refreshing document list...');
+        await this.refreshDocumentList();
+        console.log('Document list refresh completed');
+      } else {
+        AppUtils.showToast(result.message || 'ファイルの削除に失敗しました', 'error');
+      }
+    } catch (error) {
+      console.error('File deletion error:', error);
+      AppUtils.showToast('ファイルの削除に失敗しました', 'error');
+    } finally {
+      // 削除中フラグをリセット
+      this.isDeletingFile = false;
+    }
+  }
+
+  async handleDeleteFolder(folderId) {
+    console.log('handleDeleteFolder called:', { folderId });
+
+    if (!folderId) {
+      AppUtils.showToast('フォルダIDが無効です', 'error');
+      return;
+    }
+
+    // 重複削除防止
+    if (this.isDeletingFolder) {
+      console.log('Folder deletion already in progress, ignoring duplicate request');
+      return;
+    }
+
+    const confirmed = await AppUtils.confirmDialog(
+      'このフォルダを削除しますか？\nフォルダ内にファイルがある場合は削除できません。',
+      '削除確認',
+      { type: 'delete' }
+    );
+    if (!confirmed) {
+      this.isDeletingFolder = false;
+      return;
+    }
+
+    // 削除中フラグを設定
+    this.isDeletingFolder = true;
+
+    try {
+      const response = await fetch(`/facilities/${this.facilityId}/documents/folders/${folderId}`, {
+        method: 'DELETE',
+        headers: {
+          'X-CSRF-TOKEN': this.csrfToken,
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        AppUtils.showToast('フォルダを削除しました', 'success');
+        console.log('Folder deleted successfully, refreshing document list...');
+        await this.refreshDocumentList();
+        console.log('Document list refresh completed');
+      } else {
+        AppUtils.showToast(result.message || 'フォルダの削除に失敗しました', 'error');
+      }
+    } catch (error) {
+      console.error('Folder deletion error:', error);
+      AppUtils.showToast('フォルダの削除に失敗しました', 'error');
+    } finally {
+      // 削除中フラグをリセット
+      this.isDeletingFolder = false;
+    }
+  }
+
+  // 編集機能
+  async handleRenameFile(fileId, currentName) {
+    console.log('handleRenameFile called:', { fileId, currentName });
+
+    // 二重実行ガード（高速連打・二重イベント対策）
+    if (this.isRenamingItem) {
+      console.log('Rename already in progress, skip');
+      return;
+    }
+
+    if (!currentName || currentName === 'Unknown') {
+      AppUtils.showToast('ファイル名を取得できませんでした', 'error');
+      return;
+    }
+
+    const newName = await this.showRenameModal(currentName);
+    if (!newName) return;
+
+    if (newName === currentName) {
+      AppUtils.showToast('名前が変更されていません', 'info');
+      return;
+    }
+
+    this.isRenamingItem = true;
+    try {
+      const response = await fetch(`/facilities/${this.facilityId}/documents/files/${fileId}/rename`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': this.csrfToken,
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ name: newName })
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        if (!this._lastRenameToastAt || Date.now() - this._lastRenameToastAt > 600) {
+          AppUtils.showToast('ファイル名を変更しました', 'success');
+          this._lastRenameToastAt = Date.now();
+        }
+        this.refreshDocumentList();
+      } else {
+        AppUtils.showToast(result.message || 'ファイル名の変更に失敗しました', 'error');
+      }
+    } catch (error) {
+      console.error('File rename error:', error);
+      AppUtils.showToast('ファイル名の変更に失敗しました', 'error');
+    } finally {
+      this.isRenamingItem = false;
+    }
+  }
+
+  async handleRenameFolder(folderId, currentName) {
+    console.log('handleRenameFolder called:', { folderId, currentName });
+
+    // 二重実行ガード（高速連打・二重イベント対策）
+    if (this.isRenamingItem) {
+      console.log('Rename already in progress, skip');
+      return;
+    }
+
+    if (!currentName || currentName === 'Unknown') {
+      AppUtils.showToast('フォルダ名を取得できませんでした', 'error');
+      return;
+    }
+
+    const newName = await this.showRenameModal(currentName);
+    if (!newName) return;
+
+    if (newName === currentName) {
+      AppUtils.showToast('名前が変更されていません', 'info');
+      return;
+    }
+
+    this.isRenamingItem = true;
+    try {
+      const response = await fetch(`/facilities/${this.facilityId}/documents/folders/${folderId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': this.csrfToken,
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ name: newName })
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        if (!this._lastRenameToastAt || Date.now() - this._lastRenameToastAt > 600) {
+          AppUtils.showToast('フォルダ名を変更しました', 'success');
+          this._lastRenameToastAt = Date.now();
+        }
+        this.refreshDocumentList();
+      } else {
+        AppUtils.showToast(result.message || 'フォルダ名の変更に失敗しました', 'error');
+      }
+    } catch (error) {
+      console.error('Folder rename error:', error);
+      AppUtils.showToast('フォルダ名の変更に失敗しました', 'error');
+    } finally {
+      this.isRenamingItem = false;
+    }
+  }
+
+  showRenameModal(currentName) {
+    return new Promise((resolve) => {
+      const modal = document.getElementById('rename-modal');
+      const input = document.getElementById('new-name');
+      const saveBtn = document.getElementById('save-rename-btn');
+
+      if (!modal || !input || !saveBtn) {
+        console.error('Rename modal elements not found:', { modal, input, saveBtn });
+        AppUtils.showToast('名前変更ダイアログを開けませんでした', 'error');
+        resolve(null);
+        return;
+      }
+
+      input.value = currentName || '';
+      input.setAttribute('autocomplete', 'off');
+      // 保存ボタンが submit だと Enter と衝突するためボタン化
+      try { saveBtn.setAttribute('type', 'button'); } catch { }
+      // Ensure modal is in body and clean up any extra backdrops before showing
+      this.ensureModalInBody(modal);
+      this.cleanupExtraBackdrops();
+
+      // Use getOrCreateInstance and allow normal backdrop/focus behavior
+      const modalInstance = bootstrap.Modal.getOrCreateInstance(modal, { backdrop: true, focus: true, keyboard: true });
+
+      // Always clean up any extra backdrops when the modal fully closes
+      modal.addEventListener('hidden.bs.modal', () => {
+        this.cleanupExtraBackdrops();
+      }, { once: true });
+
+      let finished = false;
+      const finalize = (val) => {
+        if (finished) return;
+        finished = true;
+        resolve(val);
+      };
+
+      const onSave = () => {
+        const newName = (input.value || '').trim();
+        if (!newName || newName === currentName) {
+          finalize(null);
+        } else {
+          finalize(newName);
+        }
+        modalInstance.hide();
+      };
+
+      const onKey = (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          onSave();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          finalize(null);
+          modalInstance.hide();
+        }
+      };
+
+      // フォームのネイティブsubmitを抑止し、onSaveにルーティング
+      const form = modal.querySelector('form');
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onSave();
+        }, { once: true, capture: true });
+      }
+
+      const onHidden = () => {
+        if (!finished) finalize(null);
+        input.removeEventListener('keydown', onKey);
+        saveBtn.removeEventListener('click', onSave);
+        modal.removeEventListener('hidden.bs.modal', onHidden);
+      };
+
+      saveBtn.addEventListener('click', onSave);
+      input.addEventListener('keydown', onKey);
+      modal.addEventListener('hidden.bs.modal', onHidden);
+
+      modal.addEventListener('shown.bs.modal', () => {
+        input.focus();
+        input.select();
+      }, { once: true });
+
+      modalInstance.show();
+    });
+  }
+
+  // ドキュメントリストクリックハンドラー
+  handleDocumentListClick(e) {
+    const target = e.target.closest('button');
+    if (!target) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const action = target.dataset.action;
+    const itemType = target.dataset.type;
+    const itemId = target.dataset.id;
+
+    if (!action || !itemType || !itemId) {
+      console.warn('Missing required data attributes:', { action, itemType, itemId });
+      return;
+    }
+
+    switch (action) {
+      case 'rename':
+      case 'edit':
+        // data-name 属性から名前を取得、なければ getCurrentItemName を使用
+        let currentName = target.dataset.name || this.getCurrentItemName(itemId, itemType);
+        if (itemType === 'file') {
+          this.handleRenameFile(itemId, currentName);
+        } else if (itemType === 'folder') {
+          this.handleRenameFolder(itemId, currentName);
+        }
+        break;
+      case 'delete':
+        if (itemType === 'file') {
+          this.handleDeleteFile(itemId);
+        } else if (itemType === 'folder') {
+          this.handleDeleteFolder(itemId);
+        }
+        break;
+    }
+  }
+
+
+  // プロパティ表示（将来の実装用）
+  showProperties(itemType, itemId) {
+    console.log(`Show properties for ${itemType} ${itemId}`);
+    // TODO: プロパティモーダルの実装
+  }
+
   // ドキュメントリストを更新
-  refreshDocumentList() {
-    // 現在のページを再読み込みしてドキュメントリストを更新
-    // 将来的にはAJAXで部分更新に変更可能
-    window.location.reload();
+  async refreshDocumentList() {
+    try {
+      console.log('Refreshing document list...');
+      // 現在のフォルダIDを取得して正しいloadDocumentsメソッドを呼び出し
+      const currentFolderId = this.getCurrentFolderId();
+      await this.loadDocuments(currentFolderId);
+    } catch (error) {
+      console.error('Failed to refresh document list:', error);
+      AppUtils.showToast('ドキュメントリストの更新に失敗しました', 'error');
+    }
+  }
+
+
+  // 古いrenderDocumentListメソッドは削除 - renderDocumentsメソッドを使用
+
+
+  // 統計情報更新
+  updateStats(stats) {
+    if (!stats) return;
+
+    const folderCount = document.getElementById('folder-count');
+    const fileCount = document.getElementById('file-count');
+    const totalSize = document.getElementById('total-size');
+    const documentStats = document.getElementById('document-stats');
+
+    if (folderCount) folderCount.textContent = stats.folder_count || 0;
+    if (fileCount) fileCount.textContent = stats.file_count || 0;
+    if (totalSize) totalSize.textContent = stats.formatted_size || '0 B';
+
+    if (documentStats) {
+      documentStats.style.display = (stats.folder_count > 0 || stats.file_count > 0) ? 'block' : 'none';
+    }
+  }
+
+  // 日付フォーマット
+  formatDate(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ja-JP', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  // HTMLエスケープ
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
   }
 
   // アップロードプログレスバーの表示/非表示
@@ -1050,14 +1701,21 @@ class DocumentManager {
 
   // ドキュメント表示
   renderDocuments(data) {
+    console.log('renderDocuments called with data:', data);
     const { folders = [], files = [] } = data;
     const hasContent = folders.length > 0 || files.length > 0;
 
     console.log('Content check:', {
       foldersCount: folders.length,
       filesCount: files.length,
-      hasContent: hasContent
+      hasContent: hasContent,
+      folders: folders,
+      files: files
     });
+
+    // 空の状態を隠す（常に実行）
+    this.hideEmptyState();
+    this.hideError();
 
     if (!hasContent) {
       console.log('No content found, showing empty state');
@@ -1069,14 +1727,33 @@ class DocumentManager {
     const tableBody = document.getElementById('document-table-body');
     const gridContainer = document.getElementById('document-grid-container');
 
-    if (documentList) documentList.style.display = 'block';
+    console.log('DOM elements found:', {
+      documentList: !!documentList,
+      tableBody: !!tableBody,
+      gridContainer: !!gridContainer
+    });
+
+    if (documentList) {
+      documentList.style.display = 'block';
+      console.log('Document list set to display: block');
+    } else {
+      console.error('Document list element not found!');
+    }
 
     // テーブル表示
     if (tableBody) {
-      tableBody.innerHTML = [
-        ...folders.map(folder => this.renderFolderRow(folder)),
-        ...files.map(file => this.renderFileRow(file))
-      ].join('');
+      const folderRows = folders.map(folder => this.renderFolderRow(folder));
+      const fileRows = files.map(file => this.renderFileRow(file));
+      const allRows = [...folderRows, ...fileRows];
+
+      console.log('Rendering rows:', {
+        folderRowsCount: folderRows.length,
+        fileRowsCount: fileRows.length,
+        totalRows: allRows.length,
+        sampleFileRow: fileRows[0] ? fileRows[0].substring(0, 100) + '...' : 'none'
+      });
+
+      tableBody.innerHTML = allRows.join('');
     }
 
     // グリッド表示
@@ -1086,22 +1763,26 @@ class DocumentManager {
         ...files.map(file => this.renderFileCard(file))
       ].join('');
     }
+  }
 
-    this.hideEmptyState();
-    this.hideError();
+  // ドキュメント固有のイベントリスナーをバインド
+  bindDocumentEvents() {
+    // ドキュメントリスナーの二重バインドを避けるため、bindEventsでの委譲に一本化
+    return;
   }
 
   // フォルダ行の表示
   renderFolderRow(folder) {
+    const folderName = AppUtils.escapeHtml(folder.name);
     return `
-      <tr class="document-item folder-item" data-type="folder" data-id="${folder.id}">
+      <tr class="document-item folder-item" data-type="folder" data-id="${folder.id}" data-name="${folderName}">
         <td>
           <input type="checkbox" class="form-check-input item-checkbox" value="${folder.id}">
         </td>
         <td>
           <a href="#" class="folder-link text-decoration-none" data-folder-id="${folder.id}">
             <i class="fas fa-folder text-warning me-2"></i>
-            ${AppUtils.escapeHtml(folder.name)}
+            ${folderName}
           </a>
         </td>
         <td><span class="text-muted">—</span></td>
@@ -1109,10 +1790,19 @@ class DocumentManager {
         <td><small class="text-muted">${AppUtils.escapeHtml(folder.created_by || '')}</small></td>
         <td>
           <div class="btn-group btn-group-sm">
-            <button class="btn btn-outline-secondary btn-sm" data-action="rename" data-id="${folder.id}" data-type="folder">
+            <button class="btn btn-outline-secondary btn-sm" 
+                    data-action="rename" 
+                    data-id="${folder.id}" 
+                    data-type="folder" 
+                    data-name="${folderName}"
+                    title="名前変更">
               <i class="fas fa-edit"></i>
             </button>
-            <button class="btn btn-outline-danger btn-sm" data-action="delete" data-id="${folder.id}" data-type="folder">
+            <button class="btn btn-outline-danger btn-sm" 
+                    data-action="delete" 
+                    data-id="${folder.id}" 
+                    data-type="folder"
+                    title="削除">
               <i class="fas fa-trash"></i>
             </button>
           </div>
@@ -1124,15 +1814,16 @@ class DocumentManager {
   // ファイル行の表示
   renderFileRow(file) {
     const fileIcon = this.getFileIcon(file.extension);
+    const fileName = AppUtils.escapeHtml(file.name);
     return `
-      <tr class="document-item file-item" data-type="file" data-id="${file.id}">
+      <tr class="document-item file-item" data-type="file" data-id="${file.id}" data-name="${fileName}">
         <td>
           <input type="checkbox" class="form-check-input item-checkbox" value="${file.id}">
         </td>
         <td>
           <a href="${file.download_url}" class="file-link text-decoration-none" target="_blank">
             <i class="${fileIcon} me-2"></i>
-            ${AppUtils.escapeHtml(file.name)}
+            ${fileName}
           </a>
         </td>
         <td><small class="text-muted">${this.formatFileSize(file.size)}</small></td>
@@ -1140,13 +1831,25 @@ class DocumentManager {
         <td><small class="text-muted">${AppUtils.escapeHtml(file.uploaded_by || '')}</small></td>
         <td>
           <div class="btn-group btn-group-sm">
-            <a href="${file.download_url}" class="btn btn-outline-primary btn-sm" target="_blank">
+            <a href="${file.download_url}" 
+               class="btn btn-outline-primary btn-sm" 
+               target="_blank"
+               title="ダウンロード">
               <i class="fas fa-download"></i>
             </a>
-            <button class="btn btn-outline-secondary btn-sm" data-action="rename" data-id="${file.id}" data-type="file">
+            <button class="btn btn-outline-secondary btn-sm" 
+                    data-action="rename" 
+                    data-id="${file.id}" 
+                    data-type="file" 
+                    data-name="${fileName}"
+                    title="名前変更">
               <i class="fas fa-edit"></i>
             </button>
-            <button class="btn btn-outline-danger btn-sm" data-action="delete" data-id="${file.id}" data-type="file">
+            <button class="btn btn-outline-danger btn-sm" 
+                    data-action="delete" 
+                    data-id="${file.id}" 
+                    data-type="file"
+                    title="削除">
               <i class="fas fa-trash"></i>
             </button>
           </div>
@@ -1160,10 +1863,28 @@ class DocumentManager {
     return `
       <div class="col-md-3 col-sm-4 col-6 mb-3">
         <div class="card document-card folder-card" data-type="folder" data-id="${folder.id}">
-          <div class="card-body text-center">
-            <i class="fas fa-folder fa-3x text-warning mb-2"></i>
-            <h6 class="card-title">${AppUtils.escapeHtml(folder.name)}</h6>
-            <small class="text-muted">${AppUtils.formatDate(folder.updated_at)}</small>
+          <div class="card-body text-center position-relative p-0">
+            <div class="folder-link" data-folder-id="${folder.id}" style="cursor: pointer; padding: 1rem;">
+              <i class="fas fa-folder fa-3x text-warning mb-2"></i>
+              <h6 class="card-title mb-1">${AppUtils.escapeHtml(folder.name)}</h6>
+              <small class="text-muted">${AppUtils.formatDate(folder.updated_at)}</small>
+            </div>
+            <div class="card-actions position-absolute top-0 end-0 p-2">
+              <div class="dropdown">
+                <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="#" data-action="rename" data-id="${folder.id}" data-type="folder">
+                    <i class="fas fa-edit me-2"></i>名前変更
+                  </a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item text-danger" href="#" data-action="delete" data-id="${folder.id}" data-type="folder">
+                    <i class="fas fa-trash me-2"></i>削除
+                  </a></li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1176,10 +1897,31 @@ class DocumentManager {
     return `
       <div class="col-md-3 col-sm-4 col-6 mb-3">
         <div class="card document-card file-card" data-type="file" data-id="${file.id}">
-          <div class="card-body text-center">
-            <i class="${fileIcon} fa-3x mb-2"></i>
-            <h6 class="card-title">${AppUtils.escapeHtml(file.name)}</h6>
-            <small class="text-muted">${this.formatFileSize(file.size)}</small>
+          <div class="card-body text-center position-relative p-0">
+            <a href="${file.download_url}" class="file-link text-decoration-none d-block" target="_blank" style="color: inherit; padding: 1rem;">
+              <i class="${fileIcon} fa-3x mb-2"></i>
+              <h6 class="card-title mb-1">${AppUtils.escapeHtml(file.name)}</h6>
+              <small class="text-muted">${this.formatFileSize(file.size)}</small>
+            </a>
+            <div class="card-actions position-absolute top-0 end-0 p-2">
+              <div class="dropdown">
+                <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="${file.download_url}" target="_blank">
+                    <i class="fas fa-download me-2"></i>ダウンロード
+                  </a></li>
+                  <li><a class="dropdown-item" href="#" data-action="rename" data-id="${file.id}" data-type="file">
+                    <i class="fas fa-edit me-2"></i>名前変更
+                  </a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item text-danger" href="#" data-action="delete" data-id="${file.id}" data-type="file">
+                    <i class="fas fa-trash me-2"></i>削除
+                  </a></li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1286,20 +2028,30 @@ class DocumentManager {
 
   // ドキュメントリストのクリック処理
   handleDocumentListClick(e) {
+    // ドロップダウンメニューのクリックは処理しない
+    if (e.target.closest('.dropdown-menu')) {
+      return;
+    }
+
+    // ドロップダウンボタンのクリックは処理しない
+    if (e.target.closest('[data-bs-toggle="dropdown"]')) {
+      return;
+    }
+
     const target = e.target.closest('[data-action], .folder-link, .file-link');
     if (!target) return;
 
-    e.preventDefault();
-
     if (target.classList.contains('folder-link')) {
       // フォルダをクリック
+      e.preventDefault();
       const folderId = target.dataset.folderId;
       this.navigateToFolder(folderId);
     } else if (target.classList.contains('file-link')) {
-      // ファイルをクリック（ダウンロード）
-      window.open(target.href, '_blank');
+      // ファイルをクリック（ダウンロード）- デフォルトの動作を許可
+      return;
     } else if (target.dataset.action) {
       // アクションボタンをクリック
+      e.preventDefault();
       this.handleAction(target.dataset.action, target.dataset.id, target.dataset.type);
     }
   }
@@ -1326,36 +2078,43 @@ class DocumentManager {
     this.navigateToFolder(folderId);
   }
 
-  // パンくずナビゲーション更新
+  // パンくずナビゲーション更新（APIの2系統フォーマットに対応）
   updateBreadcrumbs(breadcrumbs) {
     const breadcrumbNav = document.getElementById('breadcrumb-nav');
-    if (!breadcrumbNav || !breadcrumbs) return;
+    if (!breadcrumbNav || !Array.isArray(breadcrumbs)) return;
 
-    // パンくずリストを生成
-    const breadcrumbItems = breadcrumbs.map(item => {
-      return `
-        <li class="breadcrumb-item ${item.active ? 'active' : ''}">
-          ${item.active
-          ? `<span>${AppUtils.escapeHtml(item.name)}</span>`
-          : `<a href="#" class="breadcrumb-link" data-folder-id="${item.id || ''}">
-                 ${item.id ? '' : '<i class="fas fa-home me-1"></i>'}${AppUtils.escapeHtml(item.name)}
-               </a>`
-        }
-        </li>
-      `;
+    const itemsHtml = breadcrumbs.map((item, index) => {
+      const isActive = Boolean(item.active ?? item.is_current ?? item.isActive);
+      const id = item.id || '';
+      const name = AppUtils.escapeHtml(item.name || '');
+      const isHome = index === 0 && !id; // 先頭かつルート扱い
+
+      if (isActive) {
+        return `<li class="breadcrumb-item active" aria-current="page"><span>${name}</span></li>`;
+      } else {
+        return `<li class="breadcrumb-item"><a href="#" class="breadcrumb-link" data-folder-id="${id}">${isHome ? '<i class=\"fas fa-home me-1\"></i>' : ''}${name}</a></li>`;
+      }
     }).join('');
 
-    breadcrumbNav.innerHTML = breadcrumbItems;
+    breadcrumbNav.innerHTML = itemsHtml;
   }
 
   // アクション処理
   async handleAction(action, id, type) {
     switch (action) {
       case 'rename':
-        await this.handleRename(id, type);
+        if (type === 'file') {
+          await this.handleRenameFile(id, this.getCurrentItemName(id, 'file'));
+        } else if (type === 'folder') {
+          await this.handleRenameFolder(id, this.getCurrentItemName(id, 'folder'));
+        }
         break;
       case 'delete':
-        await this.handleDelete(id, type);
+        if (type === 'file') {
+          await this.handleDeleteFile(id);
+        } else if (type === 'folder') {
+          await this.handleDeleteFolder(id);
+        }
         break;
       case 'download':
         this.handleDownload(id, type);
@@ -1366,78 +2125,8 @@ class DocumentManager {
     }
   }
 
-  // 名前変更処理
-  async handleRename(id, type) {
-    const currentName = this.getCurrentItemName(id, type);
-    const newName = prompt(`新しい名前を入力してください:`, currentName);
-
-    if (!newName || newName === currentName) return;
-
-    try {
-      const url = type === 'folder'
-        ? `/facilities/${this.facilityId}/documents/folders/${id}`
-        : `/facilities/${this.facilityId}/documents/files/${id}/rename`;
-
-      const response = await fetch(url, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': this.csrfToken,
-          'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: JSON.stringify({ name: newName })
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        this.showSuccess('名前を変更しました。');
-        await this.loadDocuments(this.currentFolderId);
-      } else {
-        this.showError(result.message || '名前の変更に失敗しました。');
-      }
-    } catch (error) {
-      console.error('Rename failed:', error);
-      this.showError('名前の変更に失敗しました。');
-    }
-  }
-
-  // 削除処理
-  async handleDelete(id, type) {
-    const itemName = this.getCurrentItemName(id, type);
-    const confirmed = await AppUtils.confirmDialog(
-      `「${itemName}」を削除しますか？この操作は取り消せません。`,
-      '削除確認'
-    );
-
-    if (!confirmed) return;
-
-    try {
-      const url = type === 'folder'
-        ? `/facilities/${this.facilityId}/documents/folders/${id}`
-        : `/facilities/${this.facilityId}/documents/files/${id}`;
-
-      const response = await fetch(url, {
-        method: 'DELETE',
-        headers: {
-          'X-CSRF-TOKEN': this.csrfToken,
-          'X-Requested-With': 'XMLHttpRequest'
-        }
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        this.showSuccess('削除しました。');
-        await this.loadDocuments(this.currentFolderId);
-      } else {
-        this.showError(result.message || '削除に失敗しました。');
-      }
-    } catch (error) {
-      console.error('Delete failed:', error);
-      this.showError('削除に失敗しました。');
-    }
-  }
+  // 名前変更処理 (generic) - removed
+  // 削除処理 (generic) - removed
 
   // ダウンロード処理
   handleDownload(id, type) {
@@ -1492,14 +2181,116 @@ class DocumentManager {
     alert(info.join('\n'));
   }
 
+  // キーボードショートカット処理
+  handleKeyboardShortcuts(e) {
+    // モーダルが開いている場合は処理しない
+    if (document.querySelector('.modal.show')) return;
+
+    // 入力フィールドにフォーカスがある場合は処理しない
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+    // 選択されたアイテムを取得
+    const selectedItems = document.querySelectorAll('.item-checkbox:checked');
+
+    switch (e.key) {
+      case 'Delete':
+        e.preventDefault();
+        if (selectedItems.length === 1) {
+          const item = selectedItems[0].closest('[data-type][data-id]');
+          if (item) {
+            this.handleAction('delete', item.dataset.id, item.dataset.type);
+          }
+        }
+        break;
+
+      case 'F2':
+        e.preventDefault();
+        if (selectedItems.length === 1) {
+          const item = selectedItems[0].closest('[data-type][data-id]');
+          if (item) {
+            this.handleAction('rename', item.dataset.id, item.dataset.type);
+          }
+        }
+        break;
+
+      case 'Enter':
+        if (selectedItems.length === 1) {
+          const item = selectedItems[0].closest('[data-type][data-id]');
+          if (item && item.dataset.type === 'folder') {
+            e.preventDefault();
+            this.navigateToFolder(item.dataset.id);
+          }
+        }
+        break;
+
+      case 'Escape':
+        // 選択をクリア
+        selectedItems.forEach(checkbox => {
+          checkbox.checked = false;
+        });
+        // コンテキストメニューを隠す
+        this.hideContextMenu();
+        break;
+    }
+  }
+
   // 現在のアイテム名を取得
   getCurrentItemName(id, type) {
-    const selector = type === 'folder'
+    console.log('getCurrentItemName called:', { id, type });
+
+    // リスト表示での検索
+    let selector = type === 'folder'
       ? `[data-type="folder"][data-id="${id}"] .folder-link`
       : `[data-type="file"][data-id="${id}"] .file-link`;
 
-    const element = document.querySelector(selector);
-    return element ? element.textContent.trim() : 'Unknown';
+    let element = document.querySelector(selector);
+    console.log('First selector attempt:', selector, element);
+
+    // グリッド表示での検索（リスト表示で見つからない場合）
+    if (!element) {
+      selector = type === 'folder'
+        ? `[data-type="folder"][data-id="${id}"] .card-title`
+        : `[data-type="file"][data-id="${id}"] .card-title`;
+      element = document.querySelector(selector);
+      console.log('Grid selector attempt:', selector, element);
+    }
+
+    // テーブル行での検索（上記で見つからない場合）
+    if (!element) {
+      const row = document.querySelector(`tr[data-type="${type}"][data-id="${id}"]`);
+      console.log('Row found:', row);
+      if (row) {
+        const nameCell = row.querySelector('td:nth-child(2)');
+        console.log('Name cell found:', nameCell);
+        if (nameCell) {
+          const link = nameCell.querySelector('a');
+          element = link || nameCell;
+          console.log('Final element:', element);
+        }
+      }
+    }
+
+    if (element) {
+      // テキストコンテンツを取得し、余分な空白を除去
+      let name = element.textContent.trim();
+      console.log('Raw name:', name);
+
+      // アイコンのテキストを除去（より確実な方法）
+      name = name.replace(/^\s*[\u{1F4C1}\u{1F4C4}\u{1F4DD}]\s*/u, '');
+
+      // FontAwesome アイコンクラスのテキストも除去
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = element.innerHTML;
+      const icons = tempDiv.querySelectorAll('i');
+      icons.forEach(icon => icon.remove());
+      name = tempDiv.textContent.trim();
+
+      console.log('Cleaned name:', name);
+      return name || 'Unknown';
+    }
+
+    console.warn('Could not find element for:', { id, type });
+    return 'Unknown';
   }
 
   // コンテキストメニュー処理

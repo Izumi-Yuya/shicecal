@@ -1,0 +1,22 @@
+{
+  "enabled": true,
+  "name": "Code Quality Analyzer",
+  "description": "Monitors source code files for changes and provides automated code quality analysis including code smells, design patterns, and best practices suggestions. Focuses on improving readability, maintainability, and performance while preserving functionality.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "app/**/*.php",
+      "resources/js/**/*.js",
+      "resources/css/**/*.css",
+      "resources/views/**/*.blade.php",
+      "config/**/*.php",
+      "database/migrations/**/*.php",
+      "tests/**/*.php"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Analyze the modified code files for potential improvements. Focus on:\n\n1. **Code Smells Detection:**\n   - Long methods/functions (>50 lines)\n   - Large classes (>500 lines)\n   - Duplicate code patterns\n   - Complex conditional logic\n   - Magic numbers and strings\n   - Inconsistent naming conventions\n\n2. **Design Patterns & Architecture:**\n   - Proper use of Laravel conventions (MVC, Service Layer, Repository patterns)\n   - SOLID principles adherence\n   - Dependency injection usage\n   - Interface segregation opportunities\n   - Single responsibility violations\n\n3. **Best Practices:**\n   - Laravel-specific best practices (Eloquent usage, validation, middleware)\n   - PHP coding standards (PSR-12 compliance)\n   - Security considerations (SQL injection, XSS prevention, CSRF protection)\n   - Error handling and logging practices\n   - Resource management (database connections, file handles)\n\n4. **Performance Optimizations:**\n   - N+1 query problems\n   - Inefficient loops and algorithms\n   - Memory usage optimization\n   - Caching opportunities\n   - Database query optimization\n\n5. **Maintainability Improvements:**\n   - Code documentation and comments\n   - Method and variable naming clarity\n   - Code organization and structure\n   - Test coverage gaps\n   - Configuration management\n\nFor each issue found, provide:\n- Clear description of the problem\n- Specific location (file and line if possible)\n- Suggested improvement with code example\n- Explanation of why the change improves the code\n- Priority level (High/Medium/Low)\n\nMaintain existing functionality while suggesting improvements. Focus on actionable recommendations that align with the Laravel framework and PHP best practices used in this facility management system."
+  }
+}

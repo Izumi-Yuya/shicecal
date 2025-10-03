@@ -502,10 +502,11 @@ class DocumentController extends Controller
      * 
      * Requirements: 8.4, 9.1, 9.2, 9.3 - ファイルダウンロード時の権限確認とセキュリティ
      * 
+     * @param Facility $facility
      * @param DocumentFile $file
      * @return StreamedResponse
      */
-    public function downloadFile(DocumentFile $file): StreamedResponse
+    public function downloadFile(Facility $facility, DocumentFile $file): StreamedResponse
     {
         try {
             // Check authorization (Requirement 9.1, 9.2)
@@ -587,10 +588,11 @@ class DocumentController extends Controller
     /**
      * Preview a file (for supported file types).
      * 
+     * @param Facility $facility
      * @param DocumentFile $file
      * @return mixed
      */
-    public function previewFile(DocumentFile $file)
+    public function previewFile(Facility $facility, DocumentFile $file)
     {
         try {
             // Check authorization
@@ -646,10 +648,11 @@ class DocumentController extends Controller
     /**
      * Delete a file.
      * 
+     * @param Facility $facility
      * @param DocumentFile $file
      * @return JsonResponse
      */
-    public function deleteFile(DocumentFile $file): JsonResponse
+    public function deleteFile(Facility $facility, DocumentFile $file): JsonResponse
     {
         try {
             // Check authorization
@@ -837,27 +840,18 @@ class DocumentController extends Controller
                 'name' => ['required', 'string', 'max:255']
             ]);
 
-            $oldName = $file->original_name;
             $newName = $request->input('name');
 
-            // Update file name
-            $file->update(['original_name' => $newName]);
-
-            // Log activity
-            $this->activityLogService->logDocumentFileRenamed(
-                $file->id,
-                $oldName,
-                $newName,
-                $file->facility_id
-            );
+            // Rename file using service
+            $updatedFile = $this->documentService->renameFile($file, $newName, auth()->user());
 
             return response()->json([
                 'success' => true,
                 'message' => 'ファイル名を変更しました。',
                 'file' => [
-                    'id' => $file->id,
-                    'name' => $file->original_name,
-                    'updated_at' => $file->updated_at->format('Y-m-d H:i:s')
+                    'id' => $updatedFile->id,
+                    'name' => $updatedFile->original_name,
+                    'updated_at' => $updatedFile->updated_at->format('Y-m-d H:i:s')
                 ]
             ]);
 
