@@ -21,9 +21,7 @@ The test data seeders create a complete dataset for testing all system functiona
 - **編集者（大阪）** (editor-osaka@example.com) - Osaka facility editor  
 - **編集者（全国）** (editor@example.com) - National facility editor
 
-### Primary Responder Users (3 users)
-- **一次対応者（東日本）** (responder-east@example.com) - East Japan responder
-- **一次対応者（西日本）** (responder-west@example.com) - West Japan responder
+### Primary Responder Users (1 user)
 - **一次対応者（全国）** (responder@example.com) - National responder
 
 ### Approver Users (2 users)

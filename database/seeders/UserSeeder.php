@@ -22,14 +22,14 @@ class UserSeeder extends Seeder
                 'email' => 'admin@example.com',
                 'role' => 'admin',
                 'department' => 'land_affairs', // 管理者は土地総務権限も持つ
-                'access_scope' => null,
+                'access_scope' => 'all_facilities', // 管理者は全事業所アクセス
             ],
             [
                 'name' => '副管理者',
                 'email' => 'sub-admin@example.com',
                 'role' => 'admin',
                 'department' => 'land_affairs',
-                'access_scope' => null,
+                'access_scope' => 'all_facilities', // 管理者は全事業所アクセス
             ],
         ];
 
@@ -59,6 +59,19 @@ class UserSeeder extends Seeder
             $department  = $userData['users.department'] ?? $userData['department'] ?? null;
             $accessScope = $userData['users.access_scope'] ?? $userData['access_scope'] ?? null;
 
+            // Convert Japanese access scope values to English constants
+            if ($accessScope) {
+                // Check if it's already an English constant (for admin users)
+                $validEnglishValues = ['all_facilities', 'assigned_facility', 'own_facility'];
+                if (!in_array($accessScope, $validEnglishValues)) {
+                    // It's a Japanese value, convert it
+                    $accessScope = $this->mapJapaneseToEnglish($accessScope);
+                }
+                // If it's already English, keep it as is
+            } else {
+                $accessScope = 'all_facilities'; // Default value
+            }
+
             if (! $email) {
                 $this->command->warn("Skipping user '{$name}' because email is missing.");
                 continue;
@@ -79,5 +92,20 @@ class UserSeeder extends Seeder
         }
 
         $this->command->info("Seeded {$count} users (including fixed admins).");
+    }
+
+    /**
+     * Map Japanese access scope values to English constants.
+     */
+    private function mapJapaneseToEnglish(string $japaneseValue): string
+    {
+        $mapping = [
+            '全事業所' => 'all_facilities',
+            '担当エリアの事業所（複数）' => 'assigned_facility',
+            '担当エリアのみ閲覧（複数）' => 'assigned_facility',
+            '自施設のみ' => 'own_facility',
+        ];
+
+        return $mapping[$japaneseValue] ?? 'all_facilities';
     }
 }

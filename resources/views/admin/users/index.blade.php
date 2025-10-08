@@ -107,7 +107,7 @@
                                         <option value="">すべてのロール</option>
                                         <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>管理者</option>
                                         <option value="editor" {{ request('role') == 'editor' ? 'selected' : '' }}>編集者</option>
-                                        <option value="primary_responder" {{ request('role') == 'primary_responder' ? 'selected' : '' }}>一次対応者</option>
+                                        <option value="primary_responder" {{ request('role') == 'primary_responder' ? 'selected' : '' }}>主担当者</option>
                                         <option value="approver" {{ request('role') == 'approver' ? 'selected' : '' }}>承認者</option>
                                         <option value="viewer" {{ request('role') == 'viewer' ? 'selected' : '' }}>閲覧者</option>
                                     </select>
@@ -310,7 +310,7 @@
                                     <option value="">ロールを選択</option>
                                     <option value="admin">管理者</option>
                                     <option value="editor">編集者</option>
-                                    <option value="primary_responder">一次対応者</option>
+                                    <option value="primary_responder">主担当者</option>
                                     <option value="approver">承認者</option>
                                     <option value="viewer">閲覧者</option>
                                 </select>
@@ -543,7 +543,7 @@ function getRoleDisplayName(role) {
     const names = {
         'admin': '管理者',
         'editor': '編集者',
-        'primary_responder': '一次対応者',
+        'primary_responder': '主担当者',
         'approver': '承認者',
         'viewer': '閲覧者'
     };
