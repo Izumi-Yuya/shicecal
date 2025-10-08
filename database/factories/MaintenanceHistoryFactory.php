@@ -93,7 +93,7 @@ class MaintenanceHistoryFactory extends Factory
             'subcategory' => $subcategory,
             'contact_person' => $this->faker->optional(0.6)->randomElement($contactPersons),
             'phone_number' => $this->faker->optional(0.6)->phoneNumber,
-            'classification' => $this->faker->optional(0.5)->randomElement(['定期点検', '緊急修理', '大規模修繕', '改修工事', 'リニューアル工事']),
+
             'notes' => $this->faker->optional(0.4)->sentence(15),
             'created_by' => User::factory(),
         ];
