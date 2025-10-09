@@ -66,8 +66,6 @@ export default defineConfig({
         'resources/js/modules/notifications.js',
         'resources/js/modules/export.js',
         'resources/js/modules/facility-view-toggle.js',
-        'resources/js/modules/comment-manager.js',
-        'resources/js/modules/comment-ui.js',
         'resources/js/modules/lifeline-equipment.js',
         'resources/js/modules/facility-form-layout.js',
         'resources/js/modules/detail-card-controller.js',

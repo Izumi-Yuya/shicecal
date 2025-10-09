@@ -6,12 +6,11 @@
 
 // 統合されたアプリケーションJavaScript
 import {
-  Application,
+  ShiseCalApp,
   AppUtils,
   ApiClient,
   FacilityManager,
-  DocumentManager,
-  app
+  DocumentManager
 } from './app-unified.js';
 
 // 必要最小限の個別モジュール
@@ -173,10 +172,10 @@ function createLegacyAPI() {
 /**
  * Extended Application Class (統合版を拡張)
  */
-class ExtendedApplication extends Application {
+class ExtendedApplication extends ShiseCalApp {
   async initializeModules() {
     // 統合版の初期化を実行
-    await super.initializeModules();
+    await super.initializePageSpecificFeatures();
 
     const currentPath = window.location.pathname;
 

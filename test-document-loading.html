@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="test-token">
+    <title>Document Loading Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Document Loading Test</h1>
+        
+        <!-- Document Management Container -->
+        <div id="document-management-container" class="document-management"
+             data-facility-id="102"
+             data-can-create="true"
+             data-can-update="true"
+             data-can-delete="true">
+            
+            <!-- Loading Indicator -->
+            <div id="loading-indicator" class="text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">読み込み中...</span>
+                </div>
+                <div class="mt-2">
+                    <small class="text-muted">ドキュメントを読み込んでいます...</small>
+                </div>
+            </div>
+            
+            <!-- Error Message -->
+            <div id="error-message" class="alert alert-danger" style="display: none;">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <span id="error-text"></span>
+            </div>
+            
+            <!-- Empty State -->
+            <div id="empty-state" class="text-center py-5" style="display: none;">
+                <div class="mb-4">
+                    <i class="fas fa-folder-open fa-4x text-muted"></i>
+                </div>
+                <h5 class="text-muted mb-3">このフォルダは空です</h5>
+            </div>
+            
+            <!-- Document List -->
+            <div id="document-list" class="document-list" style="display: none;">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>名前</th>
+                                <th>サイズ</th>
+                                <th>更新日時</th>
+                                <th>作成者</th>
+                            </tr>
+                        </thead>
+                        <tbody id="document-table-body">
+                            <!-- 動的に生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test Controls -->
+        <div class="mt-4">
+            <h3>Test Controls</h3>
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-primary" onclick="testInitialization()">
+                    Test Initialization
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="testApiEndpoint()">
+                    Test API Endpoint
+                </button>
+                <button type="button" class="btn btn-success" onclick="manualInit()">
+                    Manual Init
+                </button>
+                <button type="button" class="btn btn-warning" onclick="forceReload()">
+                    Force Reload
+                </button>
+            </div>
+        </div>
+        
+        <!-- Console Output -->
+        <div class="mt-4">
+            <h3>Console Output</h3>
+            <div id="console-output" class="bg-dark text-light p-3" style="height: 300px; overflow-y: auto; font-family: monospace;">
+                <!-- Console messages will appear here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Mock API for testing -->
+    <script>
+        // Mock API response
+        const mockApiResponse = {
+            success: true,
+            data: {
+                folders: [
+                    {
+                        id: 1,
+                        name: 'テストフォルダ1',
+                        updated_at: '2024-01-15T10:30:00Z',
+                        created_by: 'テストユーザー'
+                    },
+                    {
+                        id: 2,
+                        name: 'テストフォルダ2',
+                        updated_at: '2024-01-14T15:45:00Z',
+                        created_by: 'テストユーザー2'
+                    }
+                ],
+                files: [
+                    {
+                        id: 1,
+                        name: 'テストファイル1.pdf',
+                        size: 1024000,
+                        updated_at: '2024-01-15T12:00:00Z',
+                        uploaded_by: 'テストユーザー',
+                        download_url: '#'
+                    },
+                    {
+                        id: 2,
+                        name: 'テストファイル2.docx',
+                        size: 2048000,
+                        updated_at: '2024-01-14T16:30:00Z',
+                        uploaded_by: 'テストユーザー2',
+                        download_url: '#'
+                    }
+                ],
+                breadcrumbs: [],
+                current_folder: null,
+                stats: {
+                    folder_count: 2,
+                    file_count: 2,
+                    total_size: 3072000
+                }
+            }
+        };
+
+        // Console logging to HTML
+        const consoleOutput = document.getElementById('console-output');
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+
+        function logToHtml(level, ...args) {
+            const timestamp = new Date().toLocaleTimeString();
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            
+            const color = {
+                log: '#ffffff',
+                error: '#ff6b6b',
+                warn: '#ffd93d'
+            }[level] || '#ffffff';
+            
+            consoleOutput.innerHTML += `<div style="color: ${color};">[${timestamp}] ${level.toUpperCase()}: ${message}</div>`;
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        console.log = (...args) => {
+            originalLog.apply(console, args);
+            logToHtml('log', ...args);
+        };
+
+        console.error = (...args) => {
+            originalError.apply(console, args);
+            logToHtml('error', ...args);
+        };
+
+        console.warn = (...args) => {
+            originalWarn.apply(console, args);
+            logToHtml('warn', ...args);
+        };
+
+        // Mock fetch for testing
+        const originalFetch = window.fetch;
+        window.fetch = async (url, options) => {
+            console.log('Mock fetch called:', url, options);
+            
+            if (url.includes('/documents/folders')) {
+                // Simulate network delay
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                return {
+                    ok: true,
+                    status: 200,
+                    json: async () => mockApiResponse,
+                    headers: new Map([['content-type', 'application/json']])
+                };
+            }
+            
+            // Fall back to real fetch for other requests
+            return originalFetch(url, options);
+        };
+
+        // Test functions
+        function testInitialization() {
+            console.log('=== Testing Initialization ===');
+            if (window.debugDocumentManager) {
+                window.debugDocumentManager.checkInitialization();
+            } else {
+                console.error('debugDocumentManager not available');
+            }
+        }
+
+        async function testApiEndpoint() {
+            console.log('=== Testing API Endpoint ===');
+            if (window.debugDocumentManager) {
+                await window.debugDocumentManager.testApiEndpoint(102);
+            } else {
+                console.error('debugDocumentManager not available');
+            }
+        }
+
+        async function manualInit() {
+            console.log('=== Manual Initialization ===');
+            if (window.debugDocumentManager) {
+                await window.debugDocumentManager.manualInit(102);
+            } else {
+                console.error('debugDocumentManager not available');
+            }
+        }
+
+        async function forceReload() {
+            console.log('=== Force Reload ===');
+            if (window.debugDocumentManager) {
+                await window.debugDocumentManager.forceReload();
+            } else {
+                console.error('debugDocumentManager not available');
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Test page loaded');
+            console.log('Document ready state:', document.readyState);
+            
+            // Try to load the debug script
+            const script = document.createElement('script');
+            script.src = '/build/js/debug/document-debug.js';
+            script.onload = () => {
+                console.log('Debug script loaded successfully');
+            };
+            script.onerror = () => {
+                console.error('Failed to load debug script');
+            };
+            document.head.appendChild(script);
+        });
+    </script>
+</body>
+</html>

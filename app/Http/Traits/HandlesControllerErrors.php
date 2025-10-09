@@ -2,134 +2,148 @@
 
 namespace App\Http\Traits;
 
-use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Auth\AuthenticationException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * Centralized error handling for controllers
+ */
 trait HandlesControllerErrors
 {
     /**
-     * Handle exceptions with appropriate logging and response
-     *
-     * @return JsonResponse|RedirectResponse
+     * Handle exceptions with consistent logging and response format
      */
-    protected function handleException(Exception $e, string $context = '')
-    {
-        // Log the error with context
-        Log::error("Controller Error [{$context}]: ".$e->getMessage(), [
-            'exception' => $e,
+    protected function handleException(
+        \Exception $exception,
+        Request $request,
+        string $operation = 'unknown',
+        array $context = []
+    ): JsonResponse|\Illuminate\Http\RedirectResponse {
+        
+        // Build log context
+        $logContext = array_merge([
+            'operation' => $operation,
             'user_id' => auth()->id(),
-            'request_url' => request()->url(),
-            'request_method' => request()->method(),
-            'request_data' => request()->except(['password', 'password_confirmation']),
-            'stack_trace' => $e->getTraceAsString(),
-        ]);
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'url' => $request->fullUrl(),
+            'method' => $request->method(),
+        ], $context);
 
-        // Return JSON response for API requests
-        if (request()->expectsJson()) {
-            return response()->json([
-                'success' => false,
-                'message' => $this->getErrorMessage($e),
-                'error_code' => $this->getErrorCode($e),
-            ], $this->getHttpStatusCode($e));
+        // Handle specific exception types
+        if ($exception instanceof AuthorizationException) {
+            return $this->handleAuthorizationException($exception, $request, $logContext);
         }
 
-        // Return redirect response for web requests
-        return back()->with('error', $this->getErrorMessage($e));
-    }
-
-    /**
-     * Get appropriate error code for the exception
-     */
-    protected function getErrorCode(Exception $e): string
-    {
-        return match (get_class($e)) {
-            ValidationException::class => 'VALIDATION_ERROR',
-            AuthorizationException::class => 'AUTHORIZATION_ERROR',
-            AuthenticationException::class => 'AUTHENTICATION_ERROR',
-            ModelNotFoundException::class => 'NOT_FOUND',
-            default => 'GENERAL_ERROR'
-        };
-    }
-
-    /**
-     * Get user-friendly error message
-     */
-    protected function getErrorMessage(Exception $e): string
-    {
-        return match (get_class($e)) {
-            ValidationException::class => 'バリデーションエラーが発生しました。',
-            AuthorizationException::class => 'この操作を実行する権限がありません。',
-            AuthenticationException::class => 'ログインが必要です。',
-            ModelNotFoundException::class => '指定されたデータが見つかりません。',
-            default => 'エラーが発生しました。しばらく時間をおいて再度お試しください。'
-        };
-    }
-
-    /**
-     * Get appropriate HTTP status code for the exception
-     */
-    protected function getHttpStatusCode(Exception $e): int
-    {
-        return match (get_class($e)) {
-            ValidationException::class => 422,
-            AuthorizationException::class => 403,
-            AuthenticationException::class => 401,
-            ModelNotFoundException::class => 404,
-            default => 500
-        };
-    }
-
-    /**
-     * Handle validation errors specifically
-     *
-     * @return JsonResponse|RedirectResponse
-     */
-    protected function handleValidationException(ValidationException $e, string $context = '')
-    {
-        Log::warning("Validation Error [{$context}]: ".$e->getMessage(), [
-            'errors' => $e->errors(),
-            'user_id' => auth()->id(),
-            'request_url' => request()->url(),
-        ]);
-
-        if (request()->expectsJson()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'バリデーションエラーが発生しました。',
-                'errors' => $e->errors(),
-                'error_code' => 'VALIDATION_ERROR',
-            ], 422);
+        if ($exception instanceof ValidationException) {
+            return $this->handleValidationException($exception, $request, $logContext);
         }
 
-        return back()->withErrors($e->errors())->withInput();
+        // Handle general exceptions
+        return $this->handleGeneralException($exception, $request, $logContext);
     }
 
     /**
-     * Handle authorization errors specifically
-     *
-     * @return JsonResponse|RedirectResponse
+     * Handle authorization exceptions
      */
-    protected function handleAuthorizationException(AuthorizationException $e, string $context = '')
-    {
-        Log::warning("Authorization Error [{$context}]: ".$e->getMessage(), [
-            'user_id' => auth()->id(),
-            'request_url' => request()->url(),
-        ]);
+    private function handleAuthorizationException(
+        AuthorizationException $exception,
+        Request $request,
+        array $logContext
+    ): JsonResponse|\Illuminate\Http\RedirectResponse {
+        
+        Log::warning('Authorization failed', array_merge($logContext, [
+            'exception' => get_class($exception),
+            'message' => $exception->getMessage(),
+        ]));
 
-        if (request()->expectsJson()) {
+        $message = 'この操作を実行する権限がありません。';
+
+        if ($request->expectsJson()) {
             return response()->json([
                 'success' => false,
-                'message' => 'この操作を実行する権限がありません。',
-                'error_code' => 'AUTHORIZATION_ERROR',
+                'message' => $message,
+                'error_code' => 'AUTHORIZATION_FAILED'
             ], 403);
         }
 
-        return back()->with('error', 'この操作を実行する権限がありません。');
+        return redirect()->back()
+            ->with('error', $message)
+            ->withInput();
+    }
+
+    /**
+     * Handle validation exceptions
+     */
+    private function handleValidationException(
+        ValidationException $exception,
+        Request $request,
+        array $logContext
+    ): JsonResponse|\Illuminate\Http\RedirectResponse {
+        
+        Log::info('Validation failed', array_merge($logContext, [
+            'errors' => $exception->errors(),
+        ]));
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => '入力データに問題があります。',
+                'errors' => $exception->errors(),
+                'error_code' => 'VALIDATION_FAILED'
+            ], 422);
+        }
+
+        return redirect()->back()
+            ->withErrors($exception->validator)
+            ->withInput();
+    }
+
+    /**
+     * Handle general exceptions
+     */
+    private function handleGeneralException(
+        \Exception $exception,
+        Request $request,
+        array $logContext
+    ): JsonResponse|\Illuminate\Http\RedirectResponse {
+        
+        Log::error('Controller exception occurred', array_merge($logContext, [
+            'exception' => get_class($exception),
+            'message' => $exception->getMessage(),
+            'file' => $exception->getFile(),
+            'line' => $exception->getLine(),
+            'trace' => $exception->getTraceAsString(),
+        ]));
+
+        $message = app()->environment('production') 
+            ? 'システムエラーが発生しました。しばらく時間をおいて再度お試しください。'
+            : $exception->getMessage();
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => $message,
+                'error_code' => 'SYSTEM_ERROR'
+            ], 500);
+        }
+
+        return redirect()->back()
+            ->with('error', $message)
+            ->withInput();
+    }
+
+    /**
+     * Log successful operations for audit trail
+     */
+    protected function logSuccess(string $operation, array $context = []): void
+    {
+        Log::info("Operation successful: {$operation}", array_merge([
+            'user_id' => auth()->id(),
+            'timestamp' => now()->toISOString(),
+        ], $context));
     }
 }

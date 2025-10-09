@@ -3,6 +3,69 @@
     $basicInfo = $gasEquipment?->basic_info ?? [];
     $waterHeaterInfo = $basicInfo['water_heater_info'] ?? [];
     $waterHeaters = $waterHeaterInfo['water_heaters'] ?? [];
+    $canEdit = auth()->user()->canEditFacility($facility->id);
+@endphp
+
+<!-- ガス設備ヘッダー（ドキュメントアイコン付き） -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0">
+        <i class="fas fa-fire text-danger me-2"></i>ガス設備情報
+    </h5>
+    <div class="d-flex align-items-center gap-2">
+        <!-- ドキュメント管理ボタン -->
+        <button type="button" 
+                class="btn btn-outline-primary btn-sm" 
+                id="gas-documents-toggle"
+                data-bs-toggle="collapse" 
+                data-bs-target="#gas-documents-section" 
+                aria-expanded="false" 
+                aria-controls="gas-documents-section"
+                title="ガス設備ドキュメント管理">
+            <i class="fas fa-folder-open me-1"></i>
+            <span class="d-none d-md-inline">ドキュメント</span>
+        </button>
+        
+
+    </div>
+</div>
+
+<!-- ガス設備ドキュメント管理セクション（折りたたみ式） -->
+<div class="collapse mb-4" id="gas-documents-section">
+    <div class="card border-danger">
+        <div class="card-header bg-danger text-white">
+            <h6 class="mb-0">
+                <i class="fas fa-folder-open me-2"></i>ガス設備 - 関連ドキュメント
+            </h6>
+        </div>
+        <div class="card-body p-0">
+            @if($canEdit)
+                <x-lifeline-document-manager 
+                    :facility="$facility" 
+                    category="gas"
+                    category-name="ガス設備"
+                    height="500px"
+                    :show-upload="true"
+                    :show-create-folder="true"
+                    allowed-file-types="pdf,doc,docx,xls,xlsx,jpg,jpeg,png,gif"
+                    max-file-size="10MB"
+                />
+            @else
+                <x-lifeline-document-manager 
+                    :facility="$facility" 
+                    category="gas"
+                    category-name="ガス設備"
+                    height="400px"
+                    :show-upload="false"
+                    :show-create-folder="false"
+                    allowed-file-types="pdf,doc,docx,xls,xlsx,jpg,jpeg,png,gif"
+                    max-file-size="10MB"
+                />
+            @endif
+        </div>
+    </div>
+</div>
+
+@php
 
     // 基本情報テーブルデータの構築
     $basicInfoData = [
@@ -106,16 +169,10 @@
 
     <!-- 給湯器セクション -->
     <div class="equipment-section mb-4">
-        <div class="section-header d-flex justify-content-between align-items-center mb-3">
+        <div class="section-header mb-3">
             <h6 class="section-title mb-0">
                 給湯器
             </h6>
-            @can('update', $facility)
-                <a href="{{ route('facilities.lifeline-equipment.edit', [$facility, 'gas']) }}" 
-                   class="btn btn-outline-primary btn-sm">
-                    <i class="fas fa-edit me-1"></i>編集
-                </a>
-            @endcan
         </div>
 
         <!-- 設置の有無テーブル -->
@@ -194,16 +251,10 @@
 
     <!-- 床暖房セクション -->
     <div class="equipment-section mb-4">
-        <div class="section-header d-flex justify-content-between align-items-center mb-3">
+        <div class="section-header mb-3">
             <h6 class="section-title mb-0">
                 床暖房
             </h6>
-            @can('update', $facility)
-                <a href="{{ route('facilities.lifeline-equipment.edit', [$facility, 'gas']) }}" 
-                   class="btn btn-outline-primary btn-sm">
-                    <i class="fas fa-edit me-1"></i>編集
-                </a>
-            @endcan
         </div>
 
         <div class="gas-six-column-equal">
@@ -233,4 +284,152 @@
         />
     </div>
 
+
+
 </div>
+
+
+<!-- ガス設備ドキュメント管理用JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const documentToggleBtn = document.getElementById('gas-documents-toggle');
+    const documentSection = document.getElementById('gas-documents-section');
+    
+    if (documentToggleBtn && documentSection) {
+        // ボタンアイコンとテキストの更新
+        function updateButtonState(isExpanded) {
+            const icon = documentToggleBtn.querySelector('i');
+            const text = documentToggleBtn.querySelector('span');
+            
+            if (isExpanded) {
+                icon.className = 'fas fa-folder-minus me-1';
+                if (text) text.textContent = '閉じる';
+                documentToggleBtn.classList.remove('btn-outline-primary');
+                documentToggleBtn.classList.add('btn-primary');
+            } else {
+                icon.className = 'fas fa-folder-open me-1';
+                if (text) text.textContent = 'ドキュメント';
+                documentToggleBtn.classList.remove('btn-primary');
+                documentToggleBtn.classList.add('btn-outline-primary');
+            }
+        }
+        
+        // Bootstrap collapse イベントリスナー
+        documentSection.addEventListener('shown.bs.collapse', function() {
+            updateButtonState(true);
+            
+            // app-unified.jsの自動初期化に任せる
+            // ドキュメントマネージャーは既に初期化されているはず
+            console.log('Gas documents section opened - using auto-initialized manager');
+        });
+        
+        documentSection.addEventListener('hidden.bs.collapse', function() {
+            updateButtonState(false);
+        });
+        
+        // 初期状態の設定
+        const isExpanded = documentSection.classList.contains('show');
+        updateButtonState(isExpanded);
+    }
+
+    // ===== Modal hoisting & z-index fix for document manager =====
+    // Some modals rendered inside the collapsible section may appear behind the backdrop
+    // due to stacking contexts. We hoist them to <body> and enforce z-index.
+    function hoistModals(container) {
+        if (!container) return;
+        container.querySelectorAll('.modal').forEach(function(modal) {
+            // Move modal under body if it's not already there
+            if (modal.parentElement !== document.body) {
+                document.body.appendChild(modal);
+            }
+        });
+    }
+
+    // Run once on load in case the component already rendered modals
+    hoistModals(documentSection);
+
+    // Also run when the documents section is opened
+    documentSection.addEventListener('shown.bs.collapse', function () {
+        hoistModals(documentSection);
+    });
+
+    // Ensure correct stacking orders whenever a modal is shown
+    document.addEventListener('show.bs.modal', function (ev) {
+        var modalEl = ev.target;
+        // enforce higher z-index than local backdrops/parents
+        if (modalEl) {
+            modalEl.style.zIndex = '2010';
+        }
+        // Defer backdrop z-index adjustment to next tick (after Bootstrap inserts it)
+        setTimeout(function () {
+            var backdrops = document.querySelectorAll('.modal-backdrop');
+            backdrops.forEach(function (bd) {
+                bd.style.zIndex = '2000';
+            });
+        }, 0);
+    });
+
+    // Clean up any stray backdrops if a modal is hidden unexpectedly
+    document.addEventListener('hidden.bs.modal', function () {
+        var backdrops = document.querySelectorAll('.modal-backdrop');
+        if (backdrops.length > 1) {
+            // keep the last one (most recent), remove extras
+            for (var i = 0; i < backdrops.length - 1; i++) {
+                backdrops[i].parentNode.removeChild(backdrops[i]);
+            }
+        }
+    });
+});
+</script>
+
+<!-- ガス設備ドキュメント管理用CSS -->
+<style>
+#gas-documents-toggle {
+    transition: all 0.3s ease;
+}
+
+#gas-documents-toggle:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#gas-documents-section .card {
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#gas-documents-section .card-header {
+    border-radius: 8px 8px 0 0;
+    background: linear-gradient(135deg, #dc3545, #c82333) !important;
+}
+
+/* ドキュメント管理エリアのスタイル調整 */
+#gas-documents-section .lifeline-document-manager {
+    border-radius: 0 0 8px 8px;
+}
+
+/* モーダルスタイルはapp-unified.cssで統一管理 */
+
+/* ==== Modal stacking fixes for gas documents section ==== */
+#gas-documents-section { 
+    overflow: visible; /* avoid creating a clipping context for absolute/fixed elements */
+}
+/* Ensure Bootstrap modal/backdrop are above collapsed/card content */
+.modal-backdrop {
+    z-index: 2000 !important;
+}
+.modal {
+    z-index: 2010 !important;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    #gas-documents-toggle span {
+        display: none !important;
+    }
+    
+    #gas-documents-section .card-header h6 {
+        font-size: 0.9rem;
+    }
+}
+</style>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="test-token">
+    <title>Document Manager Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Document Manager Test</h1>
+        
+        <!-- Document Management Container -->
+        <div class="document-management" data-facility-id="1" id="document-management-container">
+            
+            <!-- Toolbar -->
+            <div class="document-toolbar mb-3">
+                <button type="button" id="create-folder-btn" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-folder-plus me-1"></i>新しいフォルダ
+                </button>
+                <button type="button" id="upload-file-btn" class="btn btn-primary btn-sm">
+                    <i class="fas fa-upload me-1"></i>ファイルアップロード
+                </button>
+            </div>
+            
+            <!-- Loading indicator -->
+            <div id="loading-indicator" class="text-center py-4" style="display: none;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">読み込み中...</span>
+                </div>
+            </div>
+            
+            <!-- Error message -->
+            <div id="error-message" class="alert alert-danger" style="display: none;">
+                <span id="error-text"></span>
+            </div>
+            
+            <!-- Empty state -->
+            <div id="empty-state" class="text-center py-5" style="display: none;">
+                <i class="fas fa-folder-open fa-4x text-muted"></i>
+                <h5 class="text-muted mb-3">このフォルダは空です</h5>
+            </div>
+            
+            <!-- Document list -->
+            <div id="document-list" class="document-list">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 40px;">
+                                    <input type="checkbox" class="form-check-input" id="select-all">
+                                </th>
+                                <th>名前</th>
+                                <th style="width: 100px;">サイズ</th>
+                                <th style="width: 120px;">更新日時</th>
+                                <th style="width: 100px;">作成者</th>
+                                <th style="width: 80px;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="document-table-body">
+                            <!-- Test data -->
+                            <tr>
+                                <td><input type="checkbox" class="form-check-input" value="1"></td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-folder text-warning me-2"></i>
+                                        <span class="item-name" data-name="テストフォルダ">テストフォルダ</span>
+                                    </div>
+                                </td>
+                                <td>-</td>
+                                <td>2024-01-01 10:00</td>
+                                <td>テストユーザー</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button type="button" class="btn btn-outline-primary btn-sm" 
+                                                data-action="edit" data-item-id="1" data-item-type="folder"
+                                                data-name="テストフォルダ" title="名前変更">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger btn-sm" 
+                                                data-action="delete" data-item-id="1" data-item-type="folder"
+                                                data-name="テストフォルダ" title="削除">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox" class="form-check-input" value="2"></td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-file text-primary me-2"></i>
+                                        <span class="item-name" data-name="テストファイル.pdf">テストファイル.pdf</span>
+                                    </div>
+                                </td>
+                                <td>1.2 MB</td>
+                                <td>2024-01-01 11:00</td>
+                                <td>テストユーザー</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button type="button" class="btn btn-outline-primary btn-sm" 
+                                                data-action="edit" data-item-id="2" data-item-type="file"
+                                                data-name="テストファイル.pdf" title="名前変更">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-success btn-sm" 
+                                                data-action="download" data-item-id="2" title="ダウンロード">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger btn-sm" 
+                                                data-action="delete" data-item-id="2" data-item-type="file"
+                                                data-name="テストファイル.pdf" title="削除">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Rename Modal -->
+        <div class="modal" id="rename-modal" tabindex="-1" aria-labelledby="rename-modal-title" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="rename-modal-title">名前変更</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="new-name" class="form-label">新しい名前</label>
+                            <input type="text" class="form-control" id="new-name" placeholder="新しい名前を入力してください">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                        <button type="button" class="btn btn-primary" id="save-rename-btn">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Create Folder Modal -->
+        <div class="modal" id="create-folder-modal" tabindex="-1" aria-labelledby="create-folder-modal-title" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form id="create-folder-form" method="POST">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="create-folder-modal-title">新しいフォルダ</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="folder-name" class="form-label">フォルダ名</label>
+                                <input type="text" class="form-control" id="folder-name" name="name" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                            <button type="submit" class="btn btn-primary">作成</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Upload File Modal -->
+        <div class="modal" id="upload-file-modal" tabindex="-1" aria-labelledby="upload-file-modal-title" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form id="upload-file-form" method="POST" enctype="multipart/form-data">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="upload-file-modal-title">ファイルアップロード</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="file-input" class="form-label">ファイル選択</label>
+                                <input type="file" class="form-control" id="file-input" name="files[]" multiple>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                            <button type="submit" class="btn btn-primary">アップロード</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Mock API Client for testing -->
+    <script>
+        // Mock API responses for testing
+        class MockApiClient {
+            async get(url) {
+                console.log('Mock GET:', url);
+                return {
+                    success: true,
+                    data: {
+                        folders: [
+                            { id: 1, name: 'テストフォルダ', updated_at: '2024-01-01T10:00:00Z', created_by: 'テストユーザー' }
+                        ],
+                        files: [
+                            { id: 2, name: 'テストファイル.pdf', size: 1234567, updated_at: '2024-01-01T11:00:00Z', uploaded_by: 'テストユーザー' }
+                        ]
+                    }
+                };
+            }
+            
+            async post(url, data) {
+                console.log('Mock POST:', url, data);
+                return { success: true, message: 'テスト用の成功メッセージ' };
+            }
+            
+            async put(url, data) {
+                console.log('Mock PUT:', url, data);
+                return { success: true, message: 'テスト用の更新メッセージ' };
+            }
+            
+            async delete(url) {
+                console.log('Mock DELETE:', url);
+                return { success: true, message: 'テスト用の削除メッセージ' };
+            }
+            
+            async uploadFile(url, formData) {
+                console.log('Mock UPLOAD:', url, formData);
+                return { success: true, message: 'テスト用のアップロードメッセージ' };
+            }
+        }
+        
+        // Mock AppUtils for testing
+        window.AppUtils = {
+            showToast: function(message, type = 'info') {
+                console.log(`Toast [${type}]:`, message);
+                alert(`${type.toUpperCase()}: ${message}`);
+            },
+            
+            confirmDialog: function(message, title = '確認', options = {}) {
+                console.log('Confirm dialog:', message);
+                return Promise.resolve(confirm(message));
+            },
+            
+            showLoading: function(button, text = '処理中...') {
+                if (button) {
+                    button.disabled = true;
+                    button.textContent = text;
+                }
+            },
+            
+            hideLoading: function(button, originalText = '保存') {
+                if (button) {
+                    button.disabled = false;
+                    button.textContent = originalText;
+                }
+            }
+        };
+    </script>
+    
+    <!-- Load Simple Modal Manager for testing -->
+    <script type="module">
+        import SimpleModalManager from './resources/js/modules/SimpleModalManager.js';
+        
+        console.log('SimpleModalManager loaded and initialized');
+        
+        // Test modal functionality
+        setTimeout(() => {
+            console.log('Testing modal functionality...');
+            
+            const modals = document.querySelectorAll('.modal');
+            console.log(`Found ${modals.length} modals`);
+            
+            const forms = document.querySelectorAll('form');
+            console.log(`Found ${forms.length} forms`);
+            
+            // Test modal buttons
+            const modalButtons = document.querySelectorAll('[data-bs-toggle="modal"]');
+            console.log(`Found ${modalButtons.length} modal trigger buttons`);
+            
+            modalButtons.forEach(button => {
+                console.log(`Modal button: ${button.textContent.trim()}`);
+            });
+        }, 500);
+    </script>
+</body>
+</html>

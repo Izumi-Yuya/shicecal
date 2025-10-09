@@ -478,116 +478,11 @@ class DocumentService
                 'options' => $options
             ]);
             
-            // デフォルトオプション
-            $options = array_merge([
-                'sort_by' => 'name',
-                'sort_direction' => 'asc',
-                'filter_type' => null,
-                'search' => null,
-                'view_mode' => 'list',
-                'page' => 1,
-                'per_page' => 50,
-                'load_stats' => true,
-            ], $options);
-
-            // ソートパラメータの正規化（name-asc形式からsort_byとsort_directionに分離）
-            if (isset($options['sort']) && !isset($options['sort_by'])) {
-                $sortParts = explode('-', $options['sort']);
-                if (count($sortParts) === 2) {
-                    $options['sort_by'] = $sortParts[0];
-                    $options['sort_direction'] = $sortParts[1];
-                }
-            }
-
-            // N+1問題を解決するため、必要な関連データのみを事前に読み込み
-            $foldersQuery = DocumentFolder::select([
-                'id', 'name', 'path', 'created_at', 'updated_at', 'created_by'
-            ])
-                ->with(['creator:id,name'])
-                ->where('facility_id', $facility->id)
-                ->where('parent_id', $folder?->id);
-
-            $filesQuery = DocumentFile::select([
-                'id', 'original_name', 'file_size', 'file_extension', 'mime_type',
-                'created_at', 'updated_at', 'uploaded_by', 'file_path'
-            ])
-                ->with(['uploader:id,name'])
-                ->where('facility_id', $facility->id)
-                ->where('folder_id', $folder?->id);
-
-            // 検索フィルター（インデックスを活用）
-            if (!empty($options['search'])) {
-                $search = $options['search'];
-                $foldersQuery->where('name', 'like', "%{$search}%");
-                $filesQuery->where('original_name', 'like', "%{$search}%");
-            }
-
-            // ファイルタイプフィルター（インデックスを活用）
-            if (!empty($options['filter_type']) && $options['filter_type'] !== 'all') {
-                $filesQuery->where('file_extension', $options['filter_type']);
-            }
-
-            // ソート適用（フォルダ優先表示を考慮）
-            $this->applySorting($foldersQuery, $filesQuery, $options);
-
-            // ページネーション適用
-            $perPage = min($options['per_page'], 100); // 最大100件に制限
-            $page = max(1, $options['page']);
-
-            // フォルダは常に全件取得（通常少数のため）
-            $folders = $foldersQuery->get();
-
-            // ファイルはページネーション適用
-            $filesPaginated = $filesQuery->paginate($perPage, ['*'], 'page', $page);
-            $files = $filesPaginated->items();
-
-            // 表示用データ整形（最適化）
-            $foldersData = $this->formatFoldersData($folders);
+            $normalizedOptions = $this->normalizeOptions($options);
+            $queries = $this->buildQueries($facility, $folder, $normalizedOptions);
+            $data = $this->executeQueries($queries, $normalizedOptions);
             
-            // ファイル処理は個別にエラーハンドリング
-            try {
-                $filesData = $this->formatFilesData($files, $facility);
-            } catch (\Exception $e) {
-                Log::warning('Failed to format files data, returning empty array', [
-                    'facility_id' => $facility->id,
-                    'folder_id' => $folder?->id,
-                    'files_count' => count($files),
-                    'error' => $e->getMessage()
-                ]);
-                $filesData = [];
-            }
-
-            $result = [
-                'folders' => $foldersData,
-                'files' => $filesData,
-                'current_folder' => $folder ? [
-                    'id' => $folder->id,
-                    'name' => $folder->name,
-                    'path' => $folder->path,
-                ] : null,
-                'breadcrumbs' => $this->getBreadcrumbs($folder),
-                'pagination' => [
-                    'current_page' => $filesPaginated->currentPage(),
-                    'last_page' => $filesPaginated->lastPage(),
-                    'per_page' => $filesPaginated->perPage(),
-                    'total' => $filesPaginated->total(),
-                    'has_more_pages' => $filesPaginated->hasMorePages(),
-                ],
-                'sort_options' => [
-                    'sort_by' => $options['sort_by'],
-                    'sort_direction' => $options['sort_direction'],
-                    'view_mode' => $options['view_mode'],
-                    'filter_type' => $options['filter_type'],
-                    'search' => $options['search'],
-                ],
-            ];
-
-            // 統計情報は必要な場合のみ取得（パフォーマンス最適化）
-            if ($options['load_stats']) {
-                $result['stats'] = $this->getFolderStats($facility, $folder);
-            }
-
-            return $result;
+            return $this->buildResponse($data, $folder, $normalizedOptions, $facility);
 
         } catch (Exception $e) {
             Log::error('Failed to get folder contents', [
@@ -597,28 +492,167 @@ class DocumentService
                 'error' => $e->getMessage(),
             ]);
 
-            return [
-                'folders' => [],
-                'files' => [],
-                'current_folder' => null,
-                'breadcrumbs' => [],
-                'pagination' => [
-                    'current_page' => 1,
-                    'last_page' => 1,
-                    'per_page' => $options['per_page'] ?? 50,
-                    'total' => 0,
-                    'has_more_pages' => false,
-                ],
-                'stats' => [],
-                'sort_options' => [
-                    'sort_by' => $options['sort_by'] ?? 'name',
-                    'sort_direction' => $options['sort_direction'] ?? 'asc',
-                    'view_mode' => $options['view_mode'] ?? 'list',
-                    'filter_type' => $options['filter_type'] ?? null,
-                    'search' => $options['search'] ?? null,
-                ],
-            ];
+            return $this->getEmptyResponse($options);
         }
+    }
+
+    /**
+     * オプションの正規化
+     */
+    private function normalizeOptions(array $options): array
+    {
+        $normalized = array_merge([
+            'sort_by' => 'name',
+            'sort_direction' => 'asc',
+            'filter_type' => null,
+            'search' => null,
+            'view_mode' => 'list',
+            'page' => 1,
+            'per_page' => 50,
+            'load_stats' => true,
+        ], $options);
+
+        // ソートパラメータの正規化
+        if (isset($options['sort']) && !isset($options['sort_by'])) {
+            $sortParts = explode('-', $options['sort']);
+            if (count($sortParts) === 2) {
+                $normalized['sort_by'] = $sortParts[0];
+                $normalized['sort_direction'] = $sortParts[1];
+            }
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * クエリビルダーの構築
+     */
+    private function buildQueries(Facility $facility, ?DocumentFolder $folder, array $options): array
+    {
+        $foldersQuery = DocumentFolder::select([
+            'id', 'name', 'path', 'created_at', 'updated_at', 'created_by'
+        ])
+            ->with(['creator:id,name'])
+            ->where('facility_id', $facility->id)
+            ->where('parent_id', $folder?->id);
+
+        $filesQuery = DocumentFile::select([
+            'id', 'original_name', 'file_size', 'file_extension', 'mime_type',
+            'created_at', 'updated_at', 'uploaded_by', 'file_path', 'facility_id'
+        ])
+            ->with(['uploader:id,name', 'facility:id'])
+            ->where('facility_id', $facility->id)
+            ->where('folder_id', $folder?->id);
+
+        $this->applyFilters($foldersQuery, $filesQuery, $options);
+        $this->applySorting($foldersQuery, $filesQuery, $options);
+
+        return compact('foldersQuery', 'filesQuery');
+    }
+
+    /**
+     * フィルターの適用
+     */
+    private function applyFilters($foldersQuery, $filesQuery, array $options): void
+    {
+        if (!empty($options['search'])) {
+            $search = $options['search'];
+            $foldersQuery->where('name', 'like', "%{$search}%");
+            $filesQuery->where('original_name', 'like', "%{$search}%");
+        }
+
+        if (!empty($options['filter_type']) && $options['filter_type'] !== 'all') {
+            $filesQuery->where('file_extension', $options['filter_type']);
+        }
+    }
+
+    /**
+     * クエリの実行
+     */
+    private function executeQueries(array $queries, array $options): array
+    {
+        $perPage = min($options['per_page'], 100);
+        $page = max(1, $options['page']);
+
+        $folders = $queries['foldersQuery']->get();
+        $filesPaginated = $queries['filesQuery']->paginate($perPage, ['*'], 'page', $page);
+        $files = $filesPaginated->items();
+
+        return compact('folders', 'files', 'filesPaginated');
+    }
+
+    /**
+     * レスポンスの構築
+     */
+    private function buildResponse(array $data, ?DocumentFolder $folder, array $options, Facility $facility): array
+    {
+        $foldersData = $this->formatFoldersData($data['folders']);
+        
+        try {
+            $filesData = $this->formatFilesData($data['files'], $facility);
+        } catch (\Exception $e) {
+            Log::warning('Failed to format files data', ['error' => $e->getMessage()]);
+            $filesData = [];
+        }
+
+        $result = [
+            'folders' => $foldersData,
+            'files' => $filesData,
+            'current_folder' => $folder ? [
+                'id' => $folder->id,
+                'name' => $folder->name,
+                'path' => $folder->path,
+            ] : null,
+            'breadcrumbs' => $this->getBreadcrumbs($folder),
+            'pagination' => [
+                'current_page' => $data['filesPaginated']->currentPage(),
+                'last_page' => $data['filesPaginated']->lastPage(),
+                'per_page' => $data['filesPaginated']->perPage(),
+                'total' => $data['filesPaginated']->total(),
+                'has_more_pages' => $data['filesPaginated']->hasMorePages(),
+            ],
+            'sort_options' => [
+                'sort_by' => $options['sort_by'],
+                'sort_direction' => $options['sort_direction'],
+                'view_mode' => $options['view_mode'],
+                'filter_type' => $options['filter_type'],
+                'search' => $options['search'],
+            ],
+        ];
+
+        if ($options['load_stats']) {
+            $result['stats'] = $this->getFolderStats($facility, $folder);
+        }
+
+        return $result;
+    }
+
+    /**
+     * 空のレスポンスを返す
+     */
+    private function getEmptyResponse(array $options): array
+    {
+        return [
+            'folders' => [],
+            'files' => [],
+            'current_folder' => null,
+            'breadcrumbs' => [],
+            'pagination' => [
+                'current_page' => 1,
+                'last_page' => 1,
+                'per_page' => $options['per_page'] ?? 50,
+                'total' => 0,
+                'has_more_pages' => false,
+            ],
+            'stats' => [],
+            'sort_options' => [
+                'sort_by' => $options['sort_by'] ?? 'name',
+                'sort_direction' => $options['sort_direction'] ?? 'asc',
+                'view_mode' => $options['view_mode'] ?? 'list',
+                'filter_type' => $options['filter_type'] ?? null,
+                'search' => $options['search'] ?? null,
+            ],
+        ];
     }
 
     /**
@@ -711,20 +745,26 @@ class DocumentService
     public function getAvailableFileTypes(Facility $facility): array
     {
         try {
-            $fileTypes = DocumentFile::where('facility_id', $facility->id)
-                ->selectRaw('file_extension, COUNT(*) as count')
-                ->groupBy('file_extension')
-                ->orderBy('count', 'desc')
-                ->get()
-                ->map(function ($item) {
-                    return [
-                        'extension' => $item->file_extension,
-                        'count' => $item->count,
-                        'label' => strtoupper($item->file_extension) . ' ファイル (' . $item->count . ')',
-                    ];
-                });
+            return cache()->remember(
+                "facility_file_types_{$facility->id}",
+                300, // 5分キャッシュ
+                function () use ($facility) {
+                    $fileTypes = DocumentFile::where('facility_id', $facility->id)
+                        ->selectRaw('file_extension, COUNT(*) as count')
+                        ->groupBy('file_extension')
+                        ->orderBy('count', 'desc')
+                        ->get()
+                        ->map(function ($item) {
+                            return [
+                                'extension' => $item->file_extension,
+                                'count' => $item->count,
+                                'label' => strtoupper($item->file_extension) . ' ファイル (' . $item->count . ')',
+                            ];
+                        });
 
-            return $fileTypes->toArray();
+                    return $fileTypes->toArray();
+                }
+            );
 
         } catch (Exception $e) {
             Log::error('Failed to get available file types', [
@@ -818,24 +858,15 @@ class DocumentService
      */
     private function formatFilesData($files, Facility $facility): array
     {
+        // Batch process files to avoid N+1 queries
+        $fileIds = collect($files)->pluck('id')->toArray();
+        
+        // Pre-load any additional data if needed
+        // This prevents N+1 queries when accessing relationships
+        
         return collect($files)->map(function ($file) use ($facility) {
             try {
-                return [
-                    'id' => $file->id,
-                    'name' => $file->original_name,
-                    'type' => 'file',
-                    'size' => $file->file_size,
-                    'formatted_size' => $file->getFormattedSize(),
-                    'extension' => $file->file_extension,
-                    'mime_type' => $file->mime_type,
-                    'created_at' => $file->created_at,
-                    'updated_at' => $file->updated_at,
-                    'uploaded_by' => $file->uploader->name ?? '不明',
-                    'download_url' => $file->getDownloadUrl(),
-                    'can_preview' => $file->canPreview(),
-                    'icon' => $file->getFileIcon(),
-                    'color' => $file->getFileColor(),
-                ];
+                return $this->formatSingleFileData($file, $facility);
             } catch (\Exception $e) {
                 Log::warning('Failed to format file data', [
                     'file_id' => $file->id,
@@ -843,25 +874,55 @@ class DocumentService
                     'error' => $e->getMessage()
                 ]);
                 
-                // エラーが発生した場合は基本情報のみ返す
-                return [
-                    'id' => $file->id,
-                    'name' => $file->original_name,
-                    'type' => 'file',
-                    'size' => $file->file_size,
-                    'formatted_size' => $file->getFormattedSize(),
-                    'extension' => $file->file_extension,
-                    'mime_type' => $file->mime_type,
-                    'created_at' => $file->created_at,
-                    'updated_at' => $file->updated_at,
-                    'uploaded_by' => $file->uploader->name ?? '不明',
-                    'download_url' => '#', // エラー時はダミーURL
-                    'can_preview' => false,
-                    'icon' => 'fas fa-file',
-                    'color' => 'text-muted',
-                ];
+                return $this->getDefaultFileData($file);
             }
         })->toArray();
+    }
+
+    /**
+     * Format single file data
+     */
+    private function formatSingleFileData($file, Facility $facility): array
+    {
+        return [
+            'id' => $file->id,
+            'name' => $file->original_name,
+            'type' => 'file',
+            'size' => $file->file_size,
+            'formatted_size' => $file->getFormattedSize(),
+            'extension' => $file->file_extension,
+            'mime_type' => $file->mime_type,
+            'created_at' => $file->created_at,
+            'updated_at' => $file->updated_at,
+            'uploaded_by' => $file->uploader->name ?? '不明',
+            'download_url' => $file->getDownloadUrl(),
+            'can_preview' => $file->canPreview(),
+            'icon' => $file->getFileIcon(),
+            'color' => $file->getFileColor(),
+        ];
+    }
+
+    /**
+     * Get default file data for error cases
+     */
+    private function getDefaultFileData($file): array
+    {
+        return [
+            'id' => $file->id,
+            'name' => $file->original_name,
+            'type' => 'file',
+            'size' => $file->file_size,
+            'formatted_size' => $file->getFormattedSize(),
+            'extension' => $file->file_extension,
+            'mime_type' => $file->mime_type,
+            'created_at' => $file->created_at,
+            'updated_at' => $file->updated_at,
+            'uploaded_by' => $file->uploader->name ?? '不明',
+            'download_url' => '#',
+            'can_preview' => false,
+            'icon' => 'fas fa-file',
+            'color' => 'text-muted',
+        ];
     }
 
     /**

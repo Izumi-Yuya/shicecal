@@ -3,7 +3,9 @@
 namespace Tests\Unit\Services;
 
 use App\Models\Facility;
+use App\Models\FacilityDrawing;
 use App\Models\File;
+use App\Models\MaintenanceHistory;
 use App\Models\User;
 use App\Services\ExportService;
 use Exception;
@@ -177,9 +179,26 @@ class ExportServiceTest extends TestCase
         $this->assertArrayHasKey('company_name', $fields);
         $this->assertArrayHasKey('facility_name', $fields);
         $this->assertArrayHasKey('land_ownership_type', $fields);
+        
+        // Test drawing fields
+        $this->assertArrayHasKey('drawing_notes', $fields);
+        
+        // Test maintenance history fields
+        $this->assertArrayHasKey('maintenance_latest_date', $fields);
+        $this->assertArrayHasKey('maintenance_latest_content', $fields);
+        $this->assertArrayHasKey('maintenance_total_count', $fields);
+        
         $this->assertEquals('会社名', $fields['company_name']);
         $this->assertEquals('施設名', $fields['facility_name']);
         $this->assertEquals('土地所有形態', $fields['land_ownership_type']);
+        
+        // Test drawing field labels
+        $this->assertEquals('図面備考', $fields['drawing_notes']);
+        
+        // Test maintenance history field labels
+        $this->assertEquals('修繕履歴_最新修繕日', $fields['maintenance_latest_date']);
+        $this->assertEquals('修繕履歴_最新修繕内容', $fields['maintenance_latest_content']);
+        $this->assertEquals('修繕履歴_総件数', $fields['maintenance_total_count']);
     }
 
     /**
@@ -525,6 +544,89 @@ class ExportServiceTest extends TestCase
         $this->assertEquals('承認済み', $method->invoke($this->service, $facility, 'status'));
         $this->assertNotEmpty($method->invoke($this->service, $facility, 'approved_at'));
         $this->assertNotEmpty($method->invoke($this->service, $facility, 'created_at'));
+    }
+
+    /**
+     * Test drawing field value extraction.
+     */
+    public function test_get_field_value_drawings()
+    {
+        // Create facility with drawing data
+        $facility = Facility::factory()->create();
+        
+        // Create drawing record
+        $facility->drawing()->create([
+            'notes' => 'Test drawing notes',
+        ]);
+
+        $reflection = new \ReflectionClass($this->service);
+        $method = $reflection->getMethod('getFieldValue');
+        $method->setAccessible(true);
+
+        // Test drawing notes field
+        $this->assertEquals('Test drawing notes', $method->invoke($this->service, $facility->fresh(), 'drawing_notes'));
+
+        // Test empty drawing fields
+        $facilityWithoutDrawings = Facility::factory()->create();
+        $this->assertEquals('', $method->invoke($this->service, $facilityWithoutDrawings, 'drawing_notes'));
+    }
+
+    /**
+     * Test maintenance history field value extraction.
+     */
+    public function test_get_field_value_maintenance_history()
+    {
+        // Create facility with maintenance history data
+        $facility = Facility::factory()->create();
+        
+        // Create maintenance history records
+        $facility->maintenanceHistories()->create([
+            'maintenance_date' => '2024-01-15',
+            'content' => 'Latest maintenance work',
+            'cost' => 150000,
+            'contractor' => 'Test Contractor',
+            'category' => 'exterior',
+            'subcategory' => 'waterproof',
+            'contact_person' => 'Test Person',
+            'phone_number' => '03-1234-5678',
+            'notes' => 'Latest maintenance notes',
+            'warranty_period_years' => 5,
+            'created_by' => $this->user->id,
+        ]);
+
+        $facility->maintenanceHistories()->create([
+            'maintenance_date' => '2023-06-10',
+            'content' => 'Older maintenance work',
+            'cost' => 80000,
+            'contractor' => 'Old Contractor',
+            'created_by' => $this->user->id,
+        ]);
+
+        $reflection = new \ReflectionClass($this->service);
+        $method = $reflection->getMethod('getFieldValue');
+        $method->setAccessible(true);
+
+        // Test latest maintenance fields (should get the most recent record)
+        $this->assertEquals('2024-01-15', $method->invoke($this->service, $facility->fresh(), 'maintenance_latest_date'));
+        $this->assertEquals('Latest maintenance work', $method->invoke($this->service, $facility->fresh(), 'maintenance_latest_content'));
+        $this->assertEquals('150000', $method->invoke($this->service, $facility->fresh(), 'maintenance_latest_cost'));
+        $this->assertEquals('Test Contractor', $method->invoke($this->service, $facility->fresh(), 'maintenance_latest_contractor'));
+        $this->assertEquals('外装', $method->invoke($this->service, $facility->fresh(), 'maintenance_latest_category'));
+        $this->assertEquals('防水', $method->invoke($this->service, $facility->fresh(), 'maintenance_latest_subcategory'));
+        $this->assertEquals('Test Person', $method->invoke($this->service, $facility->fresh(), 'maintenance_latest_contact_person'));
+        $this->assertEquals('03-1234-5678', $method->invoke($this->service, $facility->fresh(), 'maintenance_latest_phone_number'));
+        $this->assertEquals('Latest maintenance notes', $method->invoke($this->service, $facility->fresh(), 'maintenance_latest_notes'));
+        $this->assertEquals('5年', $method->invoke($this->service, $facility->fresh(), 'maintenance_latest_warranty_period'));
+
+        // Test total fields
+        $this->assertEquals('2', $method->invoke($this->service, $facility->fresh(), 'maintenance_total_count'));
+        $this->assertEquals('230000', $method->invoke($this->service, $facility->fresh(), 'maintenance_total_cost'));
+
+        // Test empty maintenance fields
+        $facilityWithoutMaintenance = Facility::factory()->create();
+        $this->assertEquals('', $method->invoke($this->service, $facilityWithoutMaintenance, 'maintenance_latest_date'));
+        $this->assertEquals('0', $method->invoke($this->service, $facilityWithoutMaintenance, 'maintenance_total_count'));
+        $this->assertEquals('0', $method->invoke($this->service, $facilityWithoutMaintenance, 'maintenance_total_cost'));
     }
 
     /**

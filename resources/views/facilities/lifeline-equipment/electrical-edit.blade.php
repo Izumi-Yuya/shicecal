@@ -39,30 +39,37 @@
     <!-- 基本情報セクション -->
     <x-form.section title="基本情報" icon="fas fa-info-circle" icon-color="primary">
         <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="electrical_contractor" class="form-label">電気契約会社</label>
-                <input type="text" class="form-control @error('basic_info.electrical_contractor') is-invalid @enderror" 
-                       id="electrical_contractor" name="basic_info[electrical_contractor]" 
-                       value="{{ old('basic_info.electrical_contractor', $basicInfo['electrical_contractor'] ?? '') }}">
-                <x-form.field-error field="basic_info.electrical_contractor" />
+            <div class="col-md-6">
+                <x-form.accessible-input
+                    name="basic_info[electrical_contractor]"
+                    id="electrical_contractor"
+                    label="電気契約会社"
+                    :value="$basicInfo['electrical_contractor'] ?? ''"
+                    autocomplete="organization"
+                />
             </div>
             
-            <div class="col-md-6 mb-3">
-                <label for="safety_management_company" class="form-label">保安管理業者</label>
-                <input type="text" class="form-control @error('basic_info.safety_management_company') is-invalid @enderror" 
-                       id="safety_management_company" name="basic_info[safety_management_company]" 
-                       value="{{ old('basic_info.safety_management_company', $basicInfo['safety_management_company'] ?? '') }}">
-                <x-form.field-error field="basic_info.safety_management_company" />
+            <div class="col-md-6">
+                <x-form.accessible-input
+                    name="basic_info[safety_management_company]"
+                    id="safety_management_company"
+                    label="保安管理業者"
+                    :value="$basicInfo['safety_management_company'] ?? ''"
+                    autocomplete="organization"
+                />
             </div>
         </div>
         
         <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="maintenance_inspection_date" class="form-label">電気保守点検実施日</label>
-                <input type="date" class="form-control @error('basic_info.maintenance_inspection_date') is-invalid @enderror" 
-                       id="maintenance_inspection_date" name="basic_info[maintenance_inspection_date]" 
-                       value="{{ old('basic_info.maintenance_inspection_date', $basicInfo['maintenance_inspection_date'] ?? '') }}">
-                <x-form.field-error field="basic_info.maintenance_inspection_date" />
+            <div class="col-md-6">
+                <x-form.accessible-input
+                    type="date"
+                    name="basic_info[maintenance_inspection_date]"
+                    id="maintenance_inspection_date"
+                    label="電気保守点検実施日"
+                    :value="$basicInfo['maintenance_inspection_date'] ?? ''"
+                    autocomplete="off"
+                />
             </div>
             
             <div class="col-md-6 mb-3">
@@ -77,7 +84,7 @@
                     </div>
                     <div class="mb-2">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="remove_inspection_report" name="remove_inspection_report" value="1">
+                            <input class="form-check-input" type="checkbox" id="remove_inspection_report" name="remove_inspection_report" value="1" autocomplete="off">
                             <label class="form-check-label text-danger" for="remove_inspection_report">
                                 <i class="fas fa-trash me-1"></i>現在のファイルを削除
                             </label>
@@ -86,8 +93,9 @@
                 @endif
                 <input type="file" class="form-control @error('inspection_report_file') is-invalid @enderror" 
                        id="inspection_report_file" name="inspection_report_file" 
-                       accept=".pdf">
-                <div class="form-text">PDFファイルのみアップロード可能です（最大10MB）</div>
+                       accept=".pdf" autocomplete="off"
+                       aria-describedby="inspection_report_file_help">
+                <div id="inspection_report_file_help" class="form-text">PDFファイルのみアップロード可能です（最大10MB）</div>
                 <x-form.field-error field="inspection_report_file" />
             </div>
         </div>

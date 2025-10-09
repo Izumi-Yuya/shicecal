@@ -1,6 +1,10 @@
 {{-- 統合されたドキュメント管理システム --}}
 <div class="document-management"
-     data-facility-id="{{ $facility->id }}">
+     id="document-management-container"
+     data-facility-id="{{ $facility->id }}"
+     data-can-create="{{ auth()->user()->can('create', [App\Models\DocumentFile::class, $facility]) ? 'true' : 'false' }}"
+     data-can-update="{{ auth()->user()->can('update', [App\Models\DocumentFile::class, $facility]) ? 'true' : 'false' }}"
+     data-can-delete="{{ auth()->user()->can('delete', [App\Models\DocumentFile::class, $facility]) ? 'true' : 'false' }}">
     
     {{-- ツールバー --}}
     <div class="document-toolbar mb-3">

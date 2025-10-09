@@ -55,7 +55,6 @@ Route::middleware(['auth'])->prefix('export')->name('export.')->group(function (
     // CSV Export Routes
     Route::prefix('csv')->name('csv.')->group(function () {
         Route::get('/', [ExportController::class, 'csvIndex'])->name('index');
-        Route::post('/preview', [ExportController::class, 'getFieldPreview'])->name('preview');
         Route::post('/generate', [ExportController::class, 'generateCsv'])->name('generate');
 
         // CSV Favorites Routes - RESTful resource pattern
@@ -66,6 +65,12 @@ Route::middleware(['auth'])->prefix('export')->name('export.')->group(function (
             Route::put('/{favorite}', [ExportController::class, 'updateFavorite'])->name('update');
             Route::delete('/{favorite}', [ExportController::class, 'deleteFavorite'])->name('destroy');
         });
+    });
+
+    // Export Favorites Management Routes
+    Route::prefix('favorites')->name('favorites.')->group(function () {
+        Route::get('/', [ExportController::class, 'favoritesIndex'])->name('index');
+        Route::get('/api', [ExportController::class, 'getFavoritesApi'])->name('api');
     });
 });
 
@@ -131,6 +136,28 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/{category}/download/{type}', [LifelineEquipmentController::class, 'downloadFile'])->name('download-file');
         });
 
+        // Lifeline Documents routes
+        Route::prefix('lifeline-documents')->name('lifeline-documents.')->group(function () {
+            // Category-specific document management
+            Route::get('/{category}', [\App\Http\Controllers\LifelineDocumentController::class, 'index'])->name('index');
+            Route::post('/{category}/upload', [\App\Http\Controllers\LifelineDocumentController::class, 'uploadFile'])->name('upload');
+            Route::post('/{category}/folders', [\App\Http\Controllers\LifelineDocumentController::class, 'createFolder'])->name('create-folder');
+            Route::get('/{category}/stats', [\App\Http\Controllers\LifelineDocumentController::class, 'stats'])->name('stats');
+            Route::get('/{category}/search', [\App\Http\Controllers\LifelineDocumentController::class, 'search'])->name('search');
+            
+            // Folder operations
+            Route::put('/{category}/folders/{folderId}', [\App\Http\Controllers\LifelineDocumentController::class, 'renameFolder'])->name('rename-folder');
+            Route::delete('/{category}/folders/{folderId}', [\App\Http\Controllers\LifelineDocumentController::class, 'deleteFolder'])->name('delete-folder');
+            
+            // File operations
+            Route::put('/{category}/files/{fileId}', [\App\Http\Controllers\LifelineDocumentController::class, 'renameFile'])->name('rename-file');
+            Route::delete('/{category}/files/{fileId}', [\App\Http\Controllers\LifelineDocumentController::class, 'deleteFile'])->name('delete-file');
+            Route::patch('/{category}/files/{fileId}/move', [\App\Http\Controllers\LifelineDocumentController::class, 'moveFile'])->name('move-file');
+        });
+
+        // General categories endpoint
+        Route::get('/lifeline-documents-categories', [\App\Http\Controllers\LifelineDocumentController::class, 'categories'])->name('lifeline-documents.categories');
+
         // Security disaster equipment routes
         Route::prefix('security-disaster')->name('security-disaster.')->group(function () {
             Route::get('/edit', [\App\Http\Controllers\SecurityDisasterController::class, 'edit'])->name('edit');
@@ -161,14 +188,17 @@ Route::middleware(['auth'])->group(function () {
         // Document management routes with enhanced security
         Route::prefix('documents')->name('documents.')->group(function () {
             Route::get('/', [\App\Http\Controllers\DocumentController::class, 'index'])->name('index');
-            Route::get('/folders/{folder?}', [\App\Http\Controllers\DocumentController::class, 'show'])->name('show');
+            
+            // Folder listing - must come before specific folder routes
+            Route::get('/folders', [\App\Http\Controllers\DocumentController::class, 'show'])->name('folders.index');
+            Route::get('/folders/{folder}', [\App\Http\Controllers\DocumentController::class, 'show'])->name('show');
 
             // Performance optimization routes
-            Route::get('/folders/{folder?}/virtual', [\App\Http\Controllers\DocumentController::class, 'showVirtual'])->name('folders.virtual');
+            Route::get('/folders/{folder}/virtual', [\App\Http\Controllers\DocumentController::class, 'showVirtual'])->name('folders.virtual');
 
             Route::get('/folder-tree', [\App\Http\Controllers\DocumentController::class, 'getFolderTree'])->name('folder-tree');
             Route::post('/folders', [\App\Http\Controllers\DocumentController::class, 'createFolder'])->name('folders.store');
-            Route::put('/folders/{folder}', [\App\Http\Controllers\DocumentController::class, 'renameFolder'])->name('folders.update');
+            Route::put('/folders/{folder}/rename', [\App\Http\Controllers\DocumentController::class, 'renameFolder'])->name('folders.rename');
             Route::put('/folders/{folder}/move', [\App\Http\Controllers\DocumentController::class, 'moveFolder'])->name('folders.move');
             Route::get('/folders/{folder}/properties', [\App\Http\Controllers\DocumentController::class, 'getFolderProperties'])->name('folders.properties');
             Route::delete('/folders/{folder}', [\App\Http\Controllers\DocumentController::class, 'deleteFolder'])->name('folders.destroy');
@@ -378,9 +408,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', function () {
             return redirect()->route('export.csv.index', [], 301);
         })->name('csv-export.index');
-        Route::post('/preview', function () {
-            return redirect()->route('export.csv.preview', [], 301);
-        })->name('csv-export.preview');
+
         Route::post('/generate', function () {
             return redirect()->route('export.csv.generate', [], 301);
         })->name('csv-export.generate');

@@ -23,11 +23,13 @@ use Illuminate\View\View;
 class DocumentController extends Controller
 {
     protected DocumentService $documentService;
+
     protected ActivityLogService $activityLogService;
+
     protected UserPreferenceService $userPreferenceService;
 
     public function __construct(
-        DocumentService $documentService, 
+        DocumentService $documentService,
         ActivityLogService $activityLogService,
         UserPreferenceService $userPreferenceService
     ) {
@@ -38,9 +40,6 @@ class DocumentController extends Controller
 
     /**
      * Display the document management interface for a facility.
-     * 
-     * @param Facility $facility
-     * @return View
      */
     public function index(Facility $facility): View
     {
@@ -67,16 +66,16 @@ class DocumentController extends Controller
             // Use centralized error handler
             $errorResponse = DocumentErrorHandler::handleError($e, request(), [
                 'facility_id' => $facility->id,
-                'operation' => 'document_index'
+                'operation' => 'document_index',
             ]);
 
             // For HTML requests, return view with error state
-            if (!request()->expectsJson()) {
+            if (! request()->expectsJson()) {
                 return view('facilities.documents.index', [
                     'facility' => $facility,
                     'folderContents' => ['folders' => [], 'files' => [], 'sort_options' => []],
                     'availableFileTypes' => [],
-                    'error' => 'ドキュメントの読み込みに失敗しました。'
+                    'error' => 'ドキュメントの読み込みに失敗しました。',
                 ]);
             }
 
@@ -86,11 +85,8 @@ class DocumentController extends Controller
 
     /**
      * Show folder contents (AJAX endpoint).
-     * 
-     * @param Facility $facility
-     * @param DocumentFolder|null $folder
-     * @param Request $request
-     * @return JsonResponse
+     *
+     * @param  Request  $request
      */
     public function show(Facility $facility, ?DocumentFolder $folder = null): JsonResponse
     {
@@ -98,9 +94,9 @@ class DocumentController extends Controller
             Log::info('DocumentController::show called', [
                 'facility_id' => $facility->id,
                 'folder_id' => $folder?->id,
-                'request_params' => request()->all()
+                'request_params' => request()->all(),
             ]);
-            
+
             // Check authorization
             $this->authorize('viewAny', [DocumentFolder::class, $facility]);
 
@@ -108,28 +104,28 @@ class DocumentController extends Controller
             if ($folder && $folder->facility_id !== $facility->id) {
                 throw DocumentServiceException::folderNotFound($folder->id, [
                     'facility_id' => $facility->id,
-                    'expected_facility_id' => $folder->facility_id
+                    'expected_facility_id' => $folder->facility_id,
                 ]);
             }
 
             // Get current settings from user preferences
             $request = request();
             $currentSettings = $this->userPreferenceService->getDocumentSettings($facility->id);
-            
+
             // Extract settings from request parameters
             $requestSettings = $this->userPreferenceService->extractDocumentSettingsFromRequest($request->all());
-            
+
             // Merge current settings with request settings
             $settings = array_merge($currentSettings, $requestSettings);
-            
+
             // Validate settings
             $validatedSettings = $this->userPreferenceService->validateDocumentSettings($settings);
-            
+
             // Save validated settings to user preferences
-            if (!empty($validatedSettings)) {
+            if (! empty($validatedSettings)) {
                 $this->userPreferenceService->saveDocumentSettings($facility->id, $validatedSettings);
             }
-            
+
             // Use final settings for folder contents
             $finalSettings = array_merge($currentSettings, $validatedSettings);
 
@@ -147,7 +143,7 @@ class DocumentController extends Controller
             $availableFileTypes = cache()->remember(
                 "facility_file_types_{$facility->id}",
                 300, // 5分キャッシュ
-                fn() => $this->documentService->getAvailableFileTypes($facility)
+                fn () => $this->documentService->getAvailableFileTypes($facility)
             );
 
             $responseData = [
@@ -161,14 +157,14 @@ class DocumentController extends Controller
                     'sort_options' => $folderContents['sort_options'],
                     'pagination' => $folderContents['pagination'] ?? null,
                     'available_file_types' => $availableFileTypes,
-                ]
+                ],
             ];
 
             Log::info('DocumentController::show response', [
                 'facility_id' => $facility->id,
                 'folder_count' => count($folderContents['folders']),
                 'file_count' => count($folderContents['files']),
-                'response_data' => $responseData
+                'response_data' => $responseData,
             ]);
 
             return response()->json($responseData);
@@ -177,17 +173,13 @@ class DocumentController extends Controller
             return DocumentErrorHandler::handleError($e, request(), [
                 'facility_id' => $facility->id,
                 'folder_id' => $folder?->id,
-                'operation' => 'document_show'
+                'operation' => 'document_show',
             ]);
         }
     }
 
     /**
      * Create a new folder.
-     * 
-     * @param CreateFolderRequest $request
-     * @param Facility $facility
-     * @return JsonResponse
      */
     public function createFolder(CreateFolderRequest $request, Facility $facility): JsonResponse
     {
@@ -199,15 +191,15 @@ class DocumentController extends Controller
             $parentFolder = null;
 
             // Get parent folder if specified
-            if (!empty($validated['parent_id'])) {
+            if (! empty($validated['parent_id'])) {
                 $parentFolder = DocumentFolder::where('facility_id', $facility->id)
                     ->where('id', $validated['parent_id'])
                     ->first();
 
-                if (!$parentFolder) {
+                if (! $parentFolder) {
                     throw DocumentServiceException::folderNotFound($validated['parent_id'], [
                         'facility_id' => $facility->id,
-                        'context' => 'parent_folder_lookup'
+                        'context' => 'parent_folder_lookup',
                     ]);
                 }
             }
@@ -235,8 +227,8 @@ class DocumentController extends Controller
                     'name' => $folder->name,
                     'path' => $folder->path,
                     'created_at' => $folder->created_at->format('Y-m-d H:i:s'),
-                    'creator' => $folder->creator->name ?? 'Unknown'
-                ]
+                    'creator' => $folder->creator->name ?? 'Unknown',
+                ],
             ], 201);
 
         } catch (Exception $e) {
@@ -244,18 +236,13 @@ class DocumentController extends Controller
                 'facility_id' => $facility->id,
                 'folder_name' => $request->input('name'),
                 'parent_id' => $request->input('parent_id'),
-                'operation' => 'folder_create'
+                'operation' => 'folder_create',
             ]);
         }
     }
 
     /**
      * Rename a folder.
-     * 
-     * @param RenameFolderRequest $request
-     * @param Facility $facility
-     * @param DocumentFolder $folder
-     * @return JsonResponse
      */
     public function renameFolder(RenameFolderRequest $request, Facility $facility, DocumentFolder $folder): JsonResponse
     {
@@ -288,37 +275,22 @@ class DocumentController extends Controller
                     'id' => $updatedFolder->id,
                     'name' => $updatedFolder->name,
                     'path' => $updatedFolder->path,
-                    'updated_at' => $updatedFolder->updated_at->format('Y-m-d H:i:s')
-                ]
+                    'updated_at' => $updatedFolder->updated_at->format('Y-m-d H:i:s'),
+                ],
             ]);
 
-        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'フォルダ名を変更する権限がありません。'
-            ], 403);
         } catch (Exception $e) {
-            Log::error('Folder rename failed', [
+            return DocumentErrorHandler::handleError($e, $request, [
                 'folder_id' => $folder->id,
                 'facility_id' => $folder->facility_id,
                 'new_name' => $validated['name'] ?? 'unknown',
-                'user_id' => auth()->id(),
-                'error' => $e->getMessage()
+                'operation' => 'folder_rename',
             ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'フォルダ名の変更に失敗しました。'
-            ], 500);
         }
     }
 
     /**
      * Delete a folder.
-     * 
-     * @param Facility $facility
-     * @param DocumentFolder $folder
-     * @return JsonResponse
      */
     public function deleteFolder(Facility $facility, DocumentFolder $folder): JsonResponse
     {
@@ -332,10 +304,10 @@ class DocumentController extends Controller
             // Delete folder
             $result = $this->documentService->deleteFolder($folder, auth()->user());
 
-            if (!$result) {
+            if (! $result) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'フォルダを削除できませんでした。フォルダが空でない可能性があります。'
+                    'message' => 'フォルダを削除できませんでした。フォルダが空でない可能性があります。',
                 ], 400);
             }
 
@@ -348,35 +320,31 @@ class DocumentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'フォルダを削除しました。'
+                'message' => 'フォルダを削除しました。',
             ]);
 
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'フォルダを削除する権限がありません。'
+                'message' => 'フォルダを削除する権限がありません。',
             ], 403);
         } catch (Exception $e) {
             Log::error('Folder deletion failed', [
                 'folder_id' => $folder->id,
                 'facility_id' => $folder->facility_id,
                 'user_id' => auth()->id(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'フォルダの削除に失敗しました。'
+                'message' => 'フォルダの削除に失敗しました。',
             ], 500);
         }
     }
 
     /**
      * Upload multiple files.
-     * 
-     * @param UploadFileRequest $request
-     * @param Facility $facility
-     * @return JsonResponse
      */
     public function uploadFile(UploadFileRequest $request, Facility $facility): JsonResponse
     {
@@ -388,15 +356,15 @@ class DocumentController extends Controller
             $folder = null;
 
             // Get folder if specified
-            if (!empty($validated['folder_id'])) {
+            if (! empty($validated['folder_id'])) {
                 $folder = DocumentFolder::where('facility_id', $facility->id)
                     ->where('id', $validated['folder_id'])
                     ->first();
 
-                if (!$folder) {
+                if (! $folder) {
                     return response()->json([
                         'success' => false,
-                        'message' => '指定されたフォルダが見つかりません。'
+                        'message' => '指定されたフォルダが見つかりません。',
                     ], 404);
                 }
             }
@@ -426,7 +394,7 @@ class DocumentController extends Controller
                         'download_url' => $documentFile->getDownloadUrl(),
                         'icon' => $documentFile->getFileIcon(),
                         'color' => $documentFile->getFileColor(),
-                        'can_preview' => $documentFile->canPreview()
+                        'can_preview' => $documentFile->canPreview(),
                     ];
 
                     // Log activity
@@ -443,14 +411,14 @@ class DocumentController extends Controller
                 } catch (Exception $e) {
                     $errors[] = [
                         'file' => $file->getClientOriginalName(),
-                        'error' => $e->getMessage()
+                        'error' => $e->getMessage(),
                     ];
 
                     Log::error('Individual file upload failed', [
                         'facility_id' => $facility->id,
                         'file_name' => $file->getClientOriginalName(),
                         'user_id' => auth()->id(),
-                        'error' => $e->getMessage()
+                        'error' => $e->getMessage(),
                     ]);
                 }
             }
@@ -460,136 +428,325 @@ class DocumentController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'すべてのファイルのアップロードに失敗しました。',
-                    'errors' => $errors
+                    'errors' => $errors,
                 ], 400);
             } elseif (count($errors) > 0) {
                 return response()->json([
                     'success' => true,
-                    'message' => "{$successCount}個のファイルをアップロードしました。" . count($errors) . "個のファイルでエラーが発生しました。",
+                    'message' => "{$successCount}個のファイルをアップロードしました。".count($errors).'個のファイルでエラーが発生しました。',
                     'files' => $uploadedFiles,
                     'errors' => $errors,
-                    'partial' => true
+                    'partial' => true,
                 ], 201);
             } else {
                 return response()->json([
                     'success' => true,
                     'message' => "{$successCount}個のファイルをアップロードしました。",
-                    'files' => $uploadedFiles
+                    'files' => $uploadedFiles,
                 ], 201);
             }
 
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'ファイルをアップロードする権限がありません。'
+                'message' => 'ファイルをアップロードする権限がありません。',
             ], 403);
         } catch (Exception $e) {
             Log::error('File upload failed', [
                 'facility_id' => $facility->id,
                 'user_id' => auth()->id(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'ファイルのアップロードに失敗しました。'
+                'message' => 'ファイルのアップロードに失敗しました。',
             ], 500);
         }
     }
 
     /**
      * Download a file with enhanced security checks.
-     * 
+     *
      * Requirements: 8.4, 9.1, 9.2, 9.3 - ファイルダウンロード時の権限確認とセキュリティ
-     * 
-     * @param Facility $facility
-     * @param DocumentFile $file
-     * @return StreamedResponse
      */
     public function downloadFile(Facility $facility, DocumentFile $file): StreamedResponse
     {
         try {
-            // Check authorization (Requirement 9.1, 9.2)
-            $this->authorize('view', $file);
-
-            // Additional security checks
-            $this->performDownloadSecurityChecks($file);
-
-            // Validate file path to prevent path traversal (Requirement 8.4)
-            $this->validateFilePath($file->file_path);
-
-            // Check if file exists and is readable
-            $filePath = storage_path('app/public/' . $file->file_path);
-            if (!file_exists($filePath) || !is_readable($filePath)) {
-                throw new Exception('ファイルが見つからないか、読み取りできません。');
-            }
-
-            // Verify file integrity
-            if (!$this->verifyFileIntegrity($file, $filePath)) {
-                Log::warning('File integrity check failed during download', [
-                    'file_id' => $file->id,
-                    'file_path' => $file->file_path,
-                    'user_id' => auth()->id()
-                ]);
-                throw new Exception('ファイルの整合性チェックに失敗しました。');
-            }
-
-            // Log activity (Requirement 9.4)
-            $this->activityLogService->logDocumentFileDownloaded(
-                $file->id,
-                $file->original_name,
-                $file->facility_id
-            );
-
-            // Return secure file download response
-            return response()->streamDownload(function () use ($filePath) {
-                $handle = fopen($filePath, 'rb');
-                if ($handle) {
-                    while (!feof($handle)) {
-                        echo fread($handle, 8192); // Read in chunks for memory efficiency
-                        flush();
-                    }
-                    fclose($handle);
-                } else {
-                    throw new Exception('ファイルを開けませんでした。');
-                }
-            }, $this->sanitizeFilename($file->original_name), [
-                'Content-Type' => $file->mime_type,
-                'Content-Length' => $file->file_size,
-                'Content-Disposition' => 'attachment; filename="' . $this->sanitizeFilename($file->original_name) . '"',
-                'X-Content-Type-Options' => 'nosniff',
-                'X-Frame-Options' => 'DENY',
-                'Cache-Control' => 'no-cache, no-store, must-revalidate',
-                'Pragma' => 'no-cache',
-                'Expires' => '0'
-            ]);
+            $this->validateFileDownloadRequest($file);
+            $filePath = $this->getValidatedFilePath($file);
+            $this->logDownloadActivity($file);
+            
+            return $this->createSecureDownloadResponse($file, $filePath);
 
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
-            // Log unauthorized access attempt (Requirement 9.4)
-            Log::warning('Unauthorized file download attempt', [
-                'file_id' => $file->id,
-                'facility_id' => $file->facility_id,
-                'user_id' => auth()->id(),
-                'ip_address' => request()->ip()
-            ]);
+            $this->logUnauthorizedDownloadAttempt($file);
             abort(403, 'このファイルをダウンロードする権限がありません。');
         } catch (Exception $e) {
-            Log::error('File download failed', [
-                'file_id' => $file->id,
-                'facility_id' => $file->facility_id,
-                'user_id' => auth()->id(),
-                'error' => $e->getMessage()
-            ]);
-
+            $this->logDownloadError($file, $e);
             abort(404, 'ファイルが見つかりません。');
         }
     }
 
     /**
+     * Validate file download request
+     */
+    private function validateFileDownloadRequest(DocumentFile $file): void
+    {
+        // Check authorization (Requirement 9.1, 9.2)
+        $this->authorize('view', $file);
+
+        // Additional security checks
+        $this->performDownloadSecurityChecks($file);
+
+        // Validate file path to prevent path traversal (Requirement 8.4)
+        $this->validateFilePath($file->file_path);
+    }
+
+    /**
+     * Get validated file path
+     */
+    private function getValidatedFilePath(DocumentFile $file): string
+    {
+        $filePath = storage_path('app/public/'.$file->file_path);
+        
+        if (! file_exists($filePath) || ! is_readable($filePath)) {
+            throw new Exception('ファイルが見つからないか、読み取りできません。');
+        }
+
+        // Verify file integrity
+        if (! $this->verifyFileIntegrity($file, $filePath)) {
+            Log::warning('File integrity check failed during download', [
+                'file_id' => $file->id,
+                'file_path' => $file->file_path,
+                'user_id' => auth()->id(),
+            ]);
+            throw new Exception('ファイルの整合性チェックに失敗しました。');
+        }
+
+        return $filePath;
+    }
+
+    /**
+     * Log download activity
+     */
+    private function logDownloadActivity(DocumentFile $file): void
+    {
+        $this->activityLogService->logDocumentFileDownloaded(
+            $file->id,
+            $file->original_name,
+            $file->facility_id
+        );
+    }
+
+    /**
+     * Create secure download response
+     */
+    private function createSecureDownloadResponse(DocumentFile $file, string $filePath): StreamedResponse
+    {
+        $sanitizedFilename = $this->sanitizeFilename($file->original_name);
+
+        return response()->streamDownload(function () use ($filePath) {
+            $this->streamFileContent($filePath);
+        }, $sanitizedFilename, $this->getSecureDownloadHeaders($file));
+    }
+
+    /**
+     * Stream file content in chunks
+     */
+    private function streamFileContent(string $filePath): void
+    {
+        $handle = fopen($filePath, 'rb');
+        if ($handle) {
+            while (! feof($handle)) {
+                echo fread($handle, 8192); // Read in chunks for memory efficiency
+                flush();
+            }
+            fclose($handle);
+        } else {
+            throw new Exception('ファイルを開けませんでした。');
+        }
+    }
+
+    /**
+     * Get secure download headers
+     */
+    private function getSecureDownloadHeaders(DocumentFile $file): array
+    {
+        $sanitizedFilename = $this->sanitizeFilename($file->original_name);
+        
+        return [
+            'Content-Type' => $file->mime_type,
+            'Content-Length' => $file->file_size,
+            'Content-Disposition' => 'attachment; filename="'.addslashes($sanitizedFilename).'"',
+            'X-Content-Type-Options' => 'nosniff',
+            'X-Frame-Options' => 'DENY',
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
+        ];
+    }
+
+    /**
+     * Log unauthorized download attempt
+     */
+    private function logUnauthorizedDownloadAttempt(DocumentFile $file): void
+    {
+        Log::warning('Unauthorized file download attempt', [
+            'file_id' => $file->id,
+            'facility_id' => $file->facility_id,
+            'user_id' => auth()->id(),
+            'ip_address' => request()->ip(),
+        ]);
+    }
+
+    /**
+     * Log download error
+     */
+    private function logDownloadError(DocumentFile $file, Exception $e): void
+    {
+        Log::error('File download failed', [
+            'file_id' => $file->id,
+            'facility_id' => $file->facility_id,
+            'user_id' => auth()->id(),
+            'error' => $e->getMessage(),
+        ]);
+    }
+
+    /**
+     * Sanitize filename for safe download
+     */
+    private function sanitizeFilename(string $filename): string
+    {
+        // Remove null bytes and control characters
+        $sanitized = preg_replace('/[\x00-\x1F\x7F]/', '', $filename);
+
+        // Remove or replace dangerous characters, but preserve Unicode characters
+        $sanitized = preg_replace('/[<>:"|?*\\\\\/]/', '_', $sanitized);
+
+        // Prevent directory traversal
+        $sanitized = str_replace(['../', '.\\', '..\\'], '', $sanitized);
+
+        // Limit length to prevent filesystem issues
+        if (mb_strlen($sanitized, 'UTF-8') > 255) {
+            $extension = pathinfo($sanitized, PATHINFO_EXTENSION);
+            $name = pathinfo($sanitized, PATHINFO_FILENAME);
+            $maxNameLength = 250 - mb_strlen($extension, 'UTF-8') - 1;
+            $sanitized = mb_substr($name, 0, $maxNameLength, 'UTF-8').'.'.$extension;
+        }
+
+        // Ensure filename is not empty after sanitization
+        if (empty(trim($sanitized))) {
+            $sanitized = 'document_'.time().'.pdf';
+        }
+
+        return $sanitized;
+    }
+
+    /**
+     * Validate file path to prevent path traversal attacks
+     */
+    private function validateFilePath(string $filePath): void
+    {
+        // Check for path traversal attempts
+        if (strpos($filePath, '..') !== false) {
+            throw new Exception('不正なファイルパスが検出されました。');
+        }
+
+        // Check for absolute paths
+        if (strpos($filePath, '/') === 0 || preg_match('/^[a-zA-Z]:/', $filePath)) {
+            throw new Exception('不正なファイルパスが検出されました。');
+        }
+
+        // Check for dangerous characters
+        if (preg_match('/[<>:"|?*\x00-\x1f]/', $filePath)) {
+            throw new Exception('不正な文字がファイルパスに含まれています。');
+        }
+
+        // Additional real path validation
+        $realPath = realpath(storage_path('app/public/'.$filePath));
+        $basePath = realpath(storage_path('app/public'));
+
+        if (! $realPath || ! str_starts_with($realPath, $basePath)) {
+            throw new Exception('不正なファイルパスです。');
+        }
+    }
+
+    /**
+     * Perform additional security checks for file download
+     */
+    private function performDownloadSecurityChecks(DocumentFile $file): void
+    {
+        // Check if file is within allowed types
+        $allowedMimeTypes = [
+            'application/pdf',
+            'image/jpeg',
+            'image/png',
+            'image/gif',
+            'text/plain',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        ];
+
+        if (! in_array($file->mime_type, $allowedMimeTypes)) {
+            throw new Exception('このファイルタイプはダウンロードできません。');
+        }
+
+        // Check file size limits (100MB max)
+        if ($file->file_size > 100 * 1024 * 1024) {
+            throw new Exception('ファイルサイズが大きすぎます。');
+        }
+    }
+
+    /**
+     * Verify file integrity
+     */
+    private function verifyFileIntegrity(DocumentFile $file, string $filePath): bool
+    {
+        // Check if actual file size matches database record
+        $actualSize = filesize($filePath);
+        if ($actualSize !== $file->file_size) {
+            Log::warning('File size mismatch detected', [
+                'file_id' => $file->id,
+                'expected_size' => $file->file_size,
+                'actual_size' => $actualSize,
+            ]);
+
+            return false;
+        }
+
+        // Basic MIME type verification
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $actualMimeType = finfo_file($finfo, $filePath);
+        finfo_close($finfo);
+
+        // Allow some flexibility in MIME type matching
+        $allowedMimeVariations = [
+            'application/pdf' => ['application/pdf'],
+            'image/jpeg' => ['image/jpeg', 'image/jpg'],
+            'image/png' => ['image/png'],
+            'application/zip' => ['application/zip', 'application/x-zip-compressed'],
+            'text/plain' => ['text/plain', 'text/x-plain'],
+        ];
+
+        if (isset($allowedMimeVariations[$file->mime_type])) {
+            if (! in_array($actualMimeType, $allowedMimeVariations[$file->mime_type])) {
+                Log::warning('MIME type mismatch detected', [
+                    'file_id' => $file->id,
+                    'expected_mime' => $file->mime_type,
+                    'actual_mime' => $actualMimeType,
+                ]);
+
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Preview a file (for supported file types).
-     * 
-     * @param Facility $facility
-     * @param DocumentFile $file
+     *
      * @return mixed
      */
     public function previewFile(Facility $facility, DocumentFile $file)
@@ -599,19 +756,19 @@ class DocumentController extends Controller
             $this->authorize('view', $file);
 
             // Check if file can be previewed
-            if (!$file->canPreview()) {
+            if (! $file->canPreview()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'このファイル形式はプレビューできません。'
+                    'message' => 'このファイル形式はプレビューできません。',
                 ], 400);
             }
 
-            $filePath = storage_path('app/public/' . $file->file_path);
-            
-            if (!file_exists($filePath)) {
+            $filePath = storage_path('app/public/'.$file->file_path);
+
+            if (! file_exists($filePath)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'ファイルが見つかりません。'
+                    'message' => 'ファイルが見つかりません。',
                 ], 404);
             }
 
@@ -625,7 +782,7 @@ class DocumentController extends Controller
             // Return file for preview
             return response()->file($filePath, [
                 'Content-Type' => $file->mime_type,
-                'Content-Disposition' => 'inline; filename="' . $file->original_name . '"'
+                'Content-Disposition' => 'inline; filename="'.$file->original_name.'"',
             ]);
 
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
@@ -635,22 +792,18 @@ class DocumentController extends Controller
                 'file_id' => $file->id,
                 'facility_id' => $file->facility_id,
                 'user_id' => auth()->id(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'ファイルのプレビューに失敗しました。'
+                'message' => 'ファイルのプレビューに失敗しました。',
             ], 500);
         }
     }
 
     /**
      * Delete a file.
-     * 
-     * @param Facility $facility
-     * @param DocumentFile $file
-     * @return JsonResponse
      */
     public function deleteFile(Facility $facility, DocumentFile $file): JsonResponse
     {
@@ -664,10 +817,10 @@ class DocumentController extends Controller
             // Delete file
             $result = $this->documentService->deleteFile($file, auth()->user());
 
-            if (!$result) {
+            if (! $result) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'ファイルを削除できませんでした。'
+                    'message' => 'ファイルを削除できませんでした。',
                 ], 400);
             }
 
@@ -680,35 +833,25 @@ class DocumentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'ファイルを削除しました。'
+                'message' => 'ファイルを削除しました。',
             ]);
 
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'ファイルを削除する権限がありません。'
+                'message' => 'ファイルを削除する権限がありません。',
             ], 403);
         } catch (Exception $e) {
-            Log::error('File deletion failed', [
+            return DocumentErrorHandler::handleError($e, request(), [
                 'file_id' => $file->id,
                 'facility_id' => $file->facility_id,
-                'user_id' => auth()->id(),
-                'error' => $e->getMessage()
+                'operation' => 'file_delete',
             ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'ファイルの削除に失敗しました。'
-            ], 500);
         }
     }
 
     /**
      * Get file properties.
-     * 
-     * @param Facility $facility
-     * @param DocumentFile $file
-     * @return JsonResponse
      */
     public function getFileProperties(Facility $facility, DocumentFile $file): JsonResponse
     {
@@ -720,7 +863,7 @@ class DocumentController extends Controller
             if ($file->facility_id !== $facility->id) {
                 return response()->json([
                     'success' => false,
-                    'message' => '指定されたファイルが見つかりません。'
+                    'message' => '指定されたファイルが見つかりません。',
                 ], 404);
             }
 
@@ -736,36 +879,32 @@ class DocumentController extends Controller
                     'created_at' => $file->created_at,
                     'updated_at' => $file->updated_at,
                     'creator' => $file->uploader->name ?? 'Unknown',
-                    'path' => $file->folder ? $file->folder->getFullPath() . '/' . $file->original_name : $file->original_name
-                ]
+                    'path' => $file->folder ? $file->folder->getFullPath().'/'.$file->original_name : $file->original_name,
+                ],
             ]);
 
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'このファイルのプロパティを表示する権限がありません。'
+                'message' => 'このファイルのプロパティを表示する権限がありません。',
             ], 403);
         } catch (Exception $e) {
             Log::error('File properties fetch failed', [
                 'file_id' => $file->id,
                 'facility_id' => $file->facility_id,
                 'user_id' => auth()->id(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'ファイルのプロパティを取得できませんでした。'
+                'message' => 'ファイルのプロパティを取得できませんでした。',
             ], 500);
         }
     }
 
     /**
      * Get folder properties.
-     * 
-     * @param Facility $facility
-     * @param DocumentFolder $folder
-     * @return JsonResponse
      */
     public function getFolderProperties(Facility $facility, DocumentFolder $folder): JsonResponse
     {
@@ -777,7 +916,7 @@ class DocumentController extends Controller
             if ($folder->facility_id !== $facility->id) {
                 return response()->json([
                     'success' => false,
-                    'message' => '指定されたフォルダが見つかりません。'
+                    'message' => '指定されたフォルダが見つかりません。',
                 ], 404);
             }
 
@@ -790,37 +929,32 @@ class DocumentController extends Controller
                     'created_at' => $folder->created_at,
                     'updated_at' => $folder->updated_at,
                     'creator' => $folder->creator->name ?? 'Unknown',
-                    'path' => $folder->getFullPath()
-                ]
+                    'path' => $folder->getFullPath(),
+                ],
             ]);
 
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'このフォルダのプロパティを表示する権限がありません。'
+                'message' => 'このフォルダのプロパティを表示する権限がありません。',
             ], 403);
         } catch (Exception $e) {
             Log::error('Folder properties fetch failed', [
                 'folder_id' => $folder->id,
                 'facility_id' => $folder->facility_id,
                 'user_id' => auth()->id(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'フォルダのプロパティを取得できませんでした。'
+                'message' => 'フォルダのプロパティを取得できませんでした。',
             ], 500);
         }
     }
 
     /**
      * Rename a file.
-     * 
-     * @param Request $request
-     * @param Facility $facility
-     * @param DocumentFile $file
-     * @return JsonResponse
      */
     public function renameFile(Request $request, Facility $facility, DocumentFile $file): JsonResponse
     {
@@ -832,12 +966,12 @@ class DocumentController extends Controller
             if ($file->facility_id !== $facility->id) {
                 return response()->json([
                     'success' => false,
-                    'message' => '指定されたファイルが見つかりません。'
+                    'message' => '指定されたファイルが見つかりません。',
                 ], 404);
             }
 
             $request->validate([
-                'name' => ['required', 'string', 'max:255']
+                'name' => ['required', 'string', 'max:255'],
             ]);
 
             $newName = $request->input('name');
@@ -851,20 +985,20 @@ class DocumentController extends Controller
                 'file' => [
                     'id' => $updatedFile->id,
                     'name' => $updatedFile->original_name,
-                    'updated_at' => $updatedFile->updated_at->format('Y-m-d H:i:s')
-                ]
+                    'updated_at' => $updatedFile->updated_at->format('Y-m-d H:i:s'),
+                ],
             ]);
 
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'ファイル名を変更する権限がありません。'
+                'message' => 'ファイル名を変更する権限がありません。',
             ], 403);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'ファイル名が正しくありません。',
-                'errors' => $e->errors()
+                'errors' => $e->errors(),
             ], 422);
         } catch (Exception $e) {
             Log::error('File rename failed', [
@@ -872,21 +1006,18 @@ class DocumentController extends Controller
                 'facility_id' => $file->facility_id,
                 'new_name' => $request->input('name'),
                 'user_id' => auth()->id(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'ファイル名の変更に失敗しました。'
+                'message' => 'ファイル名の変更に失敗しました。',
             ], 500);
         }
     }
 
     /**
      * Reset user preferences for document management.
-     * 
-     * @param Facility $facility
-     * @return JsonResponse
      */
     public function resetPreferences(Facility $facility): JsonResponse
     {
@@ -907,181 +1038,26 @@ class DocumentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => '表示設定をリセットしました。'
+                'message' => '表示設定をリセットしました。',
             ]);
 
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => '設定をリセットする権限がありません。'
+                'message' => '設定をリセットする権限がありません。',
             ], 403);
         } catch (Exception $e) {
             Log::error('Document preferences reset failed', [
                 'facility_id' => $facility->id,
                 'user_id' => auth()->id(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => '設定のリセットに失敗しました。'
+                'message' => '設定のリセットに失敗しました。',
             ], 500);
         }
-    }
-
-    /**
-     * Perform additional security checks for file downloads.
-     * 
-     * Requirements: 8.4 - ファイルアクセス時の権限確認
-     */
-    protected function performDownloadSecurityChecks(DocumentFile $file): void
-    {
-        // Check if user has exceeded download limits
-        $user = auth()->user();
-        $downloadKey = 'file_downloads:' . $user->id;
-        
-        if (cache()->get($downloadKey, 0) > 100) { // Max 100 downloads per hour
-            throw new Exception('ダウンロード制限に達しました。しばらく待ってから再試行してください。');
-        }
-        
-        $currentCount = cache()->get($downloadKey, 0) + 1;
-        cache()->put($downloadKey, $currentCount, 3600); // 1 hour
-
-        // Check file age - warn about very old files
-        if ($file->created_at->diffInDays(now()) > 365) {
-            Log::info('Old file downloaded', [
-                'file_id' => $file->id,
-                'file_age_days' => $file->created_at->diffInDays(now()),
-                'user_id' => $user->id
-            ]);
-        }
-
-        // Check for suspicious download patterns
-        $recentDownloads = cache()->get('recent_downloads:' . $user->id, []);
-        if (count($recentDownloads) > 10) { // More than 10 downloads in short time
-            Log::warning('Suspicious download pattern detected', [
-                'user_id' => $user->id,
-                'recent_downloads_count' => count($recentDownloads),
-                'file_id' => $file->id
-            ]);
-        }
-
-        // Add current download to recent downloads
-        $recentDownloads[] = [
-            'file_id' => $file->id,
-            'timestamp' => now()->timestamp
-        ];
-        
-        // Keep only last 15 minutes of downloads
-        $recentDownloads = array_filter($recentDownloads, function ($download) {
-            return (now()->timestamp - $download['timestamp']) < 900; // 15 minutes
-        });
-        
-        cache()->put('recent_downloads:' . $user->id, $recentDownloads, 900);
-    }
-
-    /**
-     * Validate file path to prevent path traversal attacks.
-     * 
-     * Requirements: 8.4 - パストラバーサル攻撃対策
-     */
-    protected function validateFilePath(string $filePath): void
-    {
-        // Check for path traversal attempts
-        if (strpos($filePath, '..') !== false) {
-            throw new Exception('不正なファイルパスが検出されました。');
-        }
-
-        // Check for absolute paths
-        if (strpos($filePath, '/') === 0 || preg_match('/^[a-zA-Z]:/', $filePath)) {
-            throw new Exception('不正なファイルパスが検出されました。');
-        }
-
-        // Ensure path is within allowed directory
-        $allowedPrefix = 'documents/';
-        if (strpos($filePath, $allowedPrefix) !== 0) {
-            throw new Exception('許可されていないディレクトリへのアクセスです。');
-        }
-
-        // Check for dangerous characters
-        if (preg_match('/[<>:"|?*\x00-\x1f]/', $filePath)) {
-            throw new Exception('不正な文字がファイルパスに含まれています。');
-        }
-    }
-
-    /**
-     * Verify file integrity before download.
-     * 
-     * Requirements: 8.4 - ファイル整合性チェック
-     */
-    protected function verifyFileIntegrity(DocumentFile $file, string $filePath): bool
-    {
-        // Check if actual file size matches database record
-        $actualSize = filesize($filePath);
-        if ($actualSize !== $file->file_size) {
-            Log::warning('File size mismatch detected', [
-                'file_id' => $file->id,
-                'expected_size' => $file->file_size,
-                'actual_size' => $actualSize
-            ]);
-            return false;
-        }
-
-        // Basic MIME type verification
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $actualMimeType = finfo_file($finfo, $filePath);
-        finfo_close($finfo);
-
-        // Allow some flexibility in MIME type matching
-        $allowedMimeVariations = [
-            'application/pdf' => ['application/pdf'],
-            'image/jpeg' => ['image/jpeg', 'image/jpg'],
-            'image/png' => ['image/png'],
-            'application/zip' => ['application/zip', 'application/x-zip-compressed'],
-            'text/plain' => ['text/plain', 'text/x-plain'],
-        ];
-
-        if (isset($allowedMimeVariations[$file->mime_type])) {
-            if (!in_array($actualMimeType, $allowedMimeVariations[$file->mime_type])) {
-                Log::warning('MIME type mismatch detected', [
-                    'file_id' => $file->id,
-                    'expected_mime' => $file->mime_type,
-                    'actual_mime' => $actualMimeType
-                ]);
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Sanitize filename for safe download.
-     * 
-     * Requirements: 8.4 - セキュアなファイル名処理
-     */
-    protected function sanitizeFilename(string $filename): string
-    {
-        // Remove or replace dangerous characters
-        $filename = preg_replace('/[<>:"|?*\x00-\x1f]/', '_', $filename);
-        
-        // Remove path separators
-        $filename = str_replace(['/', '\\'], '_', $filename);
-        
-        // Limit filename length
-        if (strlen($filename) > 255) {
-            $extension = pathinfo($filename, PATHINFO_EXTENSION);
-            $basename = pathinfo($filename, PATHINFO_FILENAME);
-            $basename = substr($basename, 0, 255 - strlen($extension) - 1);
-            $filename = $basename . '.' . $extension;
-        }
-        
-        // Ensure filename is not empty
-        if (empty(trim($filename))) {
-            $filename = 'download_' . time();
-        }
-        
-        return $filename;
     }
 
     /**
@@ -1096,7 +1072,7 @@ class DocumentController extends Controller
             if ($folder && $folder->facility_id !== $facility->id) {
                 throw DocumentServiceException::folderNotFound($folder->id, [
                     'facility_id' => $facility->id,
-                    'expected_facility_id' => $folder->facility_id
+                    'expected_facility_id' => $folder->facility_id,
                 ]);
             }
 
@@ -1115,23 +1091,20 @@ class DocumentController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $data,
-                'message' => '仮想スクロール用データを取得しました。'
+                'message' => '仮想スクロール用データを取得しました。',
             ]);
 
         } catch (Exception $e) {
             return DocumentErrorHandler::handleError($e, request(), [
                 'facility_id' => $facility->id,
                 'folder_id' => $folder?->id,
-                'operation' => 'document_show_virtual'
+                'operation' => 'document_show_virtual',
             ]);
         }
     }
 
     /**
      * Get folder tree for facility.
-     * 
-     * @param Facility $facility
-     * @return JsonResponse
      */
     public function getFolderTree(Facility $facility): JsonResponse
     {
@@ -1145,35 +1118,30 @@ class DocumentController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $folderTree,
-                'message' => 'フォルダツリーを取得しました。'
+                'message' => 'フォルダツリーを取得しました。',
             ]);
 
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'フォルダツリーを表示する権限がありません。'
+                'message' => 'フォルダツリーを表示する権限がありません。',
             ], 403);
         } catch (Exception $e) {
             Log::error('Folder tree fetch failed', [
                 'facility_id' => $facility->id,
                 'user_id' => auth()->id(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'フォルダツリーの取得に失敗しました。'
+                'message' => 'フォルダツリーの取得に失敗しました。',
             ], 500);
         }
     }
 
     /**
      * Move file to different folder.
-     * 
-     * @param Request $request
-     * @param Facility $facility
-     * @param DocumentFile $file
-     * @return JsonResponse
      */
     public function moveFile(Request $request, Facility $facility, DocumentFile $file): JsonResponse
     {
@@ -1185,12 +1153,12 @@ class DocumentController extends Controller
             if ($file->facility_id !== $facility->id) {
                 return response()->json([
                     'success' => false,
-                    'message' => '指定されたファイルが見つかりません。'
+                    'message' => '指定されたファイルが見つかりません。',
                 ], 404);
             }
 
             $request->validate([
-                'target_folder_id' => ['nullable', 'integer', 'exists:document_folders,id']
+                'target_folder_id' => ['nullable', 'integer', 'exists:document_folders,id'],
             ]);
 
             $targetFolderId = $request->input('target_folder_id');
@@ -1202,10 +1170,10 @@ class DocumentController extends Controller
                     ->where('id', $targetFolderId)
                     ->first();
 
-                if (!$targetFolder) {
+                if (! $targetFolder) {
                     return response()->json([
                         'success' => false,
-                        'message' => '指定された移動先フォルダが見つかりません。'
+                        'message' => '指定された移動先フォルダが見つかりません。',
                     ], 404);
                 }
             }
@@ -1220,14 +1188,14 @@ class DocumentController extends Controller
                     'id' => $updatedFile->id,
                     'name' => $updatedFile->original_name,
                     'folder_id' => $updatedFile->folder_id,
-                    'folder_name' => $updatedFile->folder ? $updatedFile->folder->name : 'ルート'
-                ]
+                    'folder_name' => $updatedFile->folder ? $updatedFile->folder->name : 'ルート',
+                ],
             ]);
 
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'ファイルを移動する権限がありません。'
+                'message' => 'ファイルを移動する権限がありません。',
             ], 403);
         } catch (Exception $e) {
             Log::error('File move failed', [
@@ -1235,23 +1203,18 @@ class DocumentController extends Controller
                 'facility_id' => $file->facility_id,
                 'target_folder_id' => $request->input('target_folder_id'),
                 'user_id' => auth()->id(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'ファイルの移動に失敗しました。'
+                'message' => 'ファイルの移動に失敗しました。',
             ], 500);
         }
     }
 
     /**
      * Move folder to different parent folder.
-     * 
-     * @param Request $request
-     * @param Facility $facility
-     * @param DocumentFolder $folder
-     * @return JsonResponse
      */
     public function moveFolder(Request $request, Facility $facility, DocumentFolder $folder): JsonResponse
     {
@@ -1263,12 +1226,12 @@ class DocumentController extends Controller
             if ($folder->facility_id !== $facility->id) {
                 return response()->json([
                     'success' => false,
-                    'message' => '指定されたフォルダが見つかりません。'
+                    'message' => '指定されたフォルダが見つかりません。',
                 ], 404);
             }
 
             $request->validate([
-                'target_folder_id' => ['nullable', 'integer', 'exists:document_folders,id']
+                'target_folder_id' => ['nullable', 'integer', 'exists:document_folders,id'],
             ]);
 
             $targetFolderId = $request->input('target_folder_id');
@@ -1280,19 +1243,19 @@ class DocumentController extends Controller
                     ->where('id', $targetFolderId)
                     ->first();
 
-                if (!$targetFolder) {
+                if (! $targetFolder) {
                     return response()->json([
                         'success' => false,
-                        'message' => '指定された移動先フォルダが見つかりません。'
+                        'message' => '指定された移動先フォルダが見つかりません。',
                     ], 404);
                 }
 
                 // Prevent moving folder into itself or its descendants
-                if ($targetFolder->id === $folder->id || $targetFolder->path === $folder->path || 
-                    str_starts_with($targetFolder->path, $folder->path . '/')) {
+                if ($targetFolder->id === $folder->id || $targetFolder->path === $folder->path ||
+                    str_starts_with($targetFolder->path, $folder->path.'/')) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'フォルダを自分自身または子フォルダに移動することはできません。'
+                        'message' => 'フォルダを自分自身または子フォルダに移動することはできません。',
                     ], 400);
                 }
             }
@@ -1300,9 +1263,9 @@ class DocumentController extends Controller
             // Update folder parent
             $oldParentId = $folder->parent_id;
             $oldPath = $folder->path;
-            
+
             $folder->parent_id = $targetFolderId;
-            $newPath = $targetFolder ? $targetFolder->path . '/' . $folder->name : $folder->name;
+            $newPath = $targetFolder ? $targetFolder->path.'/'.$folder->name : $folder->name;
             $folder->path = $newPath;
             $folder->save();
 
@@ -1325,14 +1288,14 @@ class DocumentController extends Controller
                     'name' => $folder->name,
                     'parent_id' => $folder->parent_id,
                     'parent_name' => $targetFolder ? $targetFolder->name : 'ルート',
-                    'path' => $folder->path
-                ]
+                    'path' => $folder->path,
+                ],
             ]);
 
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'フォルダを移動する権限がありません。'
+                'message' => 'フォルダを移動する権限がありません。',
             ], 403);
         } catch (Exception $e) {
             Log::error('Folder move failed', [
@@ -1340,27 +1303,23 @@ class DocumentController extends Controller
                 'facility_id' => $folder->facility_id,
                 'target_folder_id' => $request->input('target_folder_id'),
                 'user_id' => auth()->id(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'フォルダの移動に失敗しました。'
+                'message' => 'フォルダの移動に失敗しました。',
             ], 500);
         }
     }
 
     /**
      * Update child folder paths recursively.
-     * 
-     * @param DocumentFolder $folder
-     * @param string $oldPath
-     * @param string $newPath
      */
     private function updateChildFolderPaths(DocumentFolder $folder, string $oldPath, string $newPath): void
     {
         $children = DocumentFolder::where('facility_id', $folder->facility_id)
-            ->where('path', 'like', $oldPath . '/%')
+            ->where('path', 'like', $oldPath.'/%')
             ->get();
 
         foreach ($children as $child) {
@@ -1368,6 +1327,4 @@ class DocumentController extends Controller
             $child->saveQuietly(); // Save without triggering events
         }
     }
-
-
 }

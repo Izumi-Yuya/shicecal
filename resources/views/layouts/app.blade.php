@@ -9,6 +9,8 @@
     @endauth
 
     <title>{{ config('app.name', 'Laravel') }} - @yield('title', 'Dashboard')</title>
+    
+    @stack('head')
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -31,6 +33,9 @@
     @stack('styles')
 </head>
 <body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-to-main">メインコンテンツにスキップ</a>
+    
     <div id="app">
         <!-- Top Navigation -->
         <nav class="navbar navbar-expand-lg navbar-dark fixed-top figma-header">
@@ -187,6 +192,13 @@
                                 CSV出力
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('export.favorites.*') ? 'active' : '' }}" 
+                               href="{{ route('export.favorites.index') }}">
+                                <i class="fas fa-star me-2"></i>
+                                お気に入り管理
+                            </a>
+                        </li>
                         
                         <!-- Comments Section -->
                         <li class="nav-item">
@@ -278,7 +290,7 @@
             @endauth
 
             <!-- Main Content -->
-            <main class="main-content flex-grow-1">
+            <main id="main-content" class="main-content flex-grow-1" role="main">
                 <div class="container-fluid py-4">
                     @yield('content')
                 </div>

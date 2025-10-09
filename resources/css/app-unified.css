@@ -1000,3 +1000,431 @@ html {
     transform: translateY(0);
   }
 }
+
+/* ライフライン設備ドキュメント管理スタイル */
+.lifeline-document-manager {
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  background-color: #fff;
+}
+
+.document-toolbar {
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.document-content {
+  padding: 1rem;
+}
+
+.document-card {
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  border: 1px solid #dee2e6;
+}
+
+.document-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-color: #007bff;
+}
+
+.document-item {
+  transition: background-color 0.2s ease-in-out;
+}
+
+.document-item:hover {
+  background-color: #f8f9fa;
+}
+
+.document-list-view .table th {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #495057;
+}
+
+.document-grid-view .document-card .card-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ドキュメント管理のブレッドクラム */
+.document-toolbar .breadcrumb {
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+}
+
+.document-toolbar .breadcrumb-item+.breadcrumb-item::before {
+  content: ">";
+  color: #6c757d;
+}
+
+/* ファイルアイコンのカラー */
+.text-pdf {
+  color: #dc3545;
+}
+
+.text-doc {
+  color: #0d6efd;
+}
+
+.text-xls {
+  color: #198754;
+}
+
+.text-img {
+  color: #fd7e14;
+}
+
+.text-archive {
+  color: #6f42c1;
+}
+
+/* ドキュメント統計情報 */
+.document-stats {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+/* ドキュメント検索 */
+.document-search-highlight {
+  background-color: #fff3cd;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+}
+
+/* ドキュメントドロップゾーン */
+.document-drop-zone {
+  border: 2px dashed #dee2e6;
+  border-radius: 0.375rem;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.2s ease-in-out;
+  background-color: #f8f9fa;
+}
+
+.document-drop-zone.drag-over {
+  border-color: #007bff;
+  background-color: #e7f3ff;
+}
+
+.document-drop-zone:hover {
+  border-color: #007bff;
+  background-color: #e7f3ff;
+}
+
+/* ドキュメント管理のモーダル */
+.document-modal .modal-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.document-modal .modal-footer {
+  background-color: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+}
+
+/* ドキュメント管理のページネーション */
+.document-pagination .page-link {
+  color: #007bff;
+  border-color: #dee2e6;
+}
+
+.document-pagination .page-item.active .page-link {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+/* ドキュメント管理のローディング */
+.document-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: #6c757d;
+}
+
+.document-loading .spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .document-toolbar .row {
+    flex-direction: column;
+  }
+
+  .document-toolbar .col-md-6 {
+    margin-bottom: 1rem;
+  }
+
+  .document-toolbar .d-flex {
+    justify-content: center;
+  }
+
+  .document-grid-view .col-md-3 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
+@media (max-width: 576px) {
+  .document-grid-view .col-md-3 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .document-toolbar {
+    padding: 0.75rem;
+  }
+
+  .document-content {
+    padding: 0.75rem;
+  }
+}
+
+/* ドキュメント管理のアニメーション */
+@keyframes documentFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.document-item,
+.document-card {
+  animation: documentFadeIn 0.3s ease-out;
+}
+
+/* ドキュメント管理のコンテキストメニュー */
+.document-context-menu {
+  position: absolute;
+  z-index: 1050;
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  padding: 0.5rem 0;
+  min-width: 160px;
+}
+
+.document-context-menu .dropdown-item {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  color: #212529;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.document-context-menu .dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+.document-context-menu .dropdown-item.text-danger:hover {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* ドキュメント管理のツールチップ */
+.document-tooltip {
+  position: absolute;
+  z-index: 1070;
+  background-color: #000;
+  color: #fff;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+/* 
+========================================
+   Accessibility Improvements
+   ======================================== */
+
+/* Required field indicator */
+.form-label.required::after,
+.form-label .required-indicator {
+  content: " *";
+  color: var(--bs-danger);
+  font-weight: bold;
+}
+
+/* Focus indicators */
+.form-control:focus,
+.form-select:focus,
+.btn:focus {
+  outline: 2px solid var(--bs-primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+
+  .form-control,
+  .form-select {
+    border-width: 2px;
+  }
+
+  .btn {
+    border-width: 2px;
+    font-weight: 600;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Screen reader only content */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Skip to main content link */
+.skip-to-main {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--bs-primary);
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  z-index: 9999;
+  border-radius: 4px;
+}
+
+.skip-to-main:focus {
+  top: 6px;
+}
+
+/* Error message styling */
+.invalid-feedback {
+  display: block;
+  font-size: 0.875em;
+  color: var(--bs-danger);
+  margin-top: 0.25rem;
+}
+
+/* Form validation states */
+.was-validated .form-control:valid,
+.form-control.is-valid {
+  border-color: var(--bs-success);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='m2.3 6.73.94-.94 1.38 1.38L7.7 4.08 6.76 3.14 4.25 5.65z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right calc(0.375em + 0.1875rem) center;
+  background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+.was-validated .form-control:invalid,
+.form-control.is-invalid {
+  border-color: var(--bs-danger);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 4.6 2.4 2.4M8.2 4.6l-2.4 2.4'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right calc(0.375em + 0.1875rem) center;
+  background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+/* Improve color contrast for links */
+a {
+  color: var(--bs-primary);
+  text-decoration: underline;
+}
+
+a:hover,
+a:focus {
+  color: var(--bs-primary);
+  text-decoration: none;
+}
+
+/* Better button focus states */
+.btn:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* Improve table accessibility */
+.table th {
+  font-weight: 600;
+  background-color: var(--bs-light);
+}
+
+.table-striped>tbody>tr:nth-of-type(odd)>td,
+.table-striped>tbody>tr:nth-of-type(odd)>th {
+  background-color: rgba(0, 0, 0, 0.025);
+}
+
+/* Modal accessibility improvements */
+.modal-dialog {
+  margin: 1.75rem auto;
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+.modal-footer {
+  border-top: 1px solid var(--bs-border-color);
+}
+
+/* Form group spacing */
+.form-group {
+  margin-bottom: 1rem;
+}
+
+/* Loading states */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid var(--bs-primary);
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

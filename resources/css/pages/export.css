@@ -1,5 +1,26 @@
 /* Export Page Styles */
 
+/* Custom Scrollbar Styles */
+.facility-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.facility-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.facility-list::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.facility-list::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+
+
 /* Export Progress */
 .export-progress {
   display: none;
@@ -15,21 +36,14 @@
 
 /* Facility List */
 .facility-list {
-  max-height: 300px;
+  max-height: 400px;
   overflow-y: auto;
   border: 1px solid #dee2e6;
   border-radius: 0.375rem;
   padding: 1rem;
 }
 
-/* Data Preview */
-.data-preview-container {
-  display: none;
-}
 
-.data-preview-container.show {
-  display: block;
-}
 
 /* Statistics Cards */
 .stats-card {
@@ -52,6 +66,12 @@
 }
 
 /* Field Selection */
+.field-selection-container {
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  padding: 1rem;
+}
+
 .field-selection-grid {
   max-height: 400px;
   overflow-y: auto;
@@ -60,39 +80,15 @@
   padding: 1rem;
 }
 
-/* Preview Table */
-.preview-table {
-  font-size: 0.875rem;
-}
 
-.preview-table th {
-  background-color: #f8f9fa;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.preview-table td {
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .facility-list {
-    max-height: 200px;
+    max-height: 250px;
   }
 
   .field-selection-grid {
     max-height: 300px;
-  }
-
-  .preview-table {
-    font-size: 0.75rem;
-  }
-
-  .preview-table td {
-    max-width: 150px;
   }
 }

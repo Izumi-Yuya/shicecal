@@ -1,0 +1,212 @@
+/* ライフライン設備ドキュメント管理 統一スタイル */
+
+/* 共通のドキュメントボタンスタイル */
+.lifeline-documents-toggle {
+  transition: all 0.3s ease;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.lifeline-documents-toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.lifeline-documents-toggle:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+/* ドキュメントセクションの共通スタイル */
+.lifeline-documents-section {
+  margin-top: 1.5rem;
+}
+
+.lifeline-documents-section .card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.lifeline-documents-section .card:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.lifeline-documents-section .card-header {
+  border-radius: 12px 12px 0 0;
+  padding: 1rem 1.25rem;
+  border: none;
+  font-weight: 600;
+}
+
+.lifeline-documents-section .card-header h6 {
+  margin: 0;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.lifeline-documents-section .card-header i {
+  font-size: 1.1rem;
+}
+
+/* 設備別カラーテーマ */
+.electrical-documents .card-header {
+  background: linear-gradient(135deg, #007bff, #0056b3) !important;
+}
+
+.gas-documents .card-header {
+  background: linear-gradient(135deg, #dc3545, #c82333) !important;
+}
+
+.water-documents .card-header {
+  background: linear-gradient(135deg, #17a2b8, #138496) !important;
+}
+
+.elevator-documents .card-header {
+  background: linear-gradient(135deg, #6c757d, #5a6268) !important;
+}
+
+.hvac-lighting-documents .card-header {
+  background: linear-gradient(135deg, #28a745, #1e7e34) !important;
+}
+
+/* ドキュメント管理エリアのスタイル調整 */
+.lifeline-documents-section .lifeline-document-manager {
+  border-radius: 0 0 12px 12px;
+  min-height: 400px;
+}
+
+/* アニメーション効果 */
+.lifeline-documents-section.collapsing {
+  transition: height 0.35s ease;
+}
+
+.lifeline-documents-section.collapse.show {
+  animation: slideDown 0.35s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .lifeline-documents-toggle span {
+    display: none !important;
+  }
+
+  .lifeline-documents-toggle {
+    padding: 0.375rem 0.75rem;
+  }
+
+  .lifeline-documents-section .card-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .lifeline-documents-section .card-header h6 {
+    font-size: 0.9rem;
+  }
+
+  .lifeline-documents-section .lifeline-document-manager {
+    min-height: 350px;
+  }
+}
+
+@media (max-width: 576px) {
+  .lifeline-documents-section {
+    margin-top: 1rem;
+  }
+
+  .lifeline-documents-section .card {
+    border-radius: 8px;
+  }
+
+  .lifeline-documents-section .card-header {
+    border-radius: 8px 8px 0 0;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .lifeline-documents-section .lifeline-document-manager {
+    min-height: 300px;
+  }
+}
+
+/* ダークモード対応 */
+@media (prefers-color-scheme: dark) {
+  .lifeline-documents-section .card {
+    background-color: #2d3748;
+    border-color: #4a5568;
+  }
+
+  .lifeline-documents-section .card-header {
+    border-bottom-color: #4a5568;
+  }
+}
+
+/* 高コントラストモード対応 */
+@media (prefers-contrast: high) {
+  .lifeline-documents-toggle {
+    border-width: 2px;
+    font-weight: 600;
+  }
+
+  .lifeline-documents-section .card {
+    border-width: 2px;
+  }
+}
+
+/* 動きを減らす設定 */
+@media (prefers-reduced-motion: reduce) {
+
+  .lifeline-documents-toggle,
+  .lifeline-documents-section .card,
+  .lifeline-documents-section.collapsing {
+    transition: none;
+  }
+
+  .lifeline-documents-section.collapse.show {
+    animation: none;
+  }
+}
+
+/* フォーカス管理 */
+.lifeline-documents-toggle:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* ローディング状態 */
+.lifeline-documents-section .loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.lifeline-documents-section .loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

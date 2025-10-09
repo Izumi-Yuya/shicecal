@@ -16,6 +16,11 @@ class ExportController extends Controller
 
     protected ExportService $exportService;
 
+    // Configuration constants
+    private const CHUNK_SIZE = 100;
+    private const MAX_FILE_SIZE_KB = 10240; // 10MB
+    private const CACHE_DURATION_MINUTES = 5;
+
     public function __construct(ExportService $exportService)
     {
         $this->exportService = $exportService;
@@ -200,6 +205,10 @@ class ExportController extends Controller
      */
     public function csvIndex()
     {
+        // Ensure no PHP errors/warnings are displayed that could cause Quirks Mode
+        $originalDisplayErrors = ini_get('display_errors');
+        ini_set('display_errors', 0);
+        
         try {
             $user = Auth::user();
 
@@ -209,48 +218,17 @@ class ExportController extends Controller
             // Get available export fields from ExportService
             $availableFields = $this->exportService->getAvailableFields();
 
+            // Ensure facilities is always an array/collection
+            if (!$facilities) {
+                $facilities = collect();
+            }
+
             return view('export.csv.index', compact('facilities', 'availableFields'));
         } catch (\Exception $e) {
             return $this->handleException($e, 'CSV export index');
-        }
-    }
-
-    /**
-     * Get field preview data for selected facilities and fields
-     */
-    public function getFieldPreview(Request $request)
-    {
-        try {
-            $facilityIds = $request->input('facility_ids', []);
-            $exportFields = $request->input('export_fields', []);
-
-            if (empty($facilityIds) || empty($exportFields)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => '施設または項目が選択されていません。',
-                ]);
-            }
-
-            $user = Auth::user();
-
-            // Get facilities that user has access to
-            $accessibleFacilityIds = $this->getFacilitiesQuery($user)
-                ->whereIn('id', $facilityIds)
-                ->pluck('id')
-                ->toArray();
-
-            // Use ExportService to generate preview data
-            $previewData = $this->exportService->previewFieldData($accessibleFacilityIds, $exportFields);
-
-            return response()->json([
-                'success' => true,
-                'data' => $previewData,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'プレビューデータの取得に失敗しました。',
-            ], 500);
+        } finally {
+            // Restore original display_errors setting
+            ini_set('display_errors', $originalDisplayErrors);
         }
     }
 
@@ -259,15 +237,31 @@ class ExportController extends Controller
      */
     public function generateCsv(Request $request)
     {
+        \Log::info('CSV generation started', [
+            'user_id' => Auth::id(),
+            'facility_ids' => $request->input('facility_ids', []),
+            'export_fields' => $request->input('export_fields', []),
+            'request_method' => $request->method(),
+            'content_type' => $request->header('Content-Type'),
+        ]);
+
         try {
             $facilityIds = $request->input('facility_ids', []);
             $exportFields = $request->input('export_fields', []);
 
             if (empty($facilityIds) || empty($exportFields)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => '施設または項目が選択されていません。',
-                ], 400);
+                \Log::warning('CSV generation failed: empty input', [
+                    'facility_ids_count' => count($facilityIds),
+                    'export_fields_count' => count($exportFields)
+                ]);
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => '施設または項目が選択されていません。',
+                    ], 400);
+                }
+                return back()->with('error', '施設または項目が選択されていません。');
             }
 
             $user = Auth::user();
@@ -278,33 +272,67 @@ class ExportController extends Controller
                 ->pluck('id')
                 ->toArray();
 
+            \Log::info('Accessible facilities found', [
+                'requested_count' => count($facilityIds),
+                'accessible_count' => count($accessibleFacilityIds),
+                'accessible_ids' => $accessibleFacilityIds
+            ]);
+
             if (empty($accessibleFacilityIds)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => '出力可能な施設がありません。',
-                ], 400);
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => '出力可能な施設がありません。',
+                    ], 400);
+                }
+                return back()->with('error', '出力可能な施設がありません。');
             }
-
-            // Generate CSV content using ExportService
-            $csvContent = $this->exportService->generateCsv($accessibleFacilityIds, $exportFields);
-
-            // Log CSV export (simplified)
-            \Log::info('CSV exported', ['facility_count' => count($accessibleFacilityIds), 'user_id' => Auth::id()]);
 
             // Generate filename with timestamp
             $timestamp = now()->format('Y-m-d_H-i-s');
             $filename = "facility_export_{$timestamp}.csv";
 
-            // Return CSV file as download
-            return response($csvContent)
-                ->header('Content-Type', 'text/csv; charset=UTF-8')
-                ->header('Content-Disposition', "attachment; filename=\"{$filename}\"")
-                ->header('Content-Length', strlen($csvContent));
+            \Log::info('Starting CSV stream download', [
+                'filename' => $filename,
+                'facility_count' => count($accessibleFacilityIds),
+                'field_count' => count($exportFields)
+            ]);
+
+            // Use streamDownload to prevent any HTML output and ensure proper CSV delivery
+            return response()->streamDownload(function () use ($accessibleFacilityIds, $exportFields) {
+                $output = fopen('php://output', 'w');
+                
+                // Add BOM for Excel compatibility
+                fwrite($output, "\xEF\xBB\xBF");
+                
+                // Generate and stream CSV content using ExportService
+                $this->exportService->streamCsv($output, $accessibleFacilityIds, $exportFields);
+                
+                fclose($output);
+            }, $filename, [
+                'Content-Type' => 'text/csv; charset=UTF-8',
+                'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+                'X-Content-Type-Options' => 'nosniff',
+                'Cache-Control' => 'no-cache, must-revalidate',
+                'Pragma' => 'no-cache',
+                'Expires' => '0'
+            ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'CSV生成に失敗しました。',
-            ], 500);
+            \Log::error('CSV generation failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'user_id' => Auth::id(),
+                'facility_ids' => $request->input('facility_ids', []),
+                'export_fields' => $request->input('export_fields', [])
+            ]);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'CSV生成に失敗しました: ' . $e->getMessage(),
+                ], 500);
+            }
+            return back()->with('error', 'CSV生成に失敗しました: ' . $e->getMessage());
         }
     }
 
@@ -382,6 +410,7 @@ class ExportController extends Controller
             $favorite = ExportFavorite::create([
                 'user_id' => $user->id,
                 'name' => $name,
+                'type' => 'csv',
                 'facility_ids' => $facilityIds,
                 'export_fields' => $exportFields,
             ]);
@@ -530,6 +559,67 @@ class ExportController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'お気に入りの削除に失敗しました。',
+            ], 500);
+        }
+    }
+
+    /**
+     * Display favorites management page
+     */
+    public function favoritesIndex()
+    {
+        try {
+            $user = Auth::user();
+
+            // Get statistics
+            $stats = [
+                'total_favorites' => ExportFavorite::where('user_id', $user->id)->count(),
+                'csv_favorites' => ExportFavorite::where('user_id', $user->id)->where('type', 'csv')->count(),
+                'pdf_favorites' => ExportFavorite::where('user_id', $user->id)->where('type', 'pdf')->count(),
+                'recent_used' => ExportFavorite::where('user_id', $user->id)
+                    ->where('last_used_at', '>=', now()->subDays(30))
+                    ->count(),
+            ];
+
+            return view('export.favorites.index', compact('stats'));
+        } catch (\Exception $e) {
+            return $this->handleException($e, 'Favorites index');
+        }
+    }
+
+    /**
+     * Get favorites API endpoint for AJAX
+     */
+    public function getFavoritesApi()
+    {
+        try {
+            $user = Auth::user();
+
+            $favorites = ExportFavorite::where('user_id', $user->id)
+                ->orderBy('name')
+                ->get()
+                ->map(function ($favorite) {
+                    return [
+                        'id' => $favorite->id,
+                        'name' => $favorite->name,
+                        'type' => $favorite->type,
+                        'description' => $favorite->options['description'] ?? null,
+                        'facility_count' => count($favorite->facility_ids),
+                        'field_count' => count($favorite->export_fields),
+                        'created_at' => $favorite->created_at,
+                        'updated_at' => $favorite->updated_at,
+                        'last_used_at' => $favorite->options['last_used_at'] ?? null,
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'data' => $favorites,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'お気に入りの取得に失敗しました。',
             ], 500);
         }
     }
