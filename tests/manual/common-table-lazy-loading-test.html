@@ -287,7 +287,7 @@
                     <div class="card facility-info-card detail-card-improved mb-3" data-lazy-loading="true">
                         <div class="card-header">
                             <h5 class="card-title mb-0">遅延読み込みテストテーブル</h5>
-                            <small class="text-muted">大量データのため段階的に読み込みます (総${initialBatch.length + remainingRows}行)</small>
+                            <small class="text-muted">大量データのため段階的に読み込みます。（総${initialBatch.length + remainingRows}行）</small>
                         </div>
                         <div class="card-body card-body-clean">
                             <div class="table-responsive table-responsive-md" role="region" aria-label="データテーブル">
@@ -421,9 +421,9 @@
                 
                 resultsContent.innerHTML = `
                     <strong>バッチ ${stats.batch_loaded} 読み込み完了</strong><br>
-                    バッチサイズ: ${stats.batch_size}行<br>
-                    残りバッチ: ${stats.remaining_batches}<br>
-                    ${stats.memory_usage ? `メモリ使用量: ${stats.memory_usage.used}MB` : ''}
+                    バッチサイズ：${stats.batch_size}行<br>
+                    残りバッチ：${stats.remaining_batches}<br>
+                    ${stats.memory_usage ? `メモリ使用量：${stats.memory_usage.used}MB` : ''}
                 `;
                 
                 resultsDiv.style.display = 'block';

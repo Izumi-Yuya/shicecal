@@ -92,8 +92,7 @@
                     <th>サービス種類</th>
                     <th>介護保険事業所番号</th>
                     <th>保険者</th>
-                    <th>指定（更新）日</th>
-                    <th>有効期限</th>
+                    <th>指定（更新）日 〜 有効期限終了日</th>
                     <th>残月</th>
                 </tr>
             </thead>
@@ -109,17 +108,10 @@
                             <td>{{ $service->care_insurance_business_number ?? '未設定' }}</td>
                             <td>{{ $service->insurer ?? '未設定' }}</td>
                             <td>
-                                @if($service->designation_date)
-                                    {{ $service->designation_date->format('Y年m月d日') }}
-                                @else
-                                    未設定
-                                @endif
-                            </td>
-                            <td>
-                                @if($service->renewal_start_date && $service->renewal_end_date)
-                                    {{ $service->renewal_start_date->format('Y年m月d日') }} 〜 {{ $service->renewal_end_date->format('Y年m月d日') }}
-                                @elseif($service->renewal_start_date)
-                                    {{ $service->renewal_start_date->format('Y年m月d日') }} 〜
+                                @if($service->designation_date && $service->renewal_end_date)
+                                    {{ $service->designation_date->format('Y年m月d日') }} 〜 {{ $service->renewal_end_date->format('Y年m月d日') }}
+                                @elseif($service->designation_date)
+                                    {{ $service->designation_date->format('Y年m月d日') }} 〜
                                 @elseif($service->renewal_end_date)
                                     〜 {{ $service->renewal_end_date->format('Y年m月d日') }}
                                 @else
@@ -137,7 +129,7 @@
                     @endforeach
                 @else
                     <tr>
-                        <td colspan="6" class="text-center text-muted">サービス情報が登録されていません</td>
+                        <td colspan="5" class="text-center text-muted">サービス情報が登録されていません</td>
                     </tr>
                 @endif
             </tbody>

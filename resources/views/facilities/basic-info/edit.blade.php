@@ -309,7 +309,7 @@ $breadcrumbs = [
                             </div>
                         </div>
                         <div class="row g-3 mt-2">
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <label for="insurer_{{ $i }}" class="form-label">保険者</label>
                                 <input type="text"
                                     class="form-control @error('services.'.$i.'.insurer') is-invalid @enderror"
@@ -319,16 +319,8 @@ $breadcrumbs = [
                                     placeholder="例: 北九州市">
                                 <x-form.field-error field="services.{{ $i }}.insurer" />
                             </div>
-                            <div class="col-md-4">
-                                <label for="designation_date_{{ $i }}" class="form-label">指定（更新）日</label>
-                                <input type="date"
-                                    class="form-control @error('services.'.$i.'.designation_date') is-invalid @enderror"
-                                    id="designation_date_{{ $i }}"
-                                    name="services[{{ $i }}][designation_date]"
-                                    value="{{ old('services.'.$i.'.designation_date', $service ? (is_object($service) && $service->designation_date ? $service->designation_date->format('Y-m-d') : (is_array($service) && isset($service['designation_date']) ? $service['designation_date'] : '')) : '') }}">
-                                <x-form.field-error field="services.{{ $i }}.designation_date" />
-                            </div>
-                            <div class="col-md-4">
+
+                            <div class="col-md-6">
                                 <label for="remaining_months_{{ $i }}" class="form-label">
                                     残り月数
                                     <span class="auto-calc-indicator" title="有効期限終了日から自動計算されます">
@@ -353,16 +345,16 @@ $breadcrumbs = [
                         </div>
                         <div class="row g-3 mt-2">
                             <div class="col-12">
-                                <label class="form-label">有効期限</label>
+                                <label class="form-label">指定（更新）日 〜 有効期限終了日</label>
                                 <div class="row g-2">
                                     <div class="col-5">
                                         <input type="date"
-                                            class="form-control @error('services.'.$i.'.renewal_start_date') is-invalid @enderror"
-                                            id="renewal_start_{{ $i }}"
-                                            name="services[{{ $i }}][renewal_start_date]"
-                                            value="{{ old('services.'.$i.'.renewal_start_date', $service ? (is_object($service) && $service->renewal_start_date ? $service->renewal_start_date->format('Y-m-d') : (is_array($service) && isset($service['renewal_start_date']) ? $service['renewal_start_date'] : '')) : '') }}"
-                                            placeholder="開始日">
-                                        <x-form.field-error field="services.{{ $i }}.renewal_start_date" />
+                                            class="form-control @error('services.'.$i.'.designation_date') is-invalid @enderror"
+                                            id="designation_date_{{ $i }}"
+                                            name="services[{{ $i }}][designation_date]"
+                                            value="{{ old('services.'.$i.'.designation_date', $service ? (is_object($service) && $service->designation_date ? $service->designation_date->format('Y-m-d') : (is_array($service) && isset($service['designation_date']) ? $service['designation_date'] : '')) : '') }}"
+                                            placeholder="指定（更新）日">
+                                        <x-form.field-error field="services.{{ $i }}.designation_date" />
                                     </div>
                                     <div class="col-auto d-flex align-items-center">
                                         <span class="text-muted">〜</span>
@@ -373,7 +365,7 @@ $breadcrumbs = [
                                             id="renewal_end_{{ $i }}"
                                             name="services[{{ $i }}][renewal_end_date]"
                                             value="{{ old('services.'.$i.'.renewal_end_date', $service ? (is_object($service) && $service->renewal_end_date ? $service->renewal_end_date->format('Y-m-d') : (is_array($service) && isset($service['renewal_end_date']) ? $service['renewal_end_date'] : '')) : '') }}"
-                                            placeholder="終了日">
+                                            placeholder="有効期限終了日">
                                         <x-form.field-error field="services.{{ $i }}.renewal_end_date" />
                                     </div>
                                 </div>
@@ -399,7 +391,7 @@ $breadcrumbs = [
 </x-facility.edit-layout>
 
 <script>
-    // グローバル関数として定義（デバッグ用）
+    // グローバル関数として定義（サービス行追加機能）
     function testAddRow() {
         console.log('=== テスト追加ボタンがクリックされました ===');
 
@@ -503,7 +495,7 @@ $breadcrumbs = [
         console.log('非表示行数:', hiddenRows.length);
         console.log('表示行数:', visibleRows.length);
 
-        // 開設年数・月数自動計算
+        // 開設年数・月数の自動計算
         const openingDateInput = document.getElementById('opening_date');
         const yearsInOperationInput = document.getElementById('years_in_operation');
         const monthsInOperationInput = document.getElementById('months_in_operation');
@@ -620,8 +612,26 @@ $breadcrumbs = [
             remainingMonthsInput.value = Math.max(0, totalMonths);
         }
 
-        // 有効期限終了日の変更を監視
+        // 指定（更新）日の変更を監視して有効期限開始日を自動設定
         document.addEventListener('change', function(e) {
+            if (e.target.matches('input[name*="designation_date"]')) {
+                const index = e.target.id.match(/designation_date_(\d+)/);
+                if (index) {
+                    const renewalStartInput = document.getElementById('renewal_start_' + index[1]);
+                    if (renewalStartInput && e.target.value) {
+                        renewalStartInput.value = e.target.value;
+                        console.log('有効期限開始日を指定日に合わせました:', e.target.value);
+
+                        // 視覚的フィードバック
+                        renewalStartInput.style.borderColor = '#198754';
+                        setTimeout(() => {
+                            renewalStartInput.style.borderColor = '';
+                        }, 1000);
+                    }
+                }
+            }
+
+            // 有効期限終了日の変更を監視
             if (e.target.matches('input[name*="renewal_end_date"]')) {
                 const index = e.target.id.match(/renewal_end_(\d+)/);
                 if (index) {
@@ -659,6 +669,20 @@ $breadcrumbs = [
 
         // 初期カウント更新
         updateServiceCountGlobal();
+
+        // 初期値がある場合の指定日と有効期限開始日の同期
+        document.querySelectorAll('input[name*="designation_date"]').forEach(function(input) {
+            if (input.value) {
+                const index = input.id.match(/designation_date_(\d+)/);
+                if (index) {
+                    const renewalStartInput = document.getElementById('renewal_start_' + index[1]);
+                    if (renewalStartInput && !renewalStartInput.value) {
+                        renewalStartInput.value = input.value;
+                        console.log('初期値: 有効期限開始日を指定日に合わせました:', input.value);
+                    }
+                }
+            }
+        });
 
         // 初期値がある場合の残月自動計算
         document.querySelectorAll('input[name*="renewal_end_date"]').forEach(function(input) {
