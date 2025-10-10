@@ -53,7 +53,7 @@
 
             <!-- タブナビゲーション -->
             <div class="facility-detail-container">
-                <div class="tab-navigation mb-4">
+                <div class="tab-navigation mb-4 sticky-top bg-white" style="z-index: 1019; top: 90px;">
                     <ul class="nav nav-tabs" id="facilityTabs" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic-info" type="button" role="tab" aria-controls="basic-info" aria-selected="true">
