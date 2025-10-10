@@ -324,17 +324,26 @@
                                 <x-form.field-error field="services.{{ $i }}.designation_date" />
                             </div>
                             <div class="col-md-4">
-                                <label for="remaining_months_{{ $i }}" class="form-label">残月</label>
+                                <label for="remaining_months_{{ $i }}" class="form-label">
+                                    残り月数
+                                    <span class="auto-calc-indicator" title="有効期限終了日から自動計算されます">
+                                        <i class="fas fa-calculator text-info"></i>
+                                        <small class="text-muted">自動計算</small>
+                                    </span>
+                                </label>
                                 <div class="input-group">
                                     <input type="number" 
-                                           class="form-control @error('services.'.$i.'.remaining_months') is-invalid @enderror" 
+                                           class="form-control auto-calc-field @error('services.'.$i.'.remaining_months') is-invalid @enderror" 
                                            id="remaining_months_{{ $i }}" 
                                            name="services[{{ $i }}][remaining_months]" 
                                            value="{{ old('services.'.$i.'.remaining_months', $service ? (is_object($service) ? $service->remaining_months : ($service['remaining_months'] ?? '')) : '') }}"
-                                           min="0" max="999">
+                                           min="0" max="999" readonly title="このフィールドは有効期限終了日から自動計算されます">
                                     <span class="input-group-text">月</span>
                                 </div>
                                 <x-form.field-error field="services.{{ $i }}.remaining_months" />
+                                <small class="form-text text-muted">
+                                    <i class="fas fa-info-circle"></i> 有効期限終了日を入力すると自動で計算されます
+                                </small>
                             </div>
                         </div>
                         <div class="row g-3 mt-2">
@@ -565,15 +574,95 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('サービス行追加ボタンが見つかりません。');
     }
     
+    // 残月自動計算
+    function calculateRemainingMonths(endDateValue, remainingMonthsInput) {
+        if (!endDateValue) {
+            remainingMonthsInput.value = '';
+            return;
+        }
+        
+        const endDate = new Date(endDateValue);
+        const today = new Date();
+        
+        if (endDate <= today) {
+            remainingMonthsInput.value = 0;
+            return;
+        }
+        
+        // 年と月の差を計算
+        let years = endDate.getFullYear() - today.getFullYear();
+        let months = endDate.getMonth() - today.getMonth();
+        
+        if (months < 0) {
+            years--;
+            months += 12;
+        }
+        
+        // 日付も考慮
+        if (endDate.getDate() < today.getDate()) {
+            months--;
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+        }
+        
+        const totalMonths = years * 12 + months;
+        remainingMonthsInput.value = Math.max(0, totalMonths);
+    }
+    
+    // 有効期限終了日の変更を監視
+    document.addEventListener('change', function(e) {
+        if (e.target.matches('input[name*="renewal_end_date"]')) {
+            const index = e.target.id.match(/renewal_end_(\d+)/);
+            if (index) {
+                const remainingMonthsInput = document.getElementById('remaining_months_' + index[1]);
+                if (remainingMonthsInput) {
+                    calculateRemainingMonths(e.target.value, remainingMonthsInput);
+                    
+                    // 視覚的フィードバック
+                    remainingMonthsInput.style.borderColor = '#198754';
+                    setTimeout(() => {
+                        remainingMonthsInput.style.borderColor = '';
+                    }, 1000);
+                }
+            }
+        }
+    });
+    
     // 入力値の変更を監視
     document.addEventListener('input', function(e) {
         if (e.target.matches('input[name*="service_type"]')) {
             updateServiceCountGlobal();
         }
+        
+        // リアルタイムで残月計算
+        if (e.target.matches('input[name*="renewal_end_date"]')) {
+            const index = e.target.id.match(/renewal_end_(\d+)/);
+            if (index && e.target.value.length === 10) { // YYYY-MM-DD形式が完成した時
+                const remainingMonthsInput = document.getElementById('remaining_months_' + index[1]);
+                if (remainingMonthsInput) {
+                    calculateRemainingMonths(e.target.value, remainingMonthsInput);
+                }
+            }
+        }
     });
     
     // 初期カウント更新
     updateServiceCountGlobal();
+    
+    // 初期値がある場合の残月自動計算
+    document.querySelectorAll('input[name*="renewal_end_date"]').forEach(function(input) {
+        if (input.value) {
+            const index = input.id.match(/renewal_end_(\d+)/);
+            if (index) {
+                const remainingMonthsInput = document.getElementById('remaining_months_' + index[1]);
+                if (remainingMonthsInput) {
+                    calculateRemainingMonths(input.value, remainingMonthsInput);
+                }
+            }
+        }
+    });
     
     console.log('=== 初期化完了 ===');
 });

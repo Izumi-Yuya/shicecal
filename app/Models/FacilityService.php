@@ -71,4 +71,50 @@ class FacilityService extends Model
 
         return $this->renewal_end_date->isPast();
     }
+
+    /**
+     * Calculate remaining months until renewal end date
+     */
+    public function calculateRemainingMonths(): ?int
+    {
+        if (! $this->renewal_end_date) {
+            return null;
+        }
+
+        $today = now();
+        $endDate = $this->renewal_end_date;
+
+        if ($endDate->isPast()) {
+            return 0;
+        }
+
+        // 年と月の差を計算
+        $years = $endDate->year - $today->year;
+        $months = $endDate->month - $today->month;
+
+        if ($months < 0) {
+            $years--;
+            $months += 12;
+        }
+
+        // 日付も考慮
+        if ($endDate->day < $today->day) {
+            $months--;
+            if ($months < 0) {
+                $years--;
+                $months += 12;
+            }
+        }
+
+        return max(0, $years * 12 + $months);
+    }
+
+    /**
+     * Update remaining months based on renewal end date
+     */
+    public function updateRemainingMonths(): void
+    {
+        $this->remaining_months = $this->calculateRemainingMonths();
+        $this->save();
+    }
 }

@@ -461,15 +461,18 @@ class FacilityController extends Controller
         // 新しいサービス情報を保存（空でない行のみ）
         foreach ($services as $serviceData) {
             if (! empty($serviceData['service_type'])) {
-                $facility->services()->create([
+                $service = $facility->services()->create([
                     'service_type' => $serviceData['service_type'],
                     'care_insurance_business_number' => $serviceData['care_insurance_business_number'] ?? null,
                     'insurer' => $serviceData['insurer'] ?? null,
                     'designation_date' => $serviceData['designation_date'] ?? null,
                     'renewal_start_date' => $serviceData['renewal_start_date'] ?? null,
                     'renewal_end_date' => $serviceData['renewal_end_date'] ?? null,
-                    'remaining_months' => $serviceData['remaining_months'] ?? null,
+                    'remaining_months' => null, // 自動計算するため初期値はnull
                 ]);
+
+                // 残月を自動計算して更新
+                $service->updateRemainingMonths();
             }
         }
     }
