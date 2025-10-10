@@ -351,8 +351,6 @@ html {
 .card-section-content.has-overflow {
   max-height: calc(10 * 90px + 2rem);
   overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--primary-color) transparent;
 }
 
 .card-section-content.has-overflow::-webkit-scrollbar {
@@ -360,10 +358,7 @@ html {
   display: block;
 }
 
-.card-section-content.has-overflow::-webkit-scrollbar-thumb {
-  background: var(--primary-color);
-  border-radius: 4px;
-}
+
 
 .card-section-content.collapsed {
   max-height: 0;
