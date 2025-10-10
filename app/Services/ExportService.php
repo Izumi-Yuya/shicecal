@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 class ExportService
 {
     /**
-     * Get total field count for CSV export
+     * Get the total field count for CSV export
      */
     public function getTotalFieldCount(): int
     {

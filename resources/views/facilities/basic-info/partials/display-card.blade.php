@@ -83,68 +83,65 @@
     bodyClass="p-0"
 />
 
-@php
-    // サービス種類テーブルデータの構築（4列構造）
-    $services = $facility->services ?? collect();
-    $servicesData = [];
-    
-    if ($services && $services->count() > 0) {
-        foreach ($services as $index => $service) {
-            // 有効期限の文字列を構築
-            $validityPeriod = null;
-            if ($service->renewal_start_date && $service->renewal_end_date) {
-                $validityPeriod = \Carbon\Carbon::parse($service->renewal_start_date)->format('Y年m月d日') . ' 〜 ' . \Carbon\Carbon::parse($service->renewal_end_date)->format('Y年m月d日');
-            } elseif ($service->renewal_start_date) {
-                $validityPeriod = \Carbon\Carbon::parse($service->renewal_start_date)->format('Y年m月d日') . ' 〜';
-            } elseif ($service->renewal_end_date) {
-                $validityPeriod = '〜 ' . \Carbon\Carbon::parse($service->renewal_end_date)->format('Y年m月d日');
-            }
-            
-            if ($index === 0) {
-                // 最初の行：サービス種類ラベル（rowspan）+ サービス種類名 + 有効期限ラベル + 有効期限値
-                $servicesData[] = [
-                    'type' => 'standard',
-                    'cells' => [
-                        ['label' => 'サービス種類', 'value' => null, 'type' => 'label', 'rowspan' => $services->count()],
-                        ['label' => null, 'value' => $service->service_type, 'type' => 'text'],
-                        ['label' => '有効期限', 'value' => null, 'type' => 'label'],
-                        ['label' => null, 'value' => $validityPeriod, 'type' => 'text'],
-                    ]
-                ];
-            } else {
-                // 2行目以降：サービス種類名 + 有効期限ラベル + 有効期限値（サービス種類ラベルはrowspanで省略）
-                $servicesData[] = [
-                    'type' => 'standard',
-                    'cells' => [
-                        ['label' => null, 'value' => $service->service_type, 'type' => 'text'],
-                        ['label' => '有効期限', 'value' => null, 'type' => 'label'],
-                        ['label' => null, 'value' => $validityPeriod, 'type' => 'text'],
-                    ]
-                ];
-            }
-        }
-    } else {
-        // サービスがない場合
-        $servicesData[] = [
-            'type' => 'standard',
-            'cells' => [
-                ['label' => 'サービス種類', 'value' => null, 'type' => 'label'],
-                ['label' => null, 'value' => null, 'type' => 'text'],
-                ['label' => '有効期限', 'value' => null, 'type' => 'label'],
-                ['label' => null, 'value' => null, 'type' => 'text'],
-            ]
-        ];
-    }
-@endphp
-
-<!-- サービス種類テーブル（共通コンポーネント使用） -->
-<div data-section="facility_services">
-    <x-common-table 
-        :data="$servicesData"
-        :showHeader="false"
-        :tableAttributes="['style' => '--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0;']"
-        tableClass="table table-bordered facility-basic-info-table-clean facility-unified-layout"
-        bodyClass="p-0"
-    />
+<!-- サービス種類テーブル（新しい形式） -->
+<div data-section="facility_services" class="mt-4">
+    <div class="table-responsive">
+        <table class="table table-bordered service-details-table">
+            <thead>
+                <tr class="table-light">
+                    <th>サービス種類</th>
+                    <th>介護保険事業所番号</th>
+                    <th>保険者</th>
+                    <th>指定（更新）日</th>
+                    <th>有効期限</th>
+                    <th>残月</th>
+                </tr>
+            </thead>
+            <tbody>
+                @php
+                    $services = $facility->services ?? collect();
+                @endphp
+                
+                @if($services && $services->count() > 0)
+                    @foreach($services as $service)
+                        <tr>
+                            <td>{{ $service->service_type ?? '未設定' }}</td>
+                            <td>{{ $service->care_insurance_business_number ?? '未設定' }}</td>
+                            <td>{{ $service->insurer ?? '未設定' }}</td>
+                            <td>
+                                @if($service->designation_date)
+                                    {{ $service->designation_date->format('Y年m月d日') }}
+                                @else
+                                    未設定
+                                @endif
+                            </td>
+                            <td>
+                                @if($service->renewal_start_date && $service->renewal_end_date)
+                                    {{ $service->renewal_start_date->format('Y年m月d日') }} 〜 {{ $service->renewal_end_date->format('Y年m月d日') }}
+                                @elseif($service->renewal_start_date)
+                                    {{ $service->renewal_start_date->format('Y年m月d日') }} 〜
+                                @elseif($service->renewal_end_date)
+                                    〜 {{ $service->renewal_end_date->format('Y年m月d日') }}
+                                @else
+                                    未設定
+                                @endif
+                            </td>
+                            <td>
+                                @if($service->remaining_months !== null)
+                                    {{ $service->remaining_months }}月
+                                @else
+                                    未設定
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                @else
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">サービス情報が登録されていません</td>
+                    </tr>
+                @endif
+            </tbody>
+        </table>
+    </div>
 </div>
 

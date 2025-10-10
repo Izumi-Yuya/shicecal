@@ -199,7 +199,7 @@
                     </div>
                 </div>
                 <small class="form-text text-muted">
-                    <i class="fas fa-info-circle"></i> 開設日を入力すると自動で計算されます
+                    <i class="fas fa-info-circle"></i> 開設日を入力すると自動的に計算されます
                 </small>
             </div>
         </div>
@@ -281,8 +281,8 @@
                         $hasData = $service && (is_object($service) ? !empty($service->service_type) : !empty($service['service_type'] ?? ''));
                     @endphp
                     <div class="service-row mb-3 p-3 border rounded {{ !$hasData && $i >= 3 ? 'd-none' : '' }}" data-index="{{ $i }}">
-                        <div class="row align-items-end">
-                            <div class="col-md-5">
+                        <div class="row g-3">
+                            <div class="col-md-6">
                                 <label for="service_type_{{ $i }}" class="form-label">サービス種類</label>
                                 <input type="text" 
                                        class="form-control @error('services.'.$i.'.service_type') is-invalid @enderror" 
@@ -293,6 +293,52 @@
                                 <x-form.field-error field="services.{{ $i }}.service_type" />
                             </div>
                             <div class="col-md-6">
+                                <label for="care_insurance_business_number_{{ $i }}" class="form-label">介護保険事業所番号</label>
+                                <input type="text" 
+                                       class="form-control @error('services.'.$i.'.care_insurance_business_number') is-invalid @enderror" 
+                                       id="care_insurance_business_number_{{ $i }}" 
+                                       name="services[{{ $i }}][care_insurance_business_number]" 
+                                       value="{{ old('services.'.$i.'.care_insurance_business_number', $service ? (is_object($service) ? $service->care_insurance_business_number : ($service['care_insurance_business_number'] ?? '')) : '') }}"
+                                       placeholder="例: 4070405156">
+                                <x-form.field-error field="services.{{ $i }}.care_insurance_business_number" />
+                            </div>
+                        </div>
+                        <div class="row g-3 mt-2">
+                            <div class="col-md-4">
+                                <label for="insurer_{{ $i }}" class="form-label">保険者</label>
+                                <input type="text" 
+                                       class="form-control @error('services.'.$i.'.insurer') is-invalid @enderror" 
+                                       id="insurer_{{ $i }}" 
+                                       name="services[{{ $i }}][insurer]" 
+                                       value="{{ old('services.'.$i.'.insurer', $service ? (is_object($service) ? $service->insurer : ($service['insurer'] ?? '')) : '') }}"
+                                       placeholder="例: 北九州市">
+                                <x-form.field-error field="services.{{ $i }}.insurer" />
+                            </div>
+                            <div class="col-md-4">
+                                <label for="designation_date_{{ $i }}" class="form-label">指定（更新）日</label>
+                                <input type="date" 
+                                       class="form-control @error('services.'.$i.'.designation_date') is-invalid @enderror" 
+                                       id="designation_date_{{ $i }}" 
+                                       name="services[{{ $i }}][designation_date]" 
+                                       value="{{ old('services.'.$i.'.designation_date', $service ? (is_object($service) && $service->designation_date ? $service->designation_date->format('Y-m-d') : (is_array($service) && isset($service['designation_date']) ? $service['designation_date'] : '')) : '') }}">
+                                <x-form.field-error field="services.{{ $i }}.designation_date" />
+                            </div>
+                            <div class="col-md-4">
+                                <label for="remaining_months_{{ $i }}" class="form-label">残月</label>
+                                <div class="input-group">
+                                    <input type="number" 
+                                           class="form-control @error('services.'.$i.'.remaining_months') is-invalid @enderror" 
+                                           id="remaining_months_{{ $i }}" 
+                                           name="services[{{ $i }}][remaining_months]" 
+                                           value="{{ old('services.'.$i.'.remaining_months', $service ? (is_object($service) ? $service->remaining_months : ($service['remaining_months'] ?? '')) : '') }}"
+                                           min="0" max="999">
+                                    <span class="input-group-text">月</span>
+                                </div>
+                                <x-form.field-error field="services.{{ $i }}.remaining_months" />
+                            </div>
+                        </div>
+                        <div class="row g-3 mt-2">
+                            <div class="col-md-11">
                                 <label class="form-label">有効期限</label>
                                 <div class="row g-2">
                                     <div class="col-5">

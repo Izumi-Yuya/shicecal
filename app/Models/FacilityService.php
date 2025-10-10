@@ -14,11 +14,16 @@ class FacilityService extends Model
         'facility_id',
         'service_type',
         'section',
+        'care_insurance_business_number',
+        'insurer',
+        'designation_date',
         'renewal_start_date',
         'renewal_end_date',
+        'remaining_months',
     ];
 
     protected $casts = [
+        'designation_date' => 'date',
         'renewal_start_date' => 'date',
         'renewal_end_date' => 'date',
     ];
