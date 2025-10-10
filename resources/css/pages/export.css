@@ -43,6 +43,14 @@
   padding: 1rem;
 }
 
+.facility-item {
+  transition: opacity 0.2s ease;
+}
+
+.facility-item[style*="display: none"] {
+  opacity: 0;
+}
+
 
 
 /* Statistics Cards */

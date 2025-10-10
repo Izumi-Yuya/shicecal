@@ -62,6 +62,50 @@
                             <div class="col-12">
                                 <h6 class="fw-bold mb-3">施設選択</h6>
                                 
+                                <!-- 絞り込み検索 -->
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-3">
+                                                <label for="filterSection" class="form-label">部門</label>
+                                                <select class="form-select" id="filterSection">
+                                                    <option value="">すべての部門</option>
+                                                    @foreach($sections as $section)
+                                                        <option value="{{ $section }}">{{ $section }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="filterPrefecture" class="form-label">都道府県</label>
+                                                <select class="form-select" id="filterPrefecture">
+                                                    <option value="">すべての都道府県</option>
+                                                    @foreach($prefectures as $prefecture)
+                                                        <option value="{{ $prefecture }}">{{ $prefecture }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="filterKeyword" class="form-label">キーワード検索</label>
+                                                <input type="text" class="form-control" id="filterKeyword" 
+                                                       placeholder="施設名、会社名、事業所コード、住所で検索...">
+                                            </div>
+                                            <div class="col-md-2 d-flex align-items-end">
+                                                <button type="button" class="btn btn-outline-secondary w-100" id="clearFilters">
+                                                    検索クリア
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-12">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-filter me-1"></i>
+                                                    表示中: <span id="visibleFacilitiesCount">{{ count($facilities) }}</span> / {{ count($facilities) }} 件
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
                                 <!-- 全選択/全解除ボタン -->
                                 <div class="mb-3">
                                     <button type="button" class="btn btn-sm btn-outline-primary me-2" id="selectAllFacilities">
@@ -71,15 +115,26 @@
                                         全解除
                                     </button>
                                     <span class="ms-3 text-muted">
-                                        選択中: <span id="selectedFacilitiesCount">0</span> / {{ count($facilities) }} 件
+                                        選択中: <span id="selectedFacilitiesCount">0</span> / <span id="totalFacilitiesCount">{{ count($facilities) }}</span> 件
                                     </span>
                                 </div>
 
                                 <!-- 施設一覧 -->
-                                <div class="facility-list">
+                                <div class="facility-list" id="facilityList">
                                     @if(count($facilities) > 0)
                                         @foreach($facilities as $facility)
-                                            <div class="form-check mb-2">
+                                            @php
+                                                $prefectureCode = substr($facility->office_code, 0, 2);
+                                                $prefecture = config('prefectures.codes.' . $prefectureCode, '');
+                                            @endphp
+                                            <div class="form-check mb-2 facility-item" 
+                                                 data-facility-id="{{ $facility->id }}"
+                                                 data-facility-name="{{ $facility->facility_name }}"
+                                                 data-company-name="{{ $facility->company_name }}"
+                                                 data-office-code="{{ $facility->office_code }}"
+                                                 data-address="{{ $facility->address }}"
+                                                 data-section="{{ $facility->facilityBasic->section ?? '' }}"
+                                                 data-prefecture="{{ $prefecture }}">
                                                 <input class="form-check-input facility-checkbox" 
                                                        type="checkbox" 
                                                        name="facility_ids[]" 

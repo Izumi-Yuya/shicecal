@@ -524,7 +524,93 @@ export class ExportManager {
   init() {
     this.refreshElements();
     this.setupEventListeners();
+    this.setupFacilityFilters();
     this.updateSelectionStatus();
+  }
+
+  setupFacilityFilters() {
+    const filterSection = document.getElementById('filterSection');
+    const filterPrefecture = document.getElementById('filterPrefecture');
+    const filterKeyword = document.getElementById('filterKeyword');
+    const clearFilters = document.getElementById('clearFilters');
+
+    if (!filterSection || !filterPrefecture || !filterKeyword) {
+      console.log('ExportManager: Filter elements not found, skipping filter setup');
+      return;
+    }
+
+    // Apply filters on change
+    const applyFilters = () => {
+      const section = filterSection.value.toLowerCase();
+      const prefecture = filterPrefecture.value.toLowerCase();
+      const keyword = filterKeyword.value.toLowerCase();
+
+      const facilityItems = document.querySelectorAll('.facility-item');
+      let visibleCount = 0;
+
+      facilityItems.forEach(item => {
+        const itemSection = (item.dataset.section || '').toLowerCase();
+        const itemPrefecture = (item.dataset.prefecture || '').toLowerCase();
+        const itemName = (item.dataset.facilityName || '').toLowerCase();
+        const itemCompany = (item.dataset.companyName || '').toLowerCase();
+        const itemCode = (item.dataset.officeCode || '').toLowerCase();
+        const itemAddress = (item.dataset.address || '').toLowerCase();
+
+        let visible = true;
+
+        // Section filter
+        if (section) {
+          // Handle combined section filter
+          if (section === '有料老人ホーム・グループホーム') {
+            visible = visible && (itemSection === '有料老人ホーム' || itemSection === 'グループホーム');
+          } else {
+            visible = visible && itemSection === section;
+          }
+        }
+
+        // Prefecture filter
+        if (prefecture) {
+          visible = visible && itemPrefecture === prefecture;
+        }
+
+        // Keyword filter
+        if (keyword) {
+          visible = visible && (
+            itemName.includes(keyword) ||
+            itemCompany.includes(keyword) ||
+            itemCode.includes(keyword) ||
+            itemAddress.includes(keyword)
+          );
+        }
+
+        item.style.display = visible ? '' : 'none';
+        if (visible) visibleCount++;
+      });
+
+      // Update visible count
+      const visibleCountElement = document.getElementById('visibleFacilitiesCount');
+      if (visibleCountElement) {
+        visibleCountElement.textContent = visibleCount;
+      }
+
+      // Update selection status
+      this.updateSelectionStatus();
+    };
+
+    // Attach event listeners
+    filterSection.addEventListener('change', applyFilters);
+    filterPrefecture.addEventListener('change', applyFilters);
+    filterKeyword.addEventListener('input', applyFilters);
+
+    // Clear filters button
+    if (clearFilters) {
+      clearFilters.addEventListener('click', () => {
+        filterSection.value = '';
+        filterPrefecture.value = '';
+        filterKeyword.value = '';
+        applyFilters();
+      });
+    }
   }
 
   setupEventListeners() {
@@ -567,14 +653,26 @@ export class ExportManager {
 
     if (selectAllFacilities) {
       selectAllFacilities.addEventListener('click', () => {
-        this.facilityCheckboxes.forEach(cb => cb.checked = true);
+        // Only select visible facilities
+        this.facilityCheckboxes.forEach(cb => {
+          const facilityItem = cb.closest('.facility-item');
+          if (!facilityItem || facilityItem.style.display !== 'none') {
+            cb.checked = true;
+          }
+        });
         this.updateSelectionStatus();
       });
     }
 
     if (deselectAllFacilities) {
       deselectAllFacilities.addEventListener('click', () => {
-        this.facilityCheckboxes.forEach(cb => cb.checked = false);
+        // Only deselect visible facilities
+        this.facilityCheckboxes.forEach(cb => {
+          const facilityItem = cb.closest('.facility-item');
+          if (!facilityItem || facilityItem.style.display !== 'none') {
+            cb.checked = false;
+          }
+        });
         this.updateSelectionStatus();
       });
     }
