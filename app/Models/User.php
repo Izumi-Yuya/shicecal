@@ -13,6 +13,11 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    // Access scope constants
+    const ACCESS_SCOPE_ALL_FACILITIES = 'all_facilities';
+    const ACCESS_SCOPE_ASSIGNED_FACILITY = 'assigned_facility';
+    const ACCESS_SCOPE_OWN_FACILITY = 'own_facility';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -45,7 +50,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'access_scope' => 'array',
+        'access_scope' => 'string',
         'is_active' => 'boolean',
     ];
 
@@ -151,7 +156,7 @@ class User extends Authenticatable
     public function canViewAll(): bool
     {
         return in_array($this->role, ['admin', 'editor', 'primary_responder', 'approver']) ||
-            ($this->role === 'viewer' && empty($this->access_scope));
+            ($this->role === 'viewer' && $this->access_scope === 'all_facilities');
     }
 
     /**
@@ -167,8 +172,16 @@ class User extends Authenticatable
             // Get facilities based on access scope
             $query = \App\Models\Facility::query();
 
-            if (isset($this->access_scope['prefectures'])) {
-                $query->whereIn('prefecture', $this->access_scope['prefectures']);
+            switch ($this->access_scope) {
+                case 'assigned_facility':
+                    // TODO: Implement assigned facility filtering based on user assignments
+                    break;
+                case 'own_facility':
+                    // TODO: Implement own facility filtering based on user assignments
+                    break;
+                case 'all_facilities':
+                default:
+                    return []; // All facilities
             }
 
             return $query->pluck('id')->toArray();
@@ -330,5 +343,52 @@ class User extends Authenticatable
         }
 
         return $this->canAccessFacility($facilityId);
+    }
+
+    /**
+     * Get access scope options with Japanese labels.
+     */
+    public static function getAccessScopeOptions(): array
+    {
+        return [
+            self::ACCESS_SCOPE_ALL_FACILITIES => '全事業所',
+            self::ACCESS_SCOPE_ASSIGNED_FACILITY => '担当エリアの事業所（複数）',
+            self::ACCESS_SCOPE_OWN_FACILITY => '自施設のみ',
+        ];
+    }
+
+    /**
+     * Get the Japanese label for the user's access scope.
+     */
+    public function getAccessScopeLabel(): string
+    {
+        $options = self::getAccessScopeOptions();
+        return $options[$this->access_scope] ?? '未設定';
+    }
+
+    /**
+     * Check if user has all facilities access.
+     */
+    public function hasAllFacilitiesAccess(): bool
+    {
+        return $this->access_scope === self::ACCESS_SCOPE_ALL_FACILITIES;
+    }
+
+    /**
+     * Check if user has assigned facility access.
+     */
+    public function hasAssignedFacilityAccess(): bool
+    {
+        return $this->access_scope === self::ACCESS_SCOPE_ASSIGNED_FACILITY;
+    }
+
+
+
+    /**
+     * Check if user has own facility access only.
+     */
+    public function hasOwnFacilityAccess(): bool
+    {
+        return $this->access_scope === self::ACCESS_SCOPE_OWN_FACILITY;
     }
 }

@@ -15,7 +15,7 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->call([
-            AdminUserSeeder::class,
+            UserSeeder::class,
             SystemSettingsSeeder::class,
             // FacilityDummyDataSeeder::class, // Disabled - seeder does not exist
             FacilityMasterImportSeeder::class, // Import real facility data from CSV
