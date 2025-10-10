@@ -909,7 +909,7 @@
 }
 
 .facility-basic-info-table-clean tr td:nth-child(2) {
-  width: 35% !important;
+  width: 45% !important;
   min-width: 200px !important;
 }
 
@@ -921,7 +921,7 @@
 }
 
 .facility-basic-info-table-clean tr td:nth-child(4) {
-  width: 35% !important;
+  width: 25% !important;
   white-space: nowrap !important;
   padding-left: var(--spacing-sm) !important;
 }
