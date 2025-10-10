@@ -364,7 +364,7 @@ $breadcrumbs = [
                                             placeholder="開始日">
                                         <x-form.field-error field="services.{{ $i }}.renewal_start_date" />
                                     </div>
-                                    <div class="col-2 text-center d-flex align-items-center justify-content-center">
+                                    <div class="col-auto d-flex align-items-center">
                                         <span class="text-muted">〜</span>
                                     </div>
                                     <div class="col-5">
