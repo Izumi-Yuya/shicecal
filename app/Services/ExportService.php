@@ -36,6 +36,7 @@ class ExportService
             'opening_date' => '開設日',
             'address' => '住所',
             'opening_years' => '開設年数',
+            'months_in_operation' => '運営月数',
             'building_name' => '住所（建物名）',
             'building_structure' => '建物構造',
             'phone_number' => '電話番号',
@@ -380,6 +381,8 @@ class ExportService
                 return $facility->full_address ?? $facility->address ?? '';
             case 'opening_years':
                 return $facility->opening_date ? (string)$facility->opening_date->diffInYears(now()) : '';
+            case 'months_in_operation':
+                return $facility->months_in_operation !== null ? (string)$facility->months_in_operation : '';
             case 'building_name':
                 return $facility->building_name ?? '';
             case 'building_structure':

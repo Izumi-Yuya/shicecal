@@ -33,7 +33,7 @@
             'type' => 'standard',
             'cells' => [
                 ['label' => '住所（建物名）', 'value' => $facility->building_name, 'type' => 'text'],
-                ['label' => '開設年数', 'value' => $facility->opening_date ? $facility->opening_date->diffInYears(now()) . '年' : null, 'type' => 'text'],
+                ['label' => '開設年数', 'value' => $facility->opening_date ? $facility->getFormattedOperationPeriod() : null, 'type' => 'text'],
             ]
         ],
         [

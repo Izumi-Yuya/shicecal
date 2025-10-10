@@ -38,6 +38,7 @@ class Facility extends Model
         'website_url',
         'opening_date',
         'years_in_operation',
+        'months_in_operation',
         'building_structure',
         'building_floors',
         'paid_rooms_count',
@@ -414,5 +415,38 @@ class Facility extends Model
     {
         $this->years_in_operation = $this->calculateYearsInOperation();
         $this->save();
+    }
+
+    /**
+     * Get formatted operation period (years and months)
+     *
+     * @return string|null
+     */
+    public function getFormattedOperationPeriod(): ?string
+    {
+        if (!$this->opening_date) {
+            return null;
+        }
+
+        $now = new \DateTime();
+        $openingDate = new \DateTime($this->opening_date);
+        $diff = $now->diff($openingDate);
+
+        $years = $diff->y;
+        $months = $diff->m;
+
+        if ($years === 0 && $months === 0) {
+            return '1ヶ月未満';
+        }
+
+        $result = '';
+        if ($years > 0) {
+            $result .= $years . '年';
+        }
+        if ($months > 0) {
+            $result .= $months . 'ヶ月';
+        }
+
+        return $result;
     }
 }

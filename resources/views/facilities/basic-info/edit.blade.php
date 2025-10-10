@@ -169,18 +169,35 @@
             </div>
             
             <div class="col-md-6 mb-3">
-                <label for="years_in_operation" class="form-label">
+                <label class="form-label">
                     開設年数
                     <span class="auto-calc-indicator" title="開設日から自動計算されます">
                         <i class="fas fa-calculator text-info"></i>
                         <small class="text-muted">自動計算</small>
                     </span>
                 </label>
-                <input type="number" class="form-control auto-calc-field @error('years_in_operation') is-invalid @enderror" 
-                       id="years_in_operation" name="years_in_operation" 
-                       value="{{ old('years_in_operation', $facility->years_in_operation) }}" min="0"
-                       readonly title="このフィールドは開設日から自動計算されます">
-                <x-form.field-error field="years_in_operation" />
+                <div class="row g-2">
+                    <div class="col-6">
+                        <div class="input-group">
+                            <input type="number" class="form-control auto-calc-field @error('years_in_operation') is-invalid @enderror" 
+                                   id="years_in_operation" name="years_in_operation" 
+                                   value="{{ old('years_in_operation', $facility->years_in_operation) }}" min="0"
+                                   readonly title="このフィールドは開設日から自動計算されます">
+                            <span class="input-group-text">年</span>
+                        </div>
+                        <x-form.field-error field="years_in_operation" />
+                    </div>
+                    <div class="col-6">
+                        <div class="input-group">
+                            <input type="number" class="form-control auto-calc-field @error('months_in_operation') is-invalid @enderror" 
+                                   id="months_in_operation" name="months_in_operation" 
+                                   value="{{ old('months_in_operation', $facility->months_in_operation) }}" min="0" max="11"
+                                   readonly title="このフィールドは開設日から自動計算されます">
+                            <span class="input-group-text">ヶ月</span>
+                        </div>
+                        <x-form.field-error field="months_in_operation" />
+                    </div>
+                </div>
                 <small class="form-text text-muted">
                     <i class="fas fa-info-circle"></i> 開設日を入力すると自動で計算されます
                 </small>
@@ -422,47 +439,69 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('非表示行数:', hiddenRows.length);
     console.log('表示行数:', visibleRows.length);
     
-    // 開設年数自動計算
+    // 開設年数・月数自動計算
     const openingDateInput = document.getElementById('opening_date');
     const yearsInOperationInput = document.getElementById('years_in_operation');
+    const monthsInOperationInput = document.getElementById('months_in_operation');
     
-    if (openingDateInput && yearsInOperationInput) {
-        openingDateInput.addEventListener('change', function() {
-            if (this.value) {
-                // 計算中のアニメーション開始
-                yearsInOperationInput.classList.add('calculating');
-                
-                // 少し遅延を入れて計算感を演出
-                setTimeout(() => {
-                    const openingDate = new Date(this.value);
-                    const today = new Date();
-                    const years = Math.floor((today - openingDate) / (365.25 * 24 * 60 * 60 * 1000));
-                    yearsInOperationInput.value = Math.max(0, years);
-                    
-                    // アニメーション終了
-                    yearsInOperationInput.classList.remove('calculating');
-                    
-                    // 成功のフィードバック
-                    yearsInOperationInput.style.borderColor = '#198754';
-                    setTimeout(() => {
-                        yearsInOperationInput.style.borderColor = '#0dcaf0';
-                    }, 1000);
-                }, 300);
-            } else {
-                // 開設日が空の場合は年数もクリア
+    if (openingDateInput && yearsInOperationInput && monthsInOperationInput) {
+        function calculateOperationPeriod(openingDateValue) {
+            if (!openingDateValue) {
                 yearsInOperationInput.value = '';
+                monthsInOperationInput.value = '';
+                return;
             }
-        });
+            
+            const openingDate = new Date(openingDateValue);
+            const today = new Date();
+            
+            // 年と月を正確に計算
+            let years = today.getFullYear() - openingDate.getFullYear();
+            let months = today.getMonth() - openingDate.getMonth();
+            
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+            
+            // 日付も考慮
+            if (today.getDate() < openingDate.getDate()) {
+                months--;
+                if (months < 0) {
+                    years--;
+                    months += 12;
+                }
+            }
+            
+            yearsInOperationInput.value = Math.max(0, years);
+            monthsInOperationInput.value = Math.max(0, months);
+        }
+        
+        // changeイベントとinputイベントの両方に対応
+        function handleDateChange() {
+            if (this.value) {
+                calculateOperationPeriod(this.value);
+                
+                // 視覚的フィードバック
+                yearsInOperationInput.style.borderColor = '#198754';
+                monthsInOperationInput.style.borderColor = '#198754';
+                setTimeout(() => {
+                    yearsInOperationInput.style.borderColor = '';
+                    monthsInOperationInput.style.borderColor = '';
+                }, 1000);
+            } else {
+                yearsInOperationInput.value = '';
+                monthsInOperationInput.value = '';
+            }
+        }
+        
+        openingDateInput.addEventListener('change', handleDateChange);
+        openingDateInput.addEventListener('input', handleDateChange);
         
         // 初期値がある場合の自動計算
         if (openingDateInput.value) {
-            const openingDate = new Date(openingDateInput.value);
-            const today = new Date();
-            const years = Math.floor((today - openingDate) / (365.25 * 24 * 60 * 60 * 1000));
-            yearsInOperationInput.value = Math.max(0, years);
+            calculateOperationPeriod(openingDateInput.value);
         }
-        
-        console.log('開設年数自動計算を設定しました');
     }
     
     // サービス行追加ボタンのイベントリスナー
