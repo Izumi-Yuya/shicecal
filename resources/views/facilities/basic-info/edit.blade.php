@@ -50,13 +50,23 @@
         
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label for="designation_number" class="form-label">指定番号</label>
+                <label for="designation_number" class="form-label">指定番号1</label>
                 <input type="text" class="form-control @error('designation_number') is-invalid @enderror" 
                        id="designation_number" name="designation_number" 
                        value="{{ old('designation_number', $facility->designation_number) }}">
                 <x-form.field-error field="designation_number" />
             </div>
             
+            <div class="col-md-6 mb-3">
+                <label for="designation_number_2" class="form-label">指定番号2</label>
+                <input type="text" class="form-control @error('designation_number_2') is-invalid @enderror" 
+                       id="designation_number_2" name="designation_number_2" 
+                       value="{{ old('designation_number_2', $facility->designation_number_2) }}">
+                <x-form.field-error field="designation_number_2" />
+            </div>
+        </div>
+        
+        <div class="row">
             <div class="col-md-6 mb-3">
                 <label for="facility_name" class="form-label required">施設名</label>
                 <input type="text" class="form-control @error('facility_name') is-invalid @enderror" 
@@ -65,6 +75,7 @@
                 <x-form.field-error field="facility_name" />
             </div>
         </div>
+
     </x-form.section>
 
     <!-- 住所・連絡先情報セクション -->

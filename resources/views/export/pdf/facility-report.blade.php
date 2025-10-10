@@ -169,8 +169,12 @@
                 <td>{{ $facility->office_code ?? '未設定' }}</td>
             </tr>
             <tr>
-                <th>指定番号</th>
+                <th>指定番号1</th>
                 <td>{{ $facility->designation_number ?? '未設定' }}</td>
+            </tr>
+            <tr>
+                <th>指定番号2</th>
+                <td>{{ $facility->designation_number_2 ?? '未設定' }}</td>
             </tr>
             <tr>
                 <th>施設名</th>

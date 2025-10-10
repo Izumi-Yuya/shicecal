@@ -24,9 +24,15 @@
                         <td class="detail-value {{ empty($facility->facility_name) ? 'empty-field' : '' }} fw-bold" style="padding: 0.5rem;">
                             {{ $facility->facility_name ?? '未設定' }}
                         </td>
-                        <td class="detail-label" style="padding: 0.5rem;">指定番号</td>
+                        <td class="detail-label" style="padding: 0.5rem;">指定番号1</td>
                         <td class="detail-value {{ empty($facility->designation_number) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                             {{ $facility->designation_number ?? '未設定' }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="detail-label" style="padding: 0.5rem;">指定番号2</td>
+                        <td class="detail-value {{ empty($facility->designation_number_2) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                            {{ $facility->designation_number_2 ?? '未設定' }}
                         </td>
                     </tr>
                     <tr >

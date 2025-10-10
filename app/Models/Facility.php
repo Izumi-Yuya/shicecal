@@ -26,6 +26,7 @@ class Facility extends Model
         'company_name',
         'office_code',
         'designation_number',
+        'designation_number_2',
         'facility_name',
         'postal_code',
         'address',

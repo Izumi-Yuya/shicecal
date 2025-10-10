@@ -12,62 +12,63 @@
             'type' => 'standard',
             'cells' => [
                 ['label' => '施設名', 'value' => $facility->facility_name, 'type' => 'text', 'class' => 'fw-bold'],
-                ['label' => '指定番号', 'value' => $facility->designation_number, 'type' => 'text'],
+                ['label' => '指定番号1', 'value' => $facility->designation_number, 'type' => 'text'],
             ]
         ],
         [
             'type' => 'standard',
             'cells' => [
                 ['label' => '郵便番号', 'value' => $facility->formatted_postal_code, 'type' => 'text'],
-                ['label' => '開設日', 'value' => $facility->opening_date, 'type' => 'date'],
+                ['label' => '指定番号2', 'value' => $facility->designation_number_2, 'type' => 'text'],
             ]
         ],
         [
             'type' => 'standard',
             'cells' => [
                 ['label' => '住所', 'value' => $facility->full_address, 'type' => 'text'],
-                ['label' => '開設年数', 'value' => $facility->opening_date ? $facility->opening_date->diffInYears(now()) . '年' : null, 'type' => 'text'],
+                ['label' => '開設日', 'value' => $facility->opening_date, 'type' => 'date'],
             ]
         ],
         [
             'type' => 'standard',
             'cells' => [
                 ['label' => '住所（建物名）', 'value' => $facility->building_name, 'type' => 'text'],
-                ['label' => '建物構造', 'value' => $facility->building_structure, 'type' => 'text'],
+                ['label' => '開設年数', 'value' => $facility->opening_date ? $facility->opening_date->diffInYears(now()) . '年' : null, 'type' => 'text'],
             ]
         ],
         [
             'type' => 'standard',
             'cells' => [
                 ['label' => '電話番号', 'value' => $facility->phone_number, 'type' => 'text'],
-                ['label' => '建物階数', 'value' => $facility->building_floors ? $facility->building_floors . '階' : null, 'type' => 'text'],
+                ['label' => '建物構造', 'value' => $facility->building_structure, 'type' => 'text'],
             ]
         ],
         [
             'type' => 'standard',
             'cells' => [
                 ['label' => 'FAX番号', 'value' => $facility->fax_number, 'type' => 'text'],
-                ['label' => '居室数', 'value' => $facility->paid_rooms_count !== null ? $facility->paid_rooms_count . '室' : null, 'type' => 'text'],
+                ['label' => '建物階数', 'value' => $facility->building_floors ? $facility->building_floors . '階' : null, 'type' => 'text'],
             ]
         ],
         [
             'type' => 'standard',
             'cells' => [
                 ['label' => 'フリーダイヤル', 'value' => $facility->toll_free_number, 'type' => 'text'],
-                ['label' => '内SS数', 'value' => $facility->ss_rooms_count !== null ? $facility->ss_rooms_count . '室' : null, 'type' => 'text'],
+                ['label' => '居室数', 'value' => $facility->paid_rooms_count !== null ? $facility->paid_rooms_count . '室' : null, 'type' => 'text'],
             ]
         ],
         [
             'type' => 'standard',
             'cells' => [
                 ['label' => 'メールアドレス', 'value' => $facility->email, 'type' => 'email'],
-                ['label' => '定員数', 'value' => $facility->capacity ? $facility->capacity . '名' : null, 'type' => 'text'],
+                ['label' => '内SS数', 'value' => $facility->ss_rooms_count !== null ? $facility->ss_rooms_count . '室' : null, 'type' => 'text'],
             ]
         ],
         [
             'type' => 'standard',
             'cells' => [
-                ['label' => 'URL', 'value' => $facility->website_url, 'type' => 'url', 'colspan' => 3],
+                ['label' => 'URL', 'value' => $facility->website_url, 'type' => 'url'],
+                ['label' => '定員数', 'value' => $facility->capacity ? $facility->capacity . '名' : null, 'type' => 'text'],
             ]
         ],
     ];
