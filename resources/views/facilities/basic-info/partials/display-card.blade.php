@@ -61,7 +61,7 @@
             'type' => 'standard',
             'cells' => [
                 ['label' => 'メールアドレス', 'value' => $facility->email, 'type' => 'email'],
-                ['label' => '内SS数', 'value' => $facility->ss_rooms_count !== null ? $facility->ss_rooms_count . '室' : null, 'type' => 'text'],
+                ['label' => 'ショートステイ居室数', 'value' => $facility->ss_rooms_count !== null ? $facility->ss_rooms_count . '室' : null, 'type' => 'text'],
             ]
         ],
         [

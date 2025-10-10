@@ -225,7 +225,7 @@
             </div>
             
             <div class="col-md-4 mb-3">
-                <label for="ss_rooms_count" class="form-label">内SS数</label>
+                <label for="ss_rooms_count" class="form-label">ショートステイ居室数</label>
                 <input type="number" class="form-control @error('ss_rooms_count') is-invalid @enderror" 
                        id="ss_rooms_count" name="ss_rooms_count" 
                        value="{{ old('ss_rooms_count', $facility->ss_rooms_count) }}" min="0">
