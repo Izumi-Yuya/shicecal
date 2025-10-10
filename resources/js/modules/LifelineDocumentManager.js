@@ -24,6 +24,7 @@ class LifelineDocumentManager {
     this.category = category;
     this.initialized = false;
     this.isUploading = false;
+    this.isCreatingFolder = false;
 
     // State management
     this.state = {
@@ -98,7 +99,7 @@ class LifelineDocumentManager {
       const createFolderForm = document.getElementById(`create-folder-form-${this.category}`);
       if (createFolderForm) {
         const handler = (e) => this.handleCreateFolder(e);
-        createFolderForm.addEventListener('submit', handler);
+        createFolderForm.addEventListener('submit', handler, { capture: true });
         this.eventListeners.push({ element: createFolderForm, event: 'submit', handler });
         console.log(`Create folder form listener added for ${this.category}`);
       } else {
@@ -316,8 +317,17 @@ class LifelineDocumentManager {
    */
   async handleCreateFolder(event) {
     event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
 
     const form = event.target;
+
+    // 重複送信防止（複数の方法で確実に防ぐ）
+    if (this.isCreatingFolder || form.dataset.submitting === 'true') {
+      console.log('Folder creation already in progress, ignoring duplicate request');
+      return;
+    }
+
     const formData = new FormData(form);
     const folderName = formData.get('name');
 
@@ -337,6 +347,10 @@ class LifelineDocumentManager {
       return;
     }
 
+    // 重複送信防止フラグを設定
+    this.isCreatingFolder = true;
+    form.dataset.submitting = 'true';
+
     // 送信ボタンを無効化
     const submitBtn = form.querySelector('button[type="submit"]');
     const originalBtnContent = submitBtn?.innerHTML;
@@ -346,6 +360,13 @@ class LifelineDocumentManager {
     }
 
     try {
+      // デバッグ: FormDataの内容をログ出力
+      console.log('Creating folder with data:');
+      for (let [key, value] of formData.entries()) {
+        console.log(`  ${key}: ${value}`);
+      }
+      console.log('URL:', `/facilities/${this.facilityId}/lifeline-documents/${this.category}/folders`);
+
       const response = await fetch(`/facilities/${this.facilityId}/lifeline-documents/${this.category}/folders`, {
         method: 'POST',
         headers: {
@@ -356,7 +377,9 @@ class LifelineDocumentManager {
         body: formData
       });
 
+      console.log('Response status:', response.status);
       const result = await response.json();
+      console.log('Response data:', result);
 
       if (result.success) {
         this.showSuccessMessage('フォルダを作成しました。');
@@ -373,14 +396,24 @@ class LifelineDocumentManager {
         this.loadDocuments();
       } else {
         // サーバーサイドバリデーションエラーを表示
+        console.error('Folder creation failed:', result);
         if (result.errors) {
+          console.log('Validation errors:', result.errors);
           Object.keys(result.errors).forEach(field => {
             const input = form.querySelector(`[name="${field}"]`);
             if (input) {
               this.showFieldError(input, result.errors[field][0]);
+            } else {
+              console.warn(`Input field not found for: ${field}`);
             }
           });
+          // エラーがあるが、フィールドが見つからない場合は一般的なエラーメッセージを表示
+          if (Object.keys(result.errors).length > 0) {
+            const firstError = Object.values(result.errors)[0];
+            this.showErrorMessage(Array.isArray(firstError) ? firstError[0] : firstError);
+          }
         } else {
+          // メッセージを表示（重複エラーなど）
           this.showErrorMessage(result.message || 'フォルダの作成に失敗しました。');
         }
       }
@@ -388,6 +421,10 @@ class LifelineDocumentManager {
       console.error('Folder creation error:', error);
       this.showErrorMessage('ネットワークエラーが発生しました。');
     } finally {
+      // 重複送信防止フラグをリセット
+      this.isCreatingFolder = false;
+      form.dataset.submitting = 'false';
+
       // 送信ボタンを復元
       if (submitBtn) {
         submitBtn.disabled = false;
