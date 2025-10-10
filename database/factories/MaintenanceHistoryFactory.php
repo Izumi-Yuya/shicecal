@@ -95,6 +95,7 @@ class MaintenanceHistoryFactory extends Factory
             'phone_number' => $this->faker->optional(0.6)->phoneNumber,
 
             'notes' => $this->faker->optional(0.4)->sentence(15),
+            'special_notes' => $this->faker->optional(0.3)->sentence(10),
             'created_by' => User::factory(),
         ];
 
