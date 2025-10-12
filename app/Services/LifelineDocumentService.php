@@ -138,7 +138,15 @@ class LifelineDocumentService
                 ->where('name', $categoryName)
                 ->first();
 
+            // ルートフォルダが存在しない場合は、空のデータを返す
+            // （フォルダは作成時に自動的に作成される）
             if (!$rootFolder) {
+                Log::info('Category root folder not found, returning empty data', [
+                    'facility_id' => $facility->id,
+                    'category' => $category,
+                    'category_name' => $categoryName,
+                ]);
+
                 return [
                     'success' => true,
                     'data' => [
@@ -179,6 +187,15 @@ class LifelineDocumentService
 
             // ドキュメントサービスを使用してフォルダ内容を取得
             $result = $this->documentService->getFolderContents($facility, $currentFolder, $options);
+
+            Log::info('Category documents retrieved', [
+                'facility_id' => $facility->id,
+                'category' => $category,
+                'root_folder_id' => $rootFolder->id,
+                'current_folder_id' => $currentFolder->id,
+                'folders_count' => count($result['folders'] ?? []),
+                'files_count' => count($result['files'] ?? []),
+            ]);
 
             return [
                 'success' => true,
@@ -305,6 +322,14 @@ class LifelineDocumentService
             // カテゴリのルートフォルダを取得または作成
             $rootFolder = $this->getOrCreateCategoryRootFolder($facility, $category, $user);
 
+            Log::info('Root folder obtained for category', [
+                'facility_id' => $facility->id,
+                'category' => $category,
+                'root_folder_id' => $rootFolder->id,
+                'root_folder_name' => $rootFolder->name,
+                'root_folder_path' => $rootFolder->path,
+            ]);
+
             // 親フォルダを決定
             $parentFolder = $rootFolder;
             if ($parentFolderId) {
@@ -314,11 +339,30 @@ class LifelineDocumentService
 
                 if ($requestedParent && $this->isFolderInCategory($requestedParent, $rootFolder)) {
                     $parentFolder = $requestedParent;
+                    Log::info('Using requested parent folder', [
+                        'parent_folder_id' => $parentFolder->id,
+                        'parent_folder_name' => $parentFolder->name,
+                    ]);
                 }
+            } else {
+                Log::info('No parent folder specified, using root folder as parent', [
+                    'parent_folder_id' => $parentFolder->id,
+                    'parent_folder_name' => $parentFolder->name,
+                ]);
             }
 
             // フォルダ作成
             $newFolder = $this->documentService->createFolder($facility, $parentFolder, $folderName, $user);
+
+            Log::info('Lifeline category folder created successfully', [
+                'facility_id' => $facility->id,
+                'category' => $category,
+                'folder_id' => $newFolder->id,
+                'folder_name' => $folderName,
+                'parent_folder_id' => $parentFolder->id,
+                'root_folder_id' => $rootFolder->id,
+                'user_id' => $user->id,
+            ]);
 
             // アクティビティログ
             $this->activityLogService->log(
@@ -336,6 +380,7 @@ class LifelineDocumentService
                 'data' => [
                     'folder' => $newFolder,
                     'category' => $category,
+                    'root_folder_id' => $rootFolder->id,
                 ],
             ];
 

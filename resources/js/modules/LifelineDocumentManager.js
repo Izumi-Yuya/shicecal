@@ -8,7 +8,7 @@
 // ApiClient import removed - using direct fetch calls
 
 class LifelineDocumentManager {
-  constructor(facilityId = null, category = null) {
+  constructor(facilityId = null, category = null, options = {}) {
     // Validate required parameters
     if (facilityId && !category) {
       throw new Error('LifelineDocumentManager: category is required when facilityId is provided');
@@ -26,6 +26,19 @@ class LifelineDocumentManager {
     this.isUploading = false;
     this.isCreatingFolder = false;
 
+    // カテゴリエイリアスマップ（404回避）
+    this.categoryAliasMap = {
+      electric: 'electrical',
+      // 必要に応じて他カテゴリも追加
+    };
+
+    // options
+    this.options = {
+      mountInModal: false,
+      modalIdPrefix: 'lifeline-docs-modal',
+      ...options,
+    };
+    this.rootContainer = null;
     // State management
     this.state = {
       currentFolder: null,
@@ -63,16 +76,22 @@ class LifelineDocumentManager {
     }
   }
 
+
   /**
    * 初期化
    */
   init() {
     console.log(`LifelineDocumentManager initializing for facility ${this.facilityId}, category ${this.category}`);
 
-    // DOM要素の存在確認
-    const container = document.querySelector(`[data-lifeline-category="${this.category}"]`);
+    // モーダルモードの場合でも、ensureModalContainerは呼ばない
+    // （Bladeテンプレートで既にモーダルが生成されているため）
+
+    // コンテナ解決
+    const container = this.getRootContainer();
     if (!container) {
-      console.warn(`Container not found for category: ${this.category}`);
+      console.warn(`[LifelineDoc] Container not found for category: ${this.category}, initialization deferred`);
+      // コンテナが見つからない場合は、エラーを表示せずに初期化を延期
+      this.initialized = false;
       return;
     }
 
@@ -80,10 +99,40 @@ class LifelineDocumentManager {
     this.setupEventListeners();
 
     // 初期データを読み込み
-    this.loadDocuments();
+    this.loadDocuments().catch(error => {
+      console.error(`[LifelineDoc] Failed to load initial documents for ${this.category}:`, error);
+      // エラーメッセージを表示
+      const errorElement = container.querySelector('#error-message');
+      const errorText = container.querySelector('#error-text');
+      if (errorElement && errorText) {
+        errorText.textContent = error.message || 'ドキュメントの読み込みに失敗しました。';
+        errorElement.classList.remove('d-none');
+      }
+    });
 
     this.initialized = true;
     console.log(`LifelineDocumentManager initialized for category: ${this.category}`);
+  }
+
+  /**
+   * ドキュメントリストを再読み込み
+   */
+  async refresh() {
+    console.log(`[LifelineDoc] Refreshing documents for ${this.category}`);
+
+    if (!this.initialized) {
+      console.log(`[LifelineDoc] Not initialized yet, calling init() first`);
+      this.init();
+      return;
+    }
+
+    try {
+      await this.loadDocuments({ forceReload: true });
+      console.log(`[LifelineDoc] Successfully refreshed documents for ${this.category}`);
+    } catch (error) {
+      console.error(`[LifelineDoc] Failed to refresh documents for ${this.category}:`, error);
+      throw error;
+    }
   }
 
   /**
@@ -95,6 +144,36 @@ class LifelineDocumentManager {
 
     // DOM要素の存在確認を遅延実行
     setTimeout(() => {
+      // ツールバーボタンのイベントリスナー
+      const createFolderBtn = document.getElementById(`create-folder-btn-${this.category}`);
+      if (createFolderBtn) {
+        const handler = () => this.openCreateFolderModal();
+        createFolderBtn.addEventListener('click', handler);
+        this.eventListeners.push({ element: createFolderBtn, event: 'click', handler });
+        console.log(`Create folder button listener added for ${this.category}`);
+      } else {
+        console.warn(`Create folder button not found for ${this.category}`);
+      }
+
+      const uploadFileBtn = document.getElementById(`upload-file-btn-${this.category}`);
+      if (uploadFileBtn) {
+        const handler = () => this.openUploadFileModal();
+        uploadFileBtn.addEventListener('click', handler);
+        this.eventListeners.push({ element: uploadFileBtn, event: 'click', handler });
+        console.log(`Upload file button listener added for ${this.category}`);
+      } else {
+        console.warn(`Upload file button not found for ${this.category}`);
+      }
+
+      // 空の状態のアップロードボタン
+      const emptyUploadBtn = document.getElementById(`empty-upload-btn-${this.category}`);
+      if (emptyUploadBtn) {
+        const handler = () => this.openUploadFileModal();
+        emptyUploadBtn.addEventListener('click', handler);
+        this.eventListeners.push({ element: emptyUploadBtn, event: 'click', handler });
+        console.log(`Empty upload button listener added for ${this.category}`);
+      }
+
       // フォルダ作成フォーム
       const createFolderForm = document.getElementById(`create-folder-form-${this.category}`);
       if (createFolderForm) {
@@ -156,6 +235,123 @@ class LifelineDocumentManager {
   }
 
   /**
+   * z-indexを調整してモーダルを最前面に
+   */
+  adjustModalZIndex(modalEl) {
+    try {
+      const backdrops = document.querySelectorAll('.modal-backdrop');
+      const topBackdrop = backdrops[backdrops.length - 1];
+      const backdropZ = parseInt(getComputedStyle(topBackdrop)?.zIndex || '1050', 10);
+
+      modalEl.style.zIndex = String(backdropZ + 10);
+      const dialog = modalEl.querySelector('.modal-dialog');
+      if (dialog) {
+        dialog.style.zIndex = String(backdropZ + 11);
+      }
+
+      console.log(`[LifelineDoc] Adjusted z-index for modal to ${modalEl.style.zIndex}`);
+    } catch (e) {
+      console.warn('[LifelineDoc] z-index adjust failed:', e);
+    }
+  }
+
+  /**
+   * 残留バックドロップをクリーンアップ
+   */
+  cleanupBackdrops() {
+    const backdrops = document.querySelectorAll('.modal-backdrop');
+
+    // 複数のバックドロップがある場合、最新以外を削除
+    if (backdrops.length > 1) {
+      for (let i = 0; i < backdrops.length - 1; i++) {
+        backdrops[i].remove();
+      }
+      console.log(`[LifelineDoc] Cleaned up ${backdrops.length - 1} stray backdrops`);
+    }
+
+    // 孤立したバックドロップの処理
+    const anyModal = document.querySelector('.modal.show');
+    if (!anyModal && backdrops.length > 0) {
+      backdrops.forEach(el => el.remove());
+      document.body.classList.remove('modal-open');
+      document.body.style.removeProperty('overflow');
+      document.body.style.removeProperty('padding-right');
+      console.log('[LifelineDoc] Removed lonely backdrops and restored body state');
+    }
+  }
+
+  /**
+   * フォルダ作成モーダルを開く
+   */
+  openCreateFolderModal() {
+    console.log(`[LifelineDoc] Attempting to open create folder modal for ${this.category}`);
+
+    // モーダルコンテナが存在するか確認
+    const modalId = `create-folder-modal-${this.category}`;
+    let modal = document.getElementById(modalId);
+
+    console.log(`[LifelineDoc] Modal element:`, modal);
+    console.log(`[LifelineDoc] Modal ID:`, modalId);
+
+    if (!modal) {
+      console.error(`[LifelineDoc] Create folder modal not found: ${modalId}`);
+      console.log(`[LifelineDoc] Attempting to ensure modal container...`);
+
+      // モーダルコンテナを再生成
+      this.ensureModalContainer();
+      modal = document.getElementById(modalId);
+
+      if (!modal) {
+        console.error(`[LifelineDoc] Still cannot find modal after ensureModalContainer`);
+        return;
+      }
+    }
+
+    try {
+      const bsModal = new bootstrap.Modal(modal);
+      bsModal.show();
+      console.log(`[LifelineDoc] Successfully opened create folder modal for ${this.category}`);
+    } catch (error) {
+      console.error(`[LifelineDoc] Error opening modal:`, error);
+    }
+  }
+
+  /**
+   * ファイルアップロードモーダルを開く
+   */
+  openUploadFileModal() {
+    console.log(`[LifelineDoc] Attempting to open upload file modal for ${this.category}`);
+
+    const modalId = `upload-file-modal-${this.category}`;
+    let modal = document.getElementById(modalId);
+
+    console.log(`[LifelineDoc] Modal element:`, modal);
+    console.log(`[LifelineDoc] Modal ID:`, modalId);
+
+    if (!modal) {
+      console.error(`[LifelineDoc] Upload file modal not found: ${modalId}`);
+      console.log(`[LifelineDoc] Attempting to ensure modal container...`);
+
+      // モーダルコンテナを再生成
+      this.ensureModalContainer();
+      modal = document.getElementById(modalId);
+
+      if (!modal) {
+        console.error(`[LifelineDoc] Still cannot find modal after ensureModalContainer`);
+        return;
+      }
+    }
+
+    try {
+      const bsModal = new bootstrap.Modal(modal);
+      bsModal.show();
+      console.log(`[LifelineDoc] Successfully opened upload file modal for ${this.category}`);
+    } catch (error) {
+      console.error(`[LifelineDoc] Error opening modal:`, error);
+    }
+  }
+
+  /**
    * モーダルイベントリスナーを設定
    */
   setupModalEventListeners() {
@@ -163,6 +359,9 @@ class LifelineDocumentManager {
     const createFolderModal = document.getElementById(`create-folder-modal-${this.category}`);
     if (createFolderModal) {
       const shownHandler = () => {
+        // z-indexを調整
+        this.adjustModalZIndex(createFolderModal);
+
         // フォーカスを設定（少し遅延させて確実に設定）
         setTimeout(() => {
           const folderNameInput = document.getElementById(`folder-name-${this.category}`);
@@ -174,6 +373,9 @@ class LifelineDocumentManager {
       };
 
       const hiddenHandler = () => {
+        // 残留バックドロップをクリーンアップ
+        this.cleanupBackdrops();
+
         const form = document.getElementById(`create-folder-form-${this.category}`);
         if (form) {
           form.reset();
@@ -210,6 +412,9 @@ class LifelineDocumentManager {
     const uploadFileModal = document.getElementById(`upload-file-modal-${this.category}`);
     if (uploadFileModal) {
       const shownHandler = () => {
+        // z-indexを調整
+        this.adjustModalZIndex(uploadFileModal);
+
         // ファイル入力にフォーカスを設定
         setTimeout(() => {
           const fileInput = document.getElementById(`file-input-${this.category}`);
@@ -220,6 +425,9 @@ class LifelineDocumentManager {
       };
 
       const hiddenHandler = () => {
+        // 残留バックドロップをクリーンアップ
+        this.cleanupBackdrops();
+
         const form = document.getElementById(`upload-file-form-${this.category}`);
         if (form) {
           form.reset();
@@ -329,7 +537,7 @@ class LifelineDocumentManager {
     }
 
     const formData = new FormData(form);
-    const folderName = formData.get('name');
+    const folderName = formData.get('name'); // 'folder_name'ではなく'name'
 
     // クライアントサイドバリデーション
     const folderNameInput = document.getElementById(`folder-name-${this.category}`);
@@ -365,9 +573,9 @@ class LifelineDocumentManager {
       for (let [key, value] of formData.entries()) {
         console.log(`  ${key}: ${value}`);
       }
-      console.log('URL:', `/facilities/${this.facilityId}/lifeline-documents/${this.category}/folders`);
+      console.log('URL:', `/facilities/${this.facilityId}/lifeline-documents/${this.apiCategory}/folders`);
 
-      const response = await fetch(`/facilities/${this.facilityId}/lifeline-documents/${this.category}/folders`, {
+      const response = await fetch(`/facilities/${this.facilityId}/lifeline-documents/${this.apiCategory}/folders`, {
         method: 'POST',
         headers: {
           'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
@@ -513,7 +721,7 @@ class LifelineDocumentManager {
     }
 
     try {
-      const response = await fetch(`/facilities/${this.facilityId}/lifeline-documents/${this.category}/upload`, {
+      const response = await fetch(`/facilities/${this.facilityId}/lifeline-documents/${this.apiCategory}/upload`, {
         method: 'POST',
         headers: {
           'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
@@ -614,7 +822,7 @@ class LifelineDocumentManager {
         load_stats: 'true'
       });
 
-      const response = await fetch(`/facilities/${this.facilityId}/lifeline-documents/${this.category}?${params}`, {
+      const response = await fetch(`/facilities/${this.facilityId}/lifeline-documents/${this.apiCategory}?${params}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -664,6 +872,21 @@ class LifelineDocumentManager {
    */
   renderDocuments(data) {
     console.log(`[LifelineDoc] Rendering documents for ${this.category}`, data);
+    console.log(`[LifelineDoc] Data structure:`, {
+      folders: data.folders?.length || 0,
+      files: data.files?.length || 0,
+      breadcrumbs: data.breadcrumbs?.length || 0,
+      pagination: data.pagination,
+      stats: data.stats
+    });
+
+    // コンテナを取得
+    const container = this.getRootContainer();
+    if (!container) {
+      console.error(`[LifelineDoc] Container not found for category: ${this.category}`);
+      return;
+    }
+    console.log(`[LifelineDoc] Container found:`, container);
 
     // 表示モードに応じて描画
     if (this.state.viewMode === 'grid') {
@@ -672,28 +895,21 @@ class LifelineDocumentManager {
       this.renderListView(this.category, data);
     }
 
-    // カテゴリ固有のコンテナを取得
-    const container = document.querySelector(`[data-lifeline-category="${this.category}"]`);
-    if (!container) {
-      console.error(`[LifelineDoc] Container not found for category: ${this.category}`);
-      return;
-    }
-
     // ローディング表示を隠す
-    const loadingIndicator = container.querySelector('#loading-indicator');
+    const loadingIndicator = container.querySelector(`#${this._id('loading-indicator')}`);
     if (loadingIndicator) {
       loadingIndicator.style.display = 'none';
       console.log(`[LifelineDoc] Loading indicator hidden`);
     }
 
     // 空の状態を隠す
-    const emptyState = container.querySelector('#empty-state');
+    const emptyState = container.querySelector(`#${this._id('empty-state')}`);
     if (emptyState) {
       emptyState.classList.add('d-none');
     }
 
     // ドキュメント一覧を表示
-    const listContainer = container.querySelector('#document-list');
+    const listContainer = container.querySelector(`#${this._id('document-list')}`);
     if (listContainer) {
       listContainer.classList.remove('d-none');
       console.log(`[LifelineDoc] Document list shown`);
@@ -718,18 +934,27 @@ class LifelineDocumentManager {
    * リスト表示を描画
    */
   renderListView(category, data) {
-    const tbody = document.getElementById(`document-list-body-${category}`);
-    if (!tbody) return;
+    const container = this.getRootContainer();
+    if (!container) {
+      console.error(`[LifelineDoc] Container not found for renderListView`);
+      return;
+    }
+
+    const tbody = container.querySelector(`#document-list-body-${category}`);
+    if (!tbody) {
+      console.error(`[LifelineDoc] tbody not found: #document-list-body-${category}`);
+      return;
+    }
 
     // 編集権限を確認（lifeline-document-managerコンポーネントから取得）
-    const documentContainer = document.querySelector(`[data-lifeline-category="${category}"]`);
+    const documentContainer = container.closest('[data-lifeline-category]') || container;
     const canEdit = documentContainer ?
-      documentContainer.closest('.card-body').querySelector('button[data-bs-target*="upload"]') !== null :
+      documentContainer.closest('.card-body')?.querySelector('button[data-bs-target*="upload"]') !== null :
       false;
 
     console.log(`LifelineDocumentManager renderListView - category: ${category}, canEdit: ${canEdit}`);
     console.log('Document container:', documentContainer);
-    console.log('Upload button found:', documentContainer?.closest('.card-body').querySelector('button[data-bs-target*="upload"]'));
+    console.log('Upload button found:', documentContainer?.closest('.card-body')?.querySelector('button[data-bs-target*="upload"]'));
 
     const config = { canEdit };
     let html = '';
@@ -751,8 +976,8 @@ class LifelineDocumentManager {
     tbody.innerHTML = html;
 
     // リスト表示を表示、グリッド表示を非表示
-    const listView = document.getElementById(`document-list-${category}`);
-    const gridView = document.getElementById(`document-grid-${category}`);
+    const listView = container.querySelector(`#${this._id('document-list')}`);
+    const gridView = container.querySelector(`#${this._id('document-grid')}`);
 
     if (listView) listView.classList.remove('d-none');
     if (gridView) gridView.classList.add('d-none');
@@ -762,13 +987,22 @@ class LifelineDocumentManager {
    * グリッド表示を描画
    */
   renderGridView(category, data) {
-    const container = document.getElementById(`document-grid-body-${category}`);
-    if (!container) return;
+    const rootContainer = this.getRootContainer();
+    if (!rootContainer) {
+      console.error(`[LifelineDoc] Root container not found for renderGridView`);
+      return;
+    }
+
+    const container = rootContainer.querySelector(`#document-grid-body-${category}`);
+    if (!container) {
+      console.error(`[LifelineDoc] Grid body not found: #document-grid-body-${category}`);
+      return;
+    }
 
     // 編集権限を確認（lifeline-document-managerコンポーネントから取得）
-    const documentContainer = document.querySelector(`[data-lifeline-category="${category}"]`);
+    const documentContainer = rootContainer.closest('[data-lifeline-category]') || rootContainer;
     const canEdit = documentContainer ?
-      documentContainer.closest('.card-body').querySelector('button[data-bs-target*="upload"]') !== null :
+      documentContainer.closest('.card-body')?.querySelector('button[data-bs-target*="upload"]') !== null :
       false;
 
     const config = { canEdit };
@@ -791,8 +1025,8 @@ class LifelineDocumentManager {
     container.innerHTML = html;
 
     // グリッド表示を表示、リスト表示を非表示
-    const gridView = document.getElementById(`document-grid-${category}`);
-    const listView = document.getElementById(`document-list-${category}`);
+    const gridView = rootContainer.querySelector(`#${this._id('document-grid')}`);
+    const listView = rootContainer.querySelector(`#${this._id('document-list')}`);
 
     if (gridView) gridView.classList.remove('d-none');
     if (listView) listView.classList.add('d-none');
@@ -940,7 +1174,10 @@ class LifelineDocumentManager {
    * パンくずナビゲーションを更新
    */
   updateBreadcrumbs(breadcrumbs) {
-    const container = document.getElementById(`document-breadcrumb-${this.category}`);
+    const rootContainer = this.getRootContainer();
+    if (!rootContainer) return;
+
+    const container = rootContainer.querySelector(`#document-breadcrumb-${this.category}`);
     if (!container || !breadcrumbs) return;
 
     let html = '';
@@ -965,7 +1202,10 @@ class LifelineDocumentManager {
    * ページネーションを更新
    */
   updatePagination(pagination) {
-    const container = document.getElementById(`document-pagination-${this.category}`);
+    const rootContainer = this.getRootContainer();
+    if (!rootContainer) return;
+
+    const container = rootContainer.querySelector(`#document-pagination-${this.category}`);
     if (!container || !pagination) return;
 
     let html = '';
@@ -1012,7 +1252,10 @@ class LifelineDocumentManager {
    * 統計情報を更新
    */
   updateStats(stats) {
-    const container = document.getElementById(`document-info-${this.category}`);
+    const rootContainer = this.getRootContainer();
+    if (!rootContainer) return;
+
+    const container = rootContainer.querySelector(`#document-info-${this.category}`);
     if (!container || !stats) return;
 
     container.innerHTML = `
@@ -1102,24 +1345,26 @@ class LifelineDocumentManager {
    * ローディング表示
    */
   showLoading() {
-    document.getElementById('loading-indicator')?.classList.remove('d-none');
-    document.getElementById('error-message')?.classList.add('d-none');
-    document.getElementById('empty-state')?.classList.add('d-none');
+    const c = this.getRootContainer();
+    c?.querySelector(`#${this._id('loading-indicator')}`)?.classList.remove('d-none');
+    c?.querySelector(`#${this._id('error-message')}`)?.classList.add('d-none');
+    c?.querySelector(`#${this._id('empty-state')}`)?.classList.add('d-none');
   }
 
   /**
    * ローディング非表示
    */
   hideLoading() {
-    document.getElementById('loading-indicator')?.classList.add('d-none');
+    this.getRootContainer()?.querySelector(`#${this._id('loading-indicator')}`)?.classList.add('d-none');
   }
 
   /**
    * エラー表示
    */
   showError(message) {
-    const errorElement = document.getElementById('error-message');
-    const messageElement = document.getElementById('error-text');
+    const c = this.getRootContainer();
+    const errorElement = c?.querySelector(`#${this._id('error-message')}`);
+    const messageElement = c?.querySelector(`#${this._id('error-text')}`);
 
     if (errorElement && messageElement) {
       messageElement.textContent = message;
@@ -1131,7 +1376,7 @@ class LifelineDocumentManager {
    * 空の状態を切り替え
    */
   toggleEmptyState(isEmpty) {
-    const emptyElement = document.getElementById('empty-state');
+    const emptyElement = this.getRootContainer()?.querySelector(`#${this._id('empty-state')}`);
     if (emptyElement) {
       if (isEmpty) {
         emptyElement.classList.remove('d-none');
@@ -1203,7 +1448,7 @@ class LifelineDocumentManager {
     if (!contextMenu) return;
 
     // ドキュメントリスト内での右クリック
-    const documentList = document.getElementById('document-list');
+    const documentList = this.getRootContainer()?.querySelector('#document-list');
     if (documentList) {
       const contextMenuHandler = (e) => {
         e.preventDefault();
@@ -1303,7 +1548,7 @@ class LifelineDocumentManager {
    * ファイルダウンロード
    */
   downloadFile(fileId) {
-    const downloadUrl = `/facilities/${this.facilityId}/lifeline-documents/${this.category}/files/${fileId}/download`;
+    const downloadUrl = `/facilities/${this.facilityId}/lifeline-documents/${this.apiCategory}/files/${fileId}/download`;
     window.open(downloadUrl, '_blank');
   }
 
@@ -1424,6 +1669,46 @@ class LifelineDocumentManager {
   }
 
   /**
+   * カテゴリ別IDを生成（ID衝突防止）
+   */
+  _id(name) {
+    return `${name}-${this.category}`;
+  }
+
+  /**
+   * API用カテゴリ名を取得（エイリアス変換）
+   */
+  get apiCategory() {
+    return this.categoryAliasMap?.[this.category] || this.category;
+  }
+
+  /**
+   * カテゴリエイリアスを解決（static用）
+   */
+  static resolveApiCategory(category) {
+    const aliasMap = {
+      electric: 'electrical',
+    };
+    return aliasMap[category] || category;
+  }
+
+  /**
+   * モーダルz-indexを調整（保険）
+   */
+  adjustModalZIndex(modalEl) {
+    try {
+      const bds = document.querySelectorAll('.modal-backdrop');
+      const top = bds[bds.length - 1];
+      const bz = parseInt(getComputedStyle(top)?.zIndex || '1050', 10);
+      modalEl.style.zIndex = String(bz + 5);
+      const dlg = modalEl.querySelector('.modal-dialog');
+      if (dlg) dlg.style.zIndex = String(bz + 6);
+    } catch (e) {
+      console.warn('[LifelineDoc] z-index adjust failed:', e);
+    }
+  }
+
+  /**
    * 日付フォーマット
    */
   formatDate(dateString) {
@@ -1463,7 +1748,7 @@ class LifelineDocumentManager {
       if (!confirmed) return;
 
       // 削除API呼び出し
-      const response = await fetch(`/facilities/${this.facilityId}/lifeline-documents/${category}/folders/${folderId}`, {
+      const response = await fetch(`/facilities/${this.facilityId}/lifeline-documents/${this.apiCategory}/folders/${folderId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -1516,7 +1801,7 @@ class LifelineDocumentManager {
       if (!confirmed) return;
 
       // 削除API呼び出し
-      const response = await fetch(`/facilities/${this.facilityId}/lifeline-documents/${category}/files/${fileId}`, {
+      const response = await fetch(`/facilities/${this.facilityId}/lifeline-documents/${this.apiCategory}/files/${fileId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -1664,7 +1949,8 @@ class LifelineDocumentManager {
     }
 
     try {
-      const response = await fetch(`/facilities/${window.facilityId || 'unknown'}/lifeline-documents/${category}/folders/${folderId}`, {
+      const apiCategory = LifelineDocumentManager.resolveApiCategory(category);
+      const response = await fetch(`/facilities/${window.facilityId || 'unknown'}/lifeline-documents/${apiCategory}/folders/${folderId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -1705,7 +1991,8 @@ class LifelineDocumentManager {
     }
 
     try {
-      const response = await fetch(`/facilities/${window.facilityId || 'unknown'}/lifeline-documents/${category}/files/${fileId}`, {
+      const apiCategory = LifelineDocumentManager.resolveApiCategory(category);
+      const response = await fetch(`/facilities/${window.facilityId || 'unknown'}/lifeline-documents/${apiCategory}/files/${fileId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -1796,6 +2083,248 @@ class LifelineDocumentManager {
   }
 }
 
+// ===== Modal support (defined via prototype/static assignments to avoid parser quirks) =====
+LifelineDocumentManager.prototype.getRootContainer = function () {
+  if (this.rootContainer) return this.rootContainer;
+
+  // Try multiple selectors to find the container
+  const selectors = [
+    `#document-management-container-${this.category}`,
+    `[data-lifeline-category="${this.category}"]`,
+    `.document-management[data-lifeline-category="${this.category}"]`
+  ];
+
+  for (const sel of selectors) {
+    const container = document.querySelector(sel);
+    if (container) {
+      console.log(`[LifelineDoc] Found container for ${this.category} using selector: ${sel}`);
+      this.rootContainer = container;
+      return this.rootContainer;
+    }
+  }
+
+  console.warn(`[LifelineDoc] Container not found for category: ${this.category}`);
+  return null;
+};
+
+LifelineDocumentManager.prototype.ensureModalContainer = function () {
+  const modalId = `${this.options.modalIdPrefix}-${this.category}`;
+  let modal = document.getElementById(modalId);
+  if (!modal) {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = `
+      <div class="modal fade" id="${modalId}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">ドキュメント（${this.category}）</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="lifeline-doc-root" data-lifeline-category="${this.category}">
+                <!-- ツールバー -->
+                <div class="document-toolbar mb-3">
+                  <button type="button" id="create-folder-btn-${this.category}" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-folder-plus me-1"></i>新しいフォルダ
+                  </button>
+                  <button type="button" id="upload-file-btn-${this.category}" class="btn btn-outline-success btn-sm">
+                    <i class="fas fa-upload me-1"></i>ファイルアップロード
+                  </button>
+                </div>
+
+                <nav aria-label="breadcrumb" class="mb-2">
+                  <ol class="breadcrumb mb-0" id="document-breadcrumb-${this.category}"></ol>
+                </nav>
+                <div id="document-info-${this.category}" class="small text-muted mb-2"></div>
+
+                <div id="loading-indicator-${this.category}" class="d-none text-center py-5">
+                  <i class="fas fa-spinner fa-spin me-2"></i>読み込み中...
+                </div>
+
+                <div id="error-message-${this.category}" class="alert alert-danger d-none"><span id="error-text-${this.category}"></span></div>
+                <div id="empty-state-${this.category}" class="alert alert-info d-none">ドキュメントがありません。</div>
+
+                <div id="document-list-${this.category}" class="d-none">
+                  <table class="table table-sm align-middle mb-2">
+                    <thead>
+                      <tr>
+                        <th style="width:28px"></th>
+                        <th>名前</th>
+                        <th style="width:100px">サイズ</th>
+                        <th style="width:150px">更新日</th>
+                        <th style="width:160px">作成者/アップロード</th>
+                        <th style="width:42px"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="document-list-body-${this.category}"></tbody>
+                  </table>
+                </div>
+
+                <div id="document-grid-${this.category}" class="d-none">
+                  <div id="document-grid-body-${this.category}" class="row g-2"></div>
+                </div>
+
+                <nav>
+                  <ul class="pagination pagination-sm justify-content-center" id="document-pagination-${this.category}"></ul>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- フォルダ作成モーダル -->
+      <div class="modal" id="create-folder-modal-${this.category}" tabindex="-1" aria-labelledby="create-folder-modal-title-${this.category}" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="create-folder-modal-title-${this.category}">新しいフォルダ</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="create-folder-form-${this.category}" method="POST">
+              <div class="modal-body">
+                <div class="mb-3">
+                  <label for="folder-name-${this.category}" class="form-label">フォルダ名</label>
+                  <input type="text" class="form-control" id="folder-name-${this.category}" name="folder_name" required>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                <button type="submit" class="btn btn-primary">作成</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- ファイルアップロードモーダル -->
+      <div class="modal" id="upload-file-modal-${this.category}" tabindex="-1" aria-labelledby="upload-file-modal-title-${this.category}" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="upload-file-modal-title-${this.category}">ファイルアップロード</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="upload-file-form-${this.category}" method="POST" enctype="multipart/form-data">
+              <div class="modal-body">
+                <div class="mb-3">
+                  <label for="file-input-${this.category}" class="form-label">ファイル選択</label>
+                  <input type="file" class="form-control" id="file-input-${this.category}" name="file" required multiple>
+                  <div class="form-text">複数ファイルを選択できます</div>
+                </div>
+                <div id="file-list-${this.category}" class="mb-3" style="display:none;">
+                  <label class="form-label">選択されたファイル:</label>
+                  <ul id="file-list-items-${this.category}" class="list-group"></ul>
+                </div>
+                <div id="upload-progress-${this.category}" class="mb-3" style="display:none;">
+                  <label class="form-label">アップロード進捗:</label>
+                  <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                <button type="submit" class="btn btn-success">アップロード</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>`;
+
+    // すべての子要素（メインモーダル、フォルダ作成モーダル、ファイルアップロードモーダル）をbody直下に追加
+    while (wrapper.firstElementChild) {
+      document.body.appendChild(wrapper.firstElementChild);
+    }
+
+    modal = document.getElementById(modalId);
+    console.log(`[LifelineDoc] Created modal container for ${this.category}`);
+
+    // フォルダ作成モーダルとファイルアップロードモーダルも確認
+    const createFolderModal = document.getElementById(`create-folder-modal-${this.category}`);
+    const uploadFileModal = document.getElementById(`upload-file-modal-${this.category}`);
+    console.log(`[LifelineDoc] Create folder modal exists:`, !!createFolderModal);
+    console.log(`[LifelineDoc] Upload file modal exists:`, !!uploadFileModal);
+  }
+  this.rootContainer = modal.querySelector(`[data-lifeline-category="${this.category}"]`);
+  return modal;
+};
+
+LifelineDocumentManager.prototype.openModal = function () {
+  // Bladeテンプレートで生成された既存のモーダルを使用
+  const modalId = `${this.category}-documents-modal`;
+  const modal = document.getElementById(modalId);
+
+  if (!modal) {
+    console.error(`[LifelineDoc] Modal not found: ${modalId}`);
+    return;
+  }
+
+  const bs = bootstrap.Modal.getOrCreateInstance(modal, { backdrop: true, keyboard: true, focus: true });
+
+  // モーダル表示時のイベントリスナー（{ once: true }を外して毎回実行）
+  modal.addEventListener('shown.bs.modal', () => {
+    try {
+      this.adjustModalZIndex(modal);
+      this.loadDocuments();
+    } catch (e) {
+      console.error('[LifelineDoc] Error in modal shown handler:', e);
+    }
+  });
+
+  // モーダルを閉じる前にフォーカスを解除（aria-hidden警告を防ぐ）
+  modal.addEventListener('hide.bs.modal', () => {
+    try {
+      // モーダル内のフォーカスされている要素からフォーカスを外す
+      const focusedElement = modal.querySelector(':focus');
+      if (focusedElement) {
+        focusedElement.blur();
+      }
+    } catch (e) {
+      console.error('[LifelineDoc] Error in modal hide handler:', e);
+    }
+  });
+
+  // クリーンアップ
+  modal.addEventListener('hidden.bs.modal', () => {
+    try {
+      this.destroy();
+      this.cleanupBackdrops();
+
+      // body要素の状態を完全に復元
+      setTimeout(() => {
+        const remainingModals = document.querySelectorAll('.modal.show');
+        if (remainingModals.length === 0) {
+          document.body.classList.remove('modal-open');
+          document.body.style.removeProperty('overflow');
+          document.body.style.removeProperty('padding-right');
+          console.log('[LifelineDoc] Body state restored');
+        }
+      }, 100);
+    } catch (e) {
+      console.error('[LifelineDoc] Error in modal hidden handler:', e);
+    }
+    this.rootContainer = null;
+  });
+
+  bs.show();
+};
+
+// 静的ユーティリティ: 直接モーダルで開く
+LifelineDocumentManager.openInModal = function (facilityId, category, options = {}) {
+  const manager = new LifelineDocumentManager(facilityId, category, { ...options, mountInModal: true });
+  manager.openModal();
+  // グローバル参照（既存慣習に合わせる）
+  if (!window.shiseCalApp) window.shiseCalApp = { modules: {} };
+  window.shiseCalApp.modules[`lifelineDocumentManager_${category}`] = manager;
+  return manager;
+};
+
+// 直接呼び出し用ヘルパ（例：window.LifelineDocumentManager.openInModal(facilityId, 'electric')）
+if (!window.LifelineDocumentManager) {
+  window.LifelineDocumentManager = LifelineDocumentManager;
+}
+
 // デフォルトエクスポート
 export default LifelineDocumentManager;
-window.LifelineDocumentManager = LifelineDocumentManager;
+// 既に上でグローバル公開済み

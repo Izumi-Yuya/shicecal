@@ -8,12 +8,19 @@
 // Bootstrap is loaded via CDN in the HTML, so no import needed.
 // window.bootstrap is available globally.
 
+// ===== Debug utilities (development only) =====
+// Note: Debug utilities are available in browser console via window.modalFix
+// Load manually in development: <script src="/resources/js/debug/modal-fix.js"></script>
+
 // Import shared utilities
 import { AppUtils } from './shared/AppUtils.js';
 import ApiClient from './shared/ApiClient.js';
 
 // Import LifelineDocumentManager
 import LifelineDocumentManager from './modules/LifelineDocumentManager.js';
+
+// グローバルに公開（ボタンクリックハンドラーで使用）
+window.LifelineDocumentManager = LifelineDocumentManager;
 
 // Import DocumentManager
 import { DocumentManager } from './modules/DocumentManager.js';
@@ -686,97 +693,112 @@ class ShiseCalApp {
     }
   }
 
-  // ライフライン設備ドキュメントトグルボタンの初期化
+  // ライフライン設備ドキュメントトグルボタンの初期化（モーダル対応）
   initializeLifelineDocumentToggles() {
     const self = this; // thisコンテキストを保持
 
+    // モーダルトリガーボタンを検索
     document.querySelectorAll('[id$="-documents-toggle"]').forEach(toggleBtn => {
-      const sectionId = toggleBtn.getAttribute('data-bs-target')?.substring(1);
-      if (!sectionId) return;
+      const btnId = toggleBtn.id;
+      console.log(`[Modal] Found toggle button: ${btnId}`);
 
-      const documentSection = document.getElementById(sectionId);
-      if (!documentSection) return;
+      // ボタンIDからカテゴリを抽出（例: electrical-documents-toggle → electrical）
+      const category = btnId.replace('-documents-toggle', '');
+      console.log(`[Modal] Extracted category: ${category}`);
 
-      console.log(`Setting up toggle for section: ${sectionId}`);
-
-      // ボタン状態更新関数
-      const updateButtonState = (isExpanded) => {
-        const icon = toggleBtn.querySelector('i');
-        const text = toggleBtn.querySelector('span');
-
-        if (isExpanded) {
-          icon.className = 'fas fa-folder-minus me-1';
-          if (text) text.textContent = '閉じる';
-          toggleBtn.classList.replace('btn-outline-primary', 'btn-primary');
-        } else {
-          icon.className = 'fas fa-folder-open me-1';
-          if (text) text.textContent = 'ドキュメント';
-          toggleBtn.classList.replace('btn-primary', 'btn-outline-primary');
-        }
-      };
-
-      // Bootstrap collapseイベント
-      documentSection.addEventListener('shown.bs.collapse', () => {
-        console.log(`[Toggle] ✓ Section ${sectionId} shown`);
-        updateButtonState(true);
-
-        // ドキュメントマネージャーを初期化（selfを使用）
-        console.log('[Toggle] Calling initializeLifelineDocumentManagers() with 100ms delay');
-
-        // 少し遅延させてDOMが完全に展開されるのを待つ
-        setTimeout(() => {
-          self.initializeLifelineDocumentManagers();
-        }, 100);
-      });
-
-      documentSection.addEventListener('hidden.bs.collapse', () => {
-        console.log(`Section ${sectionId} hidden`);
-        updateButtonState(false);
-      });
-
-      // 初期状態設定
-      const isInitiallyExpanded = documentSection.classList.contains('show');
-      console.log(`[Toggle] Initial state for ${sectionId}: ${isInitiallyExpanded ? 'expanded' : 'collapsed'}`);
-      updateButtonState(isInitiallyExpanded);
-
-      // 初期状態で展開されている場合は即座に初期化
-      if (isInitiallyExpanded) {
-        console.log(`[Toggle] Section ${sectionId} is initially expanded, initializing with 200ms delay`);
-        setTimeout(() => {
-          self.initializeLifelineDocumentManagers();
-        }, 200);
+      // facilityIdを取得
+      const facilityId = document.querySelector('[data-facility-id]')?.dataset.facilityId;
+      if (!facilityId) {
+        console.error(`[Modal] facilityId not found for ${category}`);
+        return;
       }
 
-      // モーダルhoisting処理
-      const hoistModals = (container) => {
-        if (!container) return;
-        container.querySelectorAll('.modal').forEach(modal => {
-          if (modal.parentElement !== document.body) {
-            document.body.appendChild(modal);
+      // ボタンクリック時にBladeコンポーネントのモーダルを開く
+      toggleBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        console.log(`[Modal] Button clicked for ${category}, opening Blade modal...`);
+
+        try {
+          // Bladeコンポーネントで生成されたモーダルを開く
+          const modalId = `${category}-documents-modal`;
+          const modalElement = document.getElementById(modalId);
+
+          if (modalElement) {
+            // 既存のモーダルインスタンスを取得または新規作成
+            let bsModal = bootstrap.Modal.getInstance(modalElement);
+            if (!bsModal) {
+              bsModal = new bootstrap.Modal(modalElement);
+            }
+            bsModal.show();
+            console.log(`[Modal] ✓ Blade modal opened for ${category}`);
+
+            // モーダルが開いた後、ドキュメントマネージャーを初期化
+            const handleModalShown = () => {
+              const managerKey = `lifelineDocumentManager_${category}`;
+              console.log(`[Modal] Modal shown for ${category}, manager key: ${managerKey}`);
+              console.log(`[Modal] Current modules:`, Object.keys(self.modules));
+
+              try {
+                if (!self.modules[managerKey]) {
+                  console.log(`[Modal] Initializing new document manager for ${category}`);
+                  const manager = new LifelineDocumentManager(facilityId, category);
+                  self.modules[managerKey] = manager;
+                  console.log(`[Modal] ✓ Manager initialized for ${category}`);
+                } else {
+                  console.log(`[Modal] Document manager already exists for ${category}`);
+                  const manager = self.modules[managerKey];
+
+                  if (manager && typeof manager.refresh === 'function') {
+                    console.log(`[Modal] Calling refresh() for ${category}`);
+                    manager.refresh();
+                  } else if (manager && typeof manager.loadDocuments === 'function') {
+                    console.log(`[Modal] refresh() not available, calling loadDocuments() for ${category}`);
+                    manager.loadDocuments();
+                  } else {
+                    console.warn(`[Modal] Manager exists but no refresh/loadDocuments method available for ${category}`, manager);
+                  }
+                }
+              } catch (error) {
+                console.error(`[Modal] Error initializing/refreshing manager for ${category}:`, error);
+              }
+            };
+
+            // モーダルが閉じた後のクリーンアップ
+            const handleModalHidden = () => {
+              console.log(`[Modal] Modal hidden for ${category}, cleaning up...`);
+              // 重複したbackdropを削除
+              const backdrops = document.querySelectorAll('.modal-backdrop');
+              if (backdrops.length > 0) {
+                backdrops.forEach(backdrop => backdrop.remove());
+              }
+            };
+
+            modalElement.addEventListener('shown.bs.modal', handleModalShown, { once: true });
+            modalElement.addEventListener('hidden.bs.modal', handleModalHidden, { once: true });
+
+            // モーダルが閉じられた時のクリーンアップ
+            modalElement.addEventListener('hidden.bs.modal', () => {
+              console.log(`[Modal] Modal closed for ${category}, cleaning up...`);
+
+              // 残っているbackdropを削除
+              const backdrops = document.querySelectorAll('.modal-backdrop');
+              backdrops.forEach(backdrop => backdrop.remove());
+
+              // bodyのクラスをクリーンアップ
+              document.body.classList.remove('modal-open');
+              document.body.style.overflow = '';
+              document.body.style.paddingRight = '';
+            }, { once: true });
+          } else {
+            console.error(`[Modal] ✗ Modal element not found: ${modalId}`);
           }
-        });
-      };
-
-      hoistModals(documentSection);
-      documentSection.addEventListener('shown.bs.collapse', () => hoistModals(documentSection));
-    });
-
-    // モーダルz-index強制設定（グローバル）
-    document.addEventListener('show.bs.modal', (ev) => {
-      if (ev.target) ev.target.style.zIndex = '2010';
-      setTimeout(() => {
-        document.querySelectorAll('.modal-backdrop').forEach(bd => bd.style.zIndex = '2000');
-      }, 0);
-    });
-
-    // 余計なBackdrop掃除（グローバル）
-    document.addEventListener('hidden.bs.modal', () => {
-      const backdrops = document.querySelectorAll('.modal-backdrop');
-      if (backdrops.length > 1) {
-        for (let i = 0; i < backdrops.length - 1; i++) {
-          backdrops[i].remove();
+        } catch (error) {
+          console.error(`[Modal] ✗ Failed to open modal for ${category}:`, error);
+          console.error(`[Modal] Error stack:`, error.stack);
         }
-      }
+      });
+
+      console.log(`[Modal] ✓ Click handler registered for ${category}`);
     });
   }
 
@@ -844,10 +866,35 @@ class ShiseCalApp {
     // Focus management for modals
     document.addEventListener('shown.bs.modal', (e) => {
       const modal = e.target;
-      const firstInput = modal.querySelector('input, select, textarea, button');
+      const firstInput = modal.querySelector('input:not([type="hidden"]), select, textarea');
       if (firstInput) {
-        firstInput.focus();
+        // 少し遅延させてフォーカスを設定
+        setTimeout(() => firstInput.focus(), 100);
       }
+    });
+
+    // モーダルが閉じる前にフォーカスをクリア（aria-hidden警告を防ぐ）
+    document.addEventListener('hide.bs.modal', (e) => {
+      const modal = e.target;
+      // モーダル内のフォーカスされた要素からフォーカスを外す
+      const focusedElement = modal.querySelector(':focus');
+      if (focusedElement) {
+        focusedElement.blur();
+      }
+    });
+
+    // モーダルが完全に閉じた後にバックドロップをクリーンアップ
+    document.addEventListener('hidden.bs.modal', (e) => {
+      // 残っているバックドロップを削除
+      const backdrops = document.querySelectorAll('.modal-backdrop');
+      backdrops.forEach((backdrop) => {
+        backdrop.remove();
+      });
+
+      // body要素からモーダル関連のクラスを削除
+      document.body.classList.remove('modal-open');
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
     });
 
     // Keyboard navigation

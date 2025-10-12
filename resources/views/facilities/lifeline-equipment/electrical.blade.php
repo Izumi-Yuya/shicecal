@@ -20,28 +20,12 @@
         <button type="button" 
                 class="btn btn-outline-primary btn-sm" 
                 id="electrical-documents-toggle"
-                data-bs-toggle="collapse" 
-                data-bs-target="#electrical-documents-section" 
-                aria-expanded="false" 
-                aria-controls="electrical-documents-section"
                 title="電気設備ドキュメント管理">
             <i class="fas fa-folder-open me-1"></i>
             <span class="d-none d-md-inline">ドキュメント</span>
         </button>
     </div>
 </div>
-
-<!-- 電気設備ドキュメント管理セクション -->
-<x-lifeline-equipment-documents
-    :facility="$facility"
-    category="electrical"
-    categoryName="電気設備"
-    :canEdit="$canEdit"
-    sectionId="electrical-documents-section"
-    borderColor="border-primary"
-    headerBg="bg-primary"
-    headerText="text-white"
-/>
 
 <!-- 基本情報テーブル -->
 @php
@@ -294,4 +278,28 @@
         tableClass="table table-bordered facility-basic-info-table-clean"
         bodyClass=""
     />
+</div>
+
+<!-- 電気設備ドキュメント管理モーダル -->
+<div class="modal fade" id="electrical-documents-modal" tabindex="-1" aria-labelledby="electrical-documents-modal-title" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="electrical-documents-modal-title">
+                    <i class="fas fa-folder-open me-2"></i>電気設備ドキュメント管理
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="閉じる"></button>
+            </div>
+            <div class="modal-body">
+                <x-lifeline-document-manager
+                    :facility="$facility"
+                    category="electrical"
+                    categoryName="電気設備"
+                />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+            </div>
+        </div>
+    </div>
 </div>

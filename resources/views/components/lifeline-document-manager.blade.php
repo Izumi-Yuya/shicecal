@@ -19,14 +19,14 @@
                 <div class="d-flex align-items-center gap-2">
                     {{-- フォルダ作成ボタン --}}
                     @if($canEdit)
-                        <button type="button" id="create-folder-btn-{{ $category }}" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#create-folder-modal-{{ $category }}">
+                        <button type="button" id="create-folder-btn-{{ $category }}" class="btn btn-outline-primary btn-sm">
                             <i class="fas fa-folder-plus me-1"></i>新しいフォルダ
                         </button>
                     @endif
                     
                     {{-- ファイルアップロードボタン --}}
                     @if($canEdit)
-                        <button type="button" id="upload-file-btn-{{ $category }}" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#upload-file-modal-{{ $category }}">
+                        <button type="button" id="upload-file-btn-{{ $category }}" class="btn btn-primary btn-sm">
                             <i class="fas fa-upload me-1"></i>ファイルアップロード
                         </button>
                     @endif
@@ -83,7 +83,7 @@
     {{-- ドキュメント一覧エリア --}}
     <div class="document-list-container" style="min-height: 400px;">
         {{-- ローディング表示 --}}
-        <div class="text-center py-5" id="loading-indicator">
+        <div class="text-center py-5" id="loading-indicator-{{ $category }}">
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">読み込み中...</span>
             </div>
@@ -91,29 +91,29 @@
         </div>
 
         {{-- エラー表示 --}}
-        <div class="alert alert-danger d-none" id="error-message">
+        <div class="alert alert-danger d-none" id="error-message-{{ $category }}">
             <i class="fas fa-exclamation-triangle me-2"></i>
-            <span id="error-text"></span>
+            <span id="error-text-{{ $category }}"></span>
         </div>
 
         {{-- 空の状態 --}}
-        <div class="text-center py-5 d-none" id="empty-state">
+        <div class="text-center py-5 d-none" id="empty-state-{{ $category }}">
             <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
             <h5 class="text-muted">ドキュメントがありません</h5>
             <p class="text-muted mb-3">
                 ファイルをアップロードするか、フォルダを作成してドキュメントを整理しましょう。
             </p>
             @if($canEdit)
-                <button type="button" class="btn btn-primary" id="empty-upload-btn-{{ $category }}" data-bs-toggle="modal" data-bs-target="#upload-file-modal-{{ $category }}">
+                <button type="button" class="btn btn-primary" id="empty-upload-btn-{{ $category }}">
                     <i class="fas fa-upload me-1"></i>ファイルアップロード
                 </button>
             @endif
         </div>
 
         {{-- ドキュメント一覧 --}}
-        <div id="document-list" class="d-none">
+        <div id="document-list-{{ $category }}" class="d-none">
             {{-- リスト表示 --}}
-            <div id="document-list-{{ $category }}" class="table-responsive">
+            <div id="document-list-view-{{ $category }}" class="table-responsive">
                 <table class="table table-hover">
                     <thead>
                         <tr>

@@ -468,10 +468,23 @@ html {
 }
 
 /* ========================================
-   Modal Styles - Minimal overrides only
+   Modal Styles - Lifeline modal layering fix
    ======================================== */
 
-/* Only customize visual appearance, let Bootstrap handle behavior */
+/* Z-index layering: backdrop < modal */
+.modal {
+  z-index: var(--z-modal) !important;
+}
+
+.modal .modal-dialog {
+  z-index: calc(var(--z-modal) + 1) !important;
+}
+
+.modal-backdrop {
+  z-index: var(--z-modal-backdrop) !important;
+}
+
+/* Visual appearance */
 .modal-content {
   border-radius: 12px;
   border: none;
