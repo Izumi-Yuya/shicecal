@@ -663,6 +663,8 @@ class LifelineDocumentManager {
    * ドキュメント一覧を描画
    */
   renderDocuments(data) {
+    console.log(`[LifelineDoc] Rendering documents for ${this.category}`, data);
+
     // 表示モードに応じて描画
     if (this.state.viewMode === 'grid') {
       this.renderGridView(this.category, data);
@@ -670,28 +672,41 @@ class LifelineDocumentManager {
       this.renderListView(this.category, data);
     }
 
+    // カテゴリ固有のコンテナを取得
+    const container = document.querySelector(`[data-lifeline-category="${this.category}"]`);
+    if (!container) {
+      console.error(`[LifelineDoc] Container not found for category: ${this.category}`);
+      return;
+    }
+
     // ローディング表示を隠す
-    const loadingIndicator = document.getElementById('loading-indicator');
+    const loadingIndicator = container.querySelector('#loading-indicator');
     if (loadingIndicator) {
       loadingIndicator.style.display = 'none';
+      console.log(`[LifelineDoc] Loading indicator hidden`);
     }
 
     // 空の状態を隠す
-    const emptyState = document.getElementById('empty-state');
+    const emptyState = container.querySelector('#empty-state');
     if (emptyState) {
       emptyState.classList.add('d-none');
     }
 
     // ドキュメント一覧を表示
-    const listContainer = document.getElementById('document-list');
+    const listContainer = container.querySelector('#document-list');
     if (listContainer) {
       listContainer.classList.remove('d-none');
+      console.log(`[LifelineDoc] Document list shown`);
     }
 
     // データが空の場合は空の状態を表示
-    if ((!data.folders || data.folders.length === 0) && (!data.files || data.files.length === 0)) {
+    const hasData = (data.folders && data.folders.length > 0) || (data.files && data.files.length > 0);
+    console.log(`[LifelineDoc] Has data:`, hasData, `(folders: ${data.folders?.length || 0}, files: ${data.files?.length || 0})`);
+
+    if (!hasData) {
       if (emptyState) {
         emptyState.classList.remove('d-none');
+        console.log(`[LifelineDoc] Empty state shown`);
       }
       if (listContainer) {
         listContainer.classList.add('d-none');

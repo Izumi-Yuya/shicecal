@@ -1,93 +1,95 @@
 # Shise-Cal ドキュメント
 
-**パッケージ**: `shise-cal/facility-management` v2.0.0
+## 📚 ドキュメント構造
 
-このディレクトリには、Shise-Cal（施設管理システム）に関する全てのドキュメントが整理されています。
+```
+docs/
+├── README.md                    ← このファイル
+├── javascript/                  ← JavaScript関連
+├── csv-export/                  ← CSVエクスポート関連
+├── lifeline-equipment/          ← ライフライン設備関連
+├── troubleshooting/             ← トラブルシューティング
+└── ...
+```
 
-## 📁 ディレクトリ構成
+## 🚀 クイックスタート
 
-### 📋 プロジェクト概要
-- [要件定義書](requirements/要件定義書（v2.2）.md) - システムの要件定義と仕様
-- [README](../README.md) - プロジェクトの基本情報
+### 初めての方
+1. **[JavaScript クイックリファレンス](./javascript/js-quick-reference.md)** - 最初に読むべきドキュメント
+2. **[フロントエンド構造](./javascript/frontend-structure.md)** - 開発ガイド
 
-### 🏗️ アーキテクチャ・設計
-- [簡素化されたアーキテクチャガイド](architecture/SIMPLIFIED_ARCHITECTURE.md) - リファクタリング後のシステム構成
-- [プロジェクト簡素化マイグレーションガイド](migration/PROJECT_SIMPLIFICATION_GUIDE.md) - リファクタリング内容と移行手順
-- [施設フォーム移行ガイド](migration/facility-form-migration-guide.md) - 既存フォームの標準化レイアウトへの移行手順
-- [API リファレンス](api/API_REFERENCE.md) - REST API仕様書
+### 開発者向け
+- **[JavaScript アーキテクチャ](./javascript/javascript-architecture.md)** - 詳細な構造説明
+- **[プロジェクト構造](../.kiro/steering/structure.md)** - ディレクトリ構成
+- **[技術スタック](../.kiro/steering/tech.md)** - 使用技術
 
-### 🚀 環境構築・デプロイ
-- [開発環境セットアップ](setup/DEVELOPMENT.md) - ローカル開発環境の構築手順
-- [テスト環境セットアップ](setup/TEST_ENVIRONMENT_SETUP.md) - テスト環境の構築・運用
-- [本番環境デプロイ](deployment/PRODUCTION.md) - 本番環境へのデプロイ手順
+## 📁 カテゴリ別ドキュメント
 
-### 🔧 技術実装
-- [フロントエンドアーキテクチャ](implementation/FRONTEND_ARCHITECTURE.md) - ES6モジュール構成と設計
-- [管理者機能実装状況](implementation/ADMIN_FUNCTIONALITY_STATUS.md) - 管理者機能の実装進捗と仕様
-- [ログイン画面実装](implementation/LOGIN_SCREEN_IMPLEMENTATION.md) - ログイン画面の実装詳細
-- [マーブル背景実装](implementation/MARBLE_BACKGROUND_IMPLEMENTATION.md) - 背景画像の実装
-- [ロゴ実装修正](implementation/LOGO_IMPLEMENTATION_FIX.md) - ロゴ表示の修正
-- [メインアプリスタイリング](implementation/MAIN_APP_STYLING_IMPLEMENTATION.md) - メインアプリのUI実装
-- [フレームワーク依存関係解消](implementation/FRAMEWORK_DEPENDENCY_RESOLUTION.md) - 依存関係の最適化
+### 💻 JavaScript
+**ディレクトリ**: [`javascript/`](./javascript/)
 
-### 🎨 コンポーネント・UI
-- [施設フォームレイアウトコンポーネント](components/facility-form-layout-components.md) - 標準化されたフォームコンポーネントの使用方法
-- [施設フォームレイアウト設計](components/facility-form-layout.md) - フォームレイアウトシステムの設計詳細
-- [アクセシビリティ実装](components/accessibility-implementation.md) - アクセシビリティ対応の実装ガイド
-- [エラーハンドリングシステム](components/error-handling-system.md) - エラー処理の実装方法
-- [サービステーブル](components/service-table.md) - サービステーブルコンポーネント
+- [クイックリファレンス](./javascript/js-quick-reference.md) - 最初に読むべき
+- [フロントエンド構造](./javascript/frontend-structure.md) - 開発ガイド
+- [アーキテクチャ](./javascript/javascript-architecture.md) - 詳細な構造
+- [トラブルシューティング](./javascript/troubleshooting-javascript.md) - 問題解決
 
-### 💻 開発ガイド
-- [施設フォーム開発者ガイド](development/facility-form-developer-guide.md) - 施設フォーム開発の包括的なガイド
-- [施設フォームベストプラクティス](development/facility-form-best-practices.md) - 新しい編集フォーム作成のベストプラクティス
-- [施設フォームクイックリファレンス](development/facility-form-quick-reference.md) - 開発時の早見表とコードスニペット
+### 📊 CSVエクスポート
+**ディレクトリ**: [`csv-export/`](./csv-export/)
 
-### ⚙️ 設定・構成
-- [Vite設定](configuration/VITE_CONFIGURATION.md) - フロントエンドビルド設定
-- [サーバー設定ファイル](config/) - Nginx、PHP-FPM、Supervisor設定
-- [Docker設定](docker/) - Docker Compose、Dockerfile設定
+- [実装サマリー](./csv-export/csv-export-implementation-summary.md)
+- [図面フィールド](./csv-export/csv-export-drawing-fields.md)
+- [フィールド修正履歴](./csv-export/csv-export-field-fix-summary.md)
+- [その他の修正履歴](./csv-export/) - ディレクトリ内を参照
 
-### 🔧 トラブルシューティング
-- [ローカル接続トラブルシューティング](troubleshooting/LOCAL_CONNECTION_TROUBLESHOOTING.md) - 接続問題の解決方法
+### ⚡ ライフライン設備
+**ディレクトリ**: [`lifeline-equipment/`](./lifeline-equipment/)
 
-### 📝 開発プロセス・スクリプト
-- [タスク実行チェックリスト](process/TASK_EXECUTION_CHECKLIST.md) - 開発タスクの実行手順
-- [運用スクリプト](scripts/) - デプロイ・テスト実行スクリプト
+- [ドキュメント管理](./lifeline-equipment/lifeline-document-management.md)
+- [表示問題修正](./lifeline-equipment/lifeline-document-display-fix.md)
+- [フォルダ作成エラー修正](./lifeline-equipment/lifeline-folder-duplicate-submission-fix.md)
+- [保守履歴データ構造](./lifeline-equipment/maintenance-history-data-structure.md)
 
-## 🎯 ドキュメントの使い方
+### 🐛 トラブルシューティング
+**ディレクトリ**: [`troubleshooting/`](./troubleshooting/)
 
-### 新規開発者向け
-1. [要件定義書](requirements/要件定義書（v2.2）.md) でシステム概要を理解
-2. [簡素化されたアーキテクチャガイド](architecture/SIMPLIFIED_ARCHITECTURE.md) で現在の構成を把握
-3. [開発環境セットアップ](setup/DEVELOPMENT.md) で環境構築
-4. [API リファレンス](api/API_REFERENCE.md) でAPI仕様を確認
-5. [技術実装](implementation/) ディレクトリで実装詳細を確認
+- [モーダル問題](./troubleshooting/modal-troubleshooting-guide.md)
+- [アクセシビリティ修正](./troubleshooting/accessibility-modal-fixes.md)
+- [JavaScript問題](./javascript/troubleshooting-javascript.md)
 
-### 既存開発者向け（リファクタリング後）
-1. [プロジェクト簡素化マイグレーションガイド](migration/PROJECT_SIMPLIFICATION_GUIDE.md) で変更内容を確認
-2. [API リファレンス](api/API_REFERENCE.md) で新しいAPI仕様を確認
-3. 必要に応じて既存コードを新しい構造に適応
+### 📋 その他
+- [ファイル処理](../.kiro/steering/file-handling.md) - アップロード・ダウンロード
+- [契約書管理](../.kiro/steering/contracts-management.md) - 実装ガイドライン
+- [モーダル実装](../.kiro/steering/modal-implementation-guide.md) - 実装方法
 
-### 運用担当者向け
-1. [本番環境デプロイ](deployment/PRODUCTION.md) でデプロイ手順を確認
-2. [トラブルシューティング](troubleshooting/) で問題解決方法を確認
+### 📋 実装ガイドライン
 
-### 開発チーム向け
-1. [開発プロセス](process/) で開発手順を確認
-2. [設定・構成](configuration/) で技術設定を確認
+- **[モーダル実装ガイド](../.kiro/steering/modal-implementation-guide.md)** - モーダルの実装方法
+- **[製品概要](../.kiro/steering/product.md)** - システム概要
 
-## 📅 更新履歴
 
-- 2025/9/9: **プロジェクト簡素化完了** - アーキテクチャドキュメント、マイグレーションガイド、API仕様書を追加
-- 2025/9/9: [フロントエンドアーキテクチャ改善](CHANGELOG.md#2025年9月9日---フロントエンドアーキテクチャ改善) - ES6モジュール構成への移行
-- 2025/9/3: ドキュメント整理・構造化
-- 2025/8/31: 技術実装ドキュメント追加
-- 2025/7/4: 要件定義書 v2.2 更新
 
-詳細な変更履歴は [CHANGELOG.md](CHANGELOG.md) を参照してください。
+## 🎯 目的別ガイド
 
-## 🔗 関連リンク
+| やりたいこと | 参照ドキュメント |
+|------------|----------------|
+| **新機能を追加** | [JavaScript アーキテクチャ](./javascript/javascript-architecture.md) → [フロントエンド構造](./javascript/frontend-structure.md) |
+| **既存機能を修正** | [クイックリファレンス](./javascript/js-quick-reference.md) → 該当モジュール |
+| **エラーが発生** | [トラブルシューティング](./javascript/troubleshooting-javascript.md) → 該当カテゴリ |
+| **テストを書く** | `tests/Feature/` または `tests/Unit/` を参照 |
 
-- [プロジェクトリポジトリ](https://github.com/your-repo/shisecal)
-- [機能要件一覧](https://docs.google.com/spreadsheets/d/145Jp-tGGYXCY_t7SXxq8MjcaRrBF90x7xYYpLBJIhzc/edit)
-- [組織図](https://docs.google.com/spreadsheets/d/1XCMsHDUCr5tywxzyJGJIpwuUL3yZ0f-Zh9_OlR9xImo/edit)
+## 📝 ドキュメント管理
+
+### 新しいドキュメントを追加
+1. 適切なカテゴリディレクトリに`.md`ファイルを作成
+2. カテゴリのREADME.mdに追加
+3. 必要に応じてメインREADME.mdを更新
+
+### ドキュメントを更新
+1. 該当ファイルを直接編集
+2. 大きな変更の場合は、カテゴリREADMEも更新
+
+## 🔗 外部リソース
+
+- [技術スタック](../.kiro/steering/tech.md) - 使用技術の詳細
+- [プロジェクト構造](../.kiro/steering/structure.md) - ディレクトリ構成
+- [製品概要](../.kiro/steering/product.md) - システム概要

@@ -52,8 +52,32 @@
 }
 
 /* 設備別カラーテーマ */
-.electrical-documents .card-header {
+.electrical-documents .card-header,
+#electrical-documents-section .card-header {
   background: linear-gradient(135deg, #007bff, #0056b3) !important;
+}
+
+#electrical-documents-toggle {
+  transition: all 0.3s ease;
+}
+
+#electrical-documents-toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#electrical-documents-section .card {
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#electrical-documents-section .lifeline-document-manager {
+  border-radius: 0 0 8px 8px;
+}
+
+/* Modal stacking fixes for electrical documents */
+#electrical-documents-section {
+  overflow: visible;
 }
 
 .gas-documents .card-header {

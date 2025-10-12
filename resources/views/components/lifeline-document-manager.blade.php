@@ -10,7 +10,7 @@
 @endphp
 
 {{-- 動作しているドキュメントタブと同じ構造を使用 --}}
-<div class="document-management" data-facility-id="{{ $facility->id }}" id="document-management-container">
+<div class="document-management" data-facility-id="{{ $facility->id }}" data-lifeline-category="{{ $category }}" id="document-management-container-{{ $category }}">
     
     {{-- ツールバー --}}
     <div class="document-toolbar mb-3">

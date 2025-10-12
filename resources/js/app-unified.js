@@ -513,8 +513,24 @@ class ShiseCalApp {
       // Initialize document management if container exists
       await this.initializeDocumentManagement(facilityId);
 
-      // Initialize lifeline document management
-      this.initializeLifelineDocumentManagement(facilityId);
+      // Initialize lifeline document toggles first
+      this.initializeLifelineDocumentToggles();
+
+      // Initialize lifeline document management with delay to ensure DOM is ready
+      setTimeout(() => {
+        this.initializeLifelineDocumentManagement(facilityId);
+      }, 500);
+
+      // Also listen for tab changes to initialize when lifeline tab is shown
+      const lifelineTab = document.querySelector('a[data-bs-target="#lifeline-equipment"]');
+      if (lifelineTab) {
+        lifelineTab.addEventListener('shown.bs.tab', () => {
+          console.log('Lifeline equipment tab shown, initializing document management');
+          setTimeout(() => {
+            this.initializeLifelineDocumentManagement(facilityId);
+          }, 300);
+        });
+      }
     }
   }
 
@@ -581,37 +597,187 @@ class ShiseCalApp {
 
   initializeLifelineDocumentManagement(facilityId) {
     try {
-      // 遅延実行でDOM要素の存在を確認
-      setTimeout(() => {
-        const lifelineContainers = document.querySelectorAll('[data-lifeline-category]');
-        console.log(`Found ${lifelineContainers.length} lifeline containers`);
+      console.log(`[LifelineDoc] Starting initialization for facility ${facilityId}`);
 
-        lifelineContainers.forEach(container => {
-          const category = container.dataset.lifelineCategory;
-          if (category) {
-            console.log(`Initializing LifelineDocumentManager for category: ${category}`);
+      // DOM要素を検索
+      const lifelineContainers = document.querySelectorAll('[data-lifeline-category]');
+      console.log(`[LifelineDoc] Found ${lifelineContainers.length} lifeline containers`);
 
-            // 既存のマネージャーがあるかチェック
-            if (!this.modules[`lifelineDocumentManager_${category}`]) {
-              const manager = new LifelineDocumentManager(facilityId, category);
-              this.modules[`lifelineDocumentManager_${category}`] = manager;
+      if (lifelineContainers.length === 0) {
+        console.warn('[LifelineDoc] No lifeline containers found. DOM may not be ready yet.');
+        return;
+      }
 
-              // グローバル参照も作成（互換性のため）
-              window[`lifelineDocManager_${category}`] = manager;
+      lifelineContainers.forEach((container, index) => {
+        const category = container.dataset.lifelineCategory;
+        if (!category) {
+          console.warn(`[LifelineDoc] Container ${index} has no category attribute`);
+          return;
+        }
 
-              // facilityIdをグローバルに設定（静的メソッド用）
-              window.facilityId = facilityId;
+        console.log(`[LifelineDoc] Processing category: ${category}`);
+        console.log(`[LifelineDoc] Container visible:`, container.offsetParent !== null);
+        console.log(`[LifelineDoc] Container ID:`, container.id);
 
-              console.log(`LifelineDocumentManager initialized for ${category}`);
-            } else {
-              console.log(`LifelineDocumentManager already exists for ${category}`);
+        const managerKey = `lifelineDocumentManager_${category}`;
+
+        // 既存のマネージャーがあるかチェック
+        if (!this.modules[managerKey]) {
+          console.log(`[LifelineDoc] Creating new manager for ${category}`);
+
+          try {
+            const manager = new LifelineDocumentManager(facilityId, category);
+            this.modules[managerKey] = manager;
+
+            // グローバル参照も作成（互換性のため）
+            window[`lifelineDocManager_${category}`] = manager;
+
+            // facilityIdをグローバルに設定（静的メソッド用）
+            window.facilityId = facilityId;
+
+            console.log(`[LifelineDoc] ✓ Manager created for ${category}`);
+            console.log(`[LifelineDoc] Manager initialized:`, manager.initialized);
+
+            // 初期化されていない場合は明示的に初期化
+            if (!manager.initialized) {
+              console.log(`[LifelineDoc] Manager not initialized, calling init()`);
+              manager.init();
             }
+          } catch (error) {
+            console.error(`[LifelineDoc] ✗ Failed to create manager for ${category}:`, error);
+            console.error(`[LifelineDoc] Error stack:`, error.stack);
+          }
+        } else {
+          console.log(`[LifelineDoc] Manager already exists for ${category}, reloading data...`);
+
+          // 既存のマネージャーのデータを再読み込み
+          const existingManager = this.modules[managerKey];
+          if (existingManager) {
+            console.log(`[LifelineDoc] Manager state:`, {
+              initialized: existingManager.initialized,
+              hasLoadDocuments: typeof existingManager.loadDocuments === 'function',
+              loading: existingManager.state?.loading
+            });
+
+            if (typeof existingManager.loadDocuments === 'function') {
+              console.log(`[LifelineDoc] Calling loadDocuments() for ${category}`);
+              existingManager.loadDocuments();
+            } else {
+              console.warn(`[LifelineDoc] Manager exists but loadDocuments() not available for ${category}`);
+            }
+          } else {
+            console.error(`[LifelineDoc] Manager key exists but manager is null/undefined`);
+          }
+        }
+      });
+
+      console.log(`[LifelineDoc] Initialization complete. Active managers:`, Object.keys(this.modules).filter(k => k.startsWith('lifelineDocumentManager_')));
+    } catch (error) {
+      console.error('[LifelineDoc] Failed to initialize lifeline document management:', error);
+      console.error('[LifelineDoc] Error stack:', error.stack);
+    }
+  }
+
+  // 公開メソッド：ライフライン設備ドキュメントマネージャーを再初期化
+  initializeLifelineDocumentManagers() {
+    const facilityId = document.querySelector('[data-facility-id]')?.dataset.facilityId;
+    if (facilityId) {
+      this.initializeLifelineDocumentManagement(facilityId);
+    }
+  }
+
+  // ライフライン設備ドキュメントトグルボタンの初期化
+  initializeLifelineDocumentToggles() {
+    const self = this; // thisコンテキストを保持
+
+    document.querySelectorAll('[id$="-documents-toggle"]').forEach(toggleBtn => {
+      const sectionId = toggleBtn.getAttribute('data-bs-target')?.substring(1);
+      if (!sectionId) return;
+
+      const documentSection = document.getElementById(sectionId);
+      if (!documentSection) return;
+
+      console.log(`Setting up toggle for section: ${sectionId}`);
+
+      // ボタン状態更新関数
+      const updateButtonState = (isExpanded) => {
+        const icon = toggleBtn.querySelector('i');
+        const text = toggleBtn.querySelector('span');
+
+        if (isExpanded) {
+          icon.className = 'fas fa-folder-minus me-1';
+          if (text) text.textContent = '閉じる';
+          toggleBtn.classList.replace('btn-outline-primary', 'btn-primary');
+        } else {
+          icon.className = 'fas fa-folder-open me-1';
+          if (text) text.textContent = 'ドキュメント';
+          toggleBtn.classList.replace('btn-primary', 'btn-outline-primary');
+        }
+      };
+
+      // Bootstrap collapseイベント
+      documentSection.addEventListener('shown.bs.collapse', () => {
+        console.log(`[Toggle] ✓ Section ${sectionId} shown`);
+        updateButtonState(true);
+
+        // ドキュメントマネージャーを初期化（selfを使用）
+        console.log('[Toggle] Calling initializeLifelineDocumentManagers() with 100ms delay');
+
+        // 少し遅延させてDOMが完全に展開されるのを待つ
+        setTimeout(() => {
+          self.initializeLifelineDocumentManagers();
+        }, 100);
+      });
+
+      documentSection.addEventListener('hidden.bs.collapse', () => {
+        console.log(`Section ${sectionId} hidden`);
+        updateButtonState(false);
+      });
+
+      // 初期状態設定
+      const isInitiallyExpanded = documentSection.classList.contains('show');
+      console.log(`[Toggle] Initial state for ${sectionId}: ${isInitiallyExpanded ? 'expanded' : 'collapsed'}`);
+      updateButtonState(isInitiallyExpanded);
+
+      // 初期状態で展開されている場合は即座に初期化
+      if (isInitiallyExpanded) {
+        console.log(`[Toggle] Section ${sectionId} is initially expanded, initializing with 200ms delay`);
+        setTimeout(() => {
+          self.initializeLifelineDocumentManagers();
+        }, 200);
+      }
+
+      // モーダルhoisting処理
+      const hoistModals = (container) => {
+        if (!container) return;
+        container.querySelectorAll('.modal').forEach(modal => {
+          if (modal.parentElement !== document.body) {
+            document.body.appendChild(modal);
           }
         });
-      }, 500); // DOM要素が確実に存在するまで待機
-    } catch (error) {
-      console.error('Failed to initialize lifeline document management:', error);
-    }
+      };
+
+      hoistModals(documentSection);
+      documentSection.addEventListener('shown.bs.collapse', () => hoistModals(documentSection));
+    });
+
+    // モーダルz-index強制設定（グローバル）
+    document.addEventListener('show.bs.modal', (ev) => {
+      if (ev.target) ev.target.style.zIndex = '2010';
+      setTimeout(() => {
+        document.querySelectorAll('.modal-backdrop').forEach(bd => bd.style.zIndex = '2000');
+      }, 0);
+    });
+
+    // 余計なBackdrop掃除（グローバル）
+    document.addEventListener('hidden.bs.modal', () => {
+      const backdrops = document.querySelectorAll('.modal-backdrop');
+      if (backdrops.length > 1) {
+        for (let i = 0; i < backdrops.length - 1; i++) {
+          backdrops[i].remove();
+        }
+      }
+    });
   }
 
   initializeExportFeatures() {

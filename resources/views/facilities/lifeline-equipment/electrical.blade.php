@@ -28,112 +28,111 @@
             <i class="fas fa-folder-open me-1"></i>
             <span class="d-none d-md-inline">ドキュメント</span>
         </button>
-        
-
     </div>
 </div>
 
-<!-- 電気設備ドキュメント管理セクション（折りたたみ式） -->
-<div class="collapse mb-4" id="electrical-documents-section">
-    <div class="card border-primary">
-        <div class="card-header bg-primary text-white">
-            <h6 class="mb-0">
-                <i class="fas fa-folder-open me-2"></i>電気設備 - 関連ドキュメント
-            </h6>
-        </div>
-        <div class="card-body p-0">
-            <div data-lifeline-category="electrical">
-                @if($canEdit)
-                    <x-lifeline-document-manager 
-                        :facility="$facility" 
-                        category="electrical"
-                        category-name="電気設備"
-                        height="500px"
-                        :show-upload="true"
-                        :show-create-folder="true"
-                        allowed-file-types="pdf,doc,docx,xls,xlsx,jpg,jpeg,png,gif"
-                        max-file-size="10MB"
-                    />
-                @else
-                    <x-lifeline-document-manager 
-                        :facility="$facility" 
-                        category="electrical"
-                        category-name="電気設備"
-                        height="400px"
-                        :show-upload="false"
-                        :show-create-folder="false"
-                        allowed-file-types="pdf,doc,docx,xls,xlsx,jpg,jpeg,png,gif"
-                        max-file-size="10MB"
-                    />
-                @endif
-            </div>
-        </div>
-    </div>
-</div>
+<!-- 電気設備ドキュメント管理セクション -->
+<x-lifeline-equipment-documents
+    :facility="$facility"
+    category="electrical"
+    categoryName="電気設備"
+    :canEdit="$canEdit"
+    sectionId="electrical-documents-section"
+    borderColor="border-primary"
+    headerBg="bg-primary"
+    headerText="text-white"
+/>
 
 <!-- 基本情報テーブル -->
-<div class="table-responsive mb-3">
-    <table class="table table-bordered facility-basic-info-table-clean" style="--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0;">
-        <tbody>
-            <tr>
-                <td class="detail-label" style="padding: 0.5rem;">電力会社</td>
-                <td class="detail-value {{ empty($basicInfo['electrical_contractor']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
-                    {{ $basicInfo['electrical_contractor'] ?? '未設定' }}
-                </td>
-                <td class="detail-label" style="padding: 0.5rem;">保安管理業者</td>
-                <td class="detail-value {{ empty($basicInfo['safety_management_company']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
-                    {{ $basicInfo['safety_management_company'] ?? '未設定' }}
-                </td>
-            </tr>
-            <tr>
-                <td class="detail-label" style="padding: 0.5rem;">保守点検実施日</td>
-                <td class="detail-value {{ empty($basicInfo['maintenance_inspection_date']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
-                    @if(!empty($basicInfo['maintenance_inspection_date']))
-                        {{ \Carbon\Carbon::parse($basicInfo['maintenance_inspection_date'])->format('Y年m月d日') }}
-                    @else
-                        未設定
-                    @endif
-                </td>
-                <td class="detail-label" style="padding: 0.5rem;">点検報告書</td>
-                <td class="detail-value {{ empty($basicInfo['inspection']['inspection_report_pdf']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
-                    @if(!empty($basicInfo['inspection']['inspection_report_pdf']))
-                        <a href="{{ route('facilities.lifeline-equipment.download-file', [$facility, 'electrical', 'inspection_report']) }}" 
-                           class="text-decoration-none" 
-                           aria-label="点検報告書PDFをダウンロード"
-                           target="_blank">
-                            <i class="fas fa-file-pdf me-1 text-danger" aria-hidden="true"></i>{{ $basicInfo['inspection']['inspection_report_pdf'] }}
-                        </a>
-                    @else
-                        未設定
-                    @endif
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+@php
+    $basicInfoData = [
+        [
+            'type' => 'standard',
+            'cells' => [
+                [
+                    'label' => '電力会社',
+                    'value' => $basicInfo['electrical_contractor'] ?? null,
+                    'type' => 'text',
+                    'width' => '25%'
+                ],
+                [
+                    'label' => '保安管理業者',
+                    'value' => $basicInfo['safety_management_company'] ?? null,
+                    'type' => 'text',
+                    'width' => '25%'
+                ]
+            ]
+        ],
+        [
+            'type' => 'standard',
+            'cells' => [
+                [
+                    'label' => '保守点検実施日',
+                    'value' => !empty($basicInfo['maintenance_inspection_date']) 
+                        ? \Carbon\Carbon::parse($basicInfo['maintenance_inspection_date'])->format('Y年m月d日') 
+                        : null,
+                    'type' => 'text',
+                    'width' => '25%'
+                ],
+                [
+                    'label' => '点検報告書',
+                    'value' => !empty($basicInfo['inspection']['inspection_report_pdf']) 
+                        ? $basicInfo['inspection']['inspection_report_pdf'] 
+                        : null,
+                    'type' => 'file_display',
+                    'width' => '25%',
+                    'options' => [
+                        'route' => 'facilities.lifeline-equipment.download-file',
+                        'params' => [$facility, 'electrical', 'inspection_report'],
+                        'display_name' => $basicInfo['inspection']['inspection_report_pdf'] ?? null
+                    ]
+                ]
+            ]
+        ]
+    ];
+@endphp
+
+<x-common-table 
+    :data="$basicInfoData"
+    :showHeader="false"
+    cardClass=""
+    tableClass="table table-bordered facility-basic-info-table-clean"
+    bodyClass=""
+/>
 <!-- PASテーブル -->
 <div class="mb-3">
     <h6 style="margin: 0 0 0.5rem 0; font-weight: bold; color: #333;">PAS</h6>
-    <div class="table-responsive">
-        <table class="table table-bordered facility-basic-info-table-clean" style="--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0;">
-            <tbody>
-                <tr>
-                    <td class="detail-label" style="padding: 0.5rem;">有無</td>
-                    <td class="detail-value {{ empty($pasInfo['availability']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
-                        {{ $pasInfo['availability'] ?? '未設定' }}
-                    </td>
-                    <td class="detail-label" style="padding: 0.5rem;">更新年月日</td>
-                    <td class="detail-value {{ empty($pasInfo['update_date']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
-                        @if(!empty($pasInfo['update_date']))
-                            {{ \Carbon\Carbon::parse($pasInfo['update_date'])->format('Y年m月d日') }}
-                        @else
-                            未設定
-                        @endif
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+    @php
+        $pasData = [
+            [
+                'type' => 'standard',
+                'cells' => [
+                    [
+                        'label' => '有無',
+                        'value' => $pasInfo['availability'] ?? null,
+                        'type' => 'text',
+                        'width' => '25%'
+                    ],
+                    [
+                        'label' => '更新年月日',
+                        'value' => !empty($pasInfo['update_date']) 
+                            ? \Carbon\Carbon::parse($pasInfo['update_date'])->format('Y年m月d日') 
+                            : null,
+                        'type' => 'text',
+                        'width' => '25%'
+                    ]
+                ]
+            ]
+        ];
+    @endphp
+    
+    <x-common-table 
+        :data="$pasData"
+        :showHeader="false"
+        cardClass=""
+        tableClass="table table-bordered facility-basic-info-table-clean"
+        bodyClass=""
+    />
 </div>
 <!-- キュービクルテーブル -->
 <div class="mb-3" style="position: relative; overflow: visible;">
@@ -272,163 +271,27 @@
 <!-- 備考テーブル -->
 <div class="mb-3">
     <h6 style="margin: 0 0 0.5rem 0; font-weight: bold; color: #333;">備考</h6>
-    <div class="table-responsive">
-        <table class="table table-bordered facility-basic-info-table-clean" style="--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0;">
-            <tbody>
-                <tr>
-                    <td class="detail-value {{ empty($electricalEquipment->notes) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
-                        {{ $electricalEquipment->notes ?? '未設定' }}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+    @php
+        $notesData = [
+            [
+                'type' => 'standard',
+                'cells' => [
+                    [
+                        'label' => '備考',
+                        'value' => $electricalEquipment->notes ?? null,
+                        'type' => 'text',
+                        'width' => '100%'
+                    ]
+                ]
+            ]
+        ];
+    @endphp
+    
+    <x-common-table 
+        :data="$notesData"
+        :showHeader="false"
+        cardClass=""
+        tableClass="table table-bordered facility-basic-info-table-clean"
+        bodyClass=""
+    />
 </div>
-
-
-
-
-<!-- 電気設備ドキュメント管理用JavaScript -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const documentToggleBtn = document.getElementById('electrical-documents-toggle');
-    const documentSection = document.getElementById('electrical-documents-section');
-    
-    if (documentToggleBtn && documentSection) {
-        // ボタンアイコンとテキストの更新
-        function updateButtonState(isExpanded) {
-            const icon = documentToggleBtn.querySelector('i');
-            const text = documentToggleBtn.querySelector('span');
-            
-            if (isExpanded) {
-                icon.className = 'fas fa-folder-minus me-1';
-                if (text) text.textContent = '閉じる';
-                documentToggleBtn.classList.remove('btn-outline-primary');
-                documentToggleBtn.classList.add('btn-primary');
-            } else {
-                icon.className = 'fas fa-folder-open me-1';
-                if (text) text.textContent = 'ドキュメント';
-                documentToggleBtn.classList.remove('btn-primary');
-                documentToggleBtn.classList.add('btn-outline-primary');
-            }
-        }
-        
-        // Bootstrap collapse イベントリスナー
-        documentSection.addEventListener('shown.bs.collapse', function() {
-            updateButtonState(true);
-            
-            // app-unified.jsの自動初期化に任せる
-            // ドキュメントマネージャーは既に初期化されているはず
-            console.log('Electrical documents section opened - using auto-initialized manager');
-        });
-        
-        documentSection.addEventListener('hidden.bs.collapse', function() {
-            updateButtonState(false);
-        });
-        
-        // 初期状態の設定
-        const isExpanded = documentSection.classList.contains('show');
-        updateButtonState(isExpanded);
-    }
-
-    // ===== Modal hoisting & z-index fix for document manager =====
-    // Some modals rendered inside the collapsible section may appear behind the backdrop
-    // due to stacking contexts. We hoist them to <body> and enforce z-index.
-    function hoistModals(container) {
-        if (!container) return;
-        container.querySelectorAll('.modal').forEach(function(modal) {
-            // Move modal under body if it's not already there
-            if (modal.parentElement !== document.body) {
-                document.body.appendChild(modal);
-            }
-        });
-    }
-
-    // Run once on load in case the component already rendered modals
-    hoistModals(documentSection);
-
-    // Also run when the documents section is opened
-    documentSection.addEventListener('shown.bs.collapse', function () {
-        hoistModals(documentSection);
-    });
-
-    // Ensure correct stacking orders whenever a modal is shown
-    document.addEventListener('show.bs.modal', function (ev) {
-        var modalEl = ev.target;
-        // enforce higher z-index than local backdrops/parents
-        if (modalEl) {
-            modalEl.style.zIndex = '2010';
-        }
-        // Defer backdrop z-index adjustment to next tick (after Bootstrap inserts it)
-        setTimeout(function () {
-            var backdrops = document.querySelectorAll('.modal-backdrop');
-            backdrops.forEach(function (bd) {
-                bd.style.zIndex = '2000';
-            });
-        }, 0);
-    });
-
-    // Clean up any stray backdrops if a modal is hidden unexpectedly
-    document.addEventListener('hidden.bs.modal', function () {
-        var backdrops = document.querySelectorAll('.modal-backdrop');
-        if (backdrops.length > 1) {
-            // keep the last one (most recent), remove extras
-            for (var i = 0; i < backdrops.length - 1; i++) {
-                backdrops[i].parentNode.removeChild(backdrops[i]);
-            }
-        }
-    });
-});
-</script>
-
-<!-- 電気設備ドキュメント管理用CSS -->
-<style>
-#electrical-documents-toggle {
-    transition: all 0.3s ease;
-}
-
-#electrical-documents-toggle:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-#electrical-documents-section .card {
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-#electrical-documents-section .card-header {
-    border-radius: 8px 8px 0 0;
-    background: linear-gradient(135deg, #007bff, #0056b3) !important;
-}
-
-/* ドキュメント管理エリアのスタイル調整 */
-#electrical-documents-section .lifeline-document-manager {
-    border-radius: 0 0 8px 8px;
-}
-
-/* モーダルスタイルはapp-unified.cssで統一管理 */
-
-/* ==== Modal stacking fixes for electrical documents section ==== */
-#electrical-documents-section { 
-    overflow: visible; /* avoid creating a clipping context for absolute/fixed elements */
-}
-/* Ensure Bootstrap modal/backdrop are above collapsed/card content */
-.modal-backdrop {
-    z-index: 2000 !important;
-}
-.modal {
-    z-index: 2010 !important;
-}
-
-/* レスポンシブ対応 */
-@media (max-width: 768px) {
-    #electrical-documents-toggle span {
-        display: none !important;
-    }
-    
-    #electrical-documents-section .card-header h6 {
-        font-size: 0.9rem;
-    }
-}
-</style>
