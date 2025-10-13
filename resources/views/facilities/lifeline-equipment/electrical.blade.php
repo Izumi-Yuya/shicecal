@@ -141,12 +141,9 @@
                 @if(!empty($cubicleInfo['availability']) && $cubicleInfo['availability'] === '有')
                     @if(!empty($cubicleEquipmentList) && is_array($cubicleEquipmentList))
                         @foreach($cubicleEquipmentList as $index => $equipment)
-                            <tr style="position: relative;">
-                                <td class="detail-label" style="padding: 0.5rem; position: relative;">
-                                    <div style="position: absolute; left: -30px; top: 50%; transform: translateY(-50%); z-index: 1000;">
-                                        <span style="background: #007bff; color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $index + 1 }}</span>
-                                    </div>
-                                    メーカー
+                            <tr>
+                                <td class="detail-label" style="padding: 0.5rem;">
+                                    メーカー{{ $index + 1 }}
                                 </td>
                                 <td class="detail-value {{ empty($equipment['manufacturer']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                     {{ $equipment['manufacturer'] ?? '未設定' }}
@@ -208,12 +205,9 @@
                 @if(!empty($generatorInfo['availability']) && $generatorInfo['availability'] === '有')
                     @if(!empty($generatorEquipmentList) && is_array($generatorEquipmentList))
                         @foreach($generatorEquipmentList as $index => $equipment)
-                            <tr style="position: relative;">
-                                <td class="detail-label" style="padding: 0.5rem; position: relative;">
-                                    <div style="position: absolute; left: -30px; top: 50%; transform: translateY(-50%); z-index: 1000;">
-                                        <span style="background: #007bff; color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $index + 1 }}</span>
-                                    </div>
-                                    メーカー
+                            <tr>
+                                <td class="detail-label" style="padding: 0.5rem;">
+                                    メーカー{{ $index + 1 }}
                                 </td>
                                 <td class="detail-value {{ empty($equipment['manufacturer']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                     {{ $equipment['manufacturer'] ?? '未設定' }}
