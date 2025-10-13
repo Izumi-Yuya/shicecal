@@ -539,6 +539,11 @@ class LifelineDocumentManager {
     const formData = new FormData(form);
     const folderName = formData.get('name'); // 'folder_name'ではなく'name'
 
+    // 現在のフォルダIDを親フォルダとして追加
+    if (this.state.currentFolder) {
+      formData.append('parent_folder_id', this.state.currentFolder);
+    }
+
     // クライアントサイドバリデーション
     const folderNameInput = document.getElementById(`folder-name-${this.category}`);
     this.clearFieldErrors(folderNameInput);
@@ -573,6 +578,7 @@ class LifelineDocumentManager {
       for (let [key, value] of formData.entries()) {
         console.log(`  ${key}: ${value}`);
       }
+      console.log('Current folder:', this.state.currentFolder);
       console.log('URL:', `/facilities/${this.facilityId}/lifeline-documents/${this.apiCategory}/folders`);
 
       const response = await fetch(`/facilities/${this.facilityId}/lifeline-documents/${this.apiCategory}/folders`, {
@@ -671,6 +677,11 @@ class LifelineDocumentManager {
 
     const formData = new FormData(form);
     const files = formData.getAll('files[]');
+
+    // 現在のフォルダIDを追加
+    if (this.state.currentFolder) {
+      formData.append('folder_id', this.state.currentFolder);
+    }
 
     // クライアントサイドバリデーション
     const fileInput = document.getElementById(`file-input-${this.category}`);
@@ -1177,7 +1188,7 @@ class LifelineDocumentManager {
     const rootContainer = this.getRootContainer();
     if (!rootContainer) return;
 
-    const container = rootContainer.querySelector(`#document-breadcrumb-${this.category}`);
+    const container = rootContainer.querySelector('#breadcrumb-nav');
     if (!container || !breadcrumbs) return;
 
     let html = '';
@@ -1187,7 +1198,7 @@ class LifelineDocumentManager {
       } else {
         html += `
                     <li class="breadcrumb-item">
-                        <a href="#" onclick="window.lifelineDocManager_${this.category}.navigateToFolder(${crumb.id})">
+                        <a href="#" onclick="window.LifelineDocumentManager.navigateToFolder('${this.category}', ${crumb.id}); return false;">
                             ${index === 0 ? '<i class="fas fa-home me-1"></i>' : ''}${this.escapeHtml(crumb.name)}
                         </a>
                     </li>
@@ -2057,8 +2068,8 @@ class LifelineDocumentManager {
   static async navigateToFolder(category, folderId) {
     const manager = window.shiseCalApp?.modules?.[`lifelineDocumentManager_${category}`];
     if (manager) {
-      // TODO: フォルダナビゲーション機能の実装
       console.log(`Navigate to folder ${folderId} in category ${category}`);
+      manager.navigateToFolder(folderId);
     } else {
       console.error(`LifelineDocumentManager not found for category: ${category}`);
     }
