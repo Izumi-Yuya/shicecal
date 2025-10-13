@@ -540,8 +540,12 @@ class LifelineDocumentManager {
     const folderName = formData.get('name'); // 'folder_name'ではなく'name'
 
     // 現在のフォルダIDを親フォルダとして追加
+    console.log('[LifelineDoc] Current folder state:', this.state.currentFolder);
     if (this.state.currentFolder) {
       formData.append('parent_folder_id', this.state.currentFolder);
+      console.log('[LifelineDoc] Added parent_folder_id:', this.state.currentFolder);
+    } else {
+      console.log('[LifelineDoc] No current folder, creating at root level');
     }
 
     // クライアントサイドバリデーション
@@ -679,8 +683,12 @@ class LifelineDocumentManager {
     const files = formData.getAll('files[]');
 
     // 現在のフォルダIDを追加
+    console.log('[LifelineDoc] Current folder state for upload:', this.state.currentFolder);
     if (this.state.currentFolder) {
       formData.append('folder_id', this.state.currentFolder);
+      console.log('[LifelineDoc] Added folder_id:', this.state.currentFolder);
+    } else {
+      console.log('[LifelineDoc] No current folder, uploading to root level');
     }
 
     // クライアントサイドバリデーション
@@ -890,6 +898,11 @@ class LifelineDocumentManager {
       pagination: data.pagination,
       stats: data.stats
     });
+
+    // フォルダデータの詳細をログ出力
+    if (data.folders && data.folders.length > 0) {
+      console.log(`[LifelineDoc] First folder data:`, data.folders[0]);
+    }
 
     // コンテナを取得
     const container = this.getRootContainer();
@@ -1196,9 +1209,10 @@ class LifelineDocumentManager {
       if (crumb.is_current) {
         html += `<li class="breadcrumb-item active">${this.escapeHtml(crumb.name)}</li>`;
       } else {
+        const folderId = crumb.id === null ? 'null' : crumb.id;
         html += `
                     <li class="breadcrumb-item">
-                        <a href="#" onclick="window.LifelineDocumentManager.navigateToFolder('${this.category}', ${crumb.id}); return false;">
+                        <a href="#" onclick="window.LifelineDocumentManager.navigateToFolder('${this.category}', ${folderId}); return false;">
                             ${index === 0 ? '<i class="fas fa-home me-1"></i>' : ''}${this.escapeHtml(crumb.name)}
                         </a>
                     </li>
@@ -1280,7 +1294,11 @@ class LifelineDocumentManager {
    * フォルダに移動
    */
   navigateToFolder(folderId) {
-    this.setState({ currentFolder: folderId });
+    // nullまたは'null'文字列をnullに正規化
+    const normalizedFolderId = (folderId === 'null' || folderId === null || folderId === undefined) ? null : folderId;
+    console.log(`[LifelineDoc] Navigating to folder: ${normalizedFolderId} (original: ${folderId})`);
+    this.setState({ currentFolder: normalizedFolderId });
+    console.log(`[LifelineDoc] State updated, currentFolder is now: ${this.state.currentFolder}`);
     this.loadDocuments();
   }
 
@@ -1646,13 +1664,6 @@ class LifelineDocumentManager {
     if (existingError) {
       existingError.remove();
     }
-  }
-
-  /**
-   * 状態を更新
-   */
-  setState(newState) {
-    this.state = { ...this.state, ...newState };
   }
 
   /**
