@@ -119,9 +119,9 @@ export default defineConfig({
     minify: 'terser',
     terserOptions: {
       compress: {
-        drop_console: true,
+        drop_console: false, // 開発中はconsole.logを保持
         drop_debugger: true,
-        pure_funcs: ['console.log', 'console.info', 'console.debug'],
+        pure_funcs: [], // 開発中はconsole関数を削除しない
         passes: 3,
         unsafe: true,
         unsafe_comps: true,
