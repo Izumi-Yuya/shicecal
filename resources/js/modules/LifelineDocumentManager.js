@@ -14,10 +14,11 @@ class LifelineDocumentManager {
       throw new Error('LifelineDocumentManager: category is required when facilityId is provided');
     }
 
-    // 重複インスタンス防止
-    if (category && window.shiseCalApp?.modules?.[`lifelineDocumentManager_${category}`]) {
-      console.warn(`LifelineDocumentManager for ${category} already exists, returning existing instance`);
-      return window.shiseCalApp.modules[`lifelineDocumentManager_${category}`];
+    // 重複インスタンス防止 - より強力なチェック
+    const existingKey = `lifelineDocManager_${category}`;
+    if (category && window[existingKey]) {
+      console.warn(`[LifelineDoc] Manager for ${category} already exists, returning existing instance`);
+      return window[existingKey];
     }
 
     this.facilityId = facilityId;
@@ -69,6 +70,12 @@ class LifelineDocumentManager {
 
     // Debounced methods
     this.debouncedSearch = this.debounce(this.performSearch.bind(this), this.defaultOptions.searchDelay);
+
+    // グローバルに登録（重複防止のため）
+    if (category) {
+      window[`lifelineDocManager_${category}`] = this;
+      console.log(`[LifelineDoc] Registered instance as window.lifelineDocManager_${category}`);
+    }
 
     // 初期化
     if (facilityId && category) {
@@ -284,8 +291,9 @@ class LifelineDocumentManager {
    * フォルダ作成モーダルを開く
    */
   openCreateFolderModal() {
-    console.log(`[LifelineDoc] Attempting to open create folder modal for ${this.category}`);
-    console.log(`[LifelineDoc] Current folder before opening modal: ${this.state.currentFolder}`);
+    console.log(`[LifelineDoc] ${this.category}: Attempting to open create folder modal`);
+    console.log(`[LifelineDoc] ${this.category}: Current folder before opening modal: ${this.state.currentFolder}`);
+    console.log(`[LifelineDoc] ${this.category}: Instance ID:`, this);
 
     // モーダルコンテナが存在するか確認
     const modalId = `create-folder-modal-${this.category}`;
@@ -709,6 +717,21 @@ class LifelineDocumentManager {
       return;
     }
 
+    // ファイルタイプチェック（PDFのみ）
+    for (const file of files) {
+      if (!file.name.toLowerCase().endsWith('.pdf')) {
+        this.showFieldError(fileInput, `ファイル "${file.name}" はPDFファイルではありません。PDFファイルのみアップロード可能です。`);
+        // エラー時はボタンを復元
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnContent || 'アップロード';
+        }
+        form.dataset.uploading = 'false';
+        this.isUploading = false;
+        return;
+      }
+    }
+
     // ファイルサイズチェック（10MB制限）
     const maxSize = 10 * 1024 * 1024; // 10MB
     for (const file of files) {
@@ -1069,10 +1092,10 @@ class LifelineDocumentManager {
                         <i class="fas fa-ellipsis-v"></i>
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#" onclick="window.LifelineDocumentManager.renameFolder('${category}', ${folder.id})">
+                        <li><a class="dropdown-item" href="#" onclick="window.lifelineDocManager_${category}.renameFolder(${folder.id}); return false;">
                             <i class="fas fa-edit me-2"></i>名前変更
                         </a></li>
-                        <li><a class="dropdown-item text-danger" href="#" onclick="window.LifelineDocumentManager.deleteFolder('${category}', ${folder.id})">
+                        <li><a class="dropdown-item text-danger" href="#" onclick="window.lifelineDocManager_${category}.deleteFolder(${folder.id}); return false;">
                             <i class="fas fa-trash me-2"></i>削除
                         </a></li>
                     </ul>
@@ -1084,7 +1107,7 @@ class LifelineDocumentManager {
             <tr class="document-item" data-type="folder" data-id="${folder.id}" data-item-id="${folder.id}" data-item-type="folder" data-item-name="${this.escapeHtml(folder.name)}">
                 <td><i class="fas fa-folder text-warning"></i></td>
                 <td>
-                    <a href="#" onclick="window.LifelineDocumentManager.navigateToFolder('${category}', ${folder.id}); return false;" 
+                    <a href="#" onclick="window.lifelineDocManager_${category}.navigateToFolder(${folder.id}); return false;" 
                        class="text-decoration-none">
                         ${this.escapeHtml(folder.name)}
                     </a>
@@ -1112,14 +1135,14 @@ class LifelineDocumentManager {
                         <li><a class="dropdown-item" href="${file.download_url}" target="_blank">
                             <i class="fas fa-download me-2"></i>ダウンロード
                         </a></li>
-                        <li><a class="dropdown-item" href="#" onclick="window.LifelineDocumentManager.renameFile('${category}', ${file.id})">
+                        <li><a class="dropdown-item" href="#" onclick="window.lifelineDocManager_${category}.renameFile(${file.id}); return false;">
                             <i class="fas fa-edit me-2"></i>名前変更
                         </a></li>
-                        <li><a class="dropdown-item" href="#" onclick="window.LifelineDocumentManager.moveFile('${category}', ${file.id})">
+                        <li><a class="dropdown-item" href="#" onclick="window.lifelineDocManager_${category}.moveFile(${file.id}); return false;">
                             <i class="fas fa-arrows-alt me-2"></i>移動
                         </a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="#" onclick="window.LifelineDocumentManager.deleteFile('${category}', ${file.id})">
+                        <li><a class="dropdown-item text-danger" href="#" onclick="window.lifelineDocManager_${category}.deleteFile(${file.id}); return false;">
                             <i class="fas fa-trash me-2"></i>削除
                         </a></li>
                     </ul>
@@ -1160,7 +1183,7 @@ class LifelineDocumentManager {
                     <div class="card-body text-center p-3">
                         <i class="fas fa-folder fa-2x text-warning mb-2"></i>
                         <h6 class="card-title mb-1" style="font-size: 0.9rem;">
-                            <a href="#" onclick="window.LifelineDocumentManager.navigateToFolder('${category}', ${folder.id}); return false;" 
+                            <a href="#" onclick="window.lifelineDocManager_${category}.navigateToFolder(${folder.id}); return false;" 
                                class="text-decoration-none">
                                 ${this.escapeHtml(folder.name)}
                             </a>
@@ -1202,7 +1225,7 @@ class LifelineDocumentManager {
     const rootContainer = this.getRootContainer();
     if (!rootContainer) return;
 
-    const container = rootContainer.querySelector('#breadcrumb-nav');
+    const container = rootContainer.querySelector(`#breadcrumb-nav-${this.category}`);
     if (!container || !breadcrumbs) return;
 
     let html = '';
@@ -1213,7 +1236,7 @@ class LifelineDocumentManager {
         const folderId = crumb.id === null ? 'null' : crumb.id;
         html += `
                     <li class="breadcrumb-item">
-                        <a href="#" onclick="window.LifelineDocumentManager.navigateToFolder('${this.category}', ${folderId}); return false;">
+                        <a href="#" onclick="window.lifelineDocManager_${this.category}.navigateToFolder(${folderId}); return false;">
                             ${index === 0 ? '<i class="fas fa-home me-1"></i>' : ''}${this.escapeHtml(crumb.name)}
                         </a>
                     </li>
@@ -1297,9 +1320,10 @@ class LifelineDocumentManager {
   navigateToFolder(folderId) {
     // nullまたは'null'文字列をnullに正規化
     const normalizedFolderId = (folderId === 'null' || folderId === null || folderId === undefined) ? null : folderId;
-    console.log(`[LifelineDoc] Navigating to folder: ${normalizedFolderId} (original: ${folderId})`);
+    console.log(`[LifelineDoc] ${this.category}: Navigating to folder: ${normalizedFolderId} (original: ${folderId})`);
+    console.log(`[LifelineDoc] ${this.category}: Instance ID:`, this);
     this.setState({ currentFolder: normalizedFolderId });
-    console.log(`[LifelineDoc] State updated, currentFolder is now: ${this.state.currentFolder}`);
+    console.log(`[LifelineDoc] ${this.category}: State updated, currentFolder is now: ${this.state.currentFolder}`);
     this.loadDocuments();
   }
 
@@ -1556,7 +1580,7 @@ class LifelineDocumentManager {
   async handleContextMenuAction(action, itemId, itemType, itemName) {
     switch (action) {
       case 'delete':
-        await this.deleteItem(this.category, itemId, itemType);
+        await this.deleteItem(itemId, itemType);
         break;
       case 'rename':
         this.showRenameModal(itemId, itemType, itemName);
@@ -1750,16 +1774,16 @@ class LifelineDocumentManager {
   /**
    * フォルダ名変更（プレースホルダー）
    */
-  renameFolder(category, folderId) {
-    console.log(`Rename folder ${folderId} in category ${category}`);
+  renameFolder(folderId) {
+    console.log(`Rename folder ${folderId} in category ${this.category}`);
     // TODO: 実装予定
   }
 
   /**
    * フォルダ削除
    */
-  async deleteFolder(category, folderId) {
-    console.log(`Delete folder ${folderId} in category ${category}`);
+  async deleteFolder(folderId) {
+    console.log(`Delete folder ${folderId} in category ${this.category}`);
 
     try {
       // 削除確認
@@ -1803,16 +1827,16 @@ class LifelineDocumentManager {
   /**
    * ファイル名変更（プレースホルダー）
    */
-  renameFile(category, fileId) {
-    console.log(`Rename file ${fileId} in category ${category}`);
+  renameFile(fileId) {
+    console.log(`Rename file ${fileId} in category ${this.category}`);
     // TODO: 実装予定
   }
 
   /**
    * ファイル削除
    */
-  async deleteFile(category, fileId) {
-    console.log(`Delete file ${fileId} in category ${category}`);
+  async deleteFile(fileId) {
+    console.log(`Delete file ${fileId} in category ${this.category}`);
 
     try {
       // 削除確認
@@ -1856,8 +1880,8 @@ class LifelineDocumentManager {
   /**
    * ファイル移動（プレースホルダー）
    */
-  moveFile(category, fileId) {
-    console.log(`Move file ${fileId} in category ${category}`);
+  moveFile(fileId) {
+    console.log(`Move file ${fileId} in category ${this.category}`);
     // TODO: 実装予定
   }
 
@@ -1880,13 +1904,13 @@ class LifelineDocumentManager {
   /**
    * アイテム削除（汎用）
    */
-  async deleteItem(category, itemId, itemType) {
-    console.log(`Delete ${itemType} ${itemId} in category ${category}`);
+  async deleteItem(itemId, itemType) {
+    console.log(`Delete ${itemType} ${itemId} in category ${this.category}`);
 
     if (itemType === 'folder') {
-      await this.deleteFolder(category, itemId);
+      await this.deleteFolder(itemId);
     } else if (itemType === 'file') {
-      await this.deleteFile(category, itemId);
+      await this.deleteFile(itemId);
     }
   }
 

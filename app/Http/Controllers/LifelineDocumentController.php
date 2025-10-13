@@ -115,7 +115,7 @@ class LifelineDocumentController extends Controller
                     'required',
                     'file',
                     'max:10240', // 10MB
-                    'mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png,gif',
+                    'mimes:pdf',
                 ],
                 'folder_id' => 'nullable|integer|exists:document_folders,id',
             ]);

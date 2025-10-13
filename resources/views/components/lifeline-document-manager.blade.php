@@ -59,15 +59,14 @@
                         </button>
                     </div>
                     
-                    {{-- フィルター --}}
+                    {{-- フィルター（PDFのみなので非表示） --}}
+                    {{-- 
                     <label for="file-type-filter-{{ $category }}" class="visually-hidden">ファイルタイプでフィルター</label>
                     <select class="form-select form-select-sm" id="file-type-filter-{{ $category }}" style="max-width: 120px;" aria-label="ファイルタイプでフィルター">
                         <option value="">すべて</option>
                         <option value="pdf">PDF</option>
-                        <option value="doc">Word</option>
-                        <option value="xls">Excel</option>
-                        <option value="jpg">画像</option>
                     </select>
+                    --}}
                 </div>
             </div>
         </div>
@@ -75,7 +74,7 @@
 
     {{-- パンくずナビゲーション --}}
     <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb" id="breadcrumb-nav">
+        <ol class="breadcrumb" id="breadcrumb-nav-{{ $category }}">
             <li class="breadcrumb-item active">{{ $categoryDisplayName }}</li>
         </ol>
     </nav>
@@ -143,7 +142,7 @@
 
 {{-- フォルダ作成モーダル（シンプル版） --}}
 <div class="modal fade" id="create-folder-modal-{{ $category }}" tabindex="-1" aria-labelledby="create-folder-modal-title-{{ $category }}" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form id="create-folder-form-{{ $category }}" action="/facilities/{{ $facility->id }}/lifeline-documents/{{ $category }}/folders" method="POST">
                 @csrf
@@ -170,7 +169,7 @@
 
 {{-- ファイルアップロードモーダル（シンプル版） --}}
 <div class="modal fade" id="upload-file-modal-{{ $category }}" tabindex="-1" aria-labelledby="upload-file-modal-title-{{ $category }}" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form id="upload-file-form-{{ $category }}" action="/facilities/{{ $facility->id }}/lifeline-documents/{{ $category }}/upload" method="POST" enctype="multipart/form-data">
                 @csrf
@@ -180,9 +179,9 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="file-input-{{ $category }}" class="form-label">ファイル選択</label>
-                        <input type="file" class="form-control" id="file-input-{{ $category }}" name="files[]" multiple required>
-                        <div class="form-text">複数のファイルを同時にアップロードできます（最大10MBまで）。</div>
+                        <label for="file-input-{{ $category }}" class="form-label">ファイル選択（PDFのみ）</label>
+                        <input type="file" class="form-control" id="file-input-{{ $category }}" name="files[]" accept=".pdf" multiple required>
+                        <div class="form-text">複数のPDFファイルを同時にアップロードできます（最大10MB/ファイル）。</div>
                     </div>
                     
                     {{-- 選択されたファイル一覧 --}}
@@ -244,7 +243,7 @@
 {{-- 名前変更モーダル --}}
 @if($canEdit)
 <div class="modal fade" id="rename-modal-{{ $category }}" tabindex="-1" aria-labelledby="rename-modal-title-{{ $category }}" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form id="rename-form-{{ $category }}">
                 <div class="modal-header">
@@ -269,7 +268,7 @@
 
 {{-- プロパティモーダル --}}
 <div class="modal fade" id="properties-modal-{{ $category }}" tabindex="-1" aria-labelledby="properties-modal-title-{{ $category }}" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="properties-modal-title-{{ $category }}">プロパティ</h5>
@@ -286,3 +285,32 @@
         </div>
     </div>
 </div>
+
+{{-- 初期化スクリプト --}}
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // LifelineDocumentManagerのインスタンスを作成
+    if (typeof LifelineDocumentManager !== 'undefined') {
+        const facilityId = {{ $facility->id }};
+        const category = '{{ $category }}';
+        const managerKey = 'lifelineDocManager_' + category;
+        
+        // 既存のインスタンスがあればスキップ
+        if (window[managerKey]) {
+            console.log(`[LifelineDoc] Manager for ${category} already exists, skipping initialization`);
+            return;
+        }
+        
+        console.log(`[LifelineDoc] Initializing LifelineDocumentManager for category: ${category}`);
+        
+        // インスタンスを作成（コンストラクタ内でグローバルに登録される）
+        new LifelineDocumentManager(facilityId, category);
+        
+        console.log(`[LifelineDoc] Manager registered as window.${managerKey}`);
+    } else {
+        console.error('[LifelineDoc] LifelineDocumentManager class not found');
+    }
+});
+</script>
+@endpush
