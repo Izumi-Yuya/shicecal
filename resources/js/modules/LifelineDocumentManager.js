@@ -285,6 +285,7 @@ class LifelineDocumentManager {
    */
   openCreateFolderModal() {
     console.log(`[LifelineDoc] Attempting to open create folder modal for ${this.category}`);
+    console.log(`[LifelineDoc] Current folder before opening modal: ${this.state.currentFolder}`);
 
     // モーダルコンテナが存在するか確認
     const modalId = `create-folder-modal-${this.category}`;
@@ -1083,7 +1084,7 @@ class LifelineDocumentManager {
             <tr class="document-item" data-type="folder" data-id="${folder.id}" data-item-id="${folder.id}" data-item-type="folder" data-item-name="${this.escapeHtml(folder.name)}">
                 <td><i class="fas fa-folder text-warning"></i></td>
                 <td>
-                    <a href="#" onclick="window.LifelineDocumentManager.navigateToFolder('${category}', ${folder.id})" 
+                    <a href="#" onclick="window.LifelineDocumentManager.navigateToFolder('${category}', ${folder.id}); return false;" 
                        class="text-decoration-none">
                         ${this.escapeHtml(folder.name)}
                     </a>
@@ -1159,7 +1160,7 @@ class LifelineDocumentManager {
                     <div class="card-body text-center p-3">
                         <i class="fas fa-folder fa-2x text-warning mb-2"></i>
                         <h6 class="card-title mb-1" style="font-size: 0.9rem;">
-                            <a href="#" onclick="window.LifelineDocumentManager.navigateToFolder('${category}', ${folder.id})" 
+                            <a href="#" onclick="window.LifelineDocumentManager.navigateToFolder('${category}', ${folder.id}); return false;" 
                                class="text-decoration-none">
                                 ${this.escapeHtml(folder.name)}
                             </a>
