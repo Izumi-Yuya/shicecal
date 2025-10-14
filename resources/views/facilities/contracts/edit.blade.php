@@ -68,18 +68,18 @@
                 <div class="contracts-subtabs">
                     <ul class="nav nav-tabs" id="contractsEditTabs" role="tablist">
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="others-edit-tab" data-bs-toggle="tab" data-bs-target="#others-edit" type="button" role="tab" aria-controls="others-edit" aria-selected="true">
-                                <i class="fas fa-file-alt me-2"></i>その他
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="meal-service-edit-tab" data-bs-toggle="tab" data-bs-target="#meal-service-edit" type="button" role="tab" aria-controls="meal-service-edit" aria-selected="false">
+                            <button class="nav-link active" id="meal-service-edit-tab" data-bs-toggle="tab" data-bs-target="#meal-service-edit" type="button" role="tab" aria-controls="meal-service-edit" aria-selected="true">
                                 <i class="fas fa-utensils me-2"></i>給食
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="parking-edit-tab" data-bs-toggle="tab" data-bs-target="#parking-edit" type="button" role="tab" aria-controls="parking-edit" aria-selected="false">
                                 <i class="fas fa-parking me-2"></i>駐車場
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="others-edit-tab" data-bs-toggle="tab" data-bs-target="#others-edit" type="button" role="tab" aria-controls="others-edit" aria-selected="false">
+                                <i class="fas fa-file-alt me-2"></i>その他
                             </button>
                         </li>
                     </ul>
@@ -90,12 +90,12 @@
                     @method('PUT')
                     
                     <!-- 現在のアクティブサブタブを追跡 -->
-                    <input type="hidden" name="active_sub_tab" id="activeSubTabField" value="{{ $activeSubTab ?? 'others' }}">
+                    <input type="hidden" name="active_sub_tab" id="activeSubTabField" value="{{ $activeSubTab ?? 'meal-service' }}">
 
                     <!-- サブタブコンテンツ -->
                     <div class="tab-content" id="contractsEditTabContent">
                         <!-- その他契約書編集 -->
-                        <div class="tab-pane fade show active" id="others-edit" role="tabpanel" aria-labelledby="others-edit-tab">
+                        <div class="tab-pane fade" id="others-edit" role="tabpanel" aria-labelledby="others-edit-tab">
                             <div class="card">
                                 <div class="card-header">
                                     <h5 class="mb-0">
@@ -292,7 +292,7 @@
                         </div>
 
                         <!-- 給食契約書編集 -->
-                        <div class="tab-pane fade" id="meal-service-edit" role="tabpanel" aria-labelledby="meal-service-edit-tab">
+                        <div class="tab-pane fade show active" id="meal-service-edit" role="tabpanel" aria-labelledby="meal-service-edit-tab">
                             <div class="card">
                                 <div class="card-header">
                                     <h5 class="mb-0">

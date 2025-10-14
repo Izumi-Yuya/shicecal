@@ -4,12 +4,7 @@
     <div class="contracts-subtabs">
         <ul class="nav nav-tabs" id="contractsTabs" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="others-tab" data-bs-toggle="tab" data-bs-target="#others" type="button" role="tab" aria-controls="others" aria-selected="true">
-                    <i class="fas fa-file-alt me-2"></i>その他
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="meal-service-tab" data-bs-toggle="tab" data-bs-target="#meal-service" type="button" role="tab" aria-controls="meal-service" aria-selected="false">
+                <button class="nav-link active" id="meal-service-tab" data-bs-toggle="tab" data-bs-target="#meal-service" type="button" role="tab" aria-controls="meal-service" aria-selected="true">
                     <i class="fas fa-utensils me-2"></i>給食
                 </button>
             </li>
@@ -18,13 +13,18 @@
                     <i class="fas fa-parking me-2"></i>駐車場
                 </button>
             </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="others-tab" data-bs-toggle="tab" data-bs-target="#others" type="button" role="tab" aria-controls="others" aria-selected="false">
+                    <i class="fas fa-file-alt me-2"></i>その他
+                </button>
+            </li>
         </ul>
     </div>
 
     <!-- サブタブコンテンツ -->
     <div class="tab-content" id="contractsTabContent">
         <!-- その他契約書 -->
-        <div class="tab-pane fade show active" id="others" role="tabpanel" aria-labelledby="others-tab">
+        <div class="tab-pane fade" id="others" role="tabpanel" aria-labelledby="others-tab">
             @php
                 // データベースから保存されたデータを取得
                 $othersData = $contractsData['others'] ?? [];
@@ -150,7 +150,7 @@
         </div>
 
         <!-- 給食契約書 -->
-        <div class="tab-pane fade" id="meal-service" role="tabpanel" aria-labelledby="meal-service-tab">
+        <div class="tab-pane fade show active" id="meal-service" role="tabpanel" aria-labelledby="meal-service-tab">
             @php
                 // データベースから保存されたデータを取得
                 $mealServiceData = $contractsData['meal_service'] ?? [];
