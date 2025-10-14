@@ -57,12 +57,19 @@
         <div class="tab-pane fade show active" id="exterior" role="tabpanel" aria-labelledby="exterior-tab">
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <div class="flex-grow-1"></div>
-                @if(auth()->user()->canEditFacility($facility->id))
-                    <a href="{{ route('facilities.repair-history.edit', ['facility' => $facility->id, 'category' => 'exterior']) }}" 
-                       class="btn btn-primary btn-sm">
-                        <i class="fas fa-edit me-2"></i>編集
-                    </a>
-                @endif
+                <div class="btn-group" role="group">
+                    @if(auth()->user()->canEditFacility($facility->id))
+                        <a href="{{ route('facilities.repair-history.edit', ['facility' => $facility->id, 'category' => 'exterior']) }}" 
+                           class="btn btn-primary btn-sm">
+                            <i class="fas fa-edit me-2"></i>編集
+                        </a>
+                    @endif
+                    <button type="button" class="btn btn-outline-primary btn-sm" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#maintenance-documents-modal-exterior">
+                        <i class="fas fa-folder me-2"></i>ドキュメント
+                    </button>
+                </div>
             </div>
 
             @include('facilities.repair-history.partials.exterior-tab')
@@ -72,12 +79,19 @@
         <div class="tab-pane fade" id="interior" role="tabpanel" aria-labelledby="interior-tab">
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <div class="flex-grow-1"></div>
-                @if(auth()->user()->canEditFacility($facility->id))
-                    <a href="{{ route('facilities.repair-history.edit', ['facility' => $facility->id, 'category' => 'interior']) }}" 
-                       class="btn btn-primary btn-sm">
-                        <i class="fas fa-edit me-2"></i>編集
-                    </a>
-                @endif
+                <div class="btn-group" role="group">
+                    @if(auth()->user()->canEditFacility($facility->id))
+                        <a href="{{ route('facilities.repair-history.edit', ['facility' => $facility->id, 'category' => 'interior']) }}" 
+                           class="btn btn-primary btn-sm">
+                            <i class="fas fa-edit me-2"></i>編集
+                        </a>
+                    @endif
+                    <button type="button" class="btn btn-outline-primary btn-sm" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#maintenance-documents-modal-interior">
+                        <i class="fas fa-folder me-2"></i>ドキュメント
+                    </button>
+                </div>
             </div>
 
             @include('facilities.repair-history.partials.interior-tab')
@@ -87,15 +101,89 @@
         <div class="tab-pane fade" id="other" role="tabpanel" aria-labelledby="other-tab">
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <div class="flex-grow-1"></div>
-                @if(auth()->user()->canEditFacility($facility->id))
-                    <a href="{{ route('facilities.repair-history.edit', ['facility' => $facility->id, 'category' => 'other']) }}" 
-                       class="btn btn-primary btn-sm">
-                        <i class="fas fa-edit me-2"></i>編集
-                    </a>
-                @endif
+                <div class="btn-group" role="group">
+                    @if(auth()->user()->canEditFacility($facility->id))
+                        <a href="{{ route('facilities.repair-history.edit', ['facility' => $facility->id, 'category' => 'other']) }}" 
+                           class="btn btn-primary btn-sm">
+                            <i class="fas fa-edit me-2"></i>編集
+                        </a>
+                    @endif
+                    <button type="button" class="btn btn-outline-primary btn-sm" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#maintenance-documents-modal-other">
+                        <i class="fas fa-folder me-2"></i>ドキュメント
+                    </button>
+                </div>
             </div>
 
             @include('facilities.repair-history.partials.other-tab')
+        </div>
+    </div>
+</div>
+
+{{-- ドキュメント管理モーダル --}}
+<!-- 外装ドキュメントモーダル -->
+<div class="modal fade" id="maintenance-documents-modal-exterior" tabindex="-1" aria-labelledby="maintenance-documents-modal-exterior-label" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="maintenance-documents-modal-exterior-label">
+                    <i class="fas fa-folder me-2"></i>外装関連ドキュメント
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-3">契約書、見積書、請求書、施工写真、報告書などの関連ドキュメントを管理できます。</p>
+                <x-maintenance-document-manager 
+                    :facility="$facility" 
+                    category="exterior"
+                    categoryName="外装"
+                />
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 内装ドキュメントモーダル -->
+<div class="modal fade" id="maintenance-documents-modal-interior" tabindex="-1" aria-labelledby="maintenance-documents-modal-interior-label" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="maintenance-documents-modal-interior-label">
+                    <i class="fas fa-folder me-2"></i>内装リニューアル関連ドキュメント
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-3">契約書、見積書、請求書、施工写真、報告書などの関連ドキュメントを管理できます。</p>
+                <x-maintenance-document-manager 
+                    :facility="$facility" 
+                    category="interior"
+                    categoryName="内装リニューアル"
+                />
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- その他ドキュメントモーダル -->
+<div class="modal fade" id="maintenance-documents-modal-other" tabindex="-1" aria-labelledby="maintenance-documents-modal-other-label" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="maintenance-documents-modal-other-label">
+                    <i class="fas fa-folder me-2"></i>その他関連ドキュメント
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-3">契約書、見積書、請求書、施工写真、報告書などの関連ドキュメントを管理できます。</p>
+                <x-maintenance-document-manager 
+                    :facility="$facility" 
+                    category="other"
+                    categoryName="その他"
+                />
+            </div>
         </div>
     </div>
 </div>
