@@ -47,8 +47,8 @@
     }
 
     div.ownership-table-wrapper .facility-info-card {
-        width: 100% !important;
-        max-width: 100% !important;
+        width: 93% !important;
+        max-width: 93% !important;
     }
 
     div.ownership-table-wrapper .facility-basic-info-table-clean {
@@ -56,10 +56,13 @@
         width: 100% !important;
     }
 
-    div.ownership-table-wrapper .facility-basic-info-table-clean td {
-        width: 100% !important;
-        min-width: 100% !important;
-        max-width: 100% !important;
+   .ownership-table-wrapper .facility-basic-info-table-clean td.detail-label {
+        width: 45.5% !important;
+    }
+
+    /* 値側は残り幅でOK */
+    .ownership-table-wrapper .facility-basic-info-table-clean td.detail-value {
+        width: auto !important;
     }
 
     /* 所有テーブルのスクロールバーも無効化 */
@@ -76,26 +79,24 @@
         height: 0 !important;
     }
 
-        /* 基本情報テーブルの6列均等幅設定 */
+    /* 基本情報テーブルの6列均等幅設定 */
     div.basic-info-table table.facility-basic-info-table-clean {
         table-layout: fixed !important;
         width: 100% !important;
     }
 
     div.basic-info-table table.facility-basic-info-table-clean tbody tr td {
-        width: 16.6667% !important;
-        min-width: 16.6667% !important;
-        max-width: 16.6667% !important;
+        width: 7.6667% !important;
         box-sizing: border-box !important;
     }
 
     /* 各列を個別に指定して確実に均等にする */
     div.basic-info-table table.facility-basic-info-table-clean tbody tr td:nth-child(1) {
-        width: 16.6667% !important;
+        width: 13.5% !important;
     }
 
     div.basic-info-table table.facility-basic-info-table-clean tbody tr td:nth-child(2) {
-        width: 16.6667% !important;
+        width: 16% !important;
     }
 
     div.basic-info-table table.facility-basic-info-table-clean tbody tr td:nth-child(3) {
@@ -145,14 +146,14 @@
 </div>
 
 @php
-    // 契約開始日・終了日の文字列構築
-    $contractStartDate = null;
-    $contractEndDate = null;
-    if ($landInfo->contract_start_date) {
-        $contractStartDate = $landInfo->contract_start_date->format('Y年n月j日');
-    }
-    if ($landInfo->contract_end_date) {
-        $contractEndDate = $landInfo->contract_end_date->format('Y年n月j日');
+    // 契約期間の文字列構築
+    $contractPeriod = null;
+    if ($landInfo->contract_start_date && $landInfo->contract_end_date) {
+        $contractPeriod = $landInfo->contract_start_date->format('Y年n月j日') . ' ～ ' . $landInfo->contract_end_date->format('Y年n月j日');
+    } elseif ($landInfo->contract_start_date) {
+        $contractPeriod = $landInfo->contract_start_date->format('Y年n月j日') . ' ～';
+    } elseif ($landInfo->contract_end_date) {
+        $contractPeriod = '～ ' . $landInfo->contract_end_date->format('Y年n月j日');
     }
 
     // 自動更新バッジ
@@ -212,8 +213,7 @@
     $basicInfoData[] = [
         'type' => 'standard',
         'cells' => [
-            ['label' => '契約開始日', 'value' => $contractStartDate, 'type' => 'text'],
-            ['label' => '契約終了日', 'value' => $contractEndDate, 'type' => 'text'],
+            ['label' => '契約期間', 'value' => $contractPeriod, 'type' => 'text', 'colspan' => 3],
             ['label' => '契約年数', 'value' => $landInfo->contract_period_text, 'type' => 'text'],
         ]
     ];
