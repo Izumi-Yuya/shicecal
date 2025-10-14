@@ -1311,12 +1311,17 @@
     font-size: 0.8rem;
   }
 }
+
 /* ===
 =====================================
    Service Details Table Styles
    ======================================== */
+/* Service Details Table - Fixed layout for consistent column widths */
 .service-details-table {
   font-size: 0.9rem;
+  table-layout: fixed;
+  /* Ensures consistent column widths */
+  width: 100%;
 }
 
 .service-details-table th {
@@ -1341,17 +1346,50 @@
   font-weight: 500;
 }
 
+/* 列幅の固定設定 - 基本情報テーブルと同じ幅 */
+.service-details-table th:nth-child(1),
+/* サービス種類 */
+.service-details-table td:nth-child(1) {
+  width: 15%;
+  /* サービス種類列の幅調整 */
+}
+
+.service-details-table th:nth-child(2),
+/* 介護保険事業所番号 */
+.service-details-table td:nth-child(2) {
+  width: 20%;
+}
+
+.service-details-table th:nth-child(3),
+/* 保険者 */
+.service-details-table td:nth-child(3) {
+  width: 25%;
+}
+
+.service-details-table th:nth-child(4),
+/* 指定日〜有効期限終了日 */
+.service-details-table td:nth-child(4) {
+  width: 30%;
+}
+
+.service-details-table th:nth-child(5),
+/* 残月 */
+.service-details-table td:nth-child(5) {
+  width: 10%;
+}
+
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
   .service-details-table {
     font-size: 0.8rem;
   }
-  
+
   .service-details-table th,
   .service-details-table td {
     padding: 0.5rem 0.25rem;
   }
 }
+
 /* 
 ========================================
    Service Row Edit Styles
@@ -1399,7 +1437,8 @@
 }
 
 .facility-detail-container {
-  margin-top: -2px; /* カードとタブを完全にくっつける */
+  margin-top: -2px;
+  /* カードとタブを完全にくっつける */
 }
 
 .facility-detail-container .tab-navigation {
@@ -1411,10 +1450,76 @@
 .facility-detail-container .nav-tabs {
   border-top: 1px solid var(--border-light);
   margin-top: 0;
-  padding-left: 5px; /* タブを右に5px移動 */
+  padding-left: 5px;
+  /* タブを右に5px移動 */
 }
 
 /* スクロール時の固定表示でも一貫した見た目を保つ */
-.facility-header-card.sticky-top + .facility-detail-container .tab-navigation {
+.facility-header-card.sticky-top+.facility-detail-container .tab-navigation {
   margin-top: 0 !important;
+}
+
+/*
+ ========================================
+   Service Type Cell Expansion Feature
+   ======================================== */
+.service-details-table td:first-child {
+  position: relative;
+  height: 2.5rem;
+  /* 1行分の高さに固定 */
+  overflow: hidden;
+}
+
+.service-type-content {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+  padding-right: 25px;
+  /* 展開ボタンのスペース確保 */
+}
+
+.service-type-content.expanded {
+  -webkit-line-clamp: unset;
+  display: block;
+  white-space: pre-wrap;
+}
+
+.expand-toggle {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 16px;
+  height: 16px;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 3px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #6c757d;
+  transition: all 0.2s ease;
+}
+
+.expand-toggle:hover {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.expand-toggle::before {
+  content: "⋯";
+  font-weight: bold;
+}
+
+.expand-toggle.expanded::before {
+  content: "⋀";
+}
+
+/* 展開時のセル調整 */
+.service-details-table td:first-child.expanded {
+  height: auto;
+  min-height: 2.5rem;
 }

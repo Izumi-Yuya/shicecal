@@ -104,7 +104,12 @@
                 @if($services && $services->count() > 0)
                     @foreach($services as $service)
                         <tr>
-                            <td>{{ $service->service_type ?? '未設定' }}</td>
+                            <td class="service-type-cell">
+                                <div class="service-type-content">{{ $service->service_type ?? '未設定' }}</div>
+                                @if($service->service_type && strlen($service->service_type) > 20)
+                                    <div class="expand-toggle" onclick="toggleServiceType(this)"></div>
+                                @endif
+                            </td>
                             <td>{{ $service->care_insurance_business_number ?? '未設定' }}</td>
                             <td>{{ $service->insurer ?? '未設定' }}</td>
                             <td>
@@ -137,3 +142,41 @@
     </div>
 </div>
 
+
+<script>
+function toggleServiceType(button) {
+    const cell = button.closest('td');
+    const content = cell.querySelector('.service-type-content');
+    
+    if (content.classList.contains('expanded')) {
+        // 折りたたむ
+        content.classList.remove('expanded');
+        cell.classList.remove('expanded');
+        button.classList.remove('expanded');
+    } else {
+        // 展開する
+        content.classList.add('expanded');
+        cell.classList.add('expanded');
+        button.classList.add('expanded');
+    }
+}
+
+// ページ読み込み時に長いテキストのセルに展開ボタンを表示
+document.addEventListener('DOMContentLoaded', function() {
+    const serviceCells = document.querySelectorAll('.service-type-cell');
+    
+    serviceCells.forEach(function(cell) {
+        const content = cell.querySelector('.service-type-content');
+        if (content && content.scrollHeight > content.clientHeight) {
+            // テキストが溢れている場合のみ展開ボタンを表示
+            let expandButton = cell.querySelector('.expand-toggle');
+            if (!expandButton) {
+                expandButton = document.createElement('div');
+                expandButton.className = 'expand-toggle';
+                expandButton.onclick = function() { toggleServiceType(this); };
+                cell.appendChild(expandButton);
+            }
+        }
+    });
+});
+</script>
