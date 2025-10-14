@@ -109,13 +109,13 @@
     // 加圧ポンプが配列形式（複数台）の場合
     if (isset($pumpInfo['pumps']) && is_array($pumpInfo['pumps'])) {
         foreach ($pumpInfo['pumps'] as $index => $pump) {
+            $pumpNumber = $index + 1;
             $pumpDataSets[] = [
-                'number' => $index + 1,
                 'data' => [
                     [
                         'type' => 'standard',
                         'cells' => [
-                            ['label' => 'メーカー', 'value' => $pump['manufacturer'] ?? null, 'type' => 'text', 'width' => '33.33%'],
+                            ['label' => 'メーカー' . $pumpNumber, 'value' => $pump['manufacturer'] ?? null, 'type' => 'text', 'width' => '33.33%'],
                             ['label' => '年式', 'value' => !empty($pump['model_year']) ? $pump['model_year'] . '年式' : null, 'type' => 'text', 'width' => '33.33%'],
                             ['label' => '更新年月日', 'value' => $pump['update_date'] ?? null, 'type' => 'date', 'width' => '33.33%'],
                         ]
@@ -126,7 +126,6 @@
     } else {
         // 単一の加圧ポンプの場合
         $pumpDataSets[] = [
-            'number' => null, // 単一の場合は番号なし
             'data' => [
                 [
                     'type' => 'standard',
@@ -147,7 +146,6 @@
     if (isset($legionellaInfo['inspections']) && is_array($legionellaInfo['inspections'])) {
         foreach ($legionellaInfo['inspections'] as $index => $inspection) {
             $legionellaDataSets[] = [
-                'number' => $index + 1,
                 'data' => [
                     // 第1行：実施日、検査結果報告書
                     [
@@ -179,7 +177,6 @@
     } else {
         // 単一のレジオネラ検査の場合
         $legionellaDataSets[] = [
-            'number' => null, // 単一の場合は番号なし
             'data' => [
                 // 第1行：実施日、検査結果報告書
                 [
@@ -345,12 +342,7 @@
     <div class="equipment-section mb-4">
         <h6 class="section-title">加圧ポンプ</h6>
         @foreach($pumpDataSets as $pumpSet)
-            <div class="pump-equipment-wrapper mb-3 {{ $pumpSet['number'] ? 'numbered-equipment' : '' }}">
-                @if($pumpSet['number'])
-                    <div class="equipment-number-badge">
-                        <span class="badge bg-primary">{{ $pumpSet['number'] }}</span>
-                    </div>
-                @endif
+            <div class="pump-equipment-wrapper mb-3">
                 <div class="water-six-column-equal">
                     <div class="table-responsive">
                         <table class="table facility-basic-info-table-clean" style="table-layout: fixed; margin-bottom: 0; border: 1px solid #e9ecef;">
@@ -432,12 +424,7 @@
     <div class="equipment-section mb-4">
         <h6 class="section-title">レジオネラ検査</h6>
         @foreach($legionellaDataSets as $legionellaSet)
-            <div class="legionella-equipment-wrapper mb-3 {{ $legionellaSet['number'] ? 'numbered-equipment' : '' }}">
-                @if($legionellaSet['number'])
-                    <div class="equipment-number-badge">
-                        <span class="badge bg-warning">{{ $legionellaSet['number'] }}</span>
-                    </div>
-                @endif
+            <div class="legionella-equipment-wrapper mb-3">
                 <x-common-table 
                     :data="$legionellaSet['data']"
                     :showHeader="false"
