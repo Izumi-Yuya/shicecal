@@ -1,0 +1,145 @@
+/* ========================================
+   Table Layout Utilities
+   Reusable table layout patterns for consistent design
+   ======================================== */
+
+/* ========================================
+   Base Table Classes
+   ======================================== */
+.table-base {
+  table-layout: fixed;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-bottom: 0;
+}
+
+/* ========================================
+   Column Layout Utilities
+   ======================================== */
+
+/* Equal width columns */
+.table-cols-2-equal td, .table-cols-2-equal th { width: 50%; }
+.table-cols-3-equal td, .table-cols-3-equal th { width: 33.3333%; }
+.table-cols-4-equal td, .table-cols-4-equal th { width: 25%; }
+.table-cols-5-equal td, .table-cols-5-equal th { width: 20%; }
+.table-cols-6-equal td, .table-cols-6-equal th { width: 16.6667%; }
+
+/* Predefined column patterns */
+.table-pattern-narrow-wide {
+  @extend .table-base;
+}
+
+.table-pattern-narrow-wide td:nth-child(1),
+.table-pattern-narrow-wide th:nth-child(1) {
+  width: var(--table-col-narrow);
+  min-width: var(--table-min-width-md);
+}
+
+.table-pattern-narrow-wide td:nth-child(2),
+.table-pattern-narrow-wide th:nth-child(2) {
+  width: var(--table-col-wide);
+  min-width: var(--table-min-width-lg);
+}
+
+/* 4-column alternating pattern (narrow-wide-narrow-wide) */
+.table-pattern-4col-alt {
+  @extend .table-base;
+}
+
+.table-pattern-4col-alt td:nth-child(odd),
+.table-pattern-4col-alt th:nth-child(odd) {
+  width: var(--table-col-narrow);
+  min-width: var(--table-min-width-md);
+}
+
+.table-pattern-4col-alt td:nth-child(even),
+.table-pattern-4col-alt th:nth-child(even) {
+  width: var(--table-col-wide);
+  min-width: var(--table-min-width-lg);
+}
+
+/* ========================================
+   Responsive Table Utilities
+   ======================================== */
+.table-responsive-custom {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-no-scroll {
+  overflow: visible;
+}
+
+.table-no-scroll .table-responsive,
+.table-no-scroll .table-responsive-md {
+  overflow-x: visible;
+  overflow-y: visible;
+}
+
+/* Hide scrollbars */
+.table-hide-scrollbar::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* ========================================
+   Cell Content Utilities
+   ======================================== */
+.table-cell-nowrap { white-space: nowrap; }
+.table-cell-break { word-break: break-word; }
+.table-cell-center { text-align: center; }
+.table-cell-right { text-align: right; }
+
+/* ========================================
+   Responsive Breakpoints
+   ======================================== */
+@media (max-width: 1200px) {
+  .table-pattern-4col-alt td:nth-child(odd),
+  .table-pattern-4col-alt th:nth-child(odd) {
+    width: 18%;
+    min-width: var(--table-min-width-sm);
+  }
+  
+  .table-pattern-4col-alt td:nth-child(even),
+  .table-pattern-4col-alt th:nth-child(even) {
+    width: 32%;
+    min-width: 150px;
+  }
+}
+
+@media (max-width: 992px) {
+  .table-pattern-4col-alt td:nth-child(odd),
+  .table-pattern-4col-alt th:nth-child(odd) {
+    width: 20%;
+    min-width: var(--table-min-width-xs);
+  }
+  
+  .table-pattern-4col-alt td:nth-child(even),
+  .table-pattern-4col-alt th:nth-child(even) {
+    width: 30%;
+    min-width: var(--table-min-width-md);
+  }
+}
+
+@media (max-width: 768px) {
+  .table-pattern-4col-alt {
+    table-layout: auto;
+  }
+  
+  .table-pattern-4col-alt td,
+  .table-pattern-4col-alt th {
+    width: 25%;
+    min-width: var(--table-min-width-sm);
+  }
+  
+  /* Stack tables on mobile */
+  .table-stack-mobile td,
+  .table-stack-mobile th {
+    display: block;
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid var(--border-light);
+  }
+}

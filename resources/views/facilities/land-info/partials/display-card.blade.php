@@ -39,25 +39,27 @@
 
 <!-- 所有テーブル（共通デザイン適用版） -->
 <style>
-    .ownership-table-wrapper {
-        width: 400px !important;
+    div.ownership-table-wrapper {
+        width: 33.33% !important;
+        max-width: 33.33% !important;
         margin-bottom: 1rem !important;
+        display: block !important;
     }
 
-    .ownership-table-wrapper .facility-info-card {
-        width: 400px !important;
-        max-width: 400px !important;
+    div.ownership-table-wrapper .facility-info-card {
+        width: 100% !important;
+        max-width: 100% !important;
     }
 
-    .ownership-table-wrapper .facility-basic-info-table-clean {
+    div.ownership-table-wrapper .facility-basic-info-table-clean {
         table-layout: fixed !important;
-        width: 400px !important;
+        width: 100% !important;
     }
 
-    .ownership-table-wrapper .facility-basic-info-table-clean td {
-        width: 206px !important;
-        min-width: 206px !important;
-        max-width: 206px !important;
+    div.ownership-table-wrapper .facility-basic-info-table-clean td {
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
     }
 
     /* 所有テーブルのスクロールバーも無効化 */
@@ -138,7 +140,7 @@
         :data="$ownershipData"
         :showHeader="false"
         cardClass="facility-info-card detail-card-improved"
-        :tableAttributes="['style' => '--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0; table-layout: fixed; width: 400px;']"
+        :tableAttributes="['style' => '--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0; table-layout: fixed; width: 100%;']"
         bodyClass="p-0" />
 </div>
 
