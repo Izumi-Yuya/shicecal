@@ -145,6 +145,27 @@
 </div>
 
 @php
+    // 契約開始日・終了日の文字列構築
+    $contractStartDate = null;
+    $contractEndDate = null;
+    if ($landInfo->contract_start_date) {
+        $contractStartDate = $landInfo->contract_start_date->format('Y年n月j日');
+    }
+    if ($landInfo->contract_end_date) {
+        $contractEndDate = $landInfo->contract_end_date->format('Y年n月j日');
+    }
+
+    // 自動更新バッジ
+    $autoRenewalBadge = null;
+    $autoRenewalBadgeClass = 'badge bg-primary';
+    if ($landInfo->auto_renewal === 'yes') {
+        $autoRenewalBadge = '有り';
+        $autoRenewalBadgeClass = 'badge bg-success';
+    } elseif ($landInfo->auto_renewal === 'no') {
+        $autoRenewalBadge = '無し';
+        $autoRenewalBadgeClass = 'badge bg-secondary';
+    }
+
     // 基本情報テーブルデータの構築
     $basicInfoData = [
         [
@@ -161,8 +182,8 @@
                 ['label' => '購入金額', 'value' => $landInfo->purchase_price, 'type' => 'currency'],
                 ['label' => '坪単価', 'value' => $landInfo->unit_price_per_tsubo !== null ? number_format($landInfo->unit_price_per_tsubo) . '円/坪' : null, 'type' => 'text'],
                 [
-                    'label' => '謄本', 
-                    'value' => $landInfoFileData['registry'] ?? null, 
+                    'label' => '謄本',
+                    'value' => $landInfoFileData['registry'] ?? null,
                     'type' => 'file_display',
                     'options' => []
                 ],
@@ -172,48 +193,31 @@
             'type' => 'standard',
             'cells' => [
                 ['label' => '家賃', 'value' => $landInfo->monthly_rent, 'type' => 'currency'],
-                ['label' => '-', 'value' => '-', 'type' => 'text'],
+                    [
+                    'label' => '自動更新の有無',
+                    'value' => $autoRenewalBadge,
+                    'type' => 'text',
+                    'options' => ['badge_class' => $autoRenewalBadgeClass]
+                    ],
                 [
-                    'label' => '契約書・覚書', 
-                    'value' => $landInfoFileData['lease_contract'] ?? null, 
+                    'label' => '契約書・覚書',
+                    'value' => $landInfoFileData['lease_contract'] ?? null,
                     'type' => 'file_display',
                     'options' => []
                 ],
             ]
         ],
     ];
-    
-    // 契約期間の文字列構築
-    $contractPeriod = null;
-    if ($landInfo->contract_start_date && $landInfo->contract_end_date) {
-        $contractPeriod = $landInfo->contract_start_date->format('Y年n月j日') . ' ～ ' . $landInfo->contract_end_date->format('Y年n月j日');
-    }
-    
-    // 自動更新バッジ
-    $autoRenewalBadge = null;
-    $autoRenewalBadgeClass = 'badge bg-primary';
-    if ($landInfo->auto_renewal === 'yes') {
-        $autoRenewalBadge = '有り';
-        $autoRenewalBadgeClass = 'badge bg-success';
-    } elseif ($landInfo->auto_renewal === 'no') {
-        $autoRenewalBadge = '無し';
-        $autoRenewalBadgeClass = 'badge bg-secondary';
-    }
-    
+
     $basicInfoData[] = [
         'type' => 'standard',
         'cells' => [
-            ['label' => '契約期間', 'value' => $contractPeriod, 'type' => 'text'],
-            [
-                'label' => '自動更新の有無', 
-                'value' => $autoRenewalBadge, 
-                'type' => 'text',
-                'options' => ['badge_class' => $autoRenewalBadgeClass]
-            ],
+            ['label' => '契約開始日', 'value' => $contractStartDate, 'type' => 'text'],
+            ['label' => '契約終了日', 'value' => $contractEndDate, 'type' => 'text'],
             ['label' => '契約年数', 'value' => $landInfo->contract_period_text, 'type' => 'text'],
         ]
     ];
-    
+
     $basicInfoData[] = [
         'type' => 'standard',
         'cells' => [
