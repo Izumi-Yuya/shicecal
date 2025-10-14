@@ -16,7 +16,7 @@ class ExportService
         $this->fieldValueExtractor = $fieldValueExtractor;
     }
     /**
-     * Get total field count for CSV export
+     * Get the total field count for CSV export
      */
     public function getTotalFieldCount(): int
     {
@@ -37,11 +37,13 @@ class ExportService
             'company_name' => '会社名',
             'office_code' => '事業所コード',
             'facility_name' => '施設名',
-            'designation_number' => '指定番号',
+            'designation_number' => '指定番号1',
+            'designation_number_2' => '指定番号2',
             'postal_code' => '郵便番号',
             'opening_date' => '開設日',
             'address' => '住所',
             'opening_years' => '開設年数',
+            'months_in_operation' => '運営月数',
             'building_name' => '住所（建物名）',
             'building_structure' => '建物構造',
             'phone_number' => '電話番号',
@@ -49,13 +51,13 @@ class ExportService
             'fax_number' => 'FAX番号',
             'paid_rooms_count' => '居室数',
             'toll_free_number' => 'フリーダイヤル',
-            'ss_rooms_count' => '内SS数',
+            'ss_rooms_count' => 'ショートステイ居室数',
             'email' => 'メールアドレス',
             'capacity' => '定員数',
             'website_url' => 'URL',
             'service_types' => 'サービス種類',
             'service_validity_periods' => 'サービス有効期限',
-            
+
             // 土地情報
             'land_ownership_type' => '土地所有区分',
             'land_site_area_sqm' => '敷地面積（㎡数）',
@@ -129,7 +131,7 @@ class ExportService
             'electrical_generator_manufacturers' => '非常用発電機メーカー',
             'electrical_generator_model_years' => '非常用発電機年式',
             'electrical_notes' => '電気設備備考',
-            
+
             // ライフライン設備 - 水道
             'water_contractor' => '水道契約会社',
             'water_tank_cleaning_company' => '受水槽清掃業者',
@@ -152,13 +154,13 @@ class ExportService
             'water_legionella_first_results' => 'レジオネラ検査結果（初回）',
             'water_legionella_second_results' => 'レジオネラ検査結果（2回目）',
             'water_notes' => '水道設備備考',
-            
+
             // ライフライン設備 - ガス
             'gas_contractor' => 'ガス会社',
             'gas_safety_management_company' => 'ガス保安管理業者',
             'gas_maintenance_inspection_date' => 'ガス保守点検実施日',
             'gas_notes' => 'ガス設備備考',
-            
+
             // ライフライン設備 - エレベーター
             'elevator_availability' => 'エレベーター有無',
             'elevator_manufacturer' => 'エレベーターメーカー',
@@ -186,7 +188,7 @@ class ExportService
             'security_lock_management_company' => '電子錠管理業者',
             'security_lock_model_year' => '電子錠年式',
             'security_lock_notes' => '電子錠備考',
-            
+
             // 防犯・防災設備 - 消防・防災
             'fire_manager' => '防火管理者',
             'fire_training_date' => '消防訓練実施日',
@@ -252,7 +254,7 @@ class ExportService
             'contract_others_contract_end_date' => 'その他契約書_契約終了日',
             'contract_others_amount' => 'その他契約書_金額',
             'contract_others_notes' => 'その他契約書_備考',
-            
+
             // 契約書 - 給食契約書
             'contract_meal_service_company_name' => '給食契約書_会社名',
             'contract_meal_service_contract_type' => '給食契約書_契約書の種類',
@@ -262,7 +264,7 @@ class ExportService
             'contract_meal_service_contract_end_date' => '給食契約書_契約終了日',
             'contract_meal_service_amount' => '給食契約書_金額',
             'contract_meal_service_notes' => '給食契約書_備考',
-            
+
             // 契約書 - 駐車場契約書
             'contract_parking_company_name' => '駐車場契約書_会社名',
             'contract_parking_contract_type' => '駐車場契約書_契約書の種類',
@@ -283,7 +285,7 @@ class ExportService
             'contract_meal_renewal_notice_period' => '給食契約書_更新通知期限',
             'contract_meal_staff_meal_price' => '給食契約書_職員食単価',
             'contract_meal_other_matters' => '給食契約書_その他事項',
-            
+
             // 契約書 - 駐車場契約書
             'contract_parking_name' => '駐車場契約書_駐車場名',
             'contract_parking_location' => '駐車場契約書_駐車場所在地',
@@ -325,7 +327,7 @@ class ExportService
     {
         // Determine which relationships to load based on selected fields
         $relationships = $this->determineRequiredRelationships($exportFields);
-        
+
         $facilities = Facility::whereIn('id', $facilityIds)
             ->with($relationships)
             ->select($this->determineRequiredColumns($exportFields))
@@ -360,7 +362,7 @@ class ExportService
                 }
                 fputcsv($output, $row);
             }
-            
+
             // Force garbage collection for large datasets
             if (memory_get_usage() > 50 * 1024 * 1024) { // 50MB threshold
                 gc_collect_cycles();
@@ -406,6 +408,8 @@ class ExportService
                 return $facility->full_address ?? $facility->address ?? '';
             case 'opening_years':
                 return $facility->opening_date ? (string)$facility->opening_date->diffInYears(now()) : '';
+            case 'months_in_operation':
+                return $facility->months_in_operation !== null ? (string)$facility->months_in_operation : '';
             case 'building_name':
                 return $facility->building_name ?? '';
             case 'building_structure':
@@ -431,7 +435,7 @@ class ExportService
             case 'service_types':
                 return $facility->services ? $facility->services->pluck('service_type')->join(', ') : '';
             case 'service_validity_periods':
-                return $facility->services ? $facility->services->map(function($service) {
+                return $facility->services ? $facility->services->map(function ($service) {
                     if ($service->renewal_start_date && $service->renewal_end_date) {
                         return $service->renewal_start_date->format('Y年m月d日') . ' ～ ' . $service->renewal_end_date->format('Y年m月d日');
                     } elseif ($service->renewal_start_date) {
@@ -450,7 +454,7 @@ class ExportService
             case 'updated_at':
                 return $facility->updated_at ? $facility->updated_at->format('Y-m-d H:i:s') : '';
 
-            // 土地情報
+                // 土地情報
             case 'land_ownership_type':
                 return $facility->landInfo ? $this->formatOwnershipType($facility->landInfo->ownership_type ?? '') : '';
             case 'land_site_area_sqm':
@@ -513,7 +517,7 @@ class ExportService
             case 'land_owner_notes':
                 return $facility->landInfo ? ($facility->landInfo->owner_notes ?? '') : '';
 
-            // ライフライン設備 - 電気
+                // ライフライン設備 - 電気
             case 'electrical_contractor':
                 $electrical = $facility->getElectricalEquipment();
                 return $electrical ? ($electrical->basic_info['electrical_contractor'] ?? '') : '';
@@ -569,7 +573,7 @@ class ExportService
                 $electrical = $facility->getElectricalEquipment();
                 return $electrical ? ($electrical->notes ?? '') : '';
 
-            // ライフライン設備 - 水道
+                // ライフライン設備 - 水道
             case 'water_contractor':
                 $water = $facility->getWaterEquipment();
                 return $water ? ($water->basic_info['water_contractor'] ?? '') : '';
@@ -639,10 +643,12 @@ class ExportService
                     return collect($water->basic_info['legionella_info']['inspections'])
                         ->pluck('inspection_date')
                         ->filter()
-                        ->map(function($date) { return \Carbon\Carbon::parse($date)->format('Y-m-d'); })
+                        ->map(function ($date) {
+                            return \Carbon\Carbon::parse($date)->format('Y-m-d');
+                        })
                         ->join(', ');
                 }
-                return $water && !empty($water->basic_info['legionella_info']['inspection_date']) 
+                return $water && !empty($water->basic_info['legionella_info']['inspection_date'])
                     ? \Carbon\Carbon::parse($water->basic_info['legionella_info']['inspection_date'])->format('Y-m-d') : '';
             case 'water_legionella_first_results':
                 $water = $facility->getWaterEquipment();
@@ -660,7 +666,7 @@ class ExportService
                 $water = $facility->getWaterEquipment();
                 return $water ? ($water->notes ?? '') : '';
 
-            // ライフライン設備 - ガス
+                // ライフライン設備 - ガス
             case 'gas_contractor':
                 $gas = $facility->getGasEquipment();
                 return $gas ? ($gas->basic_info['gas_contractor'] ?? '') : '';
@@ -677,7 +683,7 @@ class ExportService
                 $gas = $facility->getGasEquipment();
                 return $gas ? ($gas->notes ?? '') : '';
 
-            // ライフライン設備 - エレベーター
+                // ライフライン設備 - エレベーター
             case 'elevator_availability':
                 $elevator = $facility->getElevatorEquipment();
                 return $elevator ? ($elevator->basic_info['availability'] ?? '') : '';
@@ -700,7 +706,7 @@ class ExportService
                 $elevator = $facility->getElevatorEquipment();
                 return $elevator ? ($elevator->notes ?? '') : '';
 
-            // ライフライン設備 - 空調・照明
+                // ライフライン設備 - 空調・照明
             case 'hvac_lighting_availability':
                 $hvac = $facility->getHvacLightingEquipment();
                 return $hvac ? ($hvac->basic_info['availability'] ?? '') : '';
@@ -723,7 +729,7 @@ class ExportService
                 $hvac = $facility->getHvacLightingEquipment();
                 return $hvac ? ($hvac->notes ?? '') : '';
 
-            // 防犯・防災設備 - 防犯カメラ・電子錠
+                // 防犯・防災設備 - 防犯カメラ・電子錠
             case 'security_camera_management_company':
                 $security = $facility->getSecurityDisasterEquipment();
                 return $security ? ($security->security_systems['camera_lock']['camera']['management_company'] ?? '') : '';
@@ -743,7 +749,7 @@ class ExportService
                 $security = $facility->getSecurityDisasterEquipment();
                 return $security ? ($security->security_systems['camera_lock']['lock']['notes'] ?? '') : '';
 
-            // 防犯・防災設備 - 消防・防災
+                // 防犯・防災設備 - 消防・防災
             case 'fire_manager':
                 $security = $facility->getSecurityDisasterEquipment();
                 return $security ? ($security->fire_disaster_prevention['fire_prevention']['fire_manager'] ?? '') : '';
@@ -775,7 +781,7 @@ class ExportService
                 }
                 return '';
 
-            // 建物情報
+                // 建物情報
             case 'building_ownership_type':
                 return $facility->buildingInfo ? ($facility->buildingInfo->ownership_type ?? '') : '';
             case 'building_area_sqm':
@@ -831,7 +837,7 @@ class ExportService
             case 'building_owner_email':
                 return $facility->buildingInfo ? ($facility->buildingInfo->owner_email ?? '') : '';
 
-            // 契約書 - その他契約書
+                // 契約書 - その他契約書
             case 'contract_others_company_name':
                 return $facility->contract ? ($facility->contract->others_company_name ?? '') : '';
             case 'contract_others_contract_type':
@@ -843,29 +849,29 @@ class ExportService
             case 'contract_others_auto_renewal_details':
                 return $facility->contract ? ($facility->contract->others_auto_renewal_details ?? '') : '';
             case 'contract_others_contract_start_date':
-                return $facility->contract && $facility->contract->others_contract_start_date 
+                return $facility->contract && $facility->contract->others_contract_start_date
                     ? $facility->contract->others_contract_start_date->format('Y-m-d') : '';
             case 'contract_others_contract_end_date':
-                return $facility->contract && $facility->contract->others_contract_end_date 
+                return $facility->contract && $facility->contract->others_contract_end_date
                     ? $facility->contract->others_contract_end_date->format('Y-m-d') : '';
             case 'contract_others_amount':
-                return $facility->contract && $facility->contract->others_amount 
+                return $facility->contract && $facility->contract->others_amount
                     ? (string)$facility->contract->others_amount : '';
             case 'contract_others_notes':
                 return $facility->contract ? ($facility->contract->others_notes ?? '') : '';
 
-            // 契約書 - 給食契約書
+                // 契約書 - 給食契約書
             case 'contract_meal_service_company_name':
-                return $facility->contract && $facility->contract->meal_service_data 
+                return $facility->contract && $facility->contract->meal_service_data
                     ? ($facility->contract->meal_service_data['company_name'] ?? '') : '';
             case 'contract_meal_service_contract_type':
-                return $facility->contract && $facility->contract->meal_service_data 
+                return $facility->contract && $facility->contract->meal_service_data
                     ? ($facility->contract->meal_service_data['contract_type'] ?? '') : '';
             case 'contract_meal_service_contract_content':
-                return $facility->contract && $facility->contract->meal_service_data 
+                return $facility->contract && $facility->contract->meal_service_data
                     ? ($facility->contract->meal_service_data['contract_content'] ?? '') : '';
             case 'contract_meal_service_auto_renewal':
-                return $facility->contract && $facility->contract->meal_service_data 
+                return $facility->contract && $facility->contract->meal_service_data
                     ? ($facility->contract->meal_service_data['auto_renewal'] ?? '') : '';
             case 'contract_meal_service_contract_start_date':
                 return $facility->contract && $facility->contract->meal_service_data && isset($facility->contract->meal_service_data['contract_start_date'])
@@ -877,21 +883,21 @@ class ExportService
                 return $facility->contract && $facility->contract->meal_service_data && isset($facility->contract->meal_service_data['amount'])
                     ? (string)$facility->contract->meal_service_data['amount'] : '';
             case 'contract_meal_service_notes':
-                return $facility->contract && $facility->contract->meal_service_data 
+                return $facility->contract && $facility->contract->meal_service_data
                     ? ($facility->contract->meal_service_data['notes'] ?? '') : '';
 
-            // 契約書 - 駐車場契約書
+                // 契約書 - 駐車場契約書
             case 'contract_parking_company_name':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['company_name'] ?? '') : '';
             case 'contract_parking_contract_type':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['contract_type'] ?? '') : '';
             case 'contract_parking_contract_content':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['contract_content'] ?? '') : '';
             case 'contract_parking_auto_renewal':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['auto_renewal'] ?? '') : '';
             case 'contract_parking_contract_start_date':
                 return $facility->contract && $facility->contract->parking_data && isset($facility->contract->parking_data['contract_start_date'])
@@ -906,18 +912,18 @@ class ExportService
                 return $facility->contract && $facility->contract->parking_data && isset($facility->contract->parking_data['spaces'])
                     ? (string)$facility->contract->parking_data['spaces'] : '';
             case 'contract_parking_notes':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['notes'] ?? '') : '';
 
-            // 契約書 - 給食契約書
+                // 契約書 - 給食契約書
             case 'contract_meal_company_name':
-                return $facility->contract && $facility->contract->meal_service_data 
+                return $facility->contract && $facility->contract->meal_service_data
                     ? ($facility->contract->meal_service_data['company_name'] ?? '') : '';
             case 'contract_meal_management_fee':
                 return $facility->contract && $facility->contract->meal_service_data && isset($facility->contract->meal_service_data['management_fee'])
                     ? (string)$facility->contract->meal_service_data['management_fee'] : '';
             case 'contract_meal_contract_content':
-                return $facility->contract && $facility->contract->meal_service_data 
+                return $facility->contract && $facility->contract->meal_service_data
                     ? ($facility->contract->meal_service_data['contract_content'] ?? '') : '';
             case 'contract_meal_breakfast_price':
                 return $facility->contract && $facility->contract->meal_service_data && isset($facility->contract->meal_service_data['breakfast_price'])
@@ -929,54 +935,54 @@ class ExportService
                 return $facility->contract && $facility->contract->meal_service_data && isset($facility->contract->meal_service_data['lunch_price'])
                     ? (string)$facility->contract->meal_service_data['lunch_price'] : '';
             case 'contract_meal_contract_type':
-                return $facility->contract && $facility->contract->meal_service_data 
+                return $facility->contract && $facility->contract->meal_service_data
                     ? ($facility->contract->meal_service_data['contract_type'] ?? '') : '';
             case 'contract_meal_dinner_price':
                 return $facility->contract && $facility->contract->meal_service_data && isset($facility->contract->meal_service_data['dinner_price'])
                     ? (string)$facility->contract->meal_service_data['dinner_price'] : '';
             case 'contract_meal_auto_renewal':
-                return $facility->contract && $facility->contract->meal_service_data 
+                return $facility->contract && $facility->contract->meal_service_data
                     ? ($facility->contract->meal_service_data['auto_renewal'] ?? '') : '';
             case 'contract_meal_auto_renewal_details':
-                return $facility->contract && $facility->contract->meal_service_data 
+                return $facility->contract && $facility->contract->meal_service_data
                     ? ($facility->contract->meal_service_data['auto_renewal_details'] ?? '') : '';
             case 'contract_meal_snack_price':
                 return $facility->contract && $facility->contract->meal_service_data && isset($facility->contract->meal_service_data['snack_price'])
                     ? (string)$facility->contract->meal_service_data['snack_price'] : '';
             case 'contract_meal_cancellation_conditions':
-                return $facility->contract && $facility->contract->meal_service_data 
+                return $facility->contract && $facility->contract->meal_service_data
                     ? ($facility->contract->meal_service_data['cancellation_conditions'] ?? '') : '';
             case 'contract_meal_event_meal_price':
                 return $facility->contract && $facility->contract->meal_service_data && isset($facility->contract->meal_service_data['event_meal_price'])
                     ? (string)$facility->contract->meal_service_data['event_meal_price'] : '';
             case 'contract_meal_renewal_notice_period':
-                return $facility->contract && $facility->contract->meal_service_data 
+                return $facility->contract && $facility->contract->meal_service_data
                     ? ($facility->contract->meal_service_data['renewal_notice_period'] ?? '') : '';
             case 'contract_meal_staff_meal_price':
                 return $facility->contract && $facility->contract->meal_service_data && isset($facility->contract->meal_service_data['staff_meal_price'])
                     ? (string)$facility->contract->meal_service_data['staff_meal_price'] : '';
             case 'contract_meal_other_matters':
-                return $facility->contract && $facility->contract->meal_service_data 
+                return $facility->contract && $facility->contract->meal_service_data
                     ? ($facility->contract->meal_service_data['other_matters'] ?? '') : '';
 
-            // 契約書 - 駐車場契約書
+                // 契約書 - 駐車場契約書
             case 'contract_parking_name':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['parking_name'] ?? '') : '';
             case 'contract_parking_location':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['parking_location'] ?? '') : '';
             case 'contract_parking_spaces':
                 return $facility->contract && $facility->contract->parking_data && isset($facility->contract->parking_data['parking_spaces'])
                     ? (string)$facility->contract->parking_data['parking_spaces'] : '';
             case 'contract_parking_position':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['parking_position'] ?? '') : '';
             case 'contract_parking_price_per_space':
                 return $facility->contract && $facility->contract->parking_data && isset($facility->contract->parking_data['price_per_space'])
                     ? (string)$facility->contract->parking_data['price_per_space'] : '';
             case 'contract_parking_usage_purpose':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['usage_purpose'] ?? '') : '';
             case 'contract_parking_contract_start_date':
                 return $facility->contract && $facility->contract->parking_data && isset($facility->contract->parking_data['contract_start_date'])
@@ -985,73 +991,73 @@ class ExportService
                 return $facility->contract && $facility->contract->parking_data && isset($facility->contract->parking_data['contract_end_date'])
                     ? $facility->contract->parking_data['contract_end_date'] : '';
             case 'contract_parking_auto_renewal':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['auto_renewal'] ?? '') : '';
             case 'contract_parking_cancellation_conditions':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['cancellation_conditions'] ?? '') : '';
             case 'contract_parking_renewal_notice_period':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['renewal_notice_period'] ?? '') : '';
             case 'contract_parking_other_matters':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['other_matters'] ?? '') : '';
             case 'contract_parking_management_company_name':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['management_company_name'] ?? '') : '';
             case 'contract_parking_management_postal_code':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['management_postal_code'] ?? '') : '';
             case 'contract_parking_management_address':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['management_address'] ?? '') : '';
             case 'contract_parking_management_building_name':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['management_building_name'] ?? '') : '';
             case 'contract_parking_management_phone':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['management_phone'] ?? '') : '';
             case 'contract_parking_management_fax':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['management_fax'] ?? '') : '';
             case 'contract_parking_management_email':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['management_email'] ?? '') : '';
             case 'contract_parking_management_url':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['management_url'] ?? '') : '';
             case 'contract_parking_management_notes':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['management_notes'] ?? '') : '';
             case 'contract_parking_owner_name':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['owner_name'] ?? '') : '';
             case 'contract_parking_owner_postal_code':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['owner_postal_code'] ?? '') : '';
             case 'contract_parking_owner_address':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['owner_address'] ?? '') : '';
             case 'contract_parking_owner_building_name':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['owner_building_name'] ?? '') : '';
             case 'contract_parking_owner_phone':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['owner_phone'] ?? '') : '';
             case 'contract_parking_owner_fax':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['owner_fax'] ?? '') : '';
             case 'contract_parking_owner_email':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['owner_email'] ?? '') : '';
             case 'contract_parking_owner_url':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['owner_url'] ?? '') : '';
             case 'contract_parking_owner_notes':
-                return $facility->contract && $facility->contract->parking_data 
+                return $facility->contract && $facility->contract->parking_data
                     ? ($facility->contract->parking_data['owner_notes'] ?? '') : '';
 
-            // 図面 - 引き渡し図面
+                // 図面 - 引き渡し図面
             case 'drawing_handover_startup_drawing':
                 return $facility->drawing && $facility->drawing->handover_drawings && isset($facility->drawing->handover_drawings[0])
                     ? ($facility->drawing->handover_drawings[0]['name'] ?? '就航図面') : '';
@@ -1068,7 +1074,7 @@ class ExportService
                 return $facility->drawing && $facility->drawing->handover_drawings && isset($facility->drawing->handover_drawings[4])
                     ? ($facility->drawing->handover_drawings[4]['name'] ?? '') : '';
 
-            // 図面 - 完成図面
+                // 図面 - 完成図面
             case 'drawing_completion_row_1':
                 return $facility->drawing && $facility->drawing->completion_drawings && isset($facility->drawing->completion_drawings[0])
                     ? ($facility->drawing->completion_drawings[0]['name'] ?? '') : '';
@@ -1085,7 +1091,7 @@ class ExportService
                 return $facility->drawing && $facility->drawing->completion_drawings && isset($facility->drawing->completion_drawings[4])
                     ? ($facility->drawing->completion_drawings[4]['name'] ?? '') : '';
 
-            // 図面 - その他図面
+                // 図面 - その他図面
             case 'drawing_others_row_1':
                 return $facility->drawing && $facility->drawing->other_drawings && isset($facility->drawing->other_drawings[0])
                     ? ($facility->drawing->other_drawings[0]['name'] ?? '') : '';
@@ -1104,7 +1110,7 @@ class ExportService
             case 'drawing_notes':
                 return $facility->drawing ? ($facility->drawing->notes ?? '') : '';
 
-            // 修繕履歴
+                // 修繕履歴
             case 'maintenance_latest_date':
                 $latest = $facility->maintenanceHistories->sortByDesc('maintenance_date')->first();
                 return $latest && $latest->maintenance_date ? $latest->maintenance_date->format('Y-m-d') : '';
@@ -1222,7 +1228,7 @@ class ExportService
             'facility_count' => $facilities->count(),
             'options' => $options
         ]);
-        
+
         return [
             'success' => false,
             'error' => 'バッチPDF生成は未実装です。'
@@ -1248,7 +1254,7 @@ class ExportService
     private function determineRequiredRelationships(array $exportFields): array
     {
         $relationships = [];
-        
+
         foreach ($exportFields as $field) {
             if (str_starts_with($field, 'land_')) {
                 $relationships[] = 'landInfo';
@@ -1276,10 +1282,10 @@ class ExportService
                 $relationships[] = 'services';
             }
         }
-        
+
         return array_unique($relationships);
     }
-    
+
     /**
      * Determine required columns based on export fields
      */
@@ -1287,7 +1293,7 @@ class ExportService
     {
         $baseColumns = ['id', 'created_at', 'updated_at'];
         $facilityColumns = [];
-        
+
         foreach ($exportFields as $field) {
             // Map export fields to actual database columns
             switch ($field) {
@@ -1353,7 +1359,7 @@ class ExportService
                     break;
             }
         }
-        
+
         return array_merge($baseColumns, array_unique($facilityColumns));
     }
 
@@ -1365,7 +1371,7 @@ class ExportService
     {
         // Determine which relationships to load based on selected fields
         $relationships = $this->determineRequiredRelationships($exportFields);
-        
+
         $facilities = Facility::whereIn('id', $facilityIds)
             ->with($relationships)
             ->select($this->determineRequiredColumns($exportFields))
@@ -1386,6 +1392,4 @@ class ExportService
             fputcsv($output, $row);
         }
     }
-
-
 }

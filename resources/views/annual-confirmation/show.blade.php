@@ -112,8 +112,13 @@
                                 </div>
                                 
                                 <div class="detail-row {{ empty($annualConfirmation->facility->designation_number) ? 'empty-field' : '' }}">
-                                    <span class="detail-label">指定番号</span>
+                                    <span class="detail-label">指定番号1</span>
                                     <span class="detail-value">{{ $annualConfirmation->facility->designation_number ?? '未設定' }}</span>
+                                </div>
+                                
+                                <div class="detail-row {{ empty($annualConfirmation->facility->designation_number_2) ? 'empty-field' : '' }}">
+                                    <span class="detail-label">指定番号2</span>
+                                    <span class="detail-value">{{ $annualConfirmation->facility->designation_number_2 ?? '未設定' }}</span>
                                 </div>
                                 
                                 <div class="detail-row {{ empty($annualConfirmation->facility->postal_code) ? 'empty-field' : '' }}">

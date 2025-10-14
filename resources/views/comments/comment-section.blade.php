@@ -56,7 +56,8 @@
                                 <option value="">-- 項目を選択 --</option>
                                 <option value="company_name">会社名</option>
                                 <option value="office_code">事業所コード</option>
-                                <option value="designation_number">指定番号</option>
+                                <option value="designation_number">指定番号1</option>
+                                <option value="designation_number_2">指定番号2</option>
                                 <option value="facility_name">施設名</option>
                                 <option value="postal_code">郵便番号</option>
                                 <option value="address">住所</option>

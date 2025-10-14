@@ -5,7 +5,7 @@
     <div class="row justify-content-center">
         <div class="col-md-12">
             <!-- 固定ヘッダーカード -->
-            <div class="facility-header-card card mb-3 sticky-top">
+            <div class="facility-header-card card sticky-top">
                 <div class="card-body py-3">
                     <div class="row align-items-center">
                         <div class="col-md-8">
@@ -53,7 +53,7 @@
 
             <!-- タブナビゲーション -->
             <div class="facility-detail-container">
-                <div class="tab-navigation mb-4">
+                <div class="tab-navigation mb-3 sticky-top bg-white" style="z-index: 1019; top: 90px;">
                     <ul class="nav nav-tabs" id="facilityTabs" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic-info" type="button" role="tab" aria-controls="basic-info" aria-selected="true">

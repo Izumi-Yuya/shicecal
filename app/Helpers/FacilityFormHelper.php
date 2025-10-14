@@ -266,6 +266,7 @@ class FacilityFormHelper
                 'company_name',
                 'office_code',
                 'designation_number',
+                'designation_number_2',
                 'facility_name',
             ],
             'contact_info' => [

@@ -39,25 +39,30 @@
 
 <!-- 所有テーブル（共通デザイン適用版） -->
 <style>
-    .ownership-table-wrapper {
-        width: 400px !important;
+    div.ownership-table-wrapper {
+        width: 33.33% !important;
+        max-width: 33.33% !important;
         margin-bottom: 1rem !important;
+        display: block !important;
     }
 
-    .ownership-table-wrapper .facility-info-card {
-        width: 400px !important;
-        max-width: 400px !important;
+    div.ownership-table-wrapper .facility-info-card {
+        width: 93% !important;
+        max-width: 93% !important;
     }
 
-    .ownership-table-wrapper .facility-basic-info-table-clean {
+    div.ownership-table-wrapper .facility-basic-info-table-clean {
         table-layout: fixed !important;
-        width: 400px !important;
+        width: 100% !important;
     }
 
-    .ownership-table-wrapper .facility-basic-info-table-clean td {
-        width: 206px !important;
-        min-width: 206px !important;
-        max-width: 206px !important;
+   .ownership-table-wrapper .facility-basic-info-table-clean td.detail-label {
+        width: 45.5% !important;
+    }
+
+    /* 値側は残り幅でOK */
+    .ownership-table-wrapper .facility-basic-info-table-clean td.detail-value {
+        width: auto !important;
     }
 
     /* 所有テーブルのスクロールバーも無効化 */
@@ -74,26 +79,24 @@
         height: 0 !important;
     }
 
-        /* 基本情報テーブルの6列均等幅設定 */
+    /* 基本情報テーブルの6列均等幅設定 */
     div.basic-info-table table.facility-basic-info-table-clean {
         table-layout: fixed !important;
         width: 100% !important;
     }
 
     div.basic-info-table table.facility-basic-info-table-clean tbody tr td {
-        width: 16.6667% !important;
-        min-width: 16.6667% !important;
-        max-width: 16.6667% !important;
+        width: 7.6667% !important;
         box-sizing: border-box !important;
     }
 
     /* 各列を個別に指定して確実に均等にする */
     div.basic-info-table table.facility-basic-info-table-clean tbody tr td:nth-child(1) {
-        width: 16.6667% !important;
+        width: 13.5% !important;
     }
 
     div.basic-info-table table.facility-basic-info-table-clean tbody tr td:nth-child(2) {
-        width: 16.6667% !important;
+        width: 16% !important;
     }
 
     div.basic-info-table table.facility-basic-info-table-clean tbody tr td:nth-child(3) {
@@ -138,11 +141,32 @@
         :data="$ownershipData"
         :showHeader="false"
         cardClass="facility-info-card detail-card-improved"
-        :tableAttributes="['style' => '--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0; table-layout: fixed; width: 400px;']"
+        :tableAttributes="['style' => '--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0; table-layout: fixed; width: 100%;']"
         bodyClass="p-0" />
 </div>
 
 @php
+    // 契約期間の文字列構築
+    $contractPeriod = null;
+    if ($landInfo->contract_start_date && $landInfo->contract_end_date) {
+        $contractPeriod = $landInfo->contract_start_date->format('Y年n月j日') . ' ～ ' . $landInfo->contract_end_date->format('Y年n月j日');
+    } elseif ($landInfo->contract_start_date) {
+        $contractPeriod = $landInfo->contract_start_date->format('Y年n月j日') . ' ～';
+    } elseif ($landInfo->contract_end_date) {
+        $contractPeriod = '～ ' . $landInfo->contract_end_date->format('Y年n月j日');
+    }
+
+    // 自動更新バッジ
+    $autoRenewalBadge = null;
+    $autoRenewalBadgeClass = 'badge bg-primary';
+    if ($landInfo->auto_renewal === 'yes') {
+        $autoRenewalBadge = '有り';
+        $autoRenewalBadgeClass = 'badge bg-success';
+    } elseif ($landInfo->auto_renewal === 'no') {
+        $autoRenewalBadge = '無し';
+        $autoRenewalBadgeClass = 'badge bg-secondary';
+    }
+
     // 基本情報テーブルデータの構築
     $basicInfoData = [
         [
@@ -159,8 +183,8 @@
                 ['label' => '購入金額', 'value' => $landInfo->purchase_price, 'type' => 'currency'],
                 ['label' => '坪単価', 'value' => $landInfo->unit_price_per_tsubo !== null ? number_format($landInfo->unit_price_per_tsubo) . '円/坪' : null, 'type' => 'text'],
                 [
-                    'label' => '謄本', 
-                    'value' => $landInfoFileData['registry'] ?? null, 
+                    'label' => '謄本',
+                    'value' => $landInfoFileData['registry'] ?? null,
                     'type' => 'file_display',
                     'options' => []
                 ],
@@ -170,48 +194,30 @@
             'type' => 'standard',
             'cells' => [
                 ['label' => '家賃', 'value' => $landInfo->monthly_rent, 'type' => 'currency'],
-                ['label' => '-', 'value' => '-', 'type' => 'text'],
+                    [
+                    'label' => '自動更新の有無',
+                    'value' => $autoRenewalBadge,
+                    'type' => 'text',
+                    'options' => ['badge_class' => $autoRenewalBadgeClass]
+                    ],
                 [
-                    'label' => '契約書・覚書', 
-                    'value' => $landInfoFileData['lease_contract'] ?? null, 
+                    'label' => '契約書・覚書',
+                    'value' => $landInfoFileData['lease_contract'] ?? null,
                     'type' => 'file_display',
                     'options' => []
                 ],
             ]
         ],
     ];
-    
-    // 契約期間の文字列構築
-    $contractPeriod = null;
-    if ($landInfo->contract_start_date && $landInfo->contract_end_date) {
-        $contractPeriod = $landInfo->contract_start_date->format('Y年n月j日') . ' ～ ' . $landInfo->contract_end_date->format('Y年n月j日');
-    }
-    
-    // 自動更新バッジ
-    $autoRenewalBadge = null;
-    $autoRenewalBadgeClass = 'badge bg-primary';
-    if ($landInfo->auto_renewal === 'yes') {
-        $autoRenewalBadge = 'あり';
-        $autoRenewalBadgeClass = 'badge bg-success';
-    } elseif ($landInfo->auto_renewal === 'no') {
-        $autoRenewalBadge = 'なし';
-        $autoRenewalBadgeClass = 'badge bg-secondary';
-    }
-    
+
     $basicInfoData[] = [
         'type' => 'standard',
         'cells' => [
-            ['label' => '契約期間', 'value' => $contractPeriod, 'type' => 'text'],
-            [
-                'label' => '自動更新の有無', 
-                'value' => $autoRenewalBadge, 
-                'type' => 'text',
-                'options' => ['badge_class' => $autoRenewalBadgeClass]
-            ],
+            ['label' => '契約期間', 'value' => $contractPeriod, 'type' => 'text', 'colspan' => 3],
             ['label' => '契約年数', 'value' => $landInfo->contract_period_text, 'type' => 'text'],
         ]
     ];
-    
+
     $basicInfoData[] = [
         'type' => 'standard',
         'cells' => [

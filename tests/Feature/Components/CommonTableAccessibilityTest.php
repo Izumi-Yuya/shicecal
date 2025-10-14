@@ -10,7 +10,7 @@ class CommonTableAccessibilityTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * Test ARIA attributes are properly set
+     * Test that ARIA attributes are properly set
      */
     public function test_aria_attributes_are_properly_set()
     {
@@ -47,7 +47,7 @@ class CommonTableAccessibilityTest extends TestCase
     }
 
     /**
-     * Test row ARIA attributes
+     * Test row ARIA attributes functionality
      */
     public function test_row_aria_attributes()
     {
@@ -84,7 +84,7 @@ class CommonTableAccessibilityTest extends TestCase
     }
 
     /**
-     * Test cell ARIA attributes
+     * Test cell ARIA attributes functionality
      */
     public function test_cell_aria_attributes()
     {

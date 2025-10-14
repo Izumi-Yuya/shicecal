@@ -211,7 +211,8 @@ class CsvFieldSelectionTest extends TestCase
         $expectedFields = [
             'company_name' => '会社名',
             'office_code' => '事業所コード',
-            'designation_number' => '指定番号',
+            'designation_number' => '指定番号1',
+            'designation_number_2' => '指定番号2',
             'facility_name' => '施設名',
             'postal_code' => '郵便番号',
             'address' => '住所',

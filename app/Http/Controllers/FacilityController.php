@@ -194,6 +194,7 @@ class FacilityController extends Controller
             'company_name' => 'required|string|max:255',
             'office_code' => 'required|string|max:20',
             'designation_number' => 'nullable|string|max:50',
+            'designation_number_2' => 'nullable|string|max:50',
             'facility_name' => 'required|string|max:255',
             'postal_code' => 'nullable|string|max:10',
             'address' => 'nullable|string',
@@ -327,6 +328,7 @@ class FacilityController extends Controller
             'company_name' => 'required|string|max:255',
             'office_code' => 'required|string|max:20',
             'designation_number' => 'nullable|string|max:50',
+            'designation_number_2' => 'nullable|string|max:50',
             'facility_name' => 'required|string|max:255',
             'postal_code' => 'nullable|string|max:10',
             'address' => 'nullable|string',
@@ -400,6 +402,7 @@ class FacilityController extends Controller
             'company_name' => 'required|string|max:255',
             'office_code' => 'required|string|max:20',
             'designation_number' => 'nullable|string|max:50',
+            'designation_number_2' => 'nullable|string|max:50',
             'facility_name' => 'required|string|max:255',
             'postal_code' => 'nullable|string|max:10',
             'address' => 'nullable|string',
@@ -411,6 +414,7 @@ class FacilityController extends Controller
             'website_url' => 'nullable|url|max:500',
             'opening_date' => 'nullable|date',
             'years_in_operation' => 'nullable|integer|min:0',
+            'months_in_operation' => 'nullable|integer|min:0|max:11',
             'building_structure' => 'nullable|string|max:100',
             'building_floors' => 'nullable|integer|min:1',
             'paid_rooms_count' => 'nullable|integer|min:0',
@@ -418,8 +422,12 @@ class FacilityController extends Controller
             'capacity' => 'nullable|integer|min:1',
             'services' => 'nullable|array',
             'services.*.service_type' => 'nullable|string|max:255',
+            'services.*.care_insurance_business_number' => 'nullable|string|max:255',
+            'services.*.insurer' => 'nullable|string|max:255',
+            'services.*.designation_date' => 'nullable|date',
             'services.*.renewal_start_date' => 'nullable|date',
             'services.*.renewal_end_date' => 'nullable|date|after_or_equal:services.*.renewal_start_date',
+            'services.*.remaining_months' => 'nullable|integer|min:0',
         ]);
 
         // 基本情報を更新（servicesを除く）
@@ -453,11 +461,18 @@ class FacilityController extends Controller
         // 新しいサービス情報を保存（空でない行のみ）
         foreach ($services as $serviceData) {
             if (! empty($serviceData['service_type'])) {
-                $facility->services()->create([
+                $service = $facility->services()->create([
                     'service_type' => $serviceData['service_type'],
+                    'care_insurance_business_number' => $serviceData['care_insurance_business_number'] ?? null,
+                    'insurer' => $serviceData['insurer'] ?? null,
+                    'designation_date' => $serviceData['designation_date'] ?? null,
                     'renewal_start_date' => $serviceData['renewal_start_date'] ?? null,
                     'renewal_end_date' => $serviceData['renewal_end_date'] ?? null,
+                    'remaining_months' => null, // 自動計算するため初期値はnull
                 ]);
+
+                // 残月を自動計算して更新
+                $service->updateRemainingMonths();
             }
         }
     }

@@ -12,7 +12,7 @@
                     <h2 class="jp-title mb-1">
                         <i class="fas fa-building text-primary me-2"></i>施設一覧
                     </h2>
-                    <p class="text-muted mb-0">登録されている施設の一覧を表示しています</p>
+                    <p class="text-muted mb-0">登録されている施設の一覧を表示しています。</p>
                 </div>
                 @if(auth()->user()->isEditor() || auth()->user()->isAdmin())
                     <a href="{{ route('facilities.create') }}" class="btn btn-primary">

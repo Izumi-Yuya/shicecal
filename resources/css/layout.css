@@ -305,8 +305,6 @@
   transition: left 0.3s ease-in-out;
   background-color: var(--light-color);
   z-index: 1000;
-  scrollbar-width: thin;
-  scrollbar-color: var(--primary-color) transparent;
 }
 
 .main-content.expanded {
@@ -332,14 +330,7 @@
   background: transparent;
 }
 
-.main-content::-webkit-scrollbar-thumb {
-  background: var(--primary-color);
-  border-radius: 4px;
-}
 
-.main-content::-webkit-scrollbar-thumb:hover {
-  background: var(--primary-dark);
-}
 
 /* Responsive Design */
 @media (max-width: 768px) {

@@ -1,7 +1,7 @@
 /* ========================================
    Facility Detail Page Styles
    Organized and optimized responsive styles
-   for the facility management interface components.
+   for facility management interface components.
    Includes support for lifeline equipment, building information,
    and land information display components.
    
@@ -368,7 +368,7 @@
   font-weight: 600;
 }
 
-/* Gas Equipment Number Layout - Number beside table */
+/* Gas Equipment Number Layout - Equipment number displayed beside table */
 .gas-equipment-sections .equipment-item {
   display: flex;
   align-items: flex-start;
@@ -909,7 +909,7 @@
 }
 
 .facility-basic-info-table-clean tr td:nth-child(2) {
-  width: 35% !important;
+  width: 45% !important;
   min-width: 200px !important;
 }
 
@@ -921,7 +921,7 @@
 }
 
 .facility-basic-info-table-clean tr td:nth-child(4) {
-  width: 35% !important;
+  width: 25% !important;
   white-space: nowrap !important;
   padding-left: var(--spacing-sm) !important;
 }
@@ -1310,4 +1310,216 @@
     height: 28px;
     font-size: 0.8rem;
   }
+}
+
+/* ===
+=====================================
+   Service Details Table Styles
+   ======================================== */
+/* Service Details Table - Fixed layout for consistent column widths */
+.service-details-table {
+  font-size: 0.9rem;
+  table-layout: fixed;
+  /* Ensures consistent column widths */
+  width: 100%;
+}
+
+.service-details-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  text-align: center;
+  vertical-align: middle;
+  border: 1px solid #dee2e6;
+  padding: 0.75rem 0.5rem;
+  white-space: nowrap;
+}
+
+.service-details-table td {
+  text-align: center;
+  vertical-align: middle;
+  border: 1px solid #dee2e6;
+  padding: 0.75rem 0.5rem;
+}
+
+.service-details-table td:first-child {
+  text-align: left;
+  font-weight: 500;
+}
+
+/* 列幅の固定設定 - 基本情報テーブルと同じ幅 */
+.service-details-table th:nth-child(1),
+/* サービス種類 */
+.service-details-table td:nth-child(1) {
+  width: 15%;
+  /* サービス種類列の幅調整 */
+}
+
+.service-details-table th:nth-child(2),
+/* 介護保険事業所番号 */
+.service-details-table td:nth-child(2) {
+  width: 20%;
+}
+
+.service-details-table th:nth-child(3),
+/* 保険者 */
+.service-details-table td:nth-child(3) {
+  width: 25%;
+}
+
+.service-details-table th:nth-child(4),
+/* 指定日〜有効期限終了日 */
+.service-details-table td:nth-child(4) {
+  width: 30%;
+}
+
+.service-details-table th:nth-child(5),
+/* 残月 */
+.service-details-table td:nth-child(5) {
+  width: 10%;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .service-details-table {
+    font-size: 0.8rem;
+  }
+
+  .service-details-table th,
+  .service-details-table td {
+    padding: 0.5rem 0.25rem;
+  }
+}
+
+/* 
+========================================
+   Service Row Edit Styles
+   ======================================== */
+.service-row {
+  position: relative;
+}
+
+.service-row .remove-service {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 10;
+  border: none;
+  background-color: transparent;
+  color: #dc3545;
+  font-size: 0.875rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.service-row .remove-service:hover {
+  background-color: #dc3545;
+  color: white;
+  transform: scale(1.05);
+}
+
+.service-row .remove-service:focus {
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* ========================================
+   Facility Header Layout Adjustments
+   ======================================== */
+.facility-header-card {
+  margin-bottom: 0 !important;
+  border-bottom: none !important;
+  border-radius: 0.375rem 0.375rem 0 0 !important;
+}
+
+.facility-header-card .card-body {
+  padding-bottom: 0 !important;
+}
+
+.facility-detail-container {
+  margin-top: -2px;
+  /* カードとタブを完全にくっつける */
+}
+
+.facility-detail-container .tab-navigation {
+  margin-top: 0 !important;
+  margin-bottom: 1rem !important;
+  border-top: none !important;
+}
+
+.facility-detail-container .nav-tabs {
+  border-top: 1px solid var(--border-light);
+  margin-top: 0;
+  padding-left: 5px;
+  /* タブを右に5px移動 */
+}
+
+/* スクロール時の固定表示でも一貫した見た目を保つ */
+.facility-header-card.sticky-top+.facility-detail-container .tab-navigation {
+  margin-top: 0 !important;
+}
+
+/*
+ ========================================
+   Service Type Cell Expansion Feature
+   ======================================== */
+.service-details-table td:first-child {
+  position: relative;
+  height: 2.5rem;
+  /* 1行分の高さに固定 */
+  overflow: hidden;
+}
+
+.service-type-content {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+  padding-right: 25px;
+  /* 展開ボタンのスペース確保 */
+}
+
+.service-type-content.expanded {
+  -webkit-line-clamp: unset;
+  display: block;
+  white-space: pre-wrap;
+}
+
+.expand-toggle {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 16px;
+  height: 16px;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 3px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #6c757d;
+  transition: all 0.2s ease;
+}
+
+.expand-toggle:hover {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.expand-toggle::before {
+  content: "⋯";
+  font-weight: bold;
+}
+
+.expand-toggle.expanded::before {
+  content: "⋀";
+}
+
+/* 展開時のセル調整 */
+.service-details-table td:first-child.expanded {
+  height: auto;
+  min-height: 2.5rem;
 }
