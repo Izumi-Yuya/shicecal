@@ -3,11 +3,18 @@
 namespace App\Services;
 
 use App\Models\Facility;
+use App\Services\Export\FieldValueExtractor;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
 class ExportService
 {
+    protected FieldValueExtractor $fieldValueExtractor;
+
+    public function __construct(FieldValueExtractor $fieldValueExtractor)
+    {
+        $this->fieldValueExtractor = $fieldValueExtractor;
+    }
     /**
      * Get the total field count for CSV export
      */
@@ -81,7 +88,36 @@ class ExportService
             'land_owner_email' => '土地オーナーメールアドレス',
             'land_owner_url' => '土地オーナーURL',
             'land_owner_notes' => '土地オーナー備考',
-
+            
+            // 建物情報
+            'building_ownership_type' => '建物所有区分',
+            'building_area_sqm' => '建築面積（㎡数）',
+            'building_area_tsubo' => '建築面積（坪数）',
+            'building_completion_date' => '竣工日',
+            'building_total_floor_area_sqm' => '延床面積（㎡数）',
+            'building_total_floor_area_tsubo' => '延べ床面積（坪数）',
+            'building_age' => '築年数',
+            'building_construction_cost' => '建築費用',
+            'building_cost_per_tsubo' => '坪単価',
+            'building_useful_life' => '耐用年数',
+            'building_construction_cooperation_fee' => '建設協力金',
+            'building_monthly_rent' => '建物家賃',
+            'building_contract_years' => '建物契約年数',
+            'building_contract_start_date' => '建物契約開始日',
+            'building_contract_end_date' => '建物契約終了日',
+            'building_auto_renewal' => '建物自動更新の有無',
+            'building_construction_company_name' => '施工会社',
+            'building_construction_company_phone' => '施工会社連絡先',
+            'building_periodic_inspection_type' => '定期調査会社',
+            'building_periodic_inspection_date' => '調査日',
+            'building_notes' => '建物備考',
+            'building_management_company_name' => '建物管理会社名',
+            'building_management_company_phone' => '建物管理会社電話番号',
+            'building_management_company_email' => '建物管理会社メールアドレス',
+            'building_owner_name' => '建物オーナー氏名',
+            'building_owner_phone' => '建物オーナー電話番号',
+            'building_owner_email' => '建物オーナーメールアドレス',
+            
             // ライフライン設備 - 電気
             'electrical_contractor' => '電力会社',
             'electrical_safety_management_company' => '電気保安管理業者',
@@ -132,15 +168,19 @@ class ExportService
             'elevator_maintenance_company' => 'エレベーター保守会社',
             'elevator_maintenance_date' => 'エレベーター保守実施日',
             'elevator_notes' => 'エレベーター設備備考',
-
-            // ライフライン設備 - 空調・照明
-            'hvac_lighting_availability' => '空調・照明設備有無',
-            'hvac_lighting_manufacturer' => '空調・照明設備メーカー',
-            'hvac_lighting_model_year' => '空調・照明設備年式',
-            'hvac_lighting_maintenance_company' => '空調・照明保守会社',
-            'hvac_lighting_maintenance_date' => '空調・照明保守実施日',
-            'hvac_lighting_notes' => '空調・照明設備備考',
-
+            
+            // ライフライン設備 - 空調設備
+            'hvac_freon_inspection_company' => '空調設備_フロンガス点検業者',
+            'hvac_freon_inspection_date' => '空調設備_点検実施日',
+            'hvac_inspection_equipment' => '空調設備_点検対象機器',
+            'hvac_notes' => '空調設備_備考',
+            
+            // ライフライン設備 - 照明設備
+            'lighting_manufacturer' => '照明設備_メーカー',
+            'lighting_update_date' => '照明設備_更新日',
+            'lighting_warranty_period' => '照明設備_保証期間',
+            'lighting_notes' => '照明設備_備考',
+            
             // 防犯・防災設備 - 防犯カメラ・電子錠
             'security_camera_management_company' => '防犯カメラ管理業者',
             'security_camera_model_year' => '防犯カメラ年式',
@@ -156,72 +196,54 @@ class ExportService
             'fire_inspection_date' => '消防設備点検実施日',
             'disaster_practical_training_date' => '防災実地訓練実施日',
             'disaster_riding_training_date' => '防災起動訓練実施日',
-
-            // 建物情報
-            'building_ownership_type' => '建物所有区分',
-            'building_area_sqm' => '建築面積（㎡数）',
-            'building_area_tsubo' => '建築面積（坪数）',
-            'building_completion_date' => '竣工日',
-            'building_total_floor_area_sqm' => '延床面積（㎡数）',
-            'building_total_floor_area_tsubo' => '延べ床面積（坪数）',
-            'building_age' => '築年数',
-            'building_construction_cost' => '建築費用',
-            'building_cost_per_tsubo' => '坪単価',
-            'building_useful_life' => '耐用年数',
-            'building_construction_cooperation_fee' => '建設協力金',
-            'building_monthly_rent' => '建物家賃',
-            'building_contract_years' => '建物契約年数',
-            'building_contract_start_date' => '建物契約開始日',
-            'building_contract_end_date' => '建物契約終了日',
-            'building_auto_renewal' => '建物自動更新の有無',
-            'building_construction_company_name' => '施工会社',
-            'building_construction_company_phone' => '施工会社連絡先',
-            'building_periodic_inspection_type' => '定期調査会社',
-            'building_periodic_inspection_date' => '調査日',
-            'building_notes' => '建物備考',
-            'building_management_company_name' => '建物管理会社名',
-            'building_management_company_phone' => '建物管理会社電話番号',
-            'building_management_company_email' => '建物管理会社メールアドレス',
-            'building_owner_name' => '建物オーナー氏名',
-            'building_owner_phone' => '建物オーナー電話番号',
-            'building_owner_email' => '建物オーナーメールアドレス',
-
-            // 図面 - 引き渡し図面 (ファイル名のみ、ファイルパスは含まない)
-            'drawing_handover_startup_drawing' => '引き渡し図面_就航図面',
-            'drawing_handover_row_2' => '引き渡し図面_2行目',
-            'drawing_handover_row_3' => '引き渡し図面_3行目',
-            'drawing_handover_row_4' => '引き渡し図面_4行目',
-            'drawing_handover_row_5' => '引き渡し図面_5行目',
-
-            // 図面 - 完成図面 (ファイル名のみ、ファイルパスは含まない)
-            'drawing_completion_row_1' => '完成図面_1行目',
-            'drawing_completion_row_2' => '完成図面_2行目',
-            'drawing_completion_row_3' => '完成図面_3行目',
-            'drawing_completion_row_4' => '完成図面_4行目',
-            'drawing_completion_row_5' => '完成図面_5行目',
-
-            // 図面 - その他図面 (ファイル名のみ、ファイルパスは含まない)
-            'drawing_others_row_1' => 'その他図面_1行目',
-            'drawing_others_row_2' => 'その他図面_2行目',
-            'drawing_others_row_3' => 'その他図面_3行目',
-            'drawing_others_row_4' => 'その他図面_4行目',
-            'drawing_others_row_5' => 'その他図面_5行目',
+            'disaster_notes' => '防災備考',
+            
+            // 図面
+            'drawing_handover_notes' => '引き渡し図面備考',
             'drawing_notes' => '図面備考',
-
-            // 修繕履歴
-            'maintenance_latest_date' => '修繕履歴_最新修繕日',
-            'maintenance_latest_content' => '修繕履歴_最新修繕内容',
-            'maintenance_latest_cost' => '修繕履歴_最新修繕費用',
-            'maintenance_latest_contractor' => '修繕履歴_最新施工業者',
-            'maintenance_latest_category' => '修繕履歴_最新カテゴリ',
-            'maintenance_latest_subcategory' => '修繕履歴_最新サブカテゴリ',
-            'maintenance_latest_contact_person' => '修繕履歴_最新担当者',
-            'maintenance_latest_phone_number' => '修繕履歴_最新電話番号',
-            'maintenance_latest_notes' => '修繕履歴_最新備考',
-            'maintenance_latest_warranty_period' => '修繕履歴_最新保証期間',
-            'maintenance_total_count' => '修繕履歴_総件数',
-            'maintenance_total_cost' => '修繕履歴_総費用',
-
+            
+            // 修繕履歴 - 外装
+            // 外装 - 防水
+            'maintenance_exterior_waterproof_date' => '外装_防水_施工日',
+            'maintenance_exterior_waterproof_company' => '外装_防水_施工会社',
+            'maintenance_exterior_waterproof_contact_person' => '外装_防水_担当者',
+            'maintenance_exterior_waterproof_contact' => '外装_防水_連絡先',
+            'maintenance_exterior_waterproof_notes' => '外装_防水_備考',
+            'maintenance_exterior_waterproof_special_notes' => '外装_防水_特記事項',
+            
+            // 外装 - 塗装
+            'maintenance_exterior_painting_date' => '外装_塗装_施工日',
+            'maintenance_exterior_painting_company' => '外装_塗装_施工会社',
+            'maintenance_exterior_painting_contact_person' => '外装_塗装_担当者',
+            'maintenance_exterior_painting_contact' => '外装_塗装_連絡先',
+            'maintenance_exterior_painting_notes' => '外装_塗装_備考',
+            'maintenance_exterior_painting_special_notes' => '外装_塗装_特記事項',
+            
+            // 修繕履歴 - 内装リニューアル
+            'maintenance_interior_renewal_date' => '内装リニューアル_リニューアル日',
+            'maintenance_interior_renewal_company' => '内装リニューアル_会社名',
+            'maintenance_interior_renewal_contact_person' => '内装リニューアル_担当者',
+            'maintenance_interior_renewal_contact' => '内装リニューアル_連絡先',
+            'maintenance_interior_renewal_special_notes' => '内装リニューアル_特記事項',
+            
+            // 内装・意匠履歴
+            'maintenance_interior_history_no' => '内装・意匠履歴_NO',
+            'maintenance_interior_history_date' => '内装・意匠履歴_施工日',
+            'maintenance_interior_history_company' => '内装・意匠履歴_施工会社',
+            'maintenance_interior_history_amount' => '内装・意匠履歴_金額',
+            'maintenance_interior_history_content' => '内装・意匠履歴_修繕内容',
+            'maintenance_interior_history_notes' => '内装・意匠履歴_備考',
+            'maintenance_interior_history_special_notes' => '内装・意匠履歴_特記事項',
+            
+            // 修繕履歴 - その他
+            'maintenance_other_renovation_no' => 'その他_改修工事履歴_No',
+            'maintenance_other_renovation_date' => 'その他_改修工事履歴_施工日',
+            'maintenance_other_renovation_company' => 'その他_改修工事履歴_施工会社',
+            'maintenance_other_renovation_amount' => 'その他_改修工事履歴_金額',
+            'maintenance_other_renovation_content' => 'その他_改修工事履歴_修繕内容',
+            'maintenance_other_renovation_notes' => 'その他_改修工事履歴_備考',
+            'maintenance_other_renovation_special_notes' => 'その他_改修工事履歴_特記事項',
+            
             // 契約書 - その他契約書
             'contract_others_company_name' => 'その他契約書_会社名',
             'contract_others_contract_type' => 'その他契約書_契約書の種類',
@@ -363,6 +385,11 @@ class ExportService
      */
     private function getFieldValue(Facility $facility, string $field): string
     {
+        // Use FieldValueExtractor for all field value extraction
+        return $this->fieldValueExtractor->getFieldValue($facility, $field);
+        
+        // Legacy code below - kept for reference but not executed
+        /*
         switch ($field) {
             // 基本情報
             case 'company_name':
@@ -1126,6 +1153,7 @@ class ExportService
             default:
                 return '';
         }
+        */
     }
 
     /**

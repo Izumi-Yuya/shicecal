@@ -524,7 +524,94 @@ export class ExportManager {
   init() {
     this.refreshElements();
     this.setupEventListeners();
+    this.setupFacilityFilters();
+    this.setupCategoryToggleHandlers();
     this.updateSelectionStatus();
+  }
+
+  setupFacilityFilters() {
+    const filterSection = document.getElementById('filterSection');
+    const filterPrefecture = document.getElementById('filterPrefecture');
+    const filterKeyword = document.getElementById('filterKeyword');
+    const clearFilters = document.getElementById('clearFilters');
+
+    if (!filterSection || !filterPrefecture || !filterKeyword) {
+      console.log('ExportManager: Filter elements not found, skipping filter setup');
+      return;
+    }
+
+    // Apply filters on change
+    const applyFilters = () => {
+      const section = filterSection.value.toLowerCase();
+      const prefecture = filterPrefecture.value.toLowerCase();
+      const keyword = filterKeyword.value.toLowerCase();
+
+      const facilityItems = document.querySelectorAll('.facility-item');
+      let visibleCount = 0;
+
+      facilityItems.forEach(item => {
+        const itemSection = (item.dataset.section || '').toLowerCase();
+        const itemPrefecture = (item.dataset.prefecture || '').toLowerCase();
+        const itemName = (item.dataset.facilityName || '').toLowerCase();
+        const itemCompany = (item.dataset.companyName || '').toLowerCase();
+        const itemCode = (item.dataset.officeCode || '').toLowerCase();
+        const itemAddress = (item.dataset.address || '').toLowerCase();
+
+        let visible = true;
+
+        // Section filter
+        if (section) {
+          // Handle combined section filter
+          if (section === '有料老人ホーム・グループホーム') {
+            visible = visible && (itemSection === '有料老人ホーム' || itemSection === 'グループホーム');
+          } else {
+            visible = visible && itemSection === section;
+          }
+        }
+
+        // Prefecture filter
+        if (prefecture) {
+          visible = visible && itemPrefecture === prefecture;
+        }
+
+        // Keyword filter
+        if (keyword) {
+          visible = visible && (
+            itemName.includes(keyword) ||
+            itemCompany.includes(keyword) ||
+            itemCode.includes(keyword) ||
+            itemAddress.includes(keyword)
+          );
+        }
+
+        item.style.display = visible ? '' : 'none';
+        if (visible) visibleCount++;
+      });
+
+      // Update visible count
+      const visibleCountElement = document.getElementById('visibleFacilitiesCount');
+      if (visibleCountElement) {
+        visibleCountElement.textContent = visibleCount;
+      }
+
+      // Update selection status
+      this.updateSelectionStatus();
+    };
+
+    // Attach event listeners
+    filterSection.addEventListener('change', applyFilters);
+    filterPrefecture.addEventListener('change', applyFilters);
+    filterKeyword.addEventListener('input', applyFilters);
+
+    // Clear filters button
+    if (clearFilters) {
+      clearFilters.addEventListener('click', () => {
+        filterSection.value = '';
+        filterPrefecture.value = '';
+        filterKeyword.value = '';
+        applyFilters();
+      });
+    }
   }
 
   setupEventListeners() {
@@ -567,14 +654,26 @@ export class ExportManager {
 
     if (selectAllFacilities) {
       selectAllFacilities.addEventListener('click', () => {
-        this.facilityCheckboxes.forEach(cb => cb.checked = true);
+        // Only select visible facilities
+        this.facilityCheckboxes.forEach(cb => {
+          const facilityItem = cb.closest('.facility-item');
+          if (!facilityItem || facilityItem.style.display !== 'none') {
+            cb.checked = true;
+          }
+        });
         this.updateSelectionStatus();
       });
     }
 
     if (deselectAllFacilities) {
       deselectAllFacilities.addEventListener('click', () => {
-        this.facilityCheckboxes.forEach(cb => cb.checked = false);
+        // Only deselect visible facilities
+        this.facilityCheckboxes.forEach(cb => {
+          const facilityItem = cb.closest('.facility-item');
+          if (!facilityItem || facilityItem.style.display !== 'none') {
+            cb.checked = false;
+          }
+        });
         this.updateSelectionStatus();
       });
     }
@@ -650,6 +749,46 @@ export class ExportManager {
     }
   }
 
+  setupCategoryToggleHandlers() {
+    // Handle category collapse toggle icon rotation
+    document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(button => {
+      const targetId = button.getAttribute('data-bs-target');
+      if (!targetId) return;
+
+      const targetElement = document.querySelector(targetId);
+      if (!targetElement) return;
+
+      // Set initial icon state based on collapse state
+      const icon = button.querySelector('.category-toggle-icon');
+      if (icon) {
+        if (targetElement.classList.contains('show')) {
+          icon.classList.remove('fa-chevron-right');
+          icon.classList.add('fa-chevron-down');
+        } else {
+          icon.classList.remove('fa-chevron-down');
+          icon.classList.add('fa-chevron-right');
+        }
+      }
+
+      // Listen for collapse events
+      targetElement.addEventListener('show.bs.collapse', () => {
+        const icon = button.querySelector('.category-toggle-icon');
+        if (icon) {
+          icon.classList.remove('fa-chevron-right');
+          icon.classList.add('fa-chevron-down');
+        }
+      });
+
+      targetElement.addEventListener('hide.bs.collapse', () => {
+        const icon = button.querySelector('.category-toggle-icon');
+        if (icon) {
+          icon.classList.remove('fa-chevron-down');
+          icon.classList.add('fa-chevron-right');
+        }
+      });
+    });
+  }
+
   updateSelectionStatus() {
     const selectedFacilities = document.querySelectorAll('.facility-checkbox:checked');
     const selectedFields = document.querySelectorAll('.field-checkbox:checked');
@@ -682,22 +821,30 @@ export class ExportManager {
     const checkbox = event.target;
     const category = checkbox.dataset.category;
     const isChecked = checkbox.checked;
+    const isParentCategory = checkbox.dataset.parentCategory === 'true';
+
+    console.log('handleCategoryChange:', { category, isChecked, isParentCategory });
 
     // Prevent automatic state update during manual category change
     this._manualCategoryChange = true;
 
-    // Select/deselect all fields in this category
-    const categoryFields = document.querySelectorAll(`[data-category="${category}"].field-checkbox`);
-    categoryFields.forEach(field => {
-      field.checked = isChecked;
-    });
-
-    // If this is a parent category with subcategories, handle them too (lifeline/contract)
-    if (['lifeline', 'contract'].includes(category)) {
+    if (isParentCategory) {
+      // Parent category (e.g., lifeline, security) - select/deselect all subcategories
       const subcategoryCheckboxes = document.querySelectorAll(`[data-parent-category="${category}"]`);
+      console.log('Found subcategories:', subcategoryCheckboxes.length);
+
       subcategoryCheckboxes.forEach(subcategory => {
         subcategory.checked = isChecked;
-        this.selectSubcategoryFields(subcategory.dataset.subcategory, isChecked);
+        const subcategoryName = subcategory.dataset.subcategory;
+        console.log('Processing subcategory:', subcategoryName);
+        this.selectSubcategoryFields(subcategoryName, isChecked);
+      });
+    } else {
+      // Regular category - select/deselect all fields in this category
+      const categoryFields = document.querySelectorAll(`[data-category="${category}"].field-checkbox`);
+      console.log('Found category fields:', categoryFields.length);
+      categoryFields.forEach(field => {
+        field.checked = isChecked;
       });
     }
 
@@ -825,26 +972,62 @@ export class ExportManager {
     // Update category counts
     this.categoryCheckboxes.forEach(categoryCheckbox => {
       const category = categoryCheckbox.dataset.category;
-      const categoryFields = document.querySelectorAll(`[data-category="${category}"].field-checkbox:checked`);
+      const isParentCategory = categoryCheckbox.dataset.parentCategory === 'true';
       const countElement = document.querySelector(`[data-category="${category}"].category-count`);
 
-      if (countElement) {
-        countElement.textContent = categoryFields.length;
-      }
+      if (isParentCategory) {
+        // Parent category (e.g., lifeline) - count all subcategory fields
+        const subcategories = document.querySelectorAll(`[data-parent-category="${category}"]`);
+        let totalChecked = 0;
+        let totalFields = 0;
 
-      // Only update category checkbox state if not during manual change
-      if (!this._manualCategoryChange) {
-        const allCategoryFields = document.querySelectorAll(`[data-category="${category}"].field-checkbox`);
-        if (allCategoryFields.length > 0) {
-          if (categoryFields.length === 0) {
+        subcategories.forEach(sub => {
+          const subcategory = sub.dataset.subcategory;
+          const allSubFields = document.querySelectorAll(`[data-subcategory="${subcategory}"].field-checkbox`);
+          const checkedSubFields = document.querySelectorAll(`[data-subcategory="${subcategory}"].field-checkbox:checked`);
+          totalFields += allSubFields.length;
+          totalChecked += checkedSubFields.length;
+        });
+
+        if (countElement) {
+          countElement.textContent = totalChecked;
+        }
+
+        // Update parent category checkbox state
+        if (!this._manualCategoryChange) {
+          if (totalChecked === 0) {
             categoryCheckbox.checked = false;
             categoryCheckbox.indeterminate = false;
-          } else if (categoryFields.length === allCategoryFields.length) {
+          } else if (totalChecked === totalFields) {
             categoryCheckbox.checked = true;
             categoryCheckbox.indeterminate = false;
           } else {
             categoryCheckbox.checked = false;
             categoryCheckbox.indeterminate = true;
+          }
+        }
+      } else {
+        // Regular category
+        const categoryFields = document.querySelectorAll(`[data-category="${category}"].field-checkbox:checked`);
+
+        if (countElement) {
+          countElement.textContent = categoryFields.length;
+        }
+
+        // Only update category checkbox state if not during manual change
+        if (!this._manualCategoryChange) {
+          const allCategoryFields = document.querySelectorAll(`[data-category="${category}"].field-checkbox`);
+          if (allCategoryFields.length > 0) {
+            if (categoryFields.length === 0) {
+              categoryCheckbox.checked = false;
+              categoryCheckbox.indeterminate = false;
+            } else if (categoryFields.length === allCategoryFields.length) {
+              categoryCheckbox.checked = true;
+              categoryCheckbox.indeterminate = false;
+            } else {
+              categoryCheckbox.checked = false;
+              categoryCheckbox.indeterminate = true;
+            }
           }
         }
       }
@@ -854,7 +1037,7 @@ export class ExportManager {
     this.subcategoryCheckboxes.forEach(subcategoryCheckbox => {
       const subcategory = subcategoryCheckbox.dataset.subcategory;
       const subcategoryFields = document.querySelectorAll(`[data-subcategory="${subcategory}"].field-checkbox:checked`);
-      const countElement = document.querySelector(`[data-subcategory="${subcategory}"].subcategory-count`);
+      const countElement = document.querySelector(`[data-category="${subcategory}"].category-count`);
 
       if (countElement) {
         countElement.textContent = subcategoryFields.length;
@@ -873,6 +1056,36 @@ export class ExportManager {
           } else {
             subcategoryCheckbox.checked = false;
             subcategoryCheckbox.indeterminate = true;
+          }
+        }
+      }
+
+      // Update parent category state based on subcategories
+      const parentCategory = subcategoryCheckbox.dataset.parentCategory;
+      if (parentCategory && !this._manualSubcategoryChange) {
+        const parentCheckbox = document.querySelector(`[data-category="${parentCategory}"][data-parent-category="true"]`);
+        if (parentCheckbox) {
+          const allSubcategories = document.querySelectorAll(`[data-parent-category="${parentCategory}"]`);
+          let totalFields = 0;
+          let checkedFields = 0;
+
+          allSubcategories.forEach(sub => {
+            const subcat = sub.dataset.subcategory;
+            const allFields = document.querySelectorAll(`[data-subcategory="${subcat}"].field-checkbox`);
+            const checked = document.querySelectorAll(`[data-subcategory="${subcat}"].field-checkbox:checked`);
+            totalFields += allFields.length;
+            checkedFields += checked.length;
+          });
+
+          if (checkedFields === 0) {
+            parentCheckbox.checked = false;
+            parentCheckbox.indeterminate = false;
+          } else if (checkedFields === totalFields) {
+            parentCheckbox.checked = true;
+            parentCheckbox.indeterminate = false;
+          } else {
+            parentCheckbox.checked = false;
+            parentCheckbox.indeterminate = true;
           }
         }
       }

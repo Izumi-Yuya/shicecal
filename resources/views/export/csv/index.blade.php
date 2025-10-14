@@ -62,6 +62,50 @@
                             <div class="col-12">
                                 <h6 class="fw-bold mb-3">施設選択</h6>
                                 
+                                <!-- 絞り込み検索 -->
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-3">
+                                                <label for="filterSection" class="form-label">部門</label>
+                                                <select class="form-select" id="filterSection">
+                                                    <option value="">すべての部門</option>
+                                                    @foreach($sections as $section)
+                                                        <option value="{{ $section }}">{{ $section }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="filterPrefecture" class="form-label">都道府県</label>
+                                                <select class="form-select" id="filterPrefecture">
+                                                    <option value="">すべての都道府県</option>
+                                                    @foreach($prefectures as $prefecture)
+                                                        <option value="{{ $prefecture }}">{{ $prefecture }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="filterKeyword" class="form-label">キーワード検索</label>
+                                                <input type="text" class="form-control" id="filterKeyword" 
+                                                       placeholder="施設名、会社名、事業所コード、住所で検索...">
+                                            </div>
+                                            <div class="col-md-2 d-flex align-items-end">
+                                                <button type="button" class="btn btn-outline-secondary w-100" id="clearFilters">
+                                                    検索クリア
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-12">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-filter me-1"></i>
+                                                    表示中: <span id="visibleFacilitiesCount">{{ count($facilities) }}</span> / {{ count($facilities) }} 件
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
                                 <!-- 全選択/全解除ボタン -->
                                 <div class="mb-3">
                                     <button type="button" class="btn btn-sm btn-outline-primary me-2" id="selectAllFacilities">
@@ -71,15 +115,26 @@
                                         全解除
                                     </button>
                                     <span class="ms-3 text-muted">
-                                        選択中: <span id="selectedFacilitiesCount">0</span> / {{ count($facilities) }} 件
+                                        選択中: <span id="selectedFacilitiesCount">0</span> / <span id="totalFacilitiesCount">{{ count($facilities) }}</span> 件
                                     </span>
                                 </div>
 
                                 <!-- 施設一覧 -->
-                                <div class="facility-list">
+                                <div class="facility-list" id="facilityList">
                                     @if(count($facilities) > 0)
                                         @foreach($facilities as $facility)
-                                            <div class="form-check mb-2">
+                                            @php
+                                                $prefectureCode = substr($facility->office_code, 0, 2);
+                                                $prefecture = config('prefectures.codes.' . $prefectureCode, '');
+                                            @endphp
+                                            <div class="form-check mb-2 facility-item" 
+                                                 data-facility-id="{{ $facility->id }}"
+                                                 data-facility-name="{{ $facility->facility_name }}"
+                                                 data-company-name="{{ $facility->company_name }}"
+                                                 data-office-code="{{ $facility->office_code }}"
+                                                 data-address="{{ $facility->address }}"
+                                                 data-section="{{ $facility->facilityBasic->section ?? '' }}"
+                                                 data-prefecture="{{ $prefecture }}">
                                                 <input class="form-check-input facility-checkbox" 
                                                        type="checkbox" 
                                                        name="facility_ids[]" 
@@ -162,6 +217,14 @@
                                             ];
                                         @endphp
                                         <div class="d-flex align-items-center mb-3">
+                                            <button class="btn btn-link text-decoration-none p-0 me-2 category-toggle-btn" 
+                                                    type="button" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#category-facility-fields" 
+                                                    aria-expanded="true" 
+                                                    aria-controls="category-facility-fields">
+                                                <i class="fas fa-chevron-down category-toggle-icon"></i>
+                                            </button>
                                             <div class="form-check me-3">
                                                 <input class="form-check-input category-checkbox" 
                                                        type="checkbox" 
@@ -176,23 +239,25 @@
                                                 (<span class="category-count" data-category="facility">0</span>/{{ count($facilityFields) }} 項目選択中)
                                             </small>
                                         </div>
-                                        <div class="row">
-                                            @foreach($facilityFields as $field => $label)
-                                                <div class="col-md-6 col-lg-4 mb-2">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input field-checkbox" 
-                                                               type="checkbox" 
-                                                               name="export_fields[]" 
-                                                               value="{{ $field }}" 
-                                                               id="field_{{ $field }}"
-                                                               data-category="facility"
-                                                               autocomplete="off">
-                                                        <label class="form-check-label" for="field_{{ $field }}">
-                                                            {{ $label }}
-                                                        </label>
+                                        <div class="collapse show" id="category-facility-fields">
+                                            <div class="row">
+                                                @foreach($facilityFields as $field => $label)
+                                                    <div class="col-md-6 col-lg-4 mb-2">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input field-checkbox" 
+                                                                   type="checkbox" 
+                                                                   name="export_fields[]" 
+                                                                   value="{{ $field }}" 
+                                                                   id="field_{{ $field }}"
+                                                                   data-category="facility"
+                                                                   autocomplete="off">
+                                                            <label class="form-check-label" for="field_{{ $field }}">
+                                                                {{ $label }}
+                                                            </label>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            @endforeach
+                                                @endforeach
+                                            </div>
                                         </div>
                                     </div>
 
@@ -232,6 +297,14 @@
                                             ];
                                         @endphp
                                         <div class="d-flex align-items-center mb-3">
+                                            <button class="btn btn-link text-decoration-none p-0 me-2 category-toggle-btn" 
+                                                    type="button" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#category-land-fields" 
+                                                    aria-expanded="true" 
+                                                    aria-controls="category-land-fields">
+                                                <i class="fas fa-chevron-down category-toggle-icon"></i>
+                                            </button>
                                             <div class="form-check me-3">
                                                 <input class="form-check-input category-checkbox" 
                                                        type="checkbox" 
@@ -246,23 +319,25 @@
                                                 (<span class="category-count" data-category="land">0</span>/{{ count($landFields) }} 項目選択中)
                                             </small>
                                         </div>
-                                        <div class="row">
-                                            @foreach($landFields as $field => $label)
-                                                <div class="col-md-6 col-lg-4 mb-2">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input field-checkbox" 
-                                                               type="checkbox" 
-                                                               name="export_fields[]" 
-                                                               value="{{ $field }}" 
-                                                               id="field_{{ $field }}"
-                                                               data-category="land"
-                                                               autocomplete="off">
-                                                        <label class="form-check-label" for="field_{{ $field }}">
-                                                            {{ $label }}
-                                                        </label>
+                                        <div class="collapse show" id="category-land-fields">
+                                            <div class="row">
+                                                @foreach($landFields as $field => $label)
+                                                    <div class="col-md-6 col-lg-4 mb-2">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input field-checkbox" 
+                                                                   type="checkbox" 
+                                                                   name="export_fields[]" 
+                                                                   value="{{ $field }}" 
+                                                                   id="field_{{ $field }}"
+                                                                   data-category="land"
+                                                                   autocomplete="off">
+                                                            <label class="form-check-label" for="field_{{ $field }}">
+                                                                {{ $label }}
+                                                            </label>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            @endforeach
+                                                @endforeach
+                                            </div>
                                         </div>
                                     </div>
 
@@ -300,6 +375,14 @@
                                             ];
                                         @endphp
                                         <div class="d-flex align-items-center mb-3">
+                                            <button class="btn btn-link text-decoration-none p-0 me-2 category-toggle-btn" 
+                                                    type="button" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#category-building-fields" 
+                                                    aria-expanded="true" 
+                                                    aria-controls="category-building-fields">
+                                                <i class="fas fa-chevron-down category-toggle-icon"></i>
+                                            </button>
                                             <div class="form-check me-3">
                                                 <input class="form-check-input category-checkbox" 
                                                        type="checkbox" 
@@ -314,246 +397,623 @@
                                                 (<span class="category-count" data-category="building">0</span>/{{ count($buildingFields) }} 項目選択中)
                                             </small>
                                         </div>
-                                        <div class="row">
-                                            @foreach($buildingFields as $field => $label)
-                                                <div class="col-md-6 col-lg-4 mb-2">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input field-checkbox" 
-                                                               type="checkbox" 
-                                                               name="export_fields[]" 
-                                                               value="{{ $field }}" 
-                                                               id="field_{{ $field }}"
-                                                               data-category="building"
-                                                               autocomplete="off">
-                                                        <label class="form-check-label" for="field_{{ $field }}">
-                                                            {{ $label }}
-                                                        </label>
+                                        <div class="collapse show" id="category-building-fields">
+                                            <div class="row">
+                                                @foreach($buildingFields as $field => $label)
+                                                    <div class="col-md-6 col-lg-4 mb-2">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input field-checkbox" 
+                                                                   type="checkbox" 
+                                                                   name="export_fields[]" 
+                                                                   value="{{ $field }}" 
+                                                                   id="field_{{ $field }}"
+                                                                   data-category="building"
+                                                                   autocomplete="off">
+                                                            <label class="form-check-label" for="field_{{ $field }}">
+                                                                {{ $label }}
+                                                            </label>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            @endforeach
+                                                @endforeach
+                                            </div>
                                         </div>
                                     </div>
 
                                     <!-- ライフライン設備 -->
                                     <div class="col-12 mb-4">
-                                        <h5 class="fw-bold text-primary mb-3"><i class="fas fa-plug me-1"></i>ライフライン設備</h5>
-
-                                        <!-- 電気設備 -->
                                         @php
                                             $electricFields = [
-                                                'power_company' => '電力会社',
-                                                'power_capacity' => '受電容量',
-                                                'power_backup' => '自家発電設備の有無',
-                                                'power_backup_capacity' => '自家発電容量',
-                                                'power_notes' => '電気備考',
+                                                'electrical_contractor' => '電力会社',
+                                                'electrical_safety_management_company' => '電気保安管理業者',
+                                                'electrical_maintenance_inspection_date' => '電気保守点検実施日',
+                                                'electrical_pas_availability' => 'PAS有無',
+                                                'electrical_pas_update_date' => 'PAS更新年月日',
+                                                'electrical_cubicle_availability' => 'キュービクル有無',
+                                                'electrical_cubicle_manufacturers' => 'キュービクルメーカー',
+                                                'electrical_cubicle_model_years' => 'キュービクル年式',
+                                                'electrical_generator_availability' => '非常用発電機有無',
+                                                'electrical_generator_manufacturers' => '非常用発電機メーカー',
+                                                'electrical_generator_model_years' => '非常用発電機年式',
+                                                'electrical_notes' => '電気設備備考',
                                             ];
-                                        @endphp
-                                        <div class="d-flex align-items-center mb-2">
-                                            <div class="form-check me-3">
-                                                <input class="form-check-input category-checkbox" type="checkbox" id="category_electric" data-category="electric" autocomplete="off">
-                                                <label class="form-check-label fw-bold text-warning" for="category_electric">電気設備</label>
-                                            </div>
-                                            <small class="text-muted">(<span class="category-count" data-category="electric">0</span>/{{ count($electricFields) }} 項目選択中)</small>
-                                        </div>
-                                        <div class="row mb-3">
-                                            @foreach($electricFields as $field => $label)
-                                                <div class="col-md-6 col-lg-4 mb-2">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input field-checkbox" type="checkbox" name="export_fields[]" value="{{ $field }}" id="field_{{ $field }}" data-category="electric" autocomplete="off">
-                                                        <label class="form-check-label" for="field_{{ $field }}">{{ $label }}</label>
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        </div>
-
-                                        <!-- 水道設備 -->
-                                        @php
                                             $waterFields = [
-                                                'water_source' => '水源種別',
-                                                'water_meter_count' => '水道メーター数',
-                                                'water_tank_capacity' => '受水槽容量',
-                                                'water_quality_check' => '水質検査有無',
-                                                'water_notes' => '水道備考',
+                                                'water_contractor' => '水道契約会社',
+                                                'water_tank_cleaning_company' => '受水槽清掃業者',
+                                                'water_tank_cleaning_date' => '受水槽清掃実施日',
+                                                'water_filter_bath_system' => '浴槽循環方式',
+                                                'water_filter_availability' => 'ろ過器設置の有無',
+                                                'water_filter_manufacturer' => 'ろ過器メーカー',
+                                                'water_filter_model_year' => 'ろ過器年式',
+                                                'water_tank_availability' => '受水槽設置の有無',
+                                                'water_tank_manufacturer' => '受水槽メーカー',
+                                                'water_tank_model_year' => '受水槽年式',
+                                                'water_pump_manufacturers' => '加圧ポンプメーカー',
+                                                'water_pump_model_years' => '加圧ポンプ年式',
+                                                'water_septic_tank_availability' => '浄化槽設置の有無',
+                                                'water_septic_tank_manufacturer' => '浄化槽メーカー',
+                                                'water_septic_tank_model_year' => '浄化槽年式',
+                                                'water_septic_tank_inspection_company' => '浄化槽点検・清掃業者',
+                                                'water_septic_tank_inspection_date' => '浄化槽点検・清掃実施日',
+                                                'water_legionella_inspection_dates' => 'レジオネラ検査実施日',
+                                                'water_legionella_first_results' => 'レジオネラ検査結果（初回）',
+                                                'water_legionella_second_results' => 'レジオネラ検査結果（2回目）',
+                                                'water_notes' => '水道設備備考',
                                             ];
-                                        @endphp
-                                        <div class="d-flex align-items-center mb-2">
-                                            <div class="form-check me-3">
-                                                <input class="form-check-input category-checkbox" type="checkbox" id="category_water" data-category="water" autocomplete="off">
-                                                <label class="form-check-label fw-bold text-primary" for="category_water">水道設備</label>
-                                            </div>
-                                            <small class="text-muted">(<span class="category-count" data-category="water">0</span>/{{ count($waterFields) }} 項目選択中)</small>
-                                        </div>
-                                        <div class="row mb-3">
-                                            @foreach($waterFields as $field => $label)
-                                                <div class="col-md-6 col-lg-4 mb-2">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input field-checkbox" type="checkbox" name="export_fields[]" value="{{ $field }}" id="field_{{ $field }}" data-category="water" autocomplete="off">
-                                                        <label class="form-check-label" for="field_{{ $field }}">{{ $label }}</label>
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        </div>
-
-                                        <!-- ガス設備 -->
-                                        @php
                                             $gasFields = [
-                                                'gas_company' => 'ガス会社',
-                                                'gas_type' => 'ガス種別',
-                                                'gas_meter_count' => 'ガスメーター数',
-                                                'gas_tank_capacity' => 'ガスタンク容量',
-                                                'gas_notes' => 'ガス備考',
+                                                'gas_contractor' => 'ガス会社',
+                                                'gas_safety_management_company' => 'ガス保安管理業者',
+                                                'gas_maintenance_inspection_date' => 'ガス保守点検実施日',
+                                                'gas_notes' => 'ガス設備備考',
                                             ];
+                                            $elevatorFields = [
+                                                'elevator_availability' => 'エレベーター有無',
+                                                'elevator_manufacturer' => 'エレベーターメーカー',
+                                                'elevator_model_year' => 'エレベーター年式',
+                                                'elevator_maintenance_company' => 'エレベーター保守会社',
+                                                'elevator_maintenance_date' => 'エレベーター保守実施日',
+                                                'elevator_notes' => 'エレベーター設備備考',
+                                            ];
+                                            $hvacFields = [
+                                                'hvac_freon_inspection_company' => 'フロンガス点検業者',
+                                                'hvac_freon_inspection_date' => '点検実施日',
+                                                'hvac_inspection_equipment' => '点検対象機器',
+                                                'hvac_notes' => '空調設備備考',
+                                            ];
+                                            $lightingFields = [
+                                                'lighting_manufacturer' => 'メーカー',
+                                                'lighting_update_date' => '更新日',
+                                                'lighting_warranty_period' => '保証期間',
+                                                'lighting_notes' => '照明設備備考',
+                                            ];
+                                            $totalLifelineFields = count($electricFields) + count($waterFields) + count($gasFields) + count($elevatorFields) + count($hvacFields) + count($lightingFields);
                                         @endphp
-                                        <div class="d-flex align-items-center mb-2">
+
+                                        <!-- ライフライン設備 親カテゴリ -->
+                                        <div class="d-flex align-items-center mb-3">
+                                            <button class="btn btn-link text-decoration-none p-0 me-2 category-toggle-btn" 
+                                                    type="button" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#category-lifeline-fields" 
+                                                    aria-expanded="true" 
+                                                    aria-controls="category-lifeline-fields">
+                                                <i class="fas fa-chevron-down category-toggle-icon"></i>
+                                            </button>
                                             <div class="form-check me-3">
-                                                <input class="form-check-input category-checkbox" type="checkbox" id="category_gas" data-category="gas" autocomplete="off">
-                                                <label class="form-check-label fw-bold text-danger" for="category_gas">ガス設備</label>
+                                                <input class="form-check-input category-checkbox" 
+                                                       type="checkbox" 
+                                                       id="category_lifeline"
+                                                       data-category="lifeline"
+                                                       data-parent-category="true"
+                                                       autocomplete="off">
+                                                <label class="form-check-label fw-bold text-primary" for="category_lifeline">
+                                                    <i class="fas fa-plug me-1"></i>ライフライン設備
+                                                </label>
                                             </div>
-                                            <small class="text-muted">(<span class="category-count" data-category="gas">0</span>/{{ count($gasFields) }} 項目選択中)</small>
-                                        </div>
-                                        <div class="row mb-3">
-                                            @foreach($gasFields as $field => $label)
-                                                <div class="col-md-6 col-lg-4 mb-2">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input field-checkbox" type="checkbox" name="export_fields[]" value="{{ $field }}" id="field_{{ $field }}" data-category="gas" autocomplete="off">
-                                                        <label class="form-check-label" for="field_{{ $field }}">{{ $label }}</label>
-                                                    </div>
-                                                </div>
-                                            @endforeach
+                                            <small class="text-muted">
+                                                (<span class="category-count" data-category="lifeline">0</span>/{{ $totalLifelineFields }} 項目選択中)
+                                            </small>
                                         </div>
 
-                                        <!-- EV設備 -->
-                                        @php
-                                            $evFields = [
-                                                'ev_charger_count' => 'EV充電器台数',
-                                                'ev_charger_type' => '充電器タイプ',
-                                                'ev_output' => '出力(kW)',
-                                                'ev_notes' => 'EV設備備考',
-                                            ];
-                                        @endphp
-                                        <div class="d-flex align-items-center mb-2">
-                                            <div class="form-check me-3">
-                                                <input class="form-check-input category-checkbox" type="checkbox" id="category_ev" data-category="ev" autocomplete="off">
-                                                <label class="form-check-label fw-bold text-success" for="category_ev">EV設備</label>
-                                            </div>
-                                            <small class="text-muted">(<span class="category-count" data-category="ev">0</span>/{{ count($evFields) }} 項目選択中)</small>
-                                        </div>
-                                        <div class="row mb-3">
-                                            @foreach($evFields as $field => $label)
-                                                <div class="col-md-6 col-lg-4 mb-2">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input field-checkbox" type="checkbox" name="export_fields[]" value="{{ $field }}" id="field_{{ $field }}" data-category="ev" autocomplete="off">
-                                                        <label class="form-check-label" for="field_{{ $field }}">{{ $label }}</label>
+                                        <div class="collapse show" id="category-lifeline-fields">
+                                            <div class="ms-4">
+                                                <!-- 電気設備 -->
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <button class="btn btn-link text-decoration-none p-0 me-2 category-toggle-btn" 
+                                                            type="button" 
+                                                            data-bs-toggle="collapse" 
+                                                            data-bs-target="#category-electric-fields" 
+                                                            aria-expanded="true" 
+                                                            aria-controls="category-electric-fields">
+                                                        <i class="fas fa-chevron-down category-toggle-icon"></i>
+                                                    </button>
+                                                    <div class="form-check me-3">
+                                                        <input class="form-check-input subcategory-checkbox" 
+                                                               type="checkbox" 
+                                                               id="category_electric" 
+                                                               data-subcategory="electric"
+                                                               data-parent-category="lifeline"
+                                                               autocomplete="off">
+                                                        <label class="form-check-label fw-bold text-warning" for="category_electric">電気設備</label>
+                                                    </div>
+                                                    <small class="text-muted">(<span class="category-count" data-category="electric">0</span>/{{ count($electricFields) }} 項目選択中)</small>
+                                                </div>
+                                                <div class="collapse show" id="category-electric-fields">
+                                                    <div class="row mb-3">
+                                                        @foreach($electricFields as $field => $label)
+                                                            <div class="col-md-6 col-lg-4 mb-2">
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input field-checkbox" 
+                                                                           type="checkbox" 
+                                                                           name="export_fields[]" 
+                                                                           value="{{ $field }}" 
+                                                                           id="field_{{ $field }}" 
+                                                                           data-category="electric"
+                                                                           data-subcategory="electric"
+                                                                           autocomplete="off">
+                                                                    <label class="form-check-label" for="field_{{ $field }}">{{ $label }}</label>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
                                                     </div>
                                                 </div>
-                                            @endforeach
-                                        </div>
 
-                                        <!-- 空調・照明設備 -->
-                                        @php
-                                            $airFields = [
-                                                'air_conditioner_type' => '空調方式',
-                                                'air_conditioner_count' => '空調機器台数',
-                                                'lighting_type' => '照明種別',
-                                                'lighting_control' => '照明制御方式',
-                                                'air_notes' => '空調・照明備考',
-                                            ];
-                                        @endphp
-                                        <div class="d-flex align-items-center mb-2">
-                                            <div class="form-check me-3">
-                                                <input class="form-check-input category-checkbox" type="checkbox" id="category_air" data-category="air" autocomplete="off">
-                                                <label class="form-check-label fw-bold text-secondary" for="category_air">空調・照明設備</label>
-                                            </div>
-                                            <small class="text-muted">(<span class="category-count" data-category="air">0</span>/{{ count($airFields) }} 項目選択中)</small>
-                                        </div>
-                                        <div class="row">
-                                            @foreach($airFields as $field => $label)
-                                                <div class="col-md-6 col-lg-4 mb-2">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input field-checkbox" type="checkbox" name="export_fields[]" value="{{ $field }}" id="field_{{ $field }}" data-category="air" autocomplete="off">
-                                                        <label class="form-check-label" for="field_{{ $field }}">{{ $label }}</label>
+                                                <!-- 水道設備 -->
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <button class="btn btn-link text-decoration-none p-0 me-2 category-toggle-btn" 
+                                                            type="button" 
+                                                            data-bs-toggle="collapse" 
+                                                            data-bs-target="#category-water-fields" 
+                                                            aria-expanded="true" 
+                                                            aria-controls="category-water-fields">
+                                                        <i class="fas fa-chevron-down category-toggle-icon"></i>
+                                                    </button>
+                                                    <div class="form-check me-3">
+                                                        <input class="form-check-input subcategory-checkbox" 
+                                                               type="checkbox" 
+                                                               id="category_water" 
+                                                               data-subcategory="water"
+                                                               data-parent-category="lifeline"
+                                                               autocomplete="off">
+                                                        <label class="form-check-label fw-bold text-info" for="category_water">水道設備</label>
+                                                    </div>
+                                                    <small class="text-muted">(<span class="category-count" data-category="water">0</span>/{{ count($waterFields) }} 項目選択中)</small>
+                                                </div>
+                                                <div class="collapse show" id="category-water-fields">
+                                                    <div class="row mb-3">
+                                                        @foreach($waterFields as $field => $label)
+                                                            <div class="col-md-6 col-lg-4 mb-2">
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input field-checkbox" 
+                                                                           type="checkbox" 
+                                                                           name="export_fields[]" 
+                                                                           value="{{ $field }}" 
+                                                                           id="field_{{ $field }}" 
+                                                                           data-category="water"
+                                                                           data-subcategory="water"
+                                                                           autocomplete="off">
+                                                                    <label class="form-check-label" for="field_{{ $field }}">{{ $label }}</label>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
                                                     </div>
                                                 </div>
-                                            @endforeach
+
+                                                <!-- ガス設備 -->
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <button class="btn btn-link text-decoration-none p-0 me-2 category-toggle-btn" 
+                                                            type="button" 
+                                                            data-bs-toggle="collapse" 
+                                                            data-bs-target="#category-gas-fields" 
+                                                            aria-expanded="true" 
+                                                            aria-controls="category-gas-fields">
+                                                        <i class="fas fa-chevron-down category-toggle-icon"></i>
+                                                    </button>
+                                                    <div class="form-check me-3">
+                                                        <input class="form-check-input subcategory-checkbox" 
+                                                               type="checkbox" 
+                                                               id="category_gas" 
+                                                               data-subcategory="gas"
+                                                               data-parent-category="lifeline"
+                                                               autocomplete="off">
+                                                        <label class="form-check-label fw-bold text-danger" for="category_gas">ガス設備</label>
+                                                    </div>
+                                                    <small class="text-muted">(<span class="category-count" data-category="gas">0</span>/{{ count($gasFields) }} 項目選択中)</small>
+                                                </div>
+                                                <div class="collapse show" id="category-gas-fields">
+                                                    <div class="row mb-3">
+                                                        @foreach($gasFields as $field => $label)
+                                                            <div class="col-md-6 col-lg-4 mb-2">
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input field-checkbox" 
+                                                                           type="checkbox" 
+                                                                           name="export_fields[]" 
+                                                                           value="{{ $field }}" 
+                                                                           id="field_{{ $field }}" 
+                                                                           data-category="gas"
+                                                                           data-subcategory="gas"
+                                                                           autocomplete="off">
+                                                                    <label class="form-check-label" for="field_{{ $field }}">{{ $label }}</label>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+
+                                                <!-- エレベーター設備 -->
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <button class="btn btn-link text-decoration-none p-0 me-2 category-toggle-btn" 
+                                                            type="button" 
+                                                            data-bs-toggle="collapse" 
+                                                            data-bs-target="#category-elevator-fields" 
+                                                            aria-expanded="true" 
+                                                            aria-controls="category-elevator-fields">
+                                                        <i class="fas fa-chevron-down category-toggle-icon"></i>
+                                                    </button>
+                                                    <div class="form-check me-3">
+                                                        <input class="form-check-input subcategory-checkbox" 
+                                                               type="checkbox" 
+                                                               id="category_elevator" 
+                                                               data-subcategory="elevator"
+                                                               data-parent-category="lifeline"
+                                                               autocomplete="off">
+                                                        <label class="form-check-label fw-bold text-secondary" for="category_elevator">エレベーター設備</label>
+                                                    </div>
+                                                    <small class="text-muted">(<span class="category-count" data-category="elevator">0</span>/{{ count($elevatorFields) }} 項目選択中)</small>
+                                                </div>
+                                                <div class="collapse show" id="category-elevator-fields">
+                                                    <div class="row mb-3">
+                                                        @foreach($elevatorFields as $field => $label)
+                                                            <div class="col-md-6 col-lg-4 mb-2">
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input field-checkbox" 
+                                                                           type="checkbox" 
+                                                                           name="export_fields[]" 
+                                                                           value="{{ $field }}" 
+                                                                           id="field_{{ $field }}" 
+                                                                           data-category="elevator"
+                                                                           data-subcategory="elevator"
+                                                                           autocomplete="off">
+                                                                    <label class="form-check-label" for="field_{{ $field }}">{{ $label }}</label>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+
+                                                <!-- 空調設備 -->
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <button class="btn btn-link text-decoration-none p-0 me-2 category-toggle-btn" 
+                                                            type="button" 
+                                                            data-bs-toggle="collapse" 
+                                                            data-bs-target="#category-hvac-fields" 
+                                                            aria-expanded="true" 
+                                                            aria-controls="category-hvac-fields">
+                                                        <i class="fas fa-chevron-down category-toggle-icon"></i>
+                                                    </button>
+                                                    <div class="form-check me-3">
+                                                        <input class="form-check-input subcategory-checkbox" 
+                                                               type="checkbox" 
+                                                               id="category_hvac" 
+                                                               data-subcategory="hvac"
+                                                               data-parent-category="lifeline"
+                                                               autocomplete="off">
+                                                        <label class="form-check-label fw-bold text-info" for="category_hvac">空調設備</label>
+                                                    </div>
+                                                    <small class="text-muted">(<span class="category-count" data-category="hvac">0</span>/{{ count($hvacFields) }} 項目選択中)</small>
+                                                </div>
+                                                <div class="collapse show" id="category-hvac-fields">
+                                                    <div class="row mb-3">
+                                                        @foreach($hvacFields as $field => $label)
+                                                            <div class="col-md-6 col-lg-4 mb-2">
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input field-checkbox" 
+                                                                           type="checkbox" 
+                                                                           name="export_fields[]" 
+                                                                           value="{{ $field }}" 
+                                                                           id="field_{{ $field }}" 
+                                                                           data-category="hvac"
+                                                                           data-subcategory="hvac"
+                                                                           autocomplete="off">
+                                                                    <label class="form-check-label" for="field_{{ $field }}">{{ $label }}</label>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+
+                                                <!-- 照明設備 -->
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <button class="btn btn-link text-decoration-none p-0 me-2 category-toggle-btn" 
+                                                            type="button" 
+                                                            data-bs-toggle="collapse" 
+                                                            data-bs-target="#category-lighting-fields" 
+                                                            aria-expanded="true" 
+                                                            aria-controls="category-lighting-fields">
+                                                        <i class="fas fa-chevron-down category-toggle-icon"></i>
+                                                    </button>
+                                                    <div class="form-check me-3">
+                                                        <input class="form-check-input subcategory-checkbox" 
+                                                               type="checkbox" 
+                                                               id="category_lighting" 
+                                                               data-subcategory="lighting"
+                                                               data-parent-category="lifeline"
+                                                               autocomplete="off">
+                                                        <label class="form-check-label fw-bold text-warning" for="category_lighting">照明設備</label>
+                                                    </div>
+                                                    <small class="text-muted">(<span class="category-count" data-category="lighting">0</span>/{{ count($lightingFields) }} 項目選択中)</small>
+                                                </div>
+                                                <div class="collapse show" id="category-lighting-fields">
+                                                    <div class="row mb-3">
+                                                        @foreach($lightingFields as $field => $label)
+                                                            <div class="col-md-6 col-lg-4 mb-2">
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input field-checkbox" 
+                                                                           type="checkbox" 
+                                                                           name="export_fields[]" 
+                                                                           value="{{ $field }}" 
+                                                                           id="field_{{ $field }}" 
+                                                                           data-category="lighting"
+                                                                           data-subcategory="lighting"
+                                                                           autocomplete="off">
+                                                                    <label class="form-check-label" for="field_{{ $field }}">{{ $label }}</label>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
                                     <!-- 防犯・防災設備 -->
                                     <div class="col-12 mb-4">
                                       @php
-                                        $securityFields = [
+                                        $securityCameraFields = [
                                           'security_camera_management_company' => '防犯カメラ管理業者',
                                           'security_camera_model_year' => '防犯カメラ年式',
                                           'security_camera_notes' => '防犯カメラ備考',
+                                        ];
+                                        $securityLockFields = [
                                           'security_lock_management_company' => '電子錠管理業者',
                                           'security_lock_model_year' => '電子錠年式',
                                           'security_lock_notes' => '電子錠備考',
+                                        ];
+                                        $fireFields = [
                                           'fire_manager' => '防火管理者',
                                           'fire_training_date' => '消防訓練実施日',
                                           'fire_inspection_company' => '消防設備点検業者',
                                           'fire_inspection_date' => '消防設備点検実施日',
+                                        ];
+                                        $disasterFields = [
                                           'disaster_practical_training_date' => '防災実地訓練実施日',
                                           'disaster_riding_training_date' => '防災起動訓練実施日',
+                                          'disaster_notes' => '防災備考',
                                         ];
+                                        $totalSecurityFields = count($securityCameraFields) + count($securityLockFields) + count($fireFields) + count($disasterFields);
                                       @endphp
 
+                                      <!-- 防犯・防災設備 親カテゴリ -->
                                       <div class="d-flex align-items-center mb-3">
+                                        <button class="btn btn-link text-decoration-none p-0 me-2 category-toggle-btn" 
+                                                type="button" 
+                                                data-bs-toggle="collapse" 
+                                                data-bs-target="#category-security-fields" 
+                                                aria-expanded="true" 
+                                                aria-controls="category-security-fields">
+                                            <i class="fas fa-chevron-down category-toggle-icon"></i>
+                                        </button>
                                         <div class="form-check me-3">
                                           <input class="form-check-input category-checkbox"
                                                  type="checkbox"
                                                  id="category_security"
                                                  data-category="security"
+                                                 data-parent-category="true"
                                                  autocomplete="off">
                                           <label class="form-check-label fw-bold text-danger" for="category_security">
                                             <i class="fas fa-shield-alt me-1"></i>防犯・防災設備
                                           </label>
                                         </div>
                                         <small class="text-muted">
-                                          (<span class="category-count" data-category="security">0</span>/{{ count($securityFields) }} 項目選択中)
+                                          (<span class="category-count" data-category="security">0</span>/{{ $totalSecurityFields }} 項目選択中)
                                         </small>
                                       </div>
 
-                                      <div class="row">
-                                        @foreach($securityFields as $field => $label)
-                                          <div class="col-md-6 col-lg-4 mb-2">
-                                            <div class="form-check">
-                                              <input class="form-check-input field-checkbox"
+                                      <div class="collapse show" id="category-security-fields">
+                                        <div class="ms-4">
+                                          <!-- 防犯カメラ -->
+                                          <div class="d-flex align-items-center mb-2">
+                                            <button class="btn btn-link text-decoration-none p-0 me-2 category-toggle-btn" 
+                                                    type="button" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#category-security-camera-fields" 
+                                                    aria-expanded="true" 
+                                                    aria-controls="category-security-camera-fields">
+                                                <i class="fas fa-chevron-down category-toggle-icon"></i>
+                                            </button>
+                                            <div class="form-check me-3">
+                                              <input class="form-check-input subcategory-checkbox"
                                                      type="checkbox"
-                                                     name="export_fields[]"
-                                                     value="{{ $field }}"
-                                                     id="field_{{ $field }}"
-                                                     data-category="security"
+                                                     id="category_security_camera"
+                                                     data-subcategory="security_camera"
+                                                     data-parent-category="security"
                                                      autocomplete="off">
-                                              <label class="form-check-label" for="field_{{ $field }}">
-                                                {{ $label }}
+                                              <label class="form-check-label fw-bold text-info" for="category_security_camera">
+                                                防犯カメラ
                                               </label>
                                             </div>
+                                            <small class="text-muted">
+                                              (<span class="category-count" data-category="security_camera">0</span>/{{ count($securityCameraFields) }} 項目選択中)
+                                            </small>
                                           </div>
-                                        @endforeach
+                                          <div class="collapse show" id="category-security-camera-fields">
+                                            <div class="row mb-3">
+                                              @foreach($securityCameraFields as $field => $label)
+                                                <div class="col-md-6 col-lg-4 mb-2">
+                                                  <div class="form-check">
+                                                    <input class="form-check-input field-checkbox"
+                                                           type="checkbox"
+                                                           name="export_fields[]"
+                                                           value="{{ $field }}"
+                                                           id="field_{{ $field }}"
+                                                           data-category="security_camera"
+                                                           data-subcategory="security_camera"
+                                                           autocomplete="off">
+                                                    <label class="form-check-label" for="field_{{ $field }}">
+                                                      {{ $label }}
+                                                    </label>
+                                                  </div>
+                                                </div>
+                                              @endforeach
+                                            </div>
+                                          </div>
+
+                                          <!-- 電子錠 -->
+                                          <div class="d-flex align-items-center mb-2">
+                                            <button class="btn btn-link text-decoration-none p-0 me-2 category-toggle-btn" 
+                                                    type="button" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#category-security-lock-fields" 
+                                                    aria-expanded="true" 
+                                                    aria-controls="category-security-lock-fields">
+                                                <i class="fas fa-chevron-down category-toggle-icon"></i>
+                                            </button>
+                                            <div class="form-check me-3">
+                                              <input class="form-check-input subcategory-checkbox"
+                                                     type="checkbox"
+                                                     id="category_security_lock"
+                                                     data-subcategory="security_lock"
+                                                     data-parent-category="security"
+                                                     autocomplete="off">
+                                              <label class="form-check-label fw-bold text-warning" for="category_security_lock">
+                                                電子錠
+                                              </label>
+                                            </div>
+                                            <small class="text-muted">
+                                              (<span class="category-count" data-category="security_lock">0</span>/{{ count($securityLockFields) }} 項目選択中)
+                                            </small>
+                                          </div>
+                                          <div class="collapse show" id="category-security-lock-fields">
+                                            <div class="row mb-3">
+                                              @foreach($securityLockFields as $field => $label)
+                                                <div class="col-md-6 col-lg-4 mb-2">
+                                                  <div class="form-check">
+                                                    <input class="form-check-input field-checkbox"
+                                                           type="checkbox"
+                                                           name="export_fields[]"
+                                                           value="{{ $field }}"
+                                                           id="field_{{ $field }}"
+                                                           data-category="security_lock"
+                                                           data-subcategory="security_lock"
+                                                           autocomplete="off">
+                                                    <label class="form-check-label" for="field_{{ $field }}">
+                                                      {{ $label }}
+                                                    </label>
+                                                  </div>
+                                                </div>
+                                              @endforeach
+                                            </div>
+                                          </div>
+
+                                          <!-- 消防 -->
+                                          <div class="d-flex align-items-center mb-2">
+                                            <button class="btn btn-link text-decoration-none p-0 me-2 category-toggle-btn" 
+                                                    type="button" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#category-fire-fields" 
+                                                    aria-expanded="true" 
+                                                    aria-controls="category-fire-fields">
+                                                <i class="fas fa-chevron-down category-toggle-icon"></i>
+                                            </button>
+                                            <div class="form-check me-3">
+                                              <input class="form-check-input subcategory-checkbox"
+                                                     type="checkbox"
+                                                     id="category_fire"
+                                                     data-subcategory="fire"
+                                                     data-parent-category="security"
+                                                     autocomplete="off">
+                                              <label class="form-check-label fw-bold text-danger" for="category_fire">
+                                                消防
+                                              </label>
+                                            </div>
+                                            <small class="text-muted">
+                                              (<span class="category-count" data-category="fire">0</span>/{{ count($fireFields) }} 項目選択中)
+                                            </small>
+                                          </div>
+                                          <div class="collapse show" id="category-fire-fields">
+                                            <div class="row mb-3">
+                                              @foreach($fireFields as $field => $label)
+                                                <div class="col-md-6 col-lg-4 mb-2">
+                                                  <div class="form-check">
+                                                    <input class="form-check-input field-checkbox"
+                                                           type="checkbox"
+                                                           name="export_fields[]"
+                                                           value="{{ $field }}"
+                                                           id="field_{{ $field }}"
+                                                           data-category="fire"
+                                                           data-subcategory="fire"
+                                                           autocomplete="off">
+                                                    <label class="form-check-label" for="field_{{ $field }}">
+                                                      {{ $label }}
+                                                    </label>
+                                                  </div>
+                                                </div>
+                                              @endforeach
+                                            </div>
+                                          </div>
+
+                                          <!-- 防災 -->
+                                          <div class="d-flex align-items-center mb-2">
+                                            <button class="btn btn-link text-decoration-none p-0 me-2 category-toggle-btn" 
+                                                    type="button" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#category-disaster-fields" 
+                                                    aria-expanded="true" 
+                                                    aria-controls="category-disaster-fields">
+                                                <i class="fas fa-chevron-down category-toggle-icon"></i>
+                                            </button>
+                                            <div class="form-check me-3">
+                                              <input class="form-check-input subcategory-checkbox"
+                                                     type="checkbox"
+                                                     id="category_disaster"
+                                                     data-subcategory="disaster"
+                                                     data-parent-category="security"
+                                                     autocomplete="off">
+                                              <label class="form-check-label fw-bold text-primary" for="category_disaster">
+                                                防災
+                                              </label>
+                                            </div>
+                                            <small class="text-muted">
+                                              (<span class="category-count" data-category="disaster">0</span>/{{ count($disasterFields) }} 項目選択中)
+                                            </small>
+                                          </div>
+                                          <div class="collapse show" id="category-disaster-fields">
+                                            <div class="row mb-3">
+                                              @foreach($disasterFields as $field => $label)
+                                                <div class="col-md-6 col-lg-4 mb-2">
+                                                  <div class="form-check">
+                                                    <input class="form-check-input field-checkbox"
+                                                           type="checkbox"
+                                                           name="export_fields[]"
+                                                           value="{{ $field }}"
+                                                           id="field_{{ $field }}"
+                                                           data-category="disaster"
+                                                           data-subcategory="disaster"
+                                                           autocomplete="off">
+                                                    <label class="form-check-label" for="field_{{ $field }}">
+                                                      {{ $label }}
+                                                    </label>
+                                                  </div>
+                                                </div>
+                                              @endforeach
+                                            </div>
+                                          </div>
+                                        </div>
                                       </div>
                                     </div>
 
                                     <!-- 契約書 -->
                                     <div class="col-12 mb-4">
-                                        <div class="d-flex align-items-center mb-3">
-                                            <div class="form-check me-3">
-                                                <input class="form-check-input category-checkbox" 
-                                                       type="checkbox" 
-                                                       id="category_contract"
-                                                       data-category="contract"
-                                                       autocomplete="off">
-                                                <label class="form-check-label fw-bold text-purple" for="category_contract">
-                                                    <i class="fas fa-file-contract me-1"></i>契約書
-                                                </label>
-                                            </div>
-                                            <small class="text-muted">
-                                                (<span class="category-count" data-category="contract">0</span> 項目選択中)
-                                            </small>
-                                        </div>
-                                        
-                                        <!-- その他契約書 -->
-                                        <div class="mb-4">
-                                          @php
+                                        @php
                                             $othersContractFields = [
                                               'contract_others_company_name' => 'その他契約書_会社名',
                                               'contract_others_contract_type' => 'その他契約書_契約書の種類',
@@ -565,180 +1025,222 @@
                                               'contract_others_amount' => 'その他契約書_金額',
                                               'contract_others_notes' => 'その他契約書_備考',
                                             ];
-                                          @endphp
+                                            $mealContractFields = [
+                                                'contract_meal_service_company_name' => '給食契約書_会社名',
+                                                'contract_meal_service_contract_type' => '給食契約書_契約書の種類',
+                                                'contract_meal_service_contract_content' => '給食契約書_契約内容',
+                                                'contract_meal_service_auto_renewal' => '給食契約書_自動更新の有無',
+                                                'contract_meal_service_contract_start_date' => '給食契約書_契約開始日',
+                                                'contract_meal_service_contract_end_date' => '給食契約書_契約終了日',
+                                                'contract_meal_service_amount' => '給食契約書_金額',
+                                                'contract_meal_service_notes' => '給食契約書_備考',
+                                            ];
+                                            $parkingContractFields = [
+                                                'contract_parking_company_name' => '駐車場契約書_会社名',
+                                                'contract_parking_contract_type' => '駐車場契約書_契約書の種類',
+                                                'contract_parking_contract_content' => '駐車場契約書_契約内容',
+                                                'contract_parking_auto_renewal' => '駐車場契約書_自動更新の有無',
+                                                'contract_parking_contract_start_date' => '駐車場契約書_契約開始日',
+                                                'contract_parking_contract_end_date' => '駐車場契約書_契約終了日',
+                                                'contract_parking_amount' => '駐車場契約書_金額',
+                                                'contract_parking_spaces' => '駐車場契約書_駐車場台数',
+                                                'contract_parking_notes' => '駐車場契約書_備考',
+                                            ];
+                                            $totalContractFields = count($othersContractFields) + count($mealContractFields) + count($parkingContractFields);
+                                        @endphp
 
-                                          <div class="d-flex align-items-center mb-2">
+                                        <!-- 契約書 親カテゴリ -->
+                                        <div class="d-flex align-items-center mb-3">
+                                            <button class="btn btn-link text-decoration-none p-0 me-2 category-toggle-btn" 
+                                                    type="button" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#category-contract-fields" 
+                                                    aria-expanded="true" 
+                                                    aria-controls="category-contract-fields">
+                                                <i class="fas fa-chevron-down category-toggle-icon"></i>
+                                            </button>
                                             <div class="form-check me-3">
-                                              <input class="form-check-input subcategory-checkbox" 
-                                                     type="checkbox" 
-                                                     id="subcategory_contract_others"
-                                                     data-subcategory="contract_others"
-                                                     data-parent-category="contract"
-                                                     autocomplete="off">
-                                              <label class="form-check-label fw-bold text-purple" for="subcategory_contract_others">
-                                                <i class="fas fa-file-alt me-1"></i>その他契約書
-                                              </label>
+                                                <input class="form-check-input category-checkbox" 
+                                                       type="checkbox" 
+                                                       id="category_contract"
+                                                       data-category="contract"
+                                                       data-parent-category="true"
+                                                       autocomplete="off">
+                                                <label class="form-check-label fw-bold text-purple" for="category_contract">
+                                                    <i class="fas fa-file-contract me-1"></i>契約書
+                                                </label>
                                             </div>
                                             <small class="text-muted">
-                                              (<span class="subcategory-count" data-subcategory="contract_others">0</span>/{{ count($othersContractFields) }} 項目)
+                                                (<span class="category-count" data-category="contract">0</span>/{{ $totalContractFields }} 項目選択中)
                                             </small>
-                                          </div>
-
-                                          <div class="row">
-                                            @foreach($othersContractFields as $field => $label)
-                                              <div class="col-md-6 col-lg-4 mb-2">
-                                                <div class="form-check">
-                                                  <input class="form-check-input field-checkbox" 
-                                                         type="checkbox" 
+                                        </div>
+                                        
+                                        <div class="collapse show" id="category-contract-fields">
+                                            <div class="ms-4">
+                                                <!-- その他契約書 -->
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <button class="btn btn-link text-decoration-none p-0 me-2 category-toggle-btn" 
+                                                            type="button" 
+                                                            data-bs-toggle="collapse" 
+                                                            data-bs-target="#category-contract-others-fields" 
+                                                            aria-expanded="true" 
+                                                            aria-controls="category-contract-others-fields">
+                                                        <i class="fas fa-chevron-down category-toggle-icon"></i>
+                                                    </button>
+                                                    <div class="form-check me-3">
+                                                        <input class="form-check-input subcategory-checkbox" 
+                                                               type="checkbox" 
+                                                               id="subcategory_contract_others"
+                                                               data-subcategory="contract_others"
+                                                               data-parent-category="contract"
+                                                               autocomplete="off">
+                                                        <label class="form-check-label fw-bold text-secondary" for="subcategory_contract_others">
+                                                            その他
+                                                        </label>
+                                                    </div>
+                                                    <small class="text-muted">
+                                                        (<span class="category-count" data-category="contract_others">0</span>/{{ count($othersContractFields) }} 項目選択中)
+                                                    </small>
+                                                </div>
+                                                <div class="collapse show" id="category-contract-others-fields">
+                                                    <div class="row mb-3">
+                                                        @foreach($othersContractFields as $field => $label)
+                                                            <div class="col-md-6 col-lg-4 mb-2">
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input field-checkbox" 
+                                                                           type="checkbox" 
                                                          name="export_fields[]" 
                                                          value="{{ $field }}" 
                                                          id="field_{{ $field }}"
-                                                         data-category="contract"
+                                                         data-category="contract_others"
                                                          data-subcategory="contract_others"
                                                          autocomplete="off">
-                                                  <label class="form-check-label" for="field_{{ $field }}">
-                                                    {{ $label }}
-                                                  </label>
+                                                                        <label class="form-check-label" for="field_{{ $field }}">
+                                                                            {{ $label }}
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                              </div>
-                                            @endforeach
-                                          </div>
-                                        </div>
 
-                                        <!-- 給食契約書 -->
-                                        <div class="mb-4">
-                                          @php
-                                              $mealContractFields = [
-                                                  'contract_meal_service_company_name' => '給食契約書_会社名',
-                                                  'contract_meal_service_contract_type' => '給食契約書_契約書の種類',
-                                                  'contract_meal_service_contract_content' => '給食契約書_契約内容',
-                                                  'contract_meal_service_auto_renewal' => '給食契約書_自動更新の有無',
-                                                  'contract_meal_service_contract_start_date' => '給食契約書_契約開始日',
-                                                  'contract_meal_service_contract_end_date' => '給食契約書_契約終了日',
-                                                  'contract_meal_service_amount' => '給食契約書_金額',
-                                                  'contract_meal_service_notes' => '給食契約書_備考',
-                                              ];
-                                          @endphp
-                                          <div class="d-flex align-items-center mb-2">
-                                              <div class="form-check me-3">
-                                                  <input class="form-check-input subcategory-checkbox" 
-                                                         type="checkbox" 
-                                                         id="subcategory_contract_meal"
-                                                         data-subcategory="contract_meal"
-                                                         data-parent-category="contract"
-                                                         autocomplete="off">
-                                                  <label class="form-check-label fw-bold text-success" for="subcategory_contract_meal">
-                                                      <i class="fas fa-utensils me-1"></i>給食契約書
-                                                  </label>
-                                              </div>
-                                              <small class="text-muted">
-                                                  (<span class="subcategory-count" data-subcategory="contract_meal">0</span>/{{ count($mealContractFields) }} 項目)
-                                              </small>
-                                          </div>
-                                          <div class="row">
-                                              @foreach($mealContractFields as $field => $label)
-                                                  <div class="col-md-6 col-lg-4 mb-2">
-                                                      <div class="form-check">
-                                                          <input class="form-check-input field-checkbox" 
-                                                                 type="checkbox" 
-                                                                 name="export_fields[]" 
-                                                                 value="{{ $field }}" 
-                                                                 id="field_{{ $field }}"
-                                                                 data-category="contract"
-                                                                 data-subcategory="contract_meal"
-                                                                 autocomplete="off">
+                                                <!-- 給食契約書 -->
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <button class="btn btn-link text-decoration-none p-0 me-2 category-toggle-btn" 
+                                                            type="button" 
+                                                            data-bs-toggle="collapse" 
+                                                            data-bs-target="#category-contract-meal-fields" 
+                                                            aria-expanded="true" 
+                                                            aria-controls="category-contract-meal-fields">
+                                                        <i class="fas fa-chevron-down category-toggle-icon"></i>
+                                                    </button>
+                                                    <div class="form-check me-3">
+                                                        <input class="form-check-input subcategory-checkbox" 
+                                                               type="checkbox" 
+                                                               id="subcategory_contract_meal"
+                                                               data-subcategory="contract_meal"
+                                                               data-parent-category="contract"
+                                                               autocomplete="off">
+                                                        <label class="form-check-label fw-bold text-success" for="subcategory_contract_meal">
+                                                            給食
+                                                        </label>
+                                                    </div>
+                                                    <small class="text-muted">
+                                                        (<span class="category-count" data-category="contract_meal">0</span>/{{ count($mealContractFields) }} 項目選択中)
+                                                    </small>
+                                                </div>
+                                                <div class="collapse show" id="category-contract-meal-fields">
+                                                    <div class="row mb-3">
+                                                        @foreach($mealContractFields as $field => $label)
+                                                            <div class="col-md-6 col-lg-4 mb-2">
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input field-checkbox" 
+                                                                           type="checkbox" 
+                                                                           name="export_fields[]" 
+                                                                           value="{{ $field }}" 
+                                                                           id="field_{{ $field }}"
+                                                                           data-category="contract_meal"
+                                                                           data-subcategory="contract_meal"
+                                                                           autocomplete="off">
                                                           <label class="form-check-label" for="field_{{ $field }}">
                                                               {{ $label }}
                                                           </label>
-                                                      </div>
-                                                  </div>
-                                              @endforeach
-                                          </div>
-                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                </div>
 
-                                        <!-- 駐車場契約書 -->
-                                        <div class="mb-4">
-                                          @php
-                                              $parkingContractFields = [
-                                                  'contract_parking_company_name' => '駐車場契約書_会社名',
-                                                  'contract_parking_contract_type' => '駐車場契約書_契約書の種類',
-                                                  'contract_parking_contract_content' => '駐車場契約書_契約内容',
-                                                  'contract_parking_auto_renewal' => '駐車場契約書_自動更新の有無',
-                                                  'contract_parking_contract_start_date' => '駐車場契約書_契約開始日',
-                                                  'contract_parking_contract_end_date' => '駐車場契約書_契約終了日',
-                                                  'contract_parking_amount' => '駐車場契約書_金額',
-                                                  'contract_parking_spaces' => '駐車場契約書_駐車場台数',
-                                                  'contract_parking_notes' => '駐車場契約書_備考',
-                                              ];
-                                          @endphp
-                                          <div class="d-flex align-items-center mb-2">
-                                              <div class="form-check me-3">
-                                                  <input class="form-check-input subcategory-checkbox" 
-                                                         type="checkbox" 
-                                                         id="subcategory_contract_parking"
-                                                         data-subcategory="contract_parking"
-                                                         data-parent-category="contract"
-                                                         autocomplete="off">
-                                                  <label class="form-check-label fw-bold text-info" for="subcategory_contract_parking">
-                                                      <i class="fas fa-parking me-1"></i>駐車場契約書
-                                                  </label>
-                                              </div>
-                                              <small class="text-muted">
-                                                  (<span class="subcategory-count" data-subcategory="contract_parking">0</span>/{{ count($parkingContractFields) }} 項目)
-                                              </small>
-                                          </div>
-                                          <div class="row">
-                                              @foreach($parkingContractFields as $field => $label)
-                                                  <div class="col-md-6 col-lg-4 mb-2">
-                                                      <div class="form-check">
-                                                          <input class="form-check-input field-checkbox" 
-                                                                 type="checkbox" 
-                                                                 name="export_fields[]" 
-                                                                 value="{{ $field }}" 
-                                                                 id="field_{{ $field }}"
-                                                                 data-category="contract"
-                                                                 data-subcategory="contract_parking"
-                                                                 autocomplete="off">
-                                                          <label class="form-check-label" for="field_{{ $field }}">
+                                                <!-- 駐車場契約書 -->
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <button class="btn btn-link text-decoration-none p-0 me-2 category-toggle-btn" 
+                                                            type="button" 
+                                                            data-bs-toggle="collapse" 
+                                                            data-bs-target="#category-contract-parking-fields" 
+                                                            aria-expanded="true" 
+                                                            aria-controls="category-contract-parking-fields">
+                                                        <i class="fas fa-chevron-down category-toggle-icon"></i>
+                                                    </button>
+                                                    <div class="form-check me-3">
+                                                        <input class="form-check-input subcategory-checkbox" 
+                                                               type="checkbox" 
+                                                               id="subcategory_contract_parking"
+                                                               data-subcategory="contract_parking"
+                                                               data-parent-category="contract"
+                                                               autocomplete="off">
+                                                        <label class="form-check-label fw-bold text-info" for="subcategory_contract_parking">
+                                                            駐車場
+                                                        </label>
+                                                    </div>
+                                                    <small class="text-muted">
+                                                        (<span class="category-count" data-category="contract_parking">0</span>/{{ count($parkingContractFields) }} 項目選択中)
+                                                    </small>
+                                                </div>
+                                                <div class="collapse show" id="category-contract-parking-fields">
+                                                    <div class="row mb-3">
+                                                        @foreach($parkingContractFields as $field => $label)
+                                                            <div class="col-md-6 col-lg-4 mb-2">
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input field-checkbox" 
+                                                                           type="checkbox" 
+                                                                           name="export_fields[]" 
+                                                                           value="{{ $field }}" 
+                                                                           id="field_{{ $field }}"
+                                                                           data-category="contract_parking"
+                                                                           data-subcategory="contract_parking"
+                                                                           autocomplete="off">
+                                                                    <label class="form-check-label" for="field_{{ $field }}">
                                                               {{ $label }}
-                                                          </label>
-                                                      </div>
-                                                  </div>
-                                              @endforeach
-                                          </div>
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
                                     <!-- 図面 -->
                                     <div class="col-12 mb-4">
                                         @php
-                                            // 各サブセクションの配列を先に定義（件数の分母で利用）
-                                            $handoverDrawingFields = [
-                                                'drawing_handover_startup_drawing' => '引き渡し図面_就航図面',
-                                                'drawing_handover_row_2' => '引き渡し図面_2行目',
-                                                'drawing_handover_row_3' => '引き渡し図面_3行目',
-                                                'drawing_handover_row_4' => '引き渡し図面_4行目',
-                                                'drawing_handover_row_5' => '引き渡し図面_5行目',
+                                            $drawingFields = [
+                                                'drawing_handover_notes' => '引き渡し図面備考',
+                                                'drawing_notes' => '備考',
                                             ];
-                                            $completionDrawingFields = [
-                                                'drawing_completion_row_1' => '完成図面_1行目',
-                                                'drawing_completion_row_2' => '完成図面_2行目',
-                                                'drawing_completion_row_3' => '完成図面_3行目',
-                                                'drawing_completion_row_4' => '完成図面_4行目',
-                                                'drawing_completion_row_5' => '完成図面_5行目',
-                                            ];
-                                            $otherDrawingFields = [
-                                                'drawing_others_row_1' => 'その他図面_1行目',
-                                                'drawing_others_row_2' => 'その他図面_2行目',
-                                                'drawing_others_row_3' => 'その他図面_3行目',
-                                                'drawing_others_row_4' => 'その他図面_4行目',
-                                                'drawing_others_row_5' => 'その他図面_5行目',
-                                                'drawing_notes' => '図面備考',
-                                            ];
-                                            $drawingTotalCount = count($handoverDrawingFields) + count($completionDrawingFields) + count($otherDrawingFields);
                                         @endphp
 
                                         <div class="d-flex align-items-center mb-3">
+                                            <button class="btn btn-link text-decoration-none p-0 me-2 category-toggle-btn" 
+                                                    type="button" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#category-drawing-fields" 
+                                                    aria-expanded="true" 
+                                                    aria-controls="category-drawing-fields">
+                                                <i class="fas fa-chevron-down category-toggle-icon"></i>
+                                            </button>
                                             <div class="form-check me-3">
                                                 <input class="form-check-input category-checkbox"
                                                        type="checkbox"
@@ -750,68 +1252,13 @@
                                                 </label>
                                             </div>
                                             <small class="text-muted">
-                                                (<span class="category-count" data-category="drawing">0</span>/{{ $drawingTotalCount }} 項目選択中)
+                                                (<span class="category-count" data-category="drawing">0</span>/{{ count($drawingFields) }} 項目選択中)
                                             </small>
                                         </div>
 
-                                        <div class="alert alert-warning mb-3">
-                                            <i class="fas fa-exclamation-triangle me-2"></i>
-                                            <small><strong>注意:</strong> 図面項目は<b>ファイル名のみ</b>を出力します。実際のファイルデータは含まれません。</small>
-                                        </div>
-                                        
-                                        <!-- 引き渡し図面 -->
-                                        <div class="mb-4">
-                                            <h6 class="fw-bold text-primary mb-2">
-                                                <i class="fas fa-file-pdf me-1"></i>引き渡し図面
-                                            </h6>
+                                        <div class="collapse show" id="category-drawing-fields">
                                             <div class="row">
-                                                @foreach($handoverDrawingFields as $field => $label)
-                                                    <div class="col-md-6 col-lg-4 mb-2">
-                                                        <div class="form-check">
-                                                            <input class="form-check-input field-checkbox"
-                                                                   type="checkbox"
-                                                                   name="export_fields[]"
-                                                                   value="{{ $field }}"
-                                                                   id="field_{{ $field }}"
-                                                                   data-category="drawing"
-                                                                   autocomplete="off">
-                                                            <label class="form-check-label" for="field_{{ $field }}">{{ $label }}</label>
-                                                        </div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        </div>
-
-                                        <!-- 完成図面 -->
-                                        <div class="mb-4">
-                                            <h6 class="fw-bold text-success mb-2">
-                                                <i class="fas fa-file-image me-1"></i>完成図面
-                                            </h6>
-                                            <div class="row">
-                                                @foreach($completionDrawingFields as $field => $label)
-                                                    <div class="col-md-6 col-lg-4 mb-2">
-                                                        <div class="form-check">
-                                                            <input class="form-check-input field-checkbox"
-                                                                   type="checkbox"
-                                                                   name="export_fields[]"
-                                                                   value="{{ $field }}"
-                                                                   id="field_{{ $field }}"
-                                                                   data-category="drawing"
-                                                                   autocomplete="off">
-                                                            <label class="form-check-label" for="field_{{ $field }}">{{ $label }}</label>
-                                                        </div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        </div>
-
-                                        <!-- その他図面 -->
-                                        <div class="mb-4">
-                                            <h6 class="fw-bold text-info mb-2">
-                                                <i class="fas fa-file-alt me-1"></i>その他図面
-                                            </h6>
-                                            <div class="row">
-                                                @foreach($otherDrawingFields as $field => $label)
+                                                @foreach($drawingFields as $field => $label)
                                                     <div class="col-md-6 col-lg-4 mb-2">
                                                         <div class="form-check">
                                                             <input class="form-check-input field-checkbox"
@@ -832,53 +1279,294 @@
                                     <!-- 修繕履歴 -->
                                     <div class="col-12 mb-4">
                                         @php
-                                            $maintenanceFields = [
-                                                'maintenance_latest_date' => '修繕履歴_最新修繕日',
-                                                'maintenance_latest_content' => '修繕履歴_最新修繕内容',
-                                                'maintenance_latest_cost' => '修繕履歴_最新修繕費用',
-                                                'maintenance_latest_contractor' => '修繕履歴_最新施工業者',
-                                                'maintenance_latest_category' => '修繕履歴_最新カテゴリ',
-                                                'maintenance_latest_subcategory' => '修繕履歴_最新サブカテゴリ',
-                                                'maintenance_latest_contact_person' => '修繕履歴_最新担当者',
-                                                'maintenance_latest_phone_number' => '修繕履歴_最新電話番号',
-                                                'maintenance_latest_notes' => '修繕履歴_最新備考',
-                                                'maintenance_latest_warranty_period' => '修繕履歴_最新保証期間',
-                                                'maintenance_total_count' => '修繕履歴_総件数',
-                                                'maintenance_total_cost' => '修繕履歴_総費用',
+                                            // 外装 - 防水
+                                            $maintenanceExteriorWaterproofFields = [
+                                                'maintenance_exterior_waterproof_date' => '施工日',
+                                                'maintenance_exterior_waterproof_company' => '施工会社',
+                                                'maintenance_exterior_waterproof_contact_person' => '担当者',
+                                                'maintenance_exterior_waterproof_contact' => '連絡先',
+                                                'maintenance_exterior_waterproof_notes' => '備考',
+                                                'maintenance_exterior_waterproof_special_notes' => '特記事項',
                                             ];
+                                            
+                                            // 外装 - 塗装
+                                            $maintenanceExteriorPaintingFields = [
+                                                'maintenance_exterior_painting_date' => '施工日',
+                                                'maintenance_exterior_painting_company' => '施工会社',
+                                                'maintenance_exterior_painting_contact_person' => '担当者',
+                                                'maintenance_exterior_painting_contact' => '連絡先',
+                                                'maintenance_exterior_painting_notes' => '備考',
+                                                'maintenance_exterior_painting_special_notes' => '特記事項',
+                                            ];
+                                            
+                                            // 内装リニューアル
+                                            $maintenanceInteriorRenewalFields = [
+                                                'maintenance_interior_renewal_date' => 'リニューアル日',
+                                                'maintenance_interior_renewal_company' => '会社名',
+                                                'maintenance_interior_renewal_contact_person' => '担当者',
+                                                'maintenance_interior_renewal_contact' => '連絡先',
+                                                'maintenance_interior_renewal_special_notes' => '特記事項',
+                                            ];
+                                            
+                                            // 内装・意匠履歴
+                                            $maintenanceInteriorHistoryFields = [
+                                                'maintenance_interior_history_no' => 'NO',
+                                                'maintenance_interior_history_date' => '施工日',
+                                                'maintenance_interior_history_company' => '施工会社',
+                                                'maintenance_interior_history_amount' => '金額',
+                                                'maintenance_interior_history_content' => '修繕内容',
+                                                'maintenance_interior_history_notes' => '備考',
+                                                'maintenance_interior_history_special_notes' => '特記事項',
+                                            ];
+                                            
+                                            // その他 - 改修工事履歴
+                                            $maintenanceOtherRenovationFields = [
+                                                'maintenance_other_renovation_no' => 'No',
+                                                'maintenance_other_renovation_date' => '施工日',
+                                                'maintenance_other_renovation_company' => '施工会社',
+                                                'maintenance_other_renovation_amount' => '金額',
+                                                'maintenance_other_renovation_content' => '修繕内容',
+                                                'maintenance_other_renovation_notes' => '備考',
+                                                'maintenance_other_renovation_special_notes' => '特記事項',
+                                            ];
+                                            
+                                            $totalMaintenanceFields = count($maintenanceExteriorWaterproofFields) + 
+                                                                     count($maintenanceExteriorPaintingFields) + 
+                                                                     count($maintenanceInteriorRenewalFields) + 
+                                                                     count($maintenanceInteriorHistoryFields) + 
+                                                                     count($maintenanceOtherRenovationFields);
                                         @endphp
 
                                         <div class="d-flex align-items-center mb-3">
+                                            <button class="btn btn-link text-decoration-none p-0 me-2 category-toggle-btn" 
+                                                    type="button" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#category-maintenance-fields" 
+                                                    aria-expanded="true" 
+                                                    aria-controls="category-maintenance-fields">
+                                                <i class="fas fa-chevron-down category-toggle-icon"></i>
+                                            </button>
                                             <div class="form-check me-3">
                                                 <input class="form-check-input category-checkbox"
                                                        type="checkbox"
                                                        id="category_maintenance"
                                                        data-category="maintenance"
+                                                       data-parent-category="true"
                                                        autocomplete="off">
                                                 <label class="form-check-label fw-bold text-warning" for="category_maintenance">
                                                     <i class="fas fa-tools me-1"></i>修繕履歴
                                                 </label>
                                             </div>
                                             <small class="text-muted">
-                                                (<span class="category-count" data-category="maintenance">0</span>/{{ count($maintenanceFields) }} 項目選択中)
+                                                (<span class="category-count" data-category="maintenance">0</span>/{{ $totalMaintenanceFields }} 項目選択中)
                                             </small>
                                         </div>
 
-                                        <div class="row">
-                                            @foreach($maintenanceFields as $field => $label)
-                                                <div class="col-md-6 col-lg-4 mb-2">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input field-checkbox"
-                                                               type="checkbox"
-                                                               name="export_fields[]"
-                                                               value="{{ $field }}"
-                                                               id="field_{{ $field }}"
-                                                               data-category="maintenance"
-                                                               autocomplete="off">
-                                                        <label class="form-check-label" for="field_{{ $field }}">{{ $label }}</label>
-                                                    </div>
+                                        <div class="collapse show" id="category-maintenance-fields">
+                                            <!-- 外装 - 防水 -->
+                                            <div class="d-flex align-items-center mb-2 ms-4">
+                                                <button class="btn btn-link text-decoration-none p-0 me-2 category-toggle-btn" 
+                                                        type="button" 
+                                                        data-bs-toggle="collapse" 
+                                                        data-bs-target="#category-maintenance-exterior-waterproof-fields" 
+                                                        aria-expanded="true" 
+                                                        aria-controls="category-maintenance-exterior-waterproof-fields">
+                                                    <i class="fas fa-chevron-down category-toggle-icon"></i>
+                                                </button>
+                                                <div class="form-check me-3">
+                                                    <input class="form-check-input subcategory-checkbox" 
+                                                           type="checkbox" 
+                                                           id="category_maintenance_exterior_waterproof" 
+                                                           data-subcategory="maintenance_exterior_waterproof"
+                                                           data-parent-category="maintenance"
+                                                           autocomplete="off">
+                                                    <label class="form-check-label fw-bold text-info" for="category_maintenance_exterior_waterproof">外装 - 防水</label>
                                                 </div>
-                                            @endforeach
+                                                <small class="text-muted">(<span class="category-count" data-category="maintenance_exterior_waterproof">0</span>/{{ count($maintenanceExteriorWaterproofFields) }} 項目選択中)</small>
+                                            </div>
+                                            <div class="collapse show" id="category-maintenance-exterior-waterproof-fields">
+                                                <div class="row mb-3">
+                                                    @foreach($maintenanceExteriorWaterproofFields as $field => $label)
+                                                        <div class="col-md-6 col-lg-4 mb-2">
+                                                            <div class="form-check">
+                                                                <input class="form-check-input field-checkbox" 
+                                                                       type="checkbox" 
+                                                                       name="export_fields[]" 
+                                                                       value="{{ $field }}" 
+                                                                       id="field_{{ $field }}" 
+                                                                       data-category="maintenance_exterior_waterproof"
+                                                                       data-subcategory="maintenance_exterior_waterproof"
+                                                                       autocomplete="off">
+                                                                <label class="form-check-label" for="field_{{ $field }}">{{ $label }}</label>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+
+                                            <!-- 外装 - 塗装 -->
+                                            <div class="d-flex align-items-center mb-2 ms-4">
+                                                <button class="btn btn-link text-decoration-none p-0 me-2 category-toggle-btn" 
+                                                        type="button" 
+                                                        data-bs-toggle="collapse" 
+                                                        data-bs-target="#category-maintenance-exterior-painting-fields" 
+                                                        aria-expanded="true" 
+                                                        aria-controls="category-maintenance-exterior-painting-fields">
+                                                    <i class="fas fa-chevron-down category-toggle-icon"></i>
+                                                </button>
+                                                <div class="form-check me-3">
+                                                    <input class="form-check-input subcategory-checkbox" 
+                                                           type="checkbox" 
+                                                           id="category_maintenance_exterior_painting" 
+                                                           data-subcategory="maintenance_exterior_painting"
+                                                           data-parent-category="maintenance"
+                                                           autocomplete="off">
+                                                    <label class="form-check-label fw-bold text-success" for="category_maintenance_exterior_painting">外装 - 塗装</label>
+                                                </div>
+                                                <small class="text-muted">(<span class="category-count" data-category="maintenance_exterior_painting">0</span>/{{ count($maintenanceExteriorPaintingFields) }} 項目選択中)</small>
+                                            </div>
+                                            <div class="collapse show" id="category-maintenance-exterior-painting-fields">
+                                                <div class="row mb-3">
+                                                    @foreach($maintenanceExteriorPaintingFields as $field => $label)
+                                                        <div class="col-md-6 col-lg-4 mb-2">
+                                                            <div class="form-check">
+                                                                <input class="form-check-input field-checkbox" 
+                                                                       type="checkbox" 
+                                                                       name="export_fields[]" 
+                                                                       value="{{ $field }}" 
+                                                                       id="field_{{ $field }}" 
+                                                                       data-category="maintenance_exterior_painting"
+                                                                       data-subcategory="maintenance_exterior_painting"
+                                                                       autocomplete="off">
+                                                                <label class="form-check-label" for="field_{{ $field }}">{{ $label }}</label>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+
+                                            <!-- 内装リニューアル -->
+                                            <div class="d-flex align-items-center mb-2 ms-4">
+                                                <button class="btn btn-link text-decoration-none p-0 me-2 category-toggle-btn" 
+                                                        type="button" 
+                                                        data-bs-toggle="collapse" 
+                                                        data-bs-target="#category-maintenance-interior-renewal-fields" 
+                                                        aria-expanded="true" 
+                                                        aria-controls="category-maintenance-interior-renewal-fields">
+                                                    <i class="fas fa-chevron-down category-toggle-icon"></i>
+                                                </button>
+                                                <div class="form-check me-3">
+                                                    <input class="form-check-input subcategory-checkbox" 
+                                                           type="checkbox" 
+                                                           id="category_maintenance_interior_renewal" 
+                                                           data-subcategory="maintenance_interior_renewal"
+                                                           data-parent-category="maintenance"
+                                                           autocomplete="off">
+                                                    <label class="form-check-label fw-bold text-warning" for="category_maintenance_interior_renewal">内装リニューアル</label>
+                                                </div>
+                                                <small class="text-muted">(<span class="category-count" data-category="maintenance_interior_renewal">0</span>/{{ count($maintenanceInteriorRenewalFields) }} 項目選択中)</small>
+                                            </div>
+                                            <div class="collapse show" id="category-maintenance-interior-renewal-fields">
+                                                <div class="row mb-3">
+                                                    @foreach($maintenanceInteriorRenewalFields as $field => $label)
+                                                        <div class="col-md-6 col-lg-4 mb-2">
+                                                            <div class="form-check">
+                                                                <input class="form-check-input field-checkbox" 
+                                                                       type="checkbox" 
+                                                                       name="export_fields[]" 
+                                                                       value="{{ $field }}" 
+                                                                       id="field_{{ $field }}" 
+                                                                       data-category="maintenance_interior_renewal"
+                                                                       data-subcategory="maintenance_interior_renewal"
+                                                                       autocomplete="off">
+                                                                <label class="form-check-label" for="field_{{ $field }}">{{ $label }}</label>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+
+                                            <!-- 内装・意匠履歴 -->
+                                            <div class="d-flex align-items-center mb-2 ms-4">
+                                                <button class="btn btn-link text-decoration-none p-0 me-2 category-toggle-btn" 
+                                                        type="button" 
+                                                        data-bs-toggle="collapse" 
+                                                        data-bs-target="#category-maintenance-interior-history-fields" 
+                                                        aria-expanded="true" 
+                                                        aria-controls="category-maintenance-interior-history-fields">
+                                                    <i class="fas fa-chevron-down category-toggle-icon"></i>
+                                                </button>
+                                                <div class="form-check me-3">
+                                                    <input class="form-check-input subcategory-checkbox" 
+                                                           type="checkbox" 
+                                                           id="category_maintenance_interior_history" 
+                                                           data-subcategory="maintenance_interior_history"
+                                                           data-parent-category="maintenance"
+                                                           autocomplete="off">
+                                                    <label class="form-check-label fw-bold text-primary" for="category_maintenance_interior_history">内装・意匠履歴</label>
+                                                </div>
+                                                <small class="text-muted">(<span class="category-count" data-category="maintenance_interior_history">0</span>/{{ count($maintenanceInteriorHistoryFields) }} 項目選択中)</small>
+                                            </div>
+                                            <div class="collapse show" id="category-maintenance-interior-history-fields">
+                                                <div class="row mb-3">
+                                                    @foreach($maintenanceInteriorHistoryFields as $field => $label)
+                                                        <div class="col-md-6 col-lg-4 mb-2">
+                                                            <div class="form-check">
+                                                                <input class="form-check-input field-checkbox" 
+                                                                       type="checkbox" 
+                                                                       name="export_fields[]" 
+                                                                       value="{{ $field }}" 
+                                                                       id="field_{{ $field }}" 
+                                                                       data-category="maintenance_interior_history"
+                                                                       data-subcategory="maintenance_interior_history"
+                                                                       autocomplete="off">
+                                                                <label class="form-check-label" for="field_{{ $field }}">{{ $label }}</label>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+
+                                            <!-- その他 - 改修工事履歴 -->
+                                            <div class="d-flex align-items-center mb-2 ms-4">
+                                                <button class="btn btn-link text-decoration-none p-0 me-2 category-toggle-btn" 
+                                                        type="button" 
+                                                        data-bs-toggle="collapse" 
+                                                        data-bs-target="#category-maintenance-other-renovation-fields" 
+                                                        aria-expanded="true" 
+                                                        aria-controls="category-maintenance-other-renovation-fields">
+                                                    <i class="fas fa-chevron-down category-toggle-icon"></i>
+                                                </button>
+                                                <div class="form-check me-3">
+                                                    <input class="form-check-input subcategory-checkbox" 
+                                                           type="checkbox" 
+                                                           id="category_maintenance_other_renovation" 
+                                                           data-subcategory="maintenance_other_renovation"
+                                                           data-parent-category="maintenance"
+                                                           autocomplete="off">
+                                                    <label class="form-check-label fw-bold text-secondary" for="category_maintenance_other_renovation">その他 - 改修工事履歴</label>
+                                                </div>
+                                                <small class="text-muted">(<span class="category-count" data-category="maintenance_other_renovation">0</span>/{{ count($maintenanceOtherRenovationFields) }} 項目選択中)</small>
+                                            </div>
+                                            <div class="collapse show" id="category-maintenance-other-renovation-fields">
+                                                <div class="row mb-3">
+                                                    @foreach($maintenanceOtherRenovationFields as $field => $label)
+                                                        <div class="col-md-6 col-lg-4 mb-2">
+                                                            <div class="form-check">
+                                                                <input class="form-check-input field-checkbox" 
+                                                                       type="checkbox" 
+                                                                       name="export_fields[]" 
+                                                                       value="{{ $field }}" 
+                                                                       id="field_{{ $field }}" 
+                                                                       data-category="maintenance_other_renovation"
+                                                                       data-subcategory="maintenance_other_renovation"
+                                                                       autocomplete="off">
+                                                                <label class="form-check-label" for="field_{{ $field }}">{{ $label }}</label>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

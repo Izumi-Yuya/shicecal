@@ -66,6 +66,40 @@ return [
             'land_owner_notes' => '土地オーナー備考',
         ]
     ],
+    'building' => [
+        'title' => '建物情報',
+        'icon' => 'fas fa-building',
+        'color' => 'text-info',
+        'fields' => [
+            'building_ownership_type' => '建物所有区分',
+            'building_area_sqm' => '建築面積（㎡数）',
+            'building_area_tsubo' => '建築面積（坪数）',
+            'building_completion_date' => '竣工日',
+            'building_total_floor_area_sqm' => '延床面積（㎡数）',
+            'building_total_floor_area_tsubo' => '延べ床面積（坪数）',
+            'building_age' => '築年数',
+            'building_construction_cost' => '建築費用',
+            'building_cost_per_tsubo' => '坪単価',
+            'building_useful_life' => '耐用年数',
+            'building_construction_cooperation_fee' => '建設協力金',
+            'building_monthly_rent' => '建物家賃',
+            'building_contract_years' => '建物契約年数',
+            'building_contract_start_date' => '建物契約開始日',
+            'building_contract_end_date' => '建物契約終了日',
+            'building_auto_renewal' => '建物自動更新の有無',
+            'building_construction_company_name' => '施工会社',
+            'building_construction_company_phone' => '施工会社連絡先',
+            'building_periodic_inspection_type' => '定期調査会社',
+            'building_periodic_inspection_date' => '調査日',
+            'building_notes' => '建物備考',
+            'building_management_company_name' => '建物管理会社名',
+            'building_management_company_phone' => '建物管理会社電話番号',
+            'building_management_company_email' => '建物管理会社メールアドレス',
+            'building_owner_name' => '建物オーナー氏名',
+            'building_owner_phone' => '建物オーナー電話番号',
+            'building_owner_email' => '建物オーナーメールアドレス',
+        ]
+    ],
     'lifeline_electrical' => [
         'title' => '電気設備',
         'icon' => 'fas fa-bolt',
@@ -113,40 +147,6 @@ return [
             'water_notes' => '水道設備備考',
         ]
     ],
-    'building' => [
-        'title' => '建物情報',
-        'icon' => 'fas fa-building',
-        'color' => 'text-info',
-        'fields' => [
-            'building_ownership_type' => '建物所有区分',
-            'building_area_sqm' => '建築面積（㎡数）',
-            'building_area_tsubo' => '建築面積（坪数）',
-            'building_completion_date' => '竣工日',
-            'building_total_floor_area_sqm' => '延床面積（㎡数）',
-            'building_total_floor_area_tsubo' => '延べ床面積（坪数）',
-            'building_age' => '築年数',
-            'building_construction_cost' => '建築費用',
-            'building_cost_per_tsubo' => '坪単価',
-            'building_useful_life' => '耐用年数',
-            'building_construction_cooperation_fee' => '建設協力金',
-            'building_monthly_rent' => '建物家賃',
-            'building_contract_years' => '建物契約年数',
-            'building_contract_start_date' => '建物契約開始日',
-            'building_contract_end_date' => '建物契約終了日',
-            'building_auto_renewal' => '建物自動更新の有無',
-            'building_construction_company_name' => '施工会社',
-            'building_construction_company_phone' => '施工会社連絡先',
-            'building_periodic_inspection_type' => '定期調査会社',
-            'building_periodic_inspection_date' => '調査日',
-            'building_notes' => '建物備考',
-            'building_management_company_name' => '建物管理会社名',
-            'building_management_company_phone' => '建物管理会社電話番号',
-            'building_management_company_email' => '建物管理会社メールアドレス',
-            'building_owner_name' => '建物オーナー氏名',
-            'building_owner_phone' => '建物オーナー電話番号',
-            'building_owner_email' => '建物オーナーメールアドレス',
-        ]
-    ],
     'lifeline_gas' => [
         'title' => 'ガス設備',
         'icon' => 'fas fa-fire',
@@ -172,16 +172,188 @@ return [
         ]
     ],
     'lifeline_hvac' => [
-        'title' => '空調・照明設備',
+        'title' => '空調設備',
         'icon' => 'fas fa-snowflake',
+        'color' => 'text-info',
+        'fields' => [
+            'hvac_freon_inspection_company' => 'フロンガス点検業者',
+            'hvac_freon_inspection_date' => '点検実施日',
+            'hvac_inspection_equipment' => '点検対象機器',
+            'hvac_notes' => '空調設備備考',
+        ]
+    ],
+    'lifeline_lighting' => [
+        'title' => '照明設備',
+        'icon' => 'fas fa-lightbulb',
+        'color' => 'text-warning',
+        'fields' => [
+            'lighting_manufacturer' => 'メーカー',
+            'lighting_update_date' => '更新日',
+            'lighting_warranty_period' => '保証期間',
+            'lighting_notes' => '照明設備備考',
+        ]
+    ],
+    'drawing' => [
+        'title' => '図面',
+        'icon' => 'fas fa-drafting-compass',
+        'color' => 'text-primary',
+        'fields' => [
+            'drawing_handover_notes' => '引き渡し図面備考',
+            'drawing_notes' => '図面備考',
+        ]
+    ],
+    'security_camera' => [
+        'title' => '防犯カメラ',
+        'icon' => 'fas fa-video',
+        'color' => 'text-info',
+        'fields' => [
+            'security_camera_management_company' => '防犯カメラ管理業者',
+            'security_camera_model_year' => '防犯カメラ年式',
+            'security_camera_notes' => '防犯カメラ備考',
+        ]
+    ],
+    'security_lock' => [
+        'title' => '電子錠',
+        'icon' => 'fas fa-lock',
+        'color' => 'text-warning',
+        'fields' => [
+            'security_lock_management_company' => '電子錠管理業者',
+            'security_lock_model_year' => '電子錠年式',
+            'security_lock_notes' => '電子錠備考',
+        ]
+    ],
+    'fire' => [
+        'title' => '消防',
+        'icon' => 'fas fa-fire-extinguisher',
+        'color' => 'text-danger',
+        'fields' => [
+            'fire_manager' => '防火管理者',
+            'fire_training_date' => '消防訓練実施日',
+            'fire_inspection_company' => '消防設備点検業者',
+            'fire_inspection_date' => '消防設備点検実施日',
+        ]
+    ],
+    'disaster' => [
+        'title' => '防災',
+        'icon' => 'fas fa-exclamation-triangle',
+        'color' => 'text-primary',
+        'fields' => [
+            'disaster_practical_training_date' => '防災実地訓練実施日',
+            'disaster_riding_training_date' => '防災起動訓練実施日',
+            'disaster_notes' => '防災備考',
+        ]
+    ],
+    'maintenance_exterior_waterproof' => [
+        'title' => '外装 - 防水',
+        'icon' => 'fas fa-tint',
+        'color' => 'text-info',
+        'fields' => [
+            'maintenance_exterior_waterproof_date' => '施工日',
+            'maintenance_exterior_waterproof_company' => '施工会社',
+            'maintenance_exterior_waterproof_contact_person' => '担当者',
+            'maintenance_exterior_waterproof_contact' => '連絡先',
+            'maintenance_exterior_waterproof_notes' => '備考',
+            'maintenance_exterior_waterproof_special_notes' => '特記事項',
+        ]
+    ],
+    'maintenance_exterior_painting' => [
+        'title' => '外装 - 塗装',
+        'icon' => 'fas fa-paint-roller',
         'color' => 'text-success',
         'fields' => [
-            'hvac_lighting_availability' => '空調・照明設備有無',
-            'hvac_lighting_manufacturer' => '空調・照明設備メーカー',
-            'hvac_lighting_model_year' => '空調・照明設備年式',
-            'hvac_lighting_maintenance_company' => '空調・照明保守会社',
-            'hvac_lighting_maintenance_date' => '空調・照明保守実施日',
-            'hvac_lighting_notes' => '空調・照明設備備考',
+            'maintenance_exterior_painting_date' => '施工日',
+            'maintenance_exterior_painting_company' => '施工会社',
+            'maintenance_exterior_painting_contact_person' => '担当者',
+            'maintenance_exterior_painting_contact' => '連絡先',
+            'maintenance_exterior_painting_notes' => '備考',
+            'maintenance_exterior_painting_special_notes' => '特記事項',
+        ]
+    ],
+    'maintenance_interior_renewal' => [
+        'title' => '内装リニューアル',
+        'icon' => 'fas fa-home',
+        'color' => 'text-warning',
+        'fields' => [
+            'maintenance_interior_renewal_date' => 'リニューアル日',
+            'maintenance_interior_renewal_company' => '会社名',
+            'maintenance_interior_renewal_contact_person' => '担当者',
+            'maintenance_interior_renewal_contact' => '連絡先',
+            'maintenance_interior_renewal_special_notes' => '特記事項',
+        ]
+    ],
+    'maintenance_interior_history' => [
+        'title' => '内装・意匠履歴',
+        'icon' => 'fas fa-history',
+        'color' => 'text-primary',
+        'fields' => [
+            'maintenance_interior_history_no' => 'NO',
+            'maintenance_interior_history_date' => '施工日',
+            'maintenance_interior_history_company' => '施工会社',
+            'maintenance_interior_history_amount' => '金額',
+            'maintenance_interior_history_content' => '修繕内容',
+            'maintenance_interior_history_notes' => '備考',
+            'maintenance_interior_history_special_notes' => '特記事項',
+        ]
+    ],
+    'maintenance_other_renovation' => [
+        'title' => 'その他 - 改修工事履歴',
+        'icon' => 'fas fa-tools',
+        'color' => 'text-secondary',
+        'fields' => [
+            'maintenance_other_renovation_no' => 'No',
+            'maintenance_other_renovation_date' => '施工日',
+            'maintenance_other_renovation_company' => '施工会社',
+            'maintenance_other_renovation_amount' => '金額',
+            'maintenance_other_renovation_content' => '修繕内容',
+            'maintenance_other_renovation_notes' => '備考',
+            'maintenance_other_renovation_special_notes' => '特記事項',
+        ]
+    ],
+    'contract_others' => [
+        'title' => 'その他契約書',
+        'icon' => 'fas fa-file-contract',
+        'color' => 'text-secondary',
+        'fields' => [
+            'contract_others_company_name' => 'その他契約書_会社名',
+            'contract_others_contract_type' => 'その他契約書_契約書の種類',
+            'contract_others_contract_content' => 'その他契約書_契約内容',
+            'contract_others_auto_renewal' => 'その他契約書_自動更新の有無',
+            'contract_others_auto_renewal_details' => 'その他契約書_自動更新詳細',
+            'contract_others_contract_start_date' => 'その他契約書_契約開始日',
+            'contract_others_contract_end_date' => 'その他契約書_契約終了日',
+            'contract_others_amount' => 'その他契約書_金額',
+            'contract_others_notes' => 'その他契約書_備考',
+        ]
+    ],
+    'contract_meal' => [
+        'title' => '給食契約書',
+        'icon' => 'fas fa-utensils',
+        'color' => 'text-success',
+        'fields' => [
+            'contract_meal_service_company_name' => '給食契約書_会社名',
+            'contract_meal_service_contract_type' => '給食契約書_契約書の種類',
+            'contract_meal_service_contract_content' => '給食契約書_契約内容',
+            'contract_meal_service_auto_renewal' => '給食契約書_自動更新の有無',
+            'contract_meal_service_contract_start_date' => '給食契約書_契約開始日',
+            'contract_meal_service_contract_end_date' => '給食契約書_契約終了日',
+            'contract_meal_service_amount' => '給食契約書_金額',
+            'contract_meal_service_notes' => '給食契約書_備考',
+        ]
+    ],
+    'contract_parking' => [
+        'title' => '駐車場契約書',
+        'icon' => 'fas fa-parking',
+        'color' => 'text-info',
+        'fields' => [
+            'contract_parking_company_name' => '駐車場契約書_会社名',
+            'contract_parking_contract_type' => '駐車場契約書_契約書の種類',
+            'contract_parking_contract_content' => '駐車場契約書_契約内容',
+            'contract_parking_auto_renewal' => '駐車場契約書_自動更新の有無',
+            'contract_parking_contract_start_date' => '駐車場契約書_契約開始日',
+            'contract_parking_contract_end_date' => '駐車場契約書_契約終了日',
+            'contract_parking_amount' => '駐車場契約書_金額',
+            'contract_parking_spaces' => '駐車場契約書_駐車場台数',
+            'contract_parking_notes' => '駐車場契約書_備考',
         ]
     ],
 ];

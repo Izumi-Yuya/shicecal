@@ -103,6 +103,9 @@ class CsvExportService
             'gas_' => 'lifelineEquipments',
             'elevator_' => 'lifelineEquipments',
             'hvac_' => 'lifelineEquipments',
+            'security_' => 'lifelineEquipments',
+            'fire_' => 'lifelineEquipments',
+            'disaster_' => 'lifelineEquipments',
             'contract_' => 'contracts',
         ];
         

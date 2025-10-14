@@ -47,6 +47,7 @@ class MaintenanceHistory extends Model
         'contact_person',
         'phone_number',
         'notes',
+        'special_notes',
         'warranty_period_years',
         'warranty_start_date',
         'warranty_end_date',
