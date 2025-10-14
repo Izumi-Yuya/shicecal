@@ -156,10 +156,7 @@
         <!-- 給湯器設備一覧（設置の有無が「有」の場合のみ表示） -->
         @if(($waterHeaterInfo['availability'] ?? '') === '有' && !empty($waterHeaters))
             @foreach($waterHeaters as $index => $heater)
-                <div class="gas-equipment-wrapper mb-3 numbered-equipment">
-                    <div class="equipment-number-badge">
-                        <span class="badge bg-success">{{ $index + 1 }}</span>
-                    </div>
+                <div class="gas-equipment-wrapper mb-3">
                     <div class="gas-six-column-equal">
                         <div class="table-responsive">
                             <table class="table facility-basic-info-table-clean" style="table-layout: fixed; margin-bottom: 0; border: 1px solid #e9ecef;">
@@ -173,7 +170,7 @@
                                 </colgroup>
                                 <tbody>
                                     <tr>
-                                        <td class="detail-label" style="padding: 0.5rem; border: 1px solid #e9ecef !important;">メーカー</td>
+                                        <td class="detail-label" style="padding: 0.5rem; border: 1px solid #e9ecef !important;">メーカー{{ $index + 1 }}</td>
                                         <td class="detail-value {{ empty($heater['manufacturer']) ? 'empty-field' : '' }}" style="padding: 0.5rem; border: 1px solid #e9ecef !important;">
                                             {{ $heater['manufacturer'] ?? '未設定' }}
                                         </td>
@@ -190,6 +187,7 @@
                                             @endif
                                         </td>
                                     </tr>
+
                                 </tbody>
                             </table>
                         </div>
