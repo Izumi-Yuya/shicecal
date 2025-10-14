@@ -69,10 +69,11 @@
                         <!-- Dynamic history entries -->
                         <div id="historiesContainer">
                             @if($category === 'exterior')
-                                {{-- 外装カテゴリの場合は塗装と防水の2つの履歴を固定表示 --}}
+                                {{-- 外装カテゴリの場合は塗装、防水、白アリ駆除の3つの履歴を固定表示 --}}
                                 @php
                                     $paintingHistory = $histories->firstWhere('subcategory', '塗装') ?? $histories->firstWhere('subcategory', 'painting');
                                     $waterproofHistory = $histories->firstWhere('subcategory', '防水') ?? $histories->firstWhere('subcategory', 'waterproof');
+                                    $termiteHistory = $histories->firstWhere('subcategory', '白アリ駆除') ?? $histories->firstWhere('subcategory', 'termite_control');
                                 @endphp
                                 
                                 {{-- 塗装履歴フォーム --}}
@@ -93,6 +94,16 @@
                                     'subcategories' => $subcategories,
                                     'fixedSubcategory' => '防水',
                                     'displayName' => '防水'
+                                ])
+                                
+                                {{-- 白アリ駆除履歴フォーム --}}
+                                @include('facilities.repair-history.partials.history-form-row', [
+                                    'index' => 2,
+                                    'history' => $termiteHistory,
+                                    'category' => $category,
+                                    'subcategories' => $subcategories,
+                                    'fixedSubcategory' => '白アリ駆除',
+                                    'displayName' => '白アリ駆除'
                                 ])
                             @elseif($category === 'interior')
                                 {{-- 内装カテゴリの場合：内装リニューアルと内装・意匠履歴 --}}

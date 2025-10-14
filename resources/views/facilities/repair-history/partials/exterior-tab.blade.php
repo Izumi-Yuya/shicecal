@@ -3,7 +3,7 @@
     @if($exteriorHistory->isNotEmpty())
         <div class="row">
             {{-- 左側：防水セクション --}}
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="equipment-section mb-4">
                     <h6 style="margin: 0 0 0.5rem 0; font-weight: bold; color: #333;">防水</h6>
                     
@@ -34,6 +34,16 @@
                                             </td>
                                         </tr>
                                         <tr>
+                                            <td class="detail-label" style="padding: 0.5rem;">保証期間</td>
+                                            <td class="detail-value {{ empty($history->warranty_end_date) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                                                @if($history->warranty_end_date)
+                                                    {{ $history->warranty_end_date->format('Y年n月') }}まで
+                                                @else
+                                                    未設定
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <td class="detail-label" style="padding: 0.5rem;">施工会社</td>
                                             <td class="detail-value {{ empty($history->contractor) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                                 {{ $history->contractor ?? '未設定' }}
@@ -61,64 +71,6 @@
                                 </tbody>
                             </table>
                         </div>
-                        
-                        {{-- 防水保証期間テーブル --}}
-                        @php
-                            $waterproofWithWarranty = $exteriorHistory->flatten()->filter(function($history) {
-                                return in_array($history->subcategory, ['waterproof', '防水']) && (
-                                    $history->warranty_period_years !== null || 
-                                    $history->warranty_start_date !== null || 
-                                    $history->warranty_end_date !== null
-                                );
-                            });
-                        @endphp
-                        
-                        @if($waterproofWithWarranty->isNotEmpty())
-                            <h6 style="margin: 1rem 0 0.5rem 0; font-weight: bold; color: #333;">【防水保証期間】</h6>
-                            <div>
-                                <table class="table table-bordered facility-basic-info-table-clean" style="--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0; width: 100%; table-layout: auto;">
-                                    <tbody>
-                                        @foreach($waterproofWithWarranty as $index => $history)
-
-                                            {{-- 保証期間情報を横並びで表示 --}}
-                                            <tr>
-                                                <td class="detail-label" style="padding: 0.5rem; white-space: nowrap;">保証期間</td>
-                                                <td class="detail-value" style="padding: 0.5rem; white-space: nowrap;">
-                                                    {{ $history->warranty_period_years ? '有' : '無' }}
-                                                </td>
-                                                <td class="detail-value" style="padding: 0.5rem; white-space: nowrap;">
-                                                    @if($history->warranty_period_years)
-                                                        {{ $history->warranty_period_years }}年
-                                                    @else
-                                                        未設定
-                                                    @endif
-                                                </td>
-                                                <td class="detail-value" style="padding: 0.5rem; white-space: nowrap;">
-                                                    @if($history->warranty_start_date)
-                                                        開始：{{ $history->warranty_start_date->format('Y年m月d日') }}
-                                                    @else
-                                                        開始：未設定
-                                                    @endif
-                                                    ～
-                                                    @if($history->warranty_end_date)
-                                                        満了：{{ $history->warranty_end_date->format('Y年m月d日') }}
-                                                    @else
-                                                        満了：未設定
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                            {{-- 備考を下の行に表示 --}}
-                                            <tr>
-                                                <td class="detail-label" style="padding: 0.5rem;">備考</td>
-                                                <td class="detail-value {{ empty($history->notes) ? 'empty-field' : '' }}" style="padding: 0.5rem;" colspan="3">
-                                                    {{ $history->notes ?? '未設定' }}
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        @endif
                     @else
                         <div class="table-responsive">
                             <table class="table table-bordered facility-basic-info-table-clean" style="--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0;">
@@ -135,8 +87,8 @@
                 </div>
             </div>
 
-            {{-- 右側：塗装セクション --}}
-            <div class="col-md-6">
+            {{-- 中央：塗装セクション --}}
+            <div class="col-md-4">
                 <div class="equipment-section mb-4">
                     <h6 style="margin: 0 0 0.5rem 0; font-weight: bold; color: #333;">塗装</h6>
                     
@@ -153,7 +105,7 @@
                         $paintingHistory = $paintingHistory->merge($japanesePainting);
                     @endphp
                     @if($paintingHistory->isNotEmpty())
-                        <div class="table-responsive">
+                        <div class="table-responsive mb-3">
                             <table class="table table-bordered facility-basic-info-table-clean" style="--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0;">
                                 <tbody>
                                     @foreach($paintingHistory as $index => $history)
@@ -164,6 +116,16 @@
                                             <td class="detail-label" style="padding: 0.5rem;">施工日</td>
                                             <td class="detail-value {{ empty($history->maintenance_date) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                                 {{ $history->maintenance_date ? $history->maintenance_date->format('Y年m月d日') : '未設定' }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="detail-label" style="padding: 0.5rem;">保証期間</td>
+                                            <td class="detail-value {{ empty($history->warranty_end_date) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                                                @if($history->warranty_end_date)
+                                                    {{ $history->warranty_end_date->format('Y年n月') }}まで
+                                                @else
+                                                    未設定
+                                                @endif
                                             </td>
                                         </tr>
                                         <tr>
@@ -201,6 +163,91 @@
                                     <tr>
                                         <td class="detail-value empty-field" style="padding: 0.5rem;">
                                             <i class="fas fa-info-circle me-2"></i>塗装工事の修繕履歴が登録されていません。
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            {{-- 右側：白アリ駆除セクション --}}
+            <div class="col-md-4">
+                <div class="equipment-section mb-4">
+                    <h6 style="margin: 0 0 0.5rem 0; font-weight: bold; color: #333;">白アリ駆除</h6>
+                    
+                    @php
+                        $termiteHistory = collect();
+                        if ($exteriorHistory->has('termite_control')) {
+                            $termiteHistory = $termiteHistory->merge($exteriorHistory['termite_control']);
+                        }
+                        // 日本語で入力された白アリ駆除履歴も含める
+                        $allHistory = $exteriorHistory->flatten();
+                        $japaneseTermite = $allHistory->filter(function($history) {
+                            return $history->subcategory === '白アリ駆除';
+                        });
+                        $termiteHistory = $termiteHistory->merge($japaneseTermite);
+                    @endphp
+                    @if($termiteHistory->isNotEmpty())
+                        <div class="table-responsive mb-3">
+                            <table class="table table-bordered facility-basic-info-table-clean" style="--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0;">
+                                <tbody>
+                                    @foreach($termiteHistory as $index => $history)
+                                        @if($index > 0)
+                                            <tr><td colspan="2" style="height: 8px; padding: 0; border: none; background: #f8f9fa;"></td></tr>
+                                        @endif
+                                        <tr>
+                                            <td class="detail-label" style="padding: 0.5rem;">施工日</td>
+                                            <td class="detail-value {{ empty($history->maintenance_date) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                                                {{ $history->maintenance_date ? $history->maintenance_date->format('Y年m月d日') : '未設定' }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="detail-label" style="padding: 0.5rem;">保証期間</td>
+                                            <td class="detail-value {{ empty($history->warranty_end_date) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                                                @if($history->warranty_end_date)
+                                                    {{ $history->warranty_end_date->format('Y年n月') }}まで
+                                                @else
+                                                    未設定
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="detail-label" style="padding: 0.5rem;">施工会社</td>
+                                            <td class="detail-value {{ empty($history->contractor) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                                                {{ $history->contractor ?? '未設定' }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="detail-label" style="padding: 0.5rem;">担当者</td>
+                                            <td class="detail-value {{ empty($history->contact_person) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                                                {{ $history->contact_person ?? '未設定' }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="detail-label" style="padding: 0.5rem;">連絡先</td>
+                                            <td class="detail-value {{ empty($history->phone_number) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                                                {{ $history->phone_number ?? '未設定' }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="detail-label" style="padding: 0.5rem;">備考</td>
+                                            <td class="detail-value {{ empty($history->notes) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                                                {{ $history->notes ?? '未設定' }}
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="table-responsive">
+                            <table class="table table-bordered facility-basic-info-table-clean" style="--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0;">
+                                <tbody>
+                                    <tr>
+                                        <td class="detail-value empty-field" style="padding: 0.5rem;">
+                                            <i class="fas fa-info-circle me-2"></i>白アリ駆除の修繕履歴が登録されていません。
                                         </td>
                                     </tr>
                                 </tbody>

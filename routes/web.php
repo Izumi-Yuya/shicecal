@@ -178,6 +178,23 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/{category}', [\App\Http\Controllers\RepairHistoryController::class, 'update'])->name('update');
         });
 
+        // Maintenance Documents routes
+        Route::prefix('maintenance-documents')->name('maintenance-documents.')->group(function () {
+            // Category-specific document management
+            Route::get('/{category}', [\App\Http\Controllers\MaintenanceDocumentController::class, 'index'])->name('index');
+            Route::post('/{category}/upload', [\App\Http\Controllers\MaintenanceDocumentController::class, 'uploadFile'])->name('upload');
+            Route::post('/{category}/folders', [\App\Http\Controllers\MaintenanceDocumentController::class, 'createFolder'])->name('create-folder');
+            
+            // Folder operations
+            Route::put('/{category}/folders/{folder}', [\App\Http\Controllers\MaintenanceDocumentController::class, 'renameFolder'])->name('rename-folder')->where('folder', '[0-9]+');
+            Route::delete('/{category}/folders/{folder}', [\App\Http\Controllers\MaintenanceDocumentController::class, 'deleteFolder'])->name('delete-folder')->where('folder', '[0-9]+');
+            
+            // File operations
+            Route::get('/{category}/files/{file}/download', [\App\Http\Controllers\MaintenanceDocumentController::class, 'downloadFile'])->name('download-file')->where('file', '[0-9]+');
+            Route::put('/{category}/files/{file}', [\App\Http\Controllers\MaintenanceDocumentController::class, 'renameFile'])->name('rename-file')->where('file', '[0-9]+');
+            Route::delete('/{category}/files/{file}', [\App\Http\Controllers\MaintenanceDocumentController::class, 'deleteFile'])->name('delete-file')->where('file', '[0-9]+');
+        });
+
         // Drawings routes
         Route::prefix('drawings')->name('drawings.')->group(function () {
             Route::get('/edit', [\App\Http\Controllers\DrawingController::class, 'edit'])->name('edit');

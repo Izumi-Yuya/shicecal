@@ -18,11 +18,12 @@ $cost = $history ? $history->cost : old("histories.{$index}.cost", '');
 
 // 外装カテゴリ専用フィールド
 $warrantyPeriodYears = $history ? $history->warranty_period_years : old("histories.{$index}.warranty_period_years", '');
+$warrantyPeriodMonths = $history ? $history->warranty_period_months : old("histories.{$index}.warranty_period_months", '');
 $warrantyStartDate = $history ? $history->warranty_start_date?->format('Y-m-d') : old("histories.{$index}.warranty_start_date", '');
 $warrantyEndDate = $history ? $history->warranty_end_date?->format('Y-m-d') : old("histories.{$index}.warranty_end_date", '');
 
 // 保証期間の有無を判定
-$hasWarranty = $history ? ($history->warranty_period_years !== null) : false;
+$hasWarranty = $history ? ($history->warranty_period_years !== null || $history->warranty_period_months !== null) : false;
 @endphp
 
 <div class="history-form-row">
@@ -308,52 +309,26 @@ $hasWarranty = $history ? ($history->warranty_period_years !== null) : false;
     </div>
     @endif
 
-    @if($category === 'exterior' && $fixedSubcategory === '防水')
+    @if($category === 'exterior' && in_array($fixedSubcategory, ['防水', '塗装', '白アリ駆除']))
     <div class="warranty-fields" id="warranty_fields_{{ $index }}">
         <h6 class="mb-3">
             <i class="fas fa-shield-alt me-2"></i>保証期間情報
         </h6>
 
         <div class="row">
-            <!-- Warranty period (years) -->
-            <div class="col-md-4">
-                <label for="histories_{{ $index }}_warranty_period_years" class="form-label">保証期間（年）</label>
-                <input type="number"
-                    class="form-control @error(" histories.{$index}.warranty_period_years") is-invalid @enderror"
-                    id="histories_{{ $index }}_warranty_period_years"
-                    name="histories[{{ $index }}][warranty_period_years]"
-                    value="{{ $warrantyPeriodYears }}"
-                    min="1"
-                    max="50">
-                @error("histories.{$index}.warranty_period_years")
-                <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <!-- Warranty start date -->
-            <div class="col-md-4">
-                <label for="histories_{{ $index }}_warranty_start_date" class="form-label">保証開始日</label>
-                <input type="date"
-                    class="form-control @error(" histories.{$index}.warranty_start_date") is-invalid @enderror"
-                    id="histories_{{ $index }}_warranty_start_date"
-                    name="histories[{{ $index }}][warranty_start_date]"
-                    value="{{ $warrantyStartDate }}">
-                @error("histories.{$index}.warranty_start_date")
-                <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
-
             <!-- Warranty end date -->
-            <div class="col-md-4">
-                <label for="histories_{{ $index }}_warranty_end_date" class="form-label">保証終了日</label>
+            <div class="col-md-12">
+                <label for="histories_{{ $index }}_warranty_end_date" class="form-label">保証期間（終了日）</label>
                 <input type="date"
                     class="form-control @error(" histories.{$index}.warranty_end_date") is-invalid @enderror"
                     id="histories_{{ $index }}_warranty_end_date"
                     name="histories[{{ $index }}][warranty_end_date]"
-                    value="{{ $warrantyEndDate }}">
+                    value="{{ $warrantyEndDate }}"
+                    placeholder="保証期間の終了日を選択してください">
                 @error("histories.{$index}.warranty_end_date")
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
+                <small class="form-text text-muted">保証期間の終了日をカレンダーから選択してください</small>
             </div>
         </div>
     </div>

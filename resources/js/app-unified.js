@@ -19,8 +19,12 @@ import ApiClient from './shared/ApiClient.js';
 // Import LifelineDocumentManager
 import LifelineDocumentManager from './modules/LifelineDocumentManager.js';
 
+// Import MaintenanceDocumentManager
+import MaintenanceDocumentManager from './modules/MaintenanceDocumentManager.js';
+
 // グローバルに公開（ボタンクリックハンドラーで使用）
 window.LifelineDocumentManager = LifelineDocumentManager;
+window.MaintenanceDocumentManager = MaintenanceDocumentManager;
 
 // Import DocumentManager
 import { DocumentManager } from './modules/DocumentManager.js';
@@ -916,6 +920,7 @@ class ShiseCalApp {
 // クラスをグローバルに公開（デバッグ用）
 window.DocumentManager = DocumentManager;
 window.LifelineDocumentManager = LifelineDocumentManager;
+window.MaintenanceDocumentManager = MaintenanceDocumentManager;
 window.AppUtils = AppUtils;
 window.ApiClient = ApiClient;
 

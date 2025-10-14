@@ -25,7 +25,8 @@ class MaintenanceHistory extends Model
     const SUBCATEGORIES = [
         'exterior' => [
             'waterproof' => '防水',
-            'painting' => '塗装'
+            'painting' => '塗装',
+            'termite_control' => '白アリ駆除'
         ],
         'interior' => [
             'renovation' => '内装リニューアル',
@@ -49,6 +50,7 @@ class MaintenanceHistory extends Model
         'notes',
         'special_notes',
         'warranty_period_years',
+        'warranty_period_months',
         'warranty_start_date',
         'warranty_end_date',
         'created_by',
@@ -59,6 +61,7 @@ class MaintenanceHistory extends Model
         'warranty_start_date' => 'date',
         'warranty_end_date' => 'date',
         'warranty_period_years' => 'integer',
+        'warranty_period_months' => 'integer',
         'cost' => 'decimal:2',
     ];
 
