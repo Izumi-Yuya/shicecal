@@ -55,12 +55,13 @@ class MaintenanceDocumentController extends Controller
                 return $this->errorResponse($result['message'] ?? 'ドキュメントの取得に失敗しました。', 500);
             }
 
-            return $this->successResponse($result['data'], 'ドキュメント一覧を取得しました。');
+            return $this->successResponse('ドキュメント一覧を取得しました。', $result['data']);
 
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             return $this->errorResponse('この施設のドキュメントを閲覧する権限がありません。', 403);
         } catch (\Exception $e) {
-            return $this->handleControllerException($e, 'ドキュメント一覧の取得に失敗しました。', [
+            return $this->handleException($e, $request, [
+                'operation' => 'get_maintenance_documents',
                 'facility_id' => $facility->id,
                 'category' => $category,
             ]);
@@ -100,14 +101,15 @@ class MaintenanceDocumentController extends Controller
                 return $this->errorResponse($result['message'] ?? 'ファイルのアップロードに失敗しました。', 500);
             }
 
-            return $this->successResponse($result['data'], $result['message']);
+            return $this->successResponse($result['message'], $result['data']);
 
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             return $this->errorResponse('ファイルをアップロードする権限がありません。', 403);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return $this->errorResponse('入力内容に誤りがあります。', 422, ['errors' => $e->errors()]);
         } catch (\Exception $e) {
-            return $this->handleControllerException($e, 'ファイルのアップロードに失敗しました。', [
+            return $this->handleException($e, $request, [
+                'operation' => 'upload_maintenance_file',
                 'facility_id' => $facility->id,
                 'category' => $category,
             ]);
@@ -147,14 +149,15 @@ class MaintenanceDocumentController extends Controller
                 return $this->errorResponse($result['message'] ?? 'フォルダの作成に失敗しました。', 500);
             }
 
-            return $this->successResponse($result['data'], $result['message']);
+            return $this->successResponse($result['message'], $result['data']);
 
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             return $this->errorResponse('フォルダを作成する権限がありません。', 403);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return $this->errorResponse('入力内容に誤りがあります。', 422, ['errors' => $e->errors()]);
         } catch (\Exception $e) {
-            return $this->handleControllerException($e, 'フォルダの作成に失敗しました。', [
+            return $this->handleException($e, $request, [
+                'operation' => 'create_maintenance_folder',
                 'facility_id' => $facility->id,
                 'category' => $category,
             ]);
@@ -202,7 +205,7 @@ class MaintenanceDocumentController extends Controller
     /**
      * ファイル削除
      */
-    public function deleteFile(Facility $facility, string $category, int $file)
+    public function deleteFile(Request $request, Facility $facility, string $category, int $file)
     {
         try {
             // 認可チェック
@@ -224,12 +227,13 @@ class MaintenanceDocumentController extends Controller
             // ファイル削除
             $this->documentService->deleteFile($documentFile, auth()->user());
 
-            return $this->successResponse(null, 'ファイルを削除しました。');
+            return $this->successResponse('ファイルを削除しました。');
 
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             return $this->errorResponse('ファイルを削除する権限がありません。', 403);
         } catch (\Exception $e) {
-            return $this->handleControllerException($e, 'ファイルの削除に失敗しました。', [
+            return $this->handleException($e, $request, [
+                'operation' => 'delete_maintenance_file',
                 'facility_id' => $facility->id,
                 'category' => $category,
                 'file_id' => $file,
@@ -240,7 +244,7 @@ class MaintenanceDocumentController extends Controller
     /**
      * フォルダ削除
      */
-    public function deleteFolder(Facility $facility, string $category, int $folder)
+    public function deleteFolder(Request $request, Facility $facility, string $category, int $folder)
     {
         try {
             // 認可チェック
@@ -262,12 +266,13 @@ class MaintenanceDocumentController extends Controller
             // フォルダ削除
             $this->documentService->deleteFolder($documentFolder, auth()->user());
 
-            return $this->successResponse(null, 'フォルダを削除しました。');
+            return $this->successResponse('フォルダを削除しました。');
 
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             return $this->errorResponse('フォルダを削除する権限がありません。', 403);
         } catch (\Exception $e) {
-            return $this->handleControllerException($e, 'フォルダの削除に失敗しました。', [
+            return $this->handleException($e, $request, [
+                'operation' => 'delete_maintenance_folder',
                 'facility_id' => $facility->id,
                 'category' => $category,
                 'folder_id' => $folder,
@@ -305,14 +310,15 @@ class MaintenanceDocumentController extends Controller
             // ファイル名変更
             $this->documentService->renameFile($documentFile, $request->input('name'), auth()->user());
 
-            return $this->successResponse(['file' => $documentFile->fresh()], 'ファイル名を変更しました。');
+            return $this->successResponse('ファイル名を変更しました。', ['file' => $documentFile->fresh()]);
 
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             return $this->errorResponse('ファイル名を変更する権限がありません。', 403);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return $this->errorResponse('入力内容に誤りがあります。', 422, ['errors' => $e->errors()]);
         } catch (\Exception $e) {
-            return $this->handleControllerException($e, 'ファイル名の変更に失敗しました。', [
+            return $this->handleException($e, $request, [
+                'operation' => 'rename_maintenance_file',
                 'facility_id' => $facility->id,
                 'category' => $category,
                 'file_id' => $file,
@@ -350,14 +356,15 @@ class MaintenanceDocumentController extends Controller
             // フォルダ名変更
             $this->documentService->renameFolder($documentFolder, $request->input('name'), auth()->user());
 
-            return $this->successResponse(['folder' => $documentFolder->fresh()], 'フォルダ名を変更しました。');
+            return $this->successResponse('フォルダ名を変更しました。', ['folder' => $documentFolder->fresh()]);
 
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             return $this->errorResponse('フォルダ名を変更する権限がありません。', 403);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return $this->errorResponse('入力内容に誤りがあります。', 422, ['errors' => $e->errors()]);
         } catch (\Exception $e) {
-            return $this->handleControllerException($e, 'フォルダ名の変更に失敗しました。', [
+            return $this->handleException($e, $request, [
+                'operation' => 'rename_maintenance_folder',
                 'facility_id' => $facility->id,
                 'category' => $category,
                 'folder_id' => $folder,
