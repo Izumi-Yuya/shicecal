@@ -193,10 +193,10 @@
     $autoRenewalBadge = null;
     $autoRenewalBadgeClass = 'badge bg-primary';
     if ($landInfo->auto_renewal === 'yes') {
-        $autoRenewalBadge = 'あり';
+        $autoRenewalBadge = '有り';
         $autoRenewalBadgeClass = 'badge bg-success';
     } elseif ($landInfo->auto_renewal === 'no') {
-        $autoRenewalBadge = 'なし';
+        $autoRenewalBadge = '無し';
         $autoRenewalBadgeClass = 'badge bg-secondary';
     }
     
