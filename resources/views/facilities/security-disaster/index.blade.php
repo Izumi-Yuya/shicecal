@@ -28,12 +28,23 @@
         <div class="tab-pane fade show active" id="camera-lock" role="tabpanel" aria-labelledby="camera-lock-tab">
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <div class="flex-grow-1"></div>
-                @if(auth()->user()->canEditFacility($facility->id))
-                    <a href="{{ route('facilities.security-disaster.edit', ['facility' => $facility->id]) }}" 
-                       class="btn btn-primary btn-sm">
-                        <i class="fas fa-edit me-2"></i>編集
-                    </a>
-                @endif
+                <div class="d-flex align-items-center gap-2">
+                    <!-- ドキュメント管理ボタン -->
+                    <button type="button" 
+                            class="btn btn-outline-primary btn-sm" 
+                            data-bs-toggle="modal"
+                            data-bs-target="#camera-lock-documents-modal"
+                            title="防犯カメラ・電子錠ドキュメント管理">
+                        <i class="fas fa-folder-open me-1"></i>
+                        <span class="d-none d-md-inline">ドキュメント</span>
+                    </button>
+                    @if(auth()->user()->canEditFacility($facility->id))
+                        <a href="{{ route('facilities.security-disaster.edit', ['facility' => $facility->id]) }}" 
+                           class="btn btn-primary btn-sm">
+                            <i class="fas fa-edit me-2"></i>編集
+                        </a>
+                    @endif
+                </div>
             </div>
     
     @if($securityDisasterEquipment)
@@ -238,12 +249,23 @@
         <div class="tab-pane fade" id="fire-disaster" role="tabpanel" aria-labelledby="fire-disaster-tab">
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <div class="flex-grow-1"></div>
-                @if(auth()->user()->canEditFacility($facility->id))
-                    <a href="{{ route('facilities.security-disaster.edit', ['facility' => $facility->id]) }}#fire-disaster-edit" 
-                       class="btn btn-primary btn-sm">
-                        <i class="fas fa-edit me-2"></i>編集
-                    </a>
-                @endif
+                <div class="d-flex align-items-center gap-2">
+                    <!-- ドキュメント管理ボタン -->
+                    <button type="button" 
+                            class="btn btn-outline-primary btn-sm" 
+                            data-bs-toggle="modal"
+                            data-bs-target="#fire-disaster-documents-modal"
+                            title="消防・防災ドキュメント管理">
+                        <i class="fas fa-folder-open me-1"></i>
+                        <span class="d-none d-md-inline">ドキュメント</span>
+                    </button>
+                    @if(auth()->user()->canEditFacility($facility->id))
+                        <a href="{{ route('facilities.security-disaster.edit', ['facility' => $facility->id]) }}#fire-disaster-edit" 
+                           class="btn btn-primary btn-sm">
+                            <i class="fas fa-edit me-2"></i>編集
+                        </a>
+                    @endif
+                </div>
             </div>
 
             @if($securityDisasterEquipment && $securityDisasterEquipment->hasFireDisasterPrevention())
@@ -820,5 +842,55 @@ document.addEventListener('DOMContentLoaded', function() {
          aria-label="防犯・防災のコメント一覧"
          aria-live="polite">
         <!-- コメントがここに動的に追加されます -->
+    </div>
+</div>
+
+<!-- 防犯カメラ・電子錠ドキュメント管理モーダル -->
+<div class="modal fade" id="camera-lock-documents-modal" tabindex="-1" aria-labelledby="camera-lock-documents-modal-title" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="camera-lock-documents-modal-title">
+                    <i class="fas fa-folder-open me-2"></i>防犯カメラ・電子錠ドキュメント管理
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="閉じる"></button>
+            </div>
+            <div class="modal-body">
+                <x-lifeline-document-manager
+                    :facility="$facility"
+                    category="security_disaster"
+                    categoryName="防犯カメラ・電子錠"
+                    subcategory="camera_lock"
+                />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 消防・防災ドキュメント管理モーダル -->
+<div class="modal fade" id="fire-disaster-documents-modal" tabindex="-1" aria-labelledby="fire-disaster-documents-modal-title" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="fire-disaster-documents-modal-title">
+                    <i class="fas fa-folder-open me-2"></i>消防・防災ドキュメント管理
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="閉じる"></button>
+            </div>
+            <div class="modal-body">
+                <x-lifeline-document-manager
+                    :facility="$facility"
+                    category="security_disaster"
+                    categoryName="消防・防災"
+                    subcategory="fire_disaster"
+                />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+            </div>
+        </div>
     </div>
 </div>
