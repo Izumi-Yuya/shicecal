@@ -27,6 +27,7 @@ class MaintenanceDocumentService
     const CATEGORY_FOLDER_MAPPING = [
         'exterior' => '外装',
         'interior' => '内装リニューアル',
+        'summer_condensation' => '夏型結露',
         'other' => 'その他',
     ];
 
