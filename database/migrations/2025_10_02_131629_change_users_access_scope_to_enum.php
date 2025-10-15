@@ -64,8 +64,10 @@ return new class extends Migration
         });
 
         // Step 4: Rename the new column to the original name
-        // MySQL/MariaDB doesn't support RENAME COLUMN directly, so we use the CHANGE statement
-        DB::statement('ALTER TABLE users CHANGE access_scope_new access_scope ENUM("all_facilities", "assigned_facility", "own_facility") NULL');
+        // Use Schema::rename for SQLite compatibility
+        Schema::table('users', function (Blueprint $table) {
+            $table->renameColumn('access_scope_new', 'access_scope');
+        });
     }
 
     /**
@@ -103,8 +105,10 @@ return new class extends Migration
         });
 
         // Step 4: Rename the JSON column back
-        // MySQL/MariaDB doesn't support RENAME COLUMN directly, so we use the CHANGE statement
-        DB::statement('ALTER TABLE users CHANGE access_scope_old access_scope JSON NULL');
+        // Use Schema::rename for SQLite compatibility
+        Schema::table('users', function (Blueprint $table) {
+            $table->renameColumn('access_scope_old', 'access_scope');
+        });
     }
 
     /**

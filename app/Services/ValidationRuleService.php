@@ -7,7 +7,7 @@ class ValidationRuleService
     /**
      * Get validation rules for land info based on ownership type
      */
-    public static function getLandInfoRules(string $ownershipType): array
+    public static function getLandInfoRules(?string $ownershipType = null): array
     {
         // Return minimal validation rules - all fields are optional
         return [

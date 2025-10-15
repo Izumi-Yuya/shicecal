@@ -40,7 +40,8 @@
                     'contract_end_date' => $othersData['contract_end_date'] ?? '',
                     'other_matters' => $othersData['other_matters'] ?? '',
                     'amount' => $othersData['amount'] ?? '',
-                    'contact_info' => $othersData['contact_info'] ?? ''
+                    'contact_info' => $othersData['contact_info'] ?? '',
+                    'remarks' => $othersData['remarks'] ?? ''
                 ];
             @endphp
 
@@ -144,6 +145,12 @@
                             <td class="detail-label" style="padding: 0.5rem;"></td>
                             <td class="detail-value" style="padding: 0.5rem;"></td>
                         </tr>
+                        <tr>
+                            <td class="detail-label" style="padding: 0.5rem;">備考</td>
+                            <td class="detail-value {{ empty($othersContractData['remarks']) ? 'empty-field' : '' }}" style="padding: 0.5rem;" colspan="3">
+                                {{ $othersContractData['remarks'] ?: '未設定' }}
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -170,7 +177,8 @@
                     'event_meal_price' => $mealServiceData['event_meal_price'] ?? '',
                     'renewal_notice_period' => $mealServiceData['renewal_notice_period'] ?? '',
                     'staff_meal_price' => $mealServiceData['staff_meal_price'] ?? '',
-                    'other_matters' => $mealServiceData['other_matters'] ?? ''
+                    'other_matters' => $mealServiceData['other_matters'] ?? '',
+                    'remarks' => $mealServiceData['remarks'] ?? ''
                 ];
             @endphp
 
@@ -308,6 +316,12 @@
                                 @endif
                             </td>
                         </tr>
+                        <tr>
+                            <td class="detail-label" style="padding: 0.5rem;">備考</td>
+                            <td class="detail-value {{ empty($mealServiceContractData['remarks']) ? 'empty-field' : '' }}" style="padding: 0.5rem;" colspan="3">
+                                {{ $mealServiceContractData['remarks'] ?: '未設定' }}
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -330,7 +344,8 @@
                     'renewal_notice_period' => $parkingData['renewal_notice_period'] ?? '',
                     'price_per_space' => $parkingData['price_per_space'] ?? '',
                     'usage_purpose' => $parkingData['usage_purpose'] ?? '',
-                    'other_matters' => $parkingData['other_matters'] ?? ''
+                    'other_matters' => $parkingData['other_matters'] ?? '',
+                    'remarks' => $parkingData['remarks'] ?? ''
                 ];
                 
                 // 管理会社情報
@@ -457,6 +472,12 @@
                             <td class="detail-label" style="padding: 0.5rem;">その他事項</td>
                             <td class="detail-value {{ empty($parkingContractData['other_matters']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 {{ $parkingContractData['other_matters'] ?: '未設定' }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="detail-label" style="padding: 0.5rem;">備考</td>
+                            <td class="detail-value {{ empty($parkingContractData['remarks']) ? 'empty-field' : '' }}" style="padding: 0.5rem;" colspan="3">
+                                {{ $parkingContractData['remarks'] ?: '未設定' }}
                             </td>
                         </tr>
                     </tbody>

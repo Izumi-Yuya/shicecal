@@ -118,7 +118,8 @@
                                             'contract_end_date' => old('others.contract_end_date', $othersData['contract_end_date'] ?? ''),
                                             'other_matters' => old('others.other_matters', $othersData['other_matters'] ?? ''),
                                             'amount' => old('others.amount', $othersData['amount'] ?? ''),
-                                            'contact_info' => old('others.contact_info', $othersData['contact_info'] ?? '')
+                                            'contact_info' => old('others.contact_info', $othersData['contact_info'] ?? ''),
+                                            'remarks' => old('others.remarks', $othersData['remarks'] ?? '')
                                         ];
                                     @endphp
 
@@ -286,6 +287,19 @@
                                         <div class="col-md-6 mb-3">
                                             <!-- 空のラベル -->
                                         </div>
+
+                                        <!-- 7行目：備考（全幅） -->
+                                        <div class="col-md-12 mb-3">
+                                            <label for="others_remarks" class="form-label">備考</label>
+                                            <textarea class="form-control @error('others.remarks') is-invalid @enderror" 
+                                                      id="others_remarks" 
+                                                      name="others[remarks]"
+                                                      rows="3"
+                                                      placeholder="備考を入力してください">{{ $othersContractData['remarks'] }}</textarea>
+                                            @error('others.remarks')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -319,7 +333,8 @@
                                             'event_meal_price' => old('meal_service.event_meal_price', $mealServiceData['event_meal_price'] ?? ''),
                                             'renewal_notice_period' => old('meal_service.renewal_notice_period', $mealServiceData['renewal_notice_period'] ?? ''),
                                             'staff_meal_price' => old('meal_service.staff_meal_price', $mealServiceData['staff_meal_price'] ?? ''),
-                                            'other_matters' => old('meal_service.other_matters', $mealServiceData['other_matters'] ?? '')
+                                            'other_matters' => old('meal_service.other_matters', $mealServiceData['other_matters'] ?? ''),
+                                            'remarks' => old('meal_service.remarks', $mealServiceData['remarks'] ?? '')
                                         ];
                                         
                                     @endphp
@@ -569,6 +584,19 @@
                                                 @enderror
                                             </div>
                                         </div>
+
+                                        <!-- 8行目：備考（全幅） -->
+                                        <div class="col-md-12 mb-3">
+                                            <label for="meal_service_remarks" class="form-label">備考</label>
+                                            <textarea class="form-control @error('meal_service.remarks') is-invalid @enderror" 
+                                                      id="meal_service_remarks" 
+                                                      name="meal_service[remarks]"
+                                                      rows="3"
+                                                      placeholder="備考を入力してください">{{ $mealContractData['remarks'] }}</textarea>
+                                            @error('meal_service.remarks')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -598,7 +626,8 @@
                                             'renewal_notice_period' => old('parking.renewal_notice_period', $parkingData['renewal_notice_period'] ?? ''),
                                             'price_per_space' => old('parking.price_per_space', $parkingData['price_per_space'] ?? ''),
                                             'usage_purpose' => old('parking.usage_purpose', $parkingData['usage_purpose'] ?? ''),
-                                            'other_matters' => old('parking.other_matters', $parkingData['other_matters'] ?? '')
+                                            'other_matters' => old('parking.other_matters', $parkingData['other_matters'] ?? ''),
+                                            'remarks' => old('parking.remarks', $parkingData['remarks'] ?? '')
                                         ];
                                         
                                         // 管理会社情報
