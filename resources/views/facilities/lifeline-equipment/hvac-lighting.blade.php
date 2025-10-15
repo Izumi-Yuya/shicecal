@@ -230,7 +230,7 @@ $lightingInfo = $basicInfo['lighting'] ?? [];
             </div>
 
             {{-- 右側備考テーブル --}}
-            <div class="equipment-section mb-4">
+            <div class="equipment-section lighting-notes-section">
                 @php
                 $lightingNotesData = [
                 [
@@ -341,6 +341,23 @@ document.addEventListener('DOMContentLoaded', function() {
 /* ドキュメント管理エリアのスタイル調整 */
 #hvac-lighting-documents-section .lifeline-document-manager {
     border-radius: 0 0 8px 8px;
+}
+
+/* 照明設備備考だけ下げる */
+.lighting-notes-section {
+  margin-top: 3.9rem !important;  /* ← この値を調整して高さを合わせる */
+}
+
+/* 共通：列幅を固定レイアウトにして100%にする */
+.table.facility-basic-info-table-clean {
+  table-layout: fixed;
+  width: 100%;
+}
+
+/* 1列目（ラベル列）を固定幅にする：ここを揃えれば縦ラインが揃う */
+.table.facility-basic-info-table-clean tr > th:first-child,
+.table.facility-basic-info-table-clean tr > td:first-child {
+  width: 25%;   /* 好きな比率に。例: 25% ラベル / 75% 値 */
 }
 
 /* レスポンシブ対応 */
