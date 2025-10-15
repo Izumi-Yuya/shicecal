@@ -241,6 +241,23 @@
                             <h4 class="mb-0">
                                 <i class="fas fa-plug text-primary me-2"></i>ライフライン設備
                             </h4>
+
+                            <div class="d-flex align-items-center gap-2">
+                                @if(auth()->user()->canEditFacility($facility->id))
+                                <a href="{{ route('facilities.lifeline-equipment.edit', [$facility, 'electrical']) }}"
+                                    id="lifeline-edit-link"
+                                    class="btn btn-primary btn-sm">
+                                    <i class="fas fa-edit me-1"></i><span class="d-none d-md-inline">編集</span>
+                                </a>
+                                @endif
+
+                                <button type="button"
+                                        class="btn btn-outline-primary btn-sm"
+                                        id="lifeline-documents-toggle">
+                                <i class="fas fa-folder-open me-1"></i>
+                                <span class="d-none d-md-inline">ドキュメント</span>
+                                </button>
+                            </div>
                         </div>
                         
                         <!-- Lifeline Equipment Content -->
@@ -1200,6 +1217,64 @@ document.addEventListener('DOMContentLoaded', function() {
             const section = toggle.getAttribute('data-section');
             console.log(`Toggle comments for section: ${section}`);
             alert(`コメント機能は今後実装予定です。\n対象セクション：${section}`);
+        });
+    });
+
+    // ライフライン設備タブの動的編集・ドキュメントボタン制御
+    function updateLifelineButtons() {
+        const editLink = document.getElementById('lifeline-edit-link');
+        const documentsToggle = document.getElementById('lifeline-documents-toggle');
+        
+        if (!editLink || !documentsToggle) return;
+
+        // アクティブなタブを取得
+        const activeTab = document.querySelector('#lifelineSubTabs .nav-link.active');
+        if (!activeTab) return;
+
+        const tabId = activeTab.id;
+        let category = 'electrical'; // デフォルト
+
+        // タブIDに基づいてカテゴリを決定
+        switch (tabId) {
+            case 'electrical-tab':
+                category = 'electrical';
+                break;
+            case 'water-tab':
+                category = 'water';
+                break;
+            case 'gas-tab':
+                category = 'gas';
+                break;
+            case 'elevator-tab':
+                category = 'elevator';
+                break;
+            case 'hvac-lighting-tab':
+                category = 'hvac-lighting';
+                break;
+        }
+
+        // 編集ボタンのリンクを更新
+        const facilityId = {{ $facility->id }};
+        editLink.href = `/facilities/${facilityId}/lifeline-equipment/${category}/edit`;
+
+        // ドキュメントボタンの動作を更新（既存の処理をそのまま実行）
+        documentsToggle.onclick = function() {
+            // 各タブの既存のドキュメントボタンをクリック
+            const existingDocumentButton = document.getElementById(category + '-documents-toggle');
+            if (existingDocumentButton) {
+                existingDocumentButton.click();
+            }
+        };
+    }
+
+    // 初期化時にボタンを更新
+    updateLifelineButtons();
+
+    // タブ切り替え時にボタンを更新
+    const lifelineTabButtons = document.querySelectorAll('#lifelineSubTabs .nav-link');
+    lifelineTabButtons.forEach(button => {
+        button.addEventListener('shown.bs.tab', function() {
+            updateLifelineButtons();
         });
     });
     

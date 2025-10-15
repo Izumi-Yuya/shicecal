@@ -9,21 +9,11 @@ $legionellaInfo = $basicInfo['legionella_info'] ?? [];
 $canEdit = auth()->user()->canEditFacility($facility->id);
 @endphp
 
-<!-- 水道設備ヘッダー（ドキュメントアイコン付き） -->
-<div class="d-flex justify-content-between align-items-center mb-3">
+<!-- 水道設備ヘッダー -->
+<div class="mb-3">
     <h5 class="mb-0">
         <i class="fas fa-tint text-info me-2"></i>水道設備情報
     </h5>
-    <div class="d-flex align-items-center gap-2">
-        <!-- ドキュメント管理ボタン -->
-        <button type="button"
-            class="btn btn-outline-primary btn-sm"
-            id="water-documents-toggle"
-            title="水道設備ドキュメント管理">
-            <i class="fas fa-folder-open me-1"></i>
-            <span class="d-none d-md-inline">ドキュメント</span>
-        </button>
-    </div>
 </div>
 
 @php
@@ -420,6 +410,17 @@ $notesData = [
             :tableAttributes="[]" />
     </div>
 </div>
+
+@vite(['resources/js/modules/lifeline-modal-manager.js'])
+@vite(['resources/css/pages/lifeline-equipment.css'])
+
+<!-- 隠されたドキュメントボタン（統一ボタンからクリックされる対象） -->
+<button type="button" 
+        class="d-none" 
+        id="water-documents-toggle"
+        data-bs-toggle="modal" 
+        data-bs-target="#water-documents-modal">
+</button>
 
 <!-- モーダル -->
 <div class="modal fade" id="water-documents-modal" tabindex="-1" aria-labelledby="water-documents-modal-title" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">

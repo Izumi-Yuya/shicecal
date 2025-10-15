@@ -1,0 +1,73 @@
+/* ========================================
+   Lifeline Equipment Base Styles
+   ======================================== */
+
+/* Common Equipment Table Styles */
+.equipment-sections {
+  --label-width: 16.6%;
+  --table-border-color: #e9ecef;
+  --table-cell-padding: 0.5rem;
+}
+
+.equipment-sections .table-responsive {
+  padding: 0 !important;
+}
+
+.equipment-sections table {
+  table-layout: fixed !important;
+  width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  margin: 0 !important;
+  border-left: 1px solid var(--table-border-color) !important;
+  border-right: 1px solid var(--table-border-color) !important;
+}
+
+.equipment-sections table td,
+.equipment-sections table th {
+  box-sizing: border-box !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: var(--table-cell-padding) !important;
+  border: 1px solid var(--table-border-color) !important;
+}
+
+.equipment-sections .detail-label {
+  background-color: #f8f9fa !important;
+  font-weight: 500;
+  color: #495057 !important;
+}
+
+.equipment-sections .detail-value {
+  background-color: #fff !important;
+  color: inherit;
+}
+
+.equipment-sections .detail-value.empty-field {
+  color: #6c757d;
+  font-style: italic;
+}
+
+.equipment-sections .section-title {
+  border: none !important;
+  margin-bottom: 0.7rem !important;
+  padding-bottom: 0 !important;
+}
+
+/* Table Layout Classes */
+.table-layout-fixed {
+  table-layout: fixed !important;
+}
+
+.table-layout-auto {
+  table-layout: auto !important;
+}
+
+.table-layout-equal {
+  table-layout: fixed !important;
+}
+
+.table-layout-equal col {
+  width: auto !important;
+}

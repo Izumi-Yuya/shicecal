@@ -1,0 +1,152 @@
+/* Gas Equipment Specific Styles */
+
+/* CSS Custom Properties for maintainability */
+.gas-equipment-sections {
+    --label-width-narrow: 11%;
+    --label-width-standard: 16.6%;
+    --value-width-wide: 67%;
+    --value-width-standard: 83.4%;
+    --border-color: #e9ecef;
+    --cell-padding: 0.5rem;
+}
+
+/* ▼ 共通: table幅・ボックスモデルを完全一致させる */
+.gas-equipment-sections .table-responsive {
+    padding: 0 !important;
+    /* 左右余白でズレないように */
+}
+
+.gas-equipment-sections table {
+    table-layout: fixed !important;
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+}
+
+.gas-equipment-sections table td,
+.gas-equipment-sections table th {
+    box-sizing: border-box !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ▼ 基本情報（4列）—列ごとに独立して幅を調整可能に */
+.gas-equipment-sections table.gas-basic-4col {
+    table-layout: auto !important;
+    /* ← 各列の指定幅を優先 */
+    width: 100% !important;
+    border-collapse: collapse !important;
+}
+
+/* 1〜4列の幅: 11% / 67% / 11% / 11%（合計100%） */
+.gas-equipment-sections table.gas-basic-4col td:nth-child(1),
+.gas-equipment-sections table.gas-basic-4col th:nth-child(1) {
+    width: var(--label-width-narrow) !important;
+}
+
+.gas-equipment-sections table.gas-basic-4col td:nth-child(2),
+.gas-equipment-sections table.gas-basic-4col th:nth-child(2) {
+    width: var(--value-width-wide) !important;
+}
+
+.gas-equipment-sections table.gas-basic-4col td:nth-child(3),
+.gas-equipment-sections table.gas-basic-4col th:nth-child(3) {
+    width: var(--label-width-narrow) !important;
+}
+
+.gas-equipment-sections table.gas-basic-4col td:nth-child(4),
+.gas-equipment-sections table.gas-basic-4col th:nth-child(4) {
+    width: calc(100% - var(--label-width-narrow) - var(--value-width-wide) - var(--label-width-narrow)) !important;
+}
+
+/* ▼ 設置の有無（2列）—ラベル16.6% / 値83.4% */
+.gas-equipment-sections table.gas-availability-2col col,
+.gas-equipment-sections table.gas-availability-2col td[style*="width"],
+.gas-equipment-sections table.gas-availability-2col th[style*="width"] {
+    width: auto !important;
+}
+
+.gas-equipment-sections table.gas-availability-2col tbody>tr>td:first-child,
+.gas-equipment-sections table.gas-availability-2col tbody>tr>th:first-child {
+    width: var(--label-width-standard) !important;
+    min-width: var(--label-width-standard) !important;
+    max-width: var(--label-width-standard) !important;
+}
+
+.gas-equipment-sections table.gas-availability-2col tbody>tr>td:nth-child(2),
+.gas-equipment-sections table.gas-availability-2col tbody>tr>th:nth-child(2) {
+    width: var(--value-width-standard) !important;
+    min-width: var(--value-width-standard) !important;
+    max-width: var(--value-width-standard) !important;
+}
+
+/* ▼ 備考（2列）—ラベル16.6%固定／値83.4%（長文折返しON） */
+.gas-equipment-sections table.gas-notes-2col col,
+.gas-equipment-sections table.gas-notes-2col td[style*="width"],
+.gas-equipment-sections table.gas-notes-2col th[style*="width"] {
+    width: auto !important;
+}
+
+.gas-equipment-sections table.gas-notes-2col tbody>tr>td:first-child,
+.gas-equipment-sections table.gas-notes-2col tbody>tr>th:first-child {
+    width: 16.6% !important;
+    min-width: 16.6% !important;
+    max-width: 16.6% !important;
+}
+
+.gas-equipment-sections table.gas-notes-2col tbody>tr>td:nth-child(2),
+.gas-equipment-sections table.gas-notes-2col tbody>tr>th:nth-child(2) {
+    width: 83.4% !important;
+    min-width: 83.4% !important;
+    max-width: 83.4% !important;
+    word-break: break-word;
+    white-space: normal;
+}
+
+/* ▼ 視覚的ズレを起こす余白/枠の差を吸収（共通外枠だけ残す） */
+.gas-equipment-sections table.gas-availability-2col,
+.gas-equipment-sections table.gas-notes-2col,
+.gas-equipment-sections table.gas-basic-4col {
+    margin: 0 !important;
+    border-left: 1px solid #e9ecef !important;
+    border-right: 1px solid #e9ecef !important;
+}
+
+/* ===== 見出し（給湯器／床暖房／備考）の"線なし＋少し余白"調整 ===== */
+
+/* 見出し自体の線を消す＋少しだけ下に余白を付ける */
+.gas-equipment-sections .section-header,
+.gas-equipment-sections .section-title {
+    border: none !important;
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
+    margin-bottom: .7rem !important;
+}
+
+/* 見出し直後のテーブル（や包み要素）の上線は消す。余白は見出し側で付ける */
+.gas-equipment-sections .section-header+.gas-six-column-equal,
+.gas-equipment-sections .section-title+.gas-six-column-equal,
+.gas-equipment-sections .section-header+.gas-six-column-equal table,
+.gas-equipment-sections .section-title+.gas-six-column-equal table,
+.gas-equipment-sections .section-title+.table,
+.gas-equipment-sections .section-title+.x-common-table {
+    border-top: none !important;
+    margin-top: 0 !important;
+}
+
+/* セクション外枠の余計な線や上余白は不要 */
+.gas-equipment-sections .equipment-section {
+    border-top: none !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+/* 灰色の背景色を削除 */
+.gas-equipment-sections .detail-label {
+    background-color: transparent !important;
+}
+
+.gas-equipment-sections .section-header {
+    background-color: transparent !important;
+}
