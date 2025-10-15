@@ -104,26 +104,21 @@
             </div>
             
             <div class="tab-pane fade" id="hvac-lighting" role="tabpanel" aria-labelledby="hvac-lighting-tab">
-                {{-- <div class="card facility-info-card detail-card-improved">
-                    <div class="card-body"> --}}
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div class="flex-grow-1"></div>
-                            @if(auth()->user()->canEditFacility($facility->id))
-                                <a href="{{ route('facilities.lifeline-equipment.edit', [$facility, 'hvac-lighting']) }}" 
-                                   class="btn btn-primary btn-sm">
-                                    <i class="fas fa-edit me-2"></i>編集
-                                </a>
-                            @endif
-                        </div>
-                        @include('facilities.lifeline-equipment.hvac-lighting', [
-                            'facility' => $facility,
-                            'hvacLightingEquipment' => $facility->getHvacLightingEquipment()
-                        ])
-                    </div>
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="flex-grow-1"></div>
+                    @if(auth()->user()->canEditFacility($facility->id))
+                        <a href="{{ route('facilities.lifeline-equipment.edit', [$facility, 'hvac-lighting']) }}" 
+                           class="btn btn-primary btn-sm">
+                            <i class="fas fa-edit me-2"></i>編集
+                        </a>
+                    @endif
                 </div>
-            {{-- </div>
-        </div> --}}
-
+                @include('facilities.lifeline-equipment.hvac-lighting', [
+                    'facility' => $facility,
+                    'hvacLightingEquipment' => $facility->getHvacLightingEquipment()
+                ])
+            </div>
+        </div>
     </div>
     
     <!-- コメントセクション -->

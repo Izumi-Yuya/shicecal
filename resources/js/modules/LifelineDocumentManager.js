@@ -155,7 +155,7 @@ class LifelineDocumentManager {
     // DOM要素の存在確認を遅延実行
     setTimeout(() => {
       // ツールバーボタンのイベントリスナー
-      const createFolderBtn = document.getElementById(`create-folder-btn-${this.category}`);
+      const createFolderBtn = document.getElementById(`create-folder-btn-${this.uniqueId}`);
       if (createFolderBtn) {
         const handler = () => this.openCreateFolderModal();
         createFolderBtn.addEventListener('click', handler);
@@ -165,7 +165,7 @@ class LifelineDocumentManager {
         console.warn(`Create folder button not found for ${this.category}`);
       }
 
-      const uploadFileBtn = document.getElementById(`upload-file-btn-${this.category}`);
+      const uploadFileBtn = document.getElementById(`upload-file-btn-${this.uniqueId}`);
       if (uploadFileBtn) {
         const handler = () => this.openUploadFileModal();
         uploadFileBtn.addEventListener('click', handler);
@@ -176,7 +176,7 @@ class LifelineDocumentManager {
       }
 
       // 空の状態のアップロードボタン
-      const emptyUploadBtn = document.getElementById(`empty-upload-btn-${this.category}`);
+      const emptyUploadBtn = document.getElementById(`empty-upload-btn-${this.uniqueId}`);
       if (emptyUploadBtn) {
         const handler = () => this.openUploadFileModal();
         emptyUploadBtn.addEventListener('click', handler);
@@ -185,7 +185,7 @@ class LifelineDocumentManager {
       }
 
       // フォルダ作成フォーム
-      const createFolderForm = document.getElementById(`create-folder-form-${this.category}`);
+      const createFolderForm = document.getElementById(`create-folder-form-${this.uniqueId}`);
       if (createFolderForm) {
         const handler = (e) => this.handleCreateFolder(e);
         createFolderForm.addEventListener('submit', handler, { capture: true });
@@ -196,7 +196,7 @@ class LifelineDocumentManager {
       }
 
       // ファイルアップロードフォーム
-      const uploadFileForm = document.getElementById(`upload-file-form-${this.category}`);
+      const uploadFileForm = document.getElementById(`upload-file-form-${this.uniqueId}`);
       if (uploadFileForm) {
         // 既存のリスナーを削除
         const existingListeners = this.eventListeners.filter(l =>
@@ -215,7 +215,7 @@ class LifelineDocumentManager {
       }
 
       // 検索入力
-      const searchInput = document.getElementById(`search-input-${this.category}`);
+      const searchInput = document.getElementById(`search-input-${this.uniqueId}`);
       if (searchInput) {
         const handler = (e) => this.handleSearchInput(e);
         searchInput.addEventListener('input', handler);
@@ -368,7 +368,7 @@ class LifelineDocumentManager {
    */
   setupModalEventListeners() {
     // フォルダ作成モーダル
-    const createFolderModal = document.getElementById(`create-folder-modal-${this.category}`);
+    const createFolderModal = document.getElementById(`create-folder-modal-${this.uniqueId}`);
     if (createFolderModal) {
       const shownHandler = () => {
         // z-indexを調整
@@ -376,7 +376,7 @@ class LifelineDocumentManager {
 
         // フォーカスを設定（少し遅延させて確実に設定）
         setTimeout(() => {
-          const folderNameInput = document.getElementById(`folder-name-${this.category}`);
+          const folderNameInput = document.getElementById(`folder-name-${this.uniqueId}`);
           if (folderNameInput) {
             folderNameInput.focus();
             folderNameInput.select();
@@ -388,7 +388,7 @@ class LifelineDocumentManager {
         // 残留バックドロップをクリーンアップ
         this.cleanupBackdrops();
 
-        const form = document.getElementById(`create-folder-form-${this.category}`);
+        const form = document.getElementById(`create-folder-form-${this.uniqueId}`);
         if (form) {
           form.reset();
           // エラー状態をクリア
@@ -421,7 +421,7 @@ class LifelineDocumentManager {
     }
 
     // ファイルアップロードモーダル
-    const uploadFileModal = document.getElementById(`upload-file-modal-${this.category}`);
+    const uploadFileModal = document.getElementById(`upload-file-modal-${this.uniqueId}`);
     if (uploadFileModal) {
       const shownHandler = () => {
         // z-indexを調整
@@ -429,7 +429,7 @@ class LifelineDocumentManager {
 
         // ファイル入力にフォーカスを設定
         setTimeout(() => {
-          const fileInput = document.getElementById(`file-input-${this.category}`);
+          const fileInput = document.getElementById(`file-input-${this.uniqueId}`);
           if (fileInput) {
             fileInput.focus();
           }
@@ -440,7 +440,7 @@ class LifelineDocumentManager {
         // 残留バックドロップをクリーンアップ
         this.cleanupBackdrops();
 
-        const form = document.getElementById(`upload-file-form-${this.category}`);
+        const form = document.getElementById(`upload-file-form-${this.uniqueId}`);
         if (form) {
           form.reset();
           // エラー状態をクリア
@@ -450,12 +450,12 @@ class LifelineDocumentManager {
           feedbacks.forEach(feedback => feedback.remove());
         }
         // ファイル選択表示をリセット
-        const fileList = document.getElementById(`file-list-${this.category}`);
+        const fileList = document.getElementById(`file-list-${this.uniqueId}`);
         if (fileList) {
           fileList.style.display = 'none';
         }
         // プログレスバーをリセット
-        const progressContainer = document.getElementById(`upload-progress-${this.category}`);
+        const progressContainer = document.getElementById(`upload-progress-${this.uniqueId}`);
         if (progressContainer) {
           progressContainer.style.display = 'none';
           const progressBar = progressContainer.querySelector('.progress-bar');
@@ -487,7 +487,7 @@ class LifelineDocumentManager {
     }
 
     // ファイル選択時の処理
-    const fileInput = document.getElementById(`file-input-${this.category}`);
+    const fileInput = document.getElementById(`file-input-${this.uniqueId}`);
     if (fileInput) {
       const changeHandler = (e) => this.handleFileSelection(e);
       fileInput.addEventListener('change', changeHandler);
@@ -500,8 +500,8 @@ class LifelineDocumentManager {
    */
   handleFileSelection(event) {
     const files = event.target.files;
-    const fileList = document.getElementById(`file-list-${this.category}`);
-    const selectedFiles = document.getElementById(`selected-files-${this.category}`);
+    const fileList = document.getElementById(`file-list-${this.uniqueId}`);
+    const selectedFiles = document.getElementById(`selected-files-${this.uniqueId}`);
 
     if (files.length > 0 && fileList && selectedFiles) {
       let html = '';
@@ -561,7 +561,7 @@ class LifelineDocumentManager {
     }
 
     // クライアントサイドバリデーション
-    const folderNameInput = document.getElementById(`folder-name-${this.category}`);
+    const folderNameInput = document.getElementById(`folder-name-${this.uniqueId}`);
     this.clearFieldErrors(folderNameInput);
 
     if (!folderName?.trim()) {
@@ -616,7 +616,7 @@ class LifelineDocumentManager {
         form.reset();
 
         // モーダルを閉じる
-        const modalElement = document.getElementById(`create-folder-modal-${this.category}`);
+        const modalElement = document.getElementById(`create-folder-modal-${this.uniqueId}`);
         if (modalElement) {
           const modal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
           modal.hide();
@@ -704,7 +704,7 @@ class LifelineDocumentManager {
     }
 
     // クライアントサイドバリデーション
-    const fileInput = document.getElementById(`file-input-${this.category}`);
+    const fileInput = document.getElementById(`file-input-${this.uniqueId}`);
     this.clearFieldErrors(fileInput);
 
     if (!files?.length || files[0].size === 0) {
@@ -761,7 +761,7 @@ class LifelineDocumentManager {
 
 
     // プログレスバーを表示
-    const progressContainer = document.getElementById(`upload-progress-${this.category}`);
+    const progressContainer = document.getElementById(`upload-progress-${this.uniqueId}`);
     if (progressContainer) {
       progressContainer.style.display = 'block';
     }
@@ -792,13 +792,13 @@ class LifelineDocumentManager {
         form.reset();
 
         // ファイル選択表示をリセット
-        const fileList = document.getElementById(`file-list-${this.category}`);
+        const fileList = document.getElementById(`file-list-${this.uniqueId}`);
         if (fileList) {
           fileList.style.display = 'none';
         }
 
         // モーダルを閉じる
-        const modalElement = document.getElementById(`upload-file-modal-${this.category}`);
+        const modalElement = document.getElementById(`upload-file-modal-${this.uniqueId}`);
         if (modalElement) {
           const modal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
           modal.hide();
@@ -941,9 +941,9 @@ class LifelineDocumentManager {
 
     // 表示モードに応じて描画
     if (this.state.viewMode === 'grid') {
-      this.renderGridView(this.category, data);
+      this.renderGridView(data);
     } else {
-      this.renderListView(this.category, data);
+      this.renderListView(data);
     }
 
     // ローディング表示を隠す
@@ -984,16 +984,17 @@ class LifelineDocumentManager {
   /**
    * リスト表示を描画
    */
-  renderListView(category, data) {
+  renderListView(data) {
     const container = this.getRootContainer();
     if (!container) {
       console.error(`[LifelineDoc] Container not found for renderListView`);
       return;
     }
 
-    const tbody = container.querySelector(`#document-list-body-${category}`);
+    // uniqueIdを使用してtbodyを検索
+    const tbody = container.querySelector(`#document-list-body-${this.uniqueId}`);
     if (!tbody) {
-      console.error(`[LifelineDoc] tbody not found: #document-list-body-${category}`);
+      console.error(`[LifelineDoc] tbody not found: #document-list-body-${this.uniqueId}`);
       return;
     }
 
@@ -1003,7 +1004,7 @@ class LifelineDocumentManager {
       documentContainer.closest('.card-body')?.querySelector('button[data-bs-target*="upload"]') !== null :
       false;
 
-    console.log(`LifelineDocumentManager renderListView - category: ${category}, canEdit: ${canEdit}`);
+    console.log(`LifelineDocumentManager renderListView - uniqueId: ${this.uniqueId}, category: ${this.category}, canEdit: ${canEdit}`);
     console.log('Document container:', documentContainer);
     console.log('Upload button found:', documentContainer?.closest('.card-body')?.querySelector('button[data-bs-target*="upload"]'));
 
@@ -1037,16 +1038,17 @@ class LifelineDocumentManager {
   /**
    * グリッド表示を描画
    */
-  renderGridView(category, data) {
+  renderGridView(data) {
     const rootContainer = this.getRootContainer();
     if (!rootContainer) {
       console.error(`[LifelineDoc] Root container not found for renderGridView`);
       return;
     }
 
-    const container = rootContainer.querySelector(`#document-grid-body-${category}`);
+    // uniqueIdを使用してgrid bodyを検索
+    const container = rootContainer.querySelector(`#document-grid-body-${this.uniqueId}`);
     if (!container) {
-      console.error(`[LifelineDoc] Grid body not found: #document-grid-body-${category}`);
+      console.error(`[LifelineDoc] Grid body not found: #document-grid-body-${this.uniqueId}`);
       return;
     }
 
@@ -1062,14 +1064,14 @@ class LifelineDocumentManager {
     // フォルダを描画
     if (data.folders) {
       data.folders.forEach(folder => {
-        html += this.renderFolderCard(category, folder);
+        html += this.renderFolderCard(folder);
       });
     }
 
     // ファイルを描画
     if (data.files) {
       data.files.forEach(file => {
-        html += this.renderFileCard(category, file);
+        html += this.renderFileCard(file);
       });
     }
 
@@ -1087,7 +1089,7 @@ class LifelineDocumentManager {
    * フォルダ行を描画
    */
   renderFolderRow(folder, canEdit) {
-    const category = this.category;
+    const uniqueId = this.uniqueId;
     const actionsHtml = canEdit ? `
             <td>
                 <div class="dropdown">
@@ -1095,10 +1097,10 @@ class LifelineDocumentManager {
                         <i class="fas fa-ellipsis-v"></i>
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#" onclick="window.lifelineDocManager_${category}.renameFolder(${folder.id}); return false;">
+                        <li><a class="dropdown-item" href="#" onclick="window.lifelineDocManager_${uniqueId}.renameFolder(${folder.id}); return false;">
                             <i class="fas fa-edit me-2"></i>名前変更
                         </a></li>
-                        <li><a class="dropdown-item text-danger" href="#" onclick="window.lifelineDocManager_${category}.deleteFolder(${folder.id}); return false;">
+                        <li><a class="dropdown-item text-danger" href="#" onclick="window.lifelineDocManager_${uniqueId}.deleteFolder(${folder.id}); return false;">
                             <i class="fas fa-trash me-2"></i>削除
                         </a></li>
                     </ul>
@@ -1110,7 +1112,7 @@ class LifelineDocumentManager {
             <tr class="document-item" data-type="folder" data-id="${folder.id}" data-item-id="${folder.id}" data-item-type="folder" data-item-name="${this.escapeHtml(folder.name)}">
                 <td><i class="fas fa-folder text-warning"></i></td>
                 <td>
-                    <a href="#" onclick="window.lifelineDocManager_${category}.navigateToFolder(${folder.id}); return false;" 
+                    <a href="#" onclick="window.lifelineDocManager_${uniqueId}.navigateToFolder(${folder.id}); return false;" 
                        class="text-decoration-none">
                         ${this.escapeHtml(folder.name)}
                     </a>
@@ -1127,7 +1129,7 @@ class LifelineDocumentManager {
    * ファイル行を描画
    */
   renderFileRow(file, canEdit) {
-    const category = this.category;
+    const uniqueId = this.uniqueId;
     const actionsHtml = canEdit ? `
             <td>
                 <div class="dropdown">
@@ -1138,14 +1140,14 @@ class LifelineDocumentManager {
                         <li><a class="dropdown-item" href="${file.download_url}" target="_blank">
                             <i class="fas fa-download me-2"></i>ダウンロード
                         </a></li>
-                        <li><a class="dropdown-item" href="#" onclick="window.lifelineDocManager_${category}.renameFile(${file.id}); return false;">
+                        <li><a class="dropdown-item" href="#" onclick="window.lifelineDocManager_${uniqueId}.renameFile(${file.id}); return false;">
                             <i class="fas fa-edit me-2"></i>名前変更
                         </a></li>
-                        <li><a class="dropdown-item" href="#" onclick="window.lifelineDocManager_${category}.moveFile(${file.id}); return false;">
+                        <li><a class="dropdown-item" href="#" onclick="window.lifelineDocManager_${uniqueId}.moveFile(${file.id}); return false;">
                             <i class="fas fa-arrows-alt me-2"></i>移動
                         </a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="#" onclick="window.lifelineDocManager_${category}.deleteFile(${file.id}); return false;">
+                        <li><a class="dropdown-item text-danger" href="#" onclick="window.lifelineDocManager_${uniqueId}.deleteFile(${file.id}); return false;">
                             <i class="fas fa-trash me-2"></i>削除
                         </a></li>
                     </ul>
@@ -1179,14 +1181,14 @@ class LifelineDocumentManager {
    * フォルダカードを描画
    */
   renderFolderCard(folder) {
-    const category = this.category;
+    const uniqueId = this.uniqueId;
     return `
             <div class="col-md-3 col-sm-4 col-6 mb-3">
                 <div class="card document-card" data-type="folder" data-id="${folder.id}">
                     <div class="card-body text-center p-3">
                         <i class="fas fa-folder fa-2x text-warning mb-2"></i>
                         <h6 class="card-title mb-1" style="font-size: 0.9rem;">
-                            <a href="#" onclick="window.lifelineDocManager_${category}.navigateToFolder(${folder.id}); return false;" 
+                            <a href="#" onclick="window.lifelineDocManager_${uniqueId}.navigateToFolder(${folder.id}); return false;" 
                                class="text-decoration-none">
                                 ${this.escapeHtml(folder.name)}
                             </a>
@@ -1202,7 +1204,7 @@ class LifelineDocumentManager {
    * ファイルカードを描画
    */
   renderFileCard(file) {
-    const category = this.category;
+    const uniqueId = this.uniqueId;
     return `
             <div class="col-md-3 col-sm-4 col-6 mb-3">
                 <div class="card document-card" data-type="file" data-id="${file.id}">
@@ -1228,7 +1230,7 @@ class LifelineDocumentManager {
     const rootContainer = this.getRootContainer();
     if (!rootContainer) return;
 
-    const container = rootContainer.querySelector(`#breadcrumb-nav-${this.category}`);
+    const container = rootContainer.querySelector(`#breadcrumb-nav-${this.uniqueId}`);
     if (!container || !breadcrumbs) return;
 
     let html = '';
@@ -1257,7 +1259,7 @@ class LifelineDocumentManager {
     const rootContainer = this.getRootContainer();
     if (!rootContainer) return;
 
-    const container = rootContainer.querySelector(`#document-pagination-${this.category}`);
+    const container = rootContainer.querySelector(`#document-pagination-${this.uniqueId}`);
     if (!container || !pagination) return;
 
     let html = '';
@@ -1307,7 +1309,7 @@ class LifelineDocumentManager {
     const rootContainer = this.getRootContainer();
     if (!rootContainer) return;
 
-    const container = rootContainer.querySelector(`#document-info-${this.category}`);
+    const container = rootContainer.querySelector(`#document-info-${this.uniqueId}`);
     if (!container || !stats) return;
 
     container.innerHTML = `
@@ -1501,7 +1503,7 @@ class LifelineDocumentManager {
    * コンテキストメニューイベントを設定
    */
   setupContextMenuEvents() {
-    const contextMenu = document.getElementById(`context-menu-${this.category}`);
+    const contextMenu = document.getElementById(`context-menu-${this.uniqueId}`);
     if (!contextMenu) return;
 
     // ドキュメントリスト内での右クリック
@@ -1613,8 +1615,8 @@ class LifelineDocumentManager {
    * 名前変更モーダル表示
    */
   showRenameModal(itemId, itemType, currentName) {
-    const modal = document.getElementById(`rename-modal-${this.category}`);
-    const input = document.getElementById(`rename-input-${this.category}`);
+    const modal = document.getElementById(`rename-modal-${this.uniqueId}`);
+    const input = document.getElementById(`rename-input-${this.uniqueId}`);
 
     if (modal && input) {
       input.value = currentName;
@@ -1630,8 +1632,8 @@ class LifelineDocumentManager {
    * プロパティモーダル表示
    */
   showPropertiesModal(itemId, itemType, itemName) {
-    const modal = document.getElementById(`properties-modal-${this.category}`);
-    const content = document.getElementById(`properties-content-${this.category}`);
+    const modal = document.getElementById(`properties-modal-${this.uniqueId}`);
+    const content = document.getElementById(`properties-content-${this.uniqueId}`);
 
     if (modal && content) {
       content.innerHTML = `
@@ -2293,8 +2295,8 @@ LifelineDocumentManager.prototype.ensureModalContainer = function () {
     console.log(`[LifelineDoc] Created modal container for ${this.category}`);
 
     // フォルダ作成モーダルとファイルアップロードモーダルも確認
-    const createFolderModal = document.getElementById(`create-folder-modal-${this.category}`);
-    const uploadFileModal = document.getElementById(`upload-file-modal-${this.category}`);
+    const createFolderModal = document.getElementById(`create-folder-modal-${this.uniqueId}`);
+    const uploadFileModal = document.getElementById(`upload-file-modal-${this.uniqueId}`);
     console.log(`[LifelineDoc] Create folder modal exists:`, !!createFolderModal);
     console.log(`[LifelineDoc] Upload file modal exists:`, !!uploadFileModal);
   }
