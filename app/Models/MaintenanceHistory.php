@@ -15,7 +15,7 @@ class MaintenanceHistory extends Model
      */
     const CATEGORIES = [
         'exterior' => '外装',
-        'interior' => '内装リニューアル',
+        'interior' => '内装',
         'other' => 'その他'
     ];
 

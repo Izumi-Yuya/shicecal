@@ -39,7 +39,7 @@
             <button class="nav-link" id="interior-tab" data-bs-toggle="tab" 
                     data-bs-target="#interior" type="button" role="tab" 
                     aria-controls="interior" aria-selected="false">
-                <i class="fas fa-paint-brush me-2"></i>内装リニューアル
+                <i class="fas fa-paint-brush me-2"></i>内装
             </button>
         </li>
         <li class="nav-item" role="presentation">
@@ -75,7 +75,7 @@
             @include('facilities.repair-history.partials.exterior-tab')
         </div>
 
-        <!-- 内装リニューアルタブ -->
+        <!-- 内装タブ -->
         <div class="tab-pane fade" id="interior" role="tabpanel" aria-labelledby="interior-tab">
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <div class="flex-grow-1"></div>
@@ -150,7 +150,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="maintenance-documents-modal-interior-label">
-                    <i class="fas fa-folder me-2"></i>内装リニューアル関連ドキュメント
+                    <i class="fas fa-folder me-2"></i>内装関連ドキュメント
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
             </div>
@@ -159,7 +159,7 @@
                 <x-maintenance-document-manager 
                     :facility="$facility" 
                     category="interior"
-                    categoryName="内装リニューアル"
+                    categoryName="内装"
                 />
             </div>
         </div>
