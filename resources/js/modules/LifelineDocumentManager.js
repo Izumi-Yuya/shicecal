@@ -8,16 +8,19 @@
 // ApiClient import removed - using direct fetch calls
 
 class LifelineDocumentManager {
-  constructor(facilityId = null, category = null, options = {}) {
+  constructor(facilityId = null, category = null, uniqueId = null, options = {}) {
     // Validate required parameters
     if (facilityId && !category) {
       throw new Error('LifelineDocumentManager: category is required when facilityId is provided');
     }
 
+    // uniqueIdがない場合はcategoryを使用
+    this.uniqueId = uniqueId || category;
+
     // 重複インスタンス防止 - より強力なチェック
-    const existingKey = `lifelineDocManager_${category}`;
-    if (category && window[existingKey]) {
-      console.warn(`[LifelineDoc] Manager for ${category} already exists, returning existing instance`);
+    const existingKey = `lifelineDocManager_${this.uniqueId}`;
+    if (this.uniqueId && window[existingKey]) {
+      console.warn(`[LifelineDoc] Manager for ${this.uniqueId} already exists, returning existing instance`);
       return window[existingKey];
     }
 
@@ -72,9 +75,9 @@ class LifelineDocumentManager {
     this.debouncedSearch = this.debounce(this.performSearch.bind(this), this.defaultOptions.searchDelay);
 
     // グローバルに登録（重複防止のため）
-    if (category) {
-      window[`lifelineDocManager_${category}`] = this;
-      console.log(`[LifelineDoc] Registered instance as window.lifelineDocManager_${category}`);
+    if (this.uniqueId) {
+      window[`lifelineDocManager_${this.uniqueId}`] = this;
+      console.log(`[LifelineDoc] Registered instance as window.lifelineDocManager_${this.uniqueId}`);
     }
 
     // 初期化
@@ -1719,7 +1722,7 @@ class LifelineDocumentManager {
    * カテゴリ別IDを生成（ID衝突防止）
    */
   _id(name) {
-    return `${name}-${this.category}`;
+    return `${name}-${this.uniqueId}`;
   }
 
   /**
@@ -2135,7 +2138,9 @@ LifelineDocumentManager.prototype.getRootContainer = function () {
   if (this.rootContainer) return this.rootContainer;
 
   // Try multiple selectors to find the container
+  // uniqueIdを優先的に使用し、見つからない場合はcategoryで検索
   const selectors = [
+    `#document-management-container-${this.uniqueId}`,
     `#document-management-container-${this.category}`,
     `[data-lifeline-category="${this.category}"]`,
     `.document-management[data-lifeline-category="${this.category}"]`
@@ -2144,13 +2149,13 @@ LifelineDocumentManager.prototype.getRootContainer = function () {
   for (const sel of selectors) {
     const container = document.querySelector(sel);
     if (container) {
-      console.log(`[LifelineDoc] Found container for ${this.category} using selector: ${sel}`);
+      console.log(`[LifelineDoc] Found container for ${this.uniqueId} using selector: ${sel}`);
       this.rootContainer = container;
       return this.rootContainer;
     }
   }
 
-  console.warn(`[LifelineDoc] Container not found for category: ${this.category}`);
+  console.warn(`[LifelineDoc] Container not found for uniqueId: ${this.uniqueId}, category: ${this.category}`);
   return null;
 };
 
