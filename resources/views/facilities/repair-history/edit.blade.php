@@ -1005,7 +1005,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (interiorDesignFields) interiorDesignFields.style.display = 'none';
                 if (contactFields) contactFields.style.display = 'block';
                 if (notesField) notesField.style.display = 'none';
-                if (dateLabel) dateLabel.textContent = 'リニューアル';
+                if (dateLabel) dateLabel.textContent = '実施日';
                 if (companyLabel) companyLabel.textContent = '会社名';
                 
                 // Clear design fields and notes when hiding
