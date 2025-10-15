@@ -16,6 +16,7 @@ class MaintenanceHistory extends Model
     const CATEGORIES = [
         'exterior' => '外装',
         'interior' => '内装',
+        'summer_condensation' => '夏型結露',
         'other' => 'その他'
     ];
 
@@ -31,6 +32,10 @@ class MaintenanceHistory extends Model
         'interior' => [
             'renovation' => '内装リニューアル',
             'design' => '内装・意匠'
+        ],
+        'summer_condensation' => [
+            'countermeasure' => '夏型対策',
+            'history' => '夏型結露対策履歴'
         ],
         'other' => [
             'renovation_work' => '改修工事'

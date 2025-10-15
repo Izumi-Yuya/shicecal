@@ -30,6 +30,7 @@
                         $backFragment = match($category) {
                             'exterior' => 'repair-history',
                             'interior' => 'interior',
+                            'summer_condensation' => 'summer-condensation',
                             'other' => 'other',
                             default => 'repair-history'
                         };
@@ -150,6 +151,51 @@
                                         ])
                                     @endforeach
                                 @endif
+                            @elseif($category === 'summer_condensation')
+                                {{-- 夏型結露カテゴリの場合：夏型対策と夏型結露対策履歴 --}}
+                                @php
+                                    $countermeasureHistory = $histories->firstWhere('subcategory', '夏型対策') ?? $histories->firstWhere('subcategory', 'countermeasure');
+                                    $historyRecords = $histories->filter(function($history) {
+                                        return in_array($history->subcategory, ['夏型結露対策履歴', 'history']);
+                                    });
+                                @endphp
+                                
+                                {{-- 夏型対策履歴フォーム --}}
+                                @include('facilities.repair-history.partials.history-form-row', [
+                                    'index' => 0,
+                                    'history' => $countermeasureHistory,
+                                    'category' => $category,
+                                    'subcategories' => $subcategories,
+                                    'fixedSubcategory' => '夏型対策',
+                                    'displayName' => '夏型対策',
+                                    'summerCondensationType' => 'countermeasure'
+                                ])
+                                
+                                {{-- 夏型結露対策履歴フォーム（最初の1つ） --}}
+                                @include('facilities.repair-history.partials.history-form-row', [
+                                    'index' => 1,
+                                    'history' => $historyRecords->first(),
+                                    'category' => $category,
+                                    'subcategories' => $subcategories,
+                                    'fixedSubcategory' => '夏型結露対策履歴',
+                                    'displayName' => '夏型結露対策履歴',
+                                    'summerCondensationType' => 'history'
+                                ])
+                                
+                                {{-- 追加の夏型結露対策履歴 --}}
+                                @if($historyRecords->count() > 1)
+                                    @foreach($historyRecords->skip(1) as $additionalIndex => $history)
+                                        @include('facilities.repair-history.partials.history-form-row', [
+                                            'index' => $additionalIndex + 2,
+                                            'history' => $history,
+                                            'category' => $category,
+                                            'subcategories' => $subcategories,
+                                            'fixedSubcategory' => '夏型結露対策履歴',
+                                            'displayName' => '夏型結露対策履歴',
+                                            'summerCondensationType' => 'history'
+                                        ])
+                                    @endforeach
+                                @endif
                             @else
                                 {{-- その他のカテゴリ --}}
                                 @if($histories->count() > 0)
@@ -181,6 +227,12 @@
                                     <i class="fas fa-plus me-2"></i>内装・意匠履歴を追加
                                 </button>
                             </div>
+                        @elseif($category === 'summer_condensation')
+                            <div class="mb-4" style="margin-top: 15px;">
+                                <button type="button" class="btn btn-outline-primary" id="addHistoryBtn">
+                                    <i class="fas fa-plus me-2"></i>夏型結露対策履歴を追加
+                                </button>
+                            </div>
                         @elseif($category !== 'exterior')
                             <div class="mb-4" style="margin-top: 15px;">
                                 <button type="button" class="btn btn-outline-primary" id="addHistoryBtn">
@@ -198,6 +250,7 @@
                                 $currentSpecialNotes = match($category) {
                                     'exterior' => $facility->exterior_special_notes,
                                     'interior' => $facility->interior_special_notes,
+                                    'summer_condensation' => $facility->summer_condensation_special_notes,
                                     'other' => $facility->other_special_notes,
                                     default => ''
                                 };
@@ -240,6 +293,17 @@
             'fixedSubcategory' => '内装・意匠履歴',
             'displayName' => '内装・意匠履歴',
             'interiorType' => 'design',
+            'isTemplate' => true
+        ])
+    @elseif($category === 'summer_condensation')
+        @include('facilities.repair-history.partials.history-form-row', [
+            'index' => 0,
+            'history' => null,
+            'category' => $category,
+            'subcategories' => $subcategories,
+            'fixedSubcategory' => '夏型結露対策履歴',
+            'displayName' => '夏型結露対策履歴',
+            'summerCondensationType' => 'history',
             'isTemplate' => true
         ])
     @elseif($category === 'other')
@@ -554,6 +618,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (subcategoryInput) {
                     subcategoryInput.value = '内装・意匠履歴';
                 }
+            } else if (currentCategory === 'summer_condensation') {
+                // For summer_condensation category, new additions are always 夏型結露対策履歴
+                header.innerHTML = '<i class="fas fa-wrench me-2"></i>夏型結露対策履歴';
+                
+                // Set the subcategory hidden field to 夏型結露対策履歴
+                const subcategoryInput = clonedTemplate.querySelector('input[name*="[subcategory]"]');
+                if (subcategoryInput) {
+                    subcategoryInput.value = '夏型結露対策履歴';
+                }
             } else if (currentCategory === 'other') {
                 // For other category, new additions are always 改修工事履歴
                 header.innerHTML = '<i class="fas fa-wrench me-2"></i>改修工事履歴';
@@ -641,6 +714,38 @@ document.addEventListener('DOMContentLoaded', function() {
             const interiorRenovationFields = clonedTemplate.querySelector('.interior-renovation-fields');
             if (interiorRenovationFields) {
                 interiorRenovationFields.style.display = 'none';
+            }
+            
+            // Hide contact fields
+            const contactFields = clonedTemplate.querySelector('.contact-fields');
+            if (contactFields) {
+                contactFields.style.display = 'none';
+            }
+            
+            // Show notes field
+            const notesField = clonedTemplate.querySelector('.notes-field');
+            if (notesField) {
+                notesField.style.display = 'block';
+            }
+            
+            // Update labels
+            const dateLabel = clonedTemplate.querySelector('[id*="date_label_"]');
+            const companyLabel = clonedTemplate.querySelector('[id*="company_label_"]');
+            if (dateLabel) dateLabel.textContent = '施工日';
+            if (companyLabel) companyLabel.textContent = '施工会社';
+            
+        } else if (currentCategory === 'summer_condensation') {
+            // For summer_condensation category, new additions are always 夏型結露対策履歴
+            // Show summer condensation history fields
+            const summerCondensationHistoryFields = clonedTemplate.querySelector('.summer-condensation-history-fields');
+            if (summerCondensationHistoryFields) {
+                summerCondensationHistoryFields.style.display = 'block';
+            }
+            
+            // Hide countermeasure fields for new additions
+            const summerCondensationCountermeasureFields = clonedTemplate.querySelector('.summer-condensation-countermeasure-fields');
+            if (summerCondensationCountermeasureFields) {
+                summerCondensationCountermeasureFields.style.display = 'none';
             }
             
             // Hide contact fields

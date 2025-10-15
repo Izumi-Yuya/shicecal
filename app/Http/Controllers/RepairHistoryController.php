@@ -468,6 +468,7 @@ class RepairHistoryController extends Controller
         $fieldName = match($category) {
             'exterior' => 'exterior_special_notes',
             'interior' => 'interior_special_notes',
+            'summer_condensation' => 'summer_condensation_special_notes',
             'other' => 'other_special_notes',
             default => 'exterior_special_notes'
         };
@@ -497,6 +498,8 @@ class RepairHistoryController extends Controller
                 return 'repair-history';
             case 'interior':
                 return 'interior';
+            case 'summer_condensation':
+                return 'summer-condensation';
             case 'other':
                 return 'other';
             default:
