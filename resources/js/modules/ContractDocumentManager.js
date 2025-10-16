@@ -11,6 +11,13 @@ class ContractDocumentManager {
     this.currentPath = [];
     this.viewMode = 'list';
     this.selectedItem = null;
+    this.isInitialLoad = true; // 初回ロードフラグ
+
+    // 再試行機能の設定
+    this.maxRetries = 3;
+    this.retryCount = 0;
+    this.retryDelay = 1000; // 初期遅延時間（ミリ秒）
+    this.lastFailedRequest = null; // 最後に失敗したリクエスト情報
 
     // グローバルに登録
     window.contractDocManager = this;
@@ -23,7 +30,35 @@ class ContractDocumentManager {
   init() {
     this.cacheElements();
     this.attachEventListeners();
-    this.loadDocuments();
+    this.setupLazyLoading();
+    // 初期ロードは行わない（遅延ロード）
+  }
+
+  /**
+   * 遅延ロード機能のセットアップ
+   * 統一ドキュメントセクションが初めて展開されたときにドキュメントを読み込む
+   */
+  setupLazyLoading() {
+    const unifiedSection = document.getElementById('unified-documents-section');
+
+    if (!unifiedSection) {
+      console.warn('[ContractDoc] Unified section not found, loading documents immediately');
+      this.loadDocuments();
+      return;
+    }
+
+    console.log('[ContractDoc] Lazy loading enabled - documents will load on first expand');
+
+    // shown.bs.collapseイベントをリッスン
+    unifiedSection.addEventListener('shown.bs.collapse', () => {
+      if (this.isInitialLoad) {
+        console.log('[ContractDoc] First expand detected - loading documents');
+        this.isInitialLoad = false;
+        this.loadDocuments();
+      } else {
+        console.log('[ContractDoc] Section expanded - documents already loaded');
+      }
+    });
   }
 
   cacheElements() {
@@ -150,12 +185,21 @@ class ContractDocumentManager {
         this.currentFolderId = folderId;
         this.renderDocuments(result.data);
         this.updateBreadcrumbs(result.data.breadcrumbs || []);
+        // 成功時は再試行カウントをリセット
+        this.resetRetryState();
       } else {
         this.showError(result.message || 'ドキュメントの読み込みに失敗しました。');
       }
     } catch (error) {
       console.error('[ContractDoc] Load documents error:', error);
-      this.showError('ドキュメントの読み込み中にエラーが発生しました。');
+
+      // ネットワークエラーの場合は再試行機能を提供
+      if (this.isNetworkError(error)) {
+        this.lastFailedRequest = { action: 'loadDocuments', params: { folderId } };
+        this.showNetworkError('ドキュメントの読み込み中にネットワークエラーが発生しました。');
+      } else {
+        this.showError('ドキュメントの読み込み中にエラーが発生しました。');
+      }
     }
   }
 
@@ -641,12 +685,21 @@ class ContractDocumentManager {
         this.renderDocuments(result.data);
         // 検索結果の場合はパンくずリストをクリア
         this.elements.breadcrumbNav.innerHTML = '<li class="breadcrumb-item active">検索結果</li>';
+        // 成功時は再試行カウントをリセット
+        this.resetRetryState();
       } else {
         this.showError(result.message || '検索に失敗しました。');
       }
     } catch (error) {
       console.error('[ContractDoc] Search error:', error);
-      this.showError('検索中にエラーが発生しました。');
+
+      // ネットワークエラーの場合は再試行機能を提供
+      if (this.isNetworkError(error)) {
+        this.lastFailedRequest = { action: 'search', params: {} };
+        this.showNetworkError('検索中にネットワークエラーが発生しました。');
+      } else {
+        this.showError('検索中にエラーが発生しました。');
+      }
     }
   }
 
@@ -678,10 +731,134 @@ class ContractDocumentManager {
     this.elements.errorMessage.classList.remove('d-none');
     this.elements.emptyState.classList.add('d-none');
     this.elements.documentList.classList.add('d-none');
+
+    // 再試行ボタンを非表示
+    const retryBtn = this.elements.errorMessage.querySelector('.retry-btn');
+    if (retryBtn) {
+      retryBtn.style.display = 'none';
+    }
   }
 
   hideError() {
     this.elements.errorMessage.classList.add('d-none');
+  }
+
+  /**
+   * ネットワークエラー表示（再試行ボタン付き）
+   */
+  showNetworkError(message) {
+    this.hideLoading();
+    this.elements.errorText.textContent = message;
+    this.elements.errorMessage.classList.remove('d-none');
+    this.elements.emptyState.classList.add('d-none');
+    this.elements.documentList.classList.add('d-none');
+
+    // 再試行ボタンを表示
+    let retryBtn = this.elements.errorMessage.querySelector('.retry-btn');
+    if (!retryBtn) {
+      retryBtn = document.createElement('button');
+      retryBtn.className = 'btn btn-primary btn-sm retry-btn mt-2';
+      retryBtn.innerHTML = '<i class="fas fa-redo me-1"></i>再試行';
+      retryBtn.addEventListener('click', () => this.handleRetry());
+      this.elements.errorMessage.appendChild(retryBtn);
+    }
+
+    // 再試行回数に応じてボタンの表示を制御
+    if (this.retryCount >= this.maxRetries) {
+      retryBtn.disabled = true;
+      retryBtn.innerHTML = '<i class="fas fa-times me-1"></i>再試行回数の上限に達しました';
+      this.elements.errorText.textContent = message + ' ページを再読み込みしてください。';
+    } else {
+      retryBtn.disabled = false;
+      retryBtn.style.display = 'inline-block';
+
+      if (this.retryCount > 0) {
+        const remainingRetries = this.maxRetries - this.retryCount;
+        retryBtn.innerHTML = `<i class="fas fa-redo me-1"></i>再試行 (残り${remainingRetries}回)`;
+      }
+    }
+  }
+
+  /**
+   * ネットワークエラーかどうかを判定
+   */
+  isNetworkError(error) {
+    // TypeError: Failed to fetch はネットワークエラー
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      return true;
+    }
+
+    // HTTP 5xx エラーもネットワーク関連として扱う
+    if (error.message && error.message.includes('HTTP error! status: 5')) {
+      return true;
+    }
+
+    // タイムアウトエラー
+    if (error.name === 'AbortError' || error.message.includes('timeout')) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * 再試行処理
+   */
+  async handleRetry() {
+    if (this.retryCount >= this.maxRetries) {
+      console.warn('[ContractDoc] Max retry attempts reached');
+      return;
+    }
+
+    if (!this.lastFailedRequest) {
+      console.warn('[ContractDoc] No failed request to retry');
+      return;
+    }
+
+    this.retryCount++;
+
+    // 指数バックオフ: 1秒 → 2秒 → 4秒
+    const delay = this.retryDelay * Math.pow(2, this.retryCount - 1);
+
+    console.log(`[ContractDoc] Retrying request (attempt ${this.retryCount}/${this.maxRetries}) after ${delay}ms`);
+
+    // 遅延後に再試行
+    await this.sleep(delay);
+
+    // 最後に失敗したリクエストを再実行
+    const { action, params } = this.lastFailedRequest;
+
+    switch (action) {
+      case 'loadDocuments':
+        await this.loadDocuments(params.folderId);
+        break;
+      case 'search':
+        await this.handleSearch();
+        break;
+      case 'createFolder':
+        // フォルダ作成は再試行しない（ユーザーが再度実行する）
+        break;
+      case 'uploadFile':
+        // ファイルアップロードは再試行しない（ユーザーが再度実行する）
+        break;
+      default:
+        console.warn(`[ContractDoc] Unknown action: ${action}`);
+    }
+  }
+
+  /**
+   * 再試行状態をリセット
+   */
+  resetRetryState() {
+    this.retryCount = 0;
+    this.lastFailedRequest = null;
+  }
+
+  /**
+   * 指定時間待機
+   */
+  sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   showEmptyState() {
