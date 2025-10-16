@@ -271,6 +271,13 @@
                                 <i class="fas fa-shield-alt text-primary me-2"></i>防犯・防災
                             </h4>
                             <div class="d-flex align-items-center gap-2">
+                                @if(auth()->user()->canEditFacility($facility->id))
+                                    <a href="{{ route('facilities.security-disaster.edit', $facility) }}" 
+                                       id="security-disaster-edit-link"
+                                       class="btn btn-primary btn-sm">
+                                        <i class="fas fa-edit me-2"></i>編集
+                                    </a>
+                                @endif
                                 <!-- ドキュメント管理ボタン -->
                                 <button type="button" 
                                         class="btn btn-outline-primary btn-sm" 
@@ -279,13 +286,6 @@
                                     <i class="fas fa-folder-open me-1"></i>
                                     <span class="d-none d-md-inline">ドキュメント</span>
                                 </button>
-                                @if(auth()->user()->canEditFacility($facility->id))
-                                    <a href="{{ route('facilities.security-disaster.edit', $facility) }}" 
-                                       id="security-disaster-edit-link"
-                                       class="btn btn-primary btn-sm">
-                                        <i class="fas fa-edit me-2"></i>編集
-                                    </a>
-                                @endif
                             </div>
                         </div>
                         
