@@ -132,7 +132,7 @@
                 <table class="table table-bordered facility-basic-info-table-clean" style="--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0;">
                     <tbody>
                         <tr>
-                            <td class="detail-label" style="padding: 0.5rem; width: 15%;">備考</td>
+                            <td class="detail-label" style="padding: 0.5rem; width: 4.8% !important;">備考</td>
                             <td class="detail-value {{ (!isset($drawingsData['notes']) || empty($drawingsData['notes'])) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 @if(isset($drawingsData['notes']) && !empty($drawingsData['notes']))
                                     {!! nl2br(e($drawingsData['notes'])) !!}
@@ -156,7 +156,7 @@
                     <tbody>
                         <!-- 施工図面一式 -->
                         <tr>
-                            <td class="detail-label" style="padding: 0.5rem; width: 15%;">施工図面一式</td>
+                            <td class="detail-label" style="padding: 0.5rem; width: 4.8% !important;">施工図面一式</td>
                             <td class="detail-value {{ !isset($drawingsData['handover_drawings']['construction_drawings']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 @if(isset($drawingsData['handover_drawings']['construction_drawings']))
                                     @php $drawing = $drawingsData['handover_drawings']['construction_drawings']; @endphp
@@ -176,7 +176,7 @@
                         
                         <!-- 備考 -->
                         <tr>
-                            <td class="detail-label" style="padding: 0.5rem;">備考</td>
+                            <td class="detail-label" style="padding: 0.5rem; width: 4.8% !important;">備考</td>
                             <td class="detail-value {{ (!isset($drawingsData['handover_drawings']['notes']) || empty($drawingsData['handover_drawings']['notes'])) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 @if(isset($drawingsData['handover_drawings']['notes']) && !empty($drawingsData['handover_drawings']['notes']))
                                     {!! nl2br(e($drawingsData['handover_drawings']['notes'])) !!}
