@@ -1,5 +1,40 @@
 <!-- 契約書管理 -->
 <div class="contracts-container">
+    <!-- 統一ドキュメント管理セクション -->
+    <div class="unified-contract-documents-section mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">
+                <i class="fas fa-folder text-primary me-2"></i>契約書関連ドキュメント
+            </h5>
+            <button type="button" 
+                    class="btn btn-outline-primary btn-sm unified-documents-toggle" 
+                    id="unified-documents-toggle"
+                    data-bs-toggle="collapse" 
+                    data-bs-target="#unified-documents-section" 
+                    aria-expanded="false" 
+                    aria-controls="unified-documents-section">
+                <i class="fas fa-folder-open me-1"></i>
+                <span>ドキュメントを表示</span>
+            </button>
+        </div>
+        
+        <div class="collapse" id="unified-documents-section">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-folder-open me-2"></i>契約書ドキュメント管理
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <x-contract-document-manager 
+                        :facility="$facility" 
+                        categoryName="契約書"
+                    />
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- サブタブナビゲーション -->
     <div class="contracts-subtabs">
         <ul class="nav nav-tabs" id="contractsTabs" role="tablist">
@@ -55,42 +90,6 @@
                         <i class="fas fa-edit me-2"></i>編集
                     </a>
                 @endif
-            </div>
-
-            <!-- ドキュメント管理セクション -->
-            <div class="contract-documents-section mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="mb-0">
-                        <i class="fas fa-folder text-primary me-2"></i>関連ドキュメント
-                    </h6>
-                    <button type="button" 
-                            class="btn btn-outline-primary btn-sm contract-documents-toggle" 
-                            id="others-documents-toggle"
-                            data-bs-toggle="collapse" 
-                            data-bs-target="#others-documents-section" 
-                            aria-expanded="false" 
-                            aria-controls="others-documents-section">
-                        <i class="fas fa-folder-open me-1"></i>
-                        <span>ドキュメントを表示</span>
-                    </button>
-                </div>
-                
-                <div class="collapse" id="others-documents-section">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-primary text-white">
-                            <h6 class="mb-0">
-                                <i class="fas fa-folder-open me-2"></i>その他契約書関連ドキュメント
-                            </h6>
-                        </div>
-                        <div class="card-body p-0">
-                            <x-contract-document-manager 
-                                :facility="$facility" 
-                                category="others"
-                                categoryName="その他契約書"
-                            />
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- その他契約書テーブル -->
@@ -228,42 +227,6 @@
                         <i class="fas fa-edit me-2"></i>編集
                     </a>
                 @endif
-            </div>
-
-            <!-- ドキュメント管理セクション -->
-            <div class="contract-documents-section mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="mb-0">
-                        <i class="fas fa-folder text-success me-2"></i>関連ドキュメント
-                    </h6>
-                    <button type="button" 
-                            class="btn btn-outline-success btn-sm contract-documents-toggle" 
-                            id="meal-service-documents-toggle"
-                            data-bs-toggle="collapse" 
-                            data-bs-target="#meal-service-documents-section" 
-                            aria-expanded="false" 
-                            aria-controls="meal-service-documents-section">
-                        <i class="fas fa-folder-open me-1"></i>
-                        <span>ドキュメントを表示</span>
-                    </button>
-                </div>
-                
-                <div class="collapse" id="meal-service-documents-section">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-success text-white">
-                            <h6 class="mb-0">
-                                <i class="fas fa-folder-open me-2"></i>給食契約書関連ドキュメント
-                            </h6>
-                        </div>
-                        <div class="card-body p-0">
-                            <x-contract-document-manager 
-                                :facility="$facility" 
-                                category="meal_service"
-                                categoryName="給食契約書"
-                            />
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- 給食契約書テーブル -->
@@ -457,42 +420,6 @@
                         <i class="fas fa-edit me-2"></i>編集
                     </a>
                 @endif
-            </div>
-
-            <!-- ドキュメント管理セクション -->
-            <div class="contract-documents-section mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="mb-0">
-                        <i class="fas fa-folder text-info me-2"></i>関連ドキュメント
-                    </h6>
-                    <button type="button" 
-                            class="btn btn-outline-info btn-sm contract-documents-toggle" 
-                            id="parking-documents-toggle"
-                            data-bs-toggle="collapse" 
-                            data-bs-target="#parking-documents-section" 
-                            aria-expanded="false" 
-                            aria-controls="parking-documents-section">
-                        <i class="fas fa-folder-open me-1"></i>
-                        <span>ドキュメントを表示</span>
-                    </button>
-                </div>
-                
-                <div class="collapse" id="parking-documents-section">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-info text-white">
-                            <h6 class="mb-0">
-                                <i class="fas fa-folder-open me-2"></i>駐車場契約書関連ドキュメント
-                            </h6>
-                        </div>
-                        <div class="card-body p-0">
-                            <x-contract-document-manager 
-                                :facility="$facility" 
-                                category="parking"
-                                categoryName="駐車場契約書"
-                            />
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- 駐車場契約書テーブル -->
@@ -772,7 +699,27 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // ===== Modal hoisting & z-index fix for contract document managers =====
+    // 統一ドキュメントセクションの折りたたみボタンテキスト変更
+    const unifiedToggleBtn = document.getElementById('unified-documents-toggle');
+    const unifiedSection = document.getElementById('unified-documents-section');
+    
+    if (unifiedToggleBtn && unifiedSection) {
+        unifiedSection.addEventListener('show.bs.collapse', function() {
+            const icon = unifiedToggleBtn.querySelector('i');
+            const text = unifiedToggleBtn.querySelector('span');
+            if (icon) icon.className = 'fas fa-folder me-1';
+            if (text) text.textContent = 'ドキュメントを非表示';
+        });
+        
+        unifiedSection.addEventListener('hide.bs.collapse', function() {
+            const icon = unifiedToggleBtn.querySelector('i');
+            const text = unifiedToggleBtn.querySelector('span');
+            if (icon) icon.className = 'fas fa-folder-open me-1';
+            if (text) text.textContent = 'ドキュメントを表示';
+        });
+    }
+
+    // ===== Modal hoisting & z-index fix for unified contract document section =====
     function hoistModals(container) {
         if (!container) return;
         container.querySelectorAll('.modal').forEach(function(modal) {
@@ -782,24 +729,18 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Hoist modals for all contract document sections
-    const documentSections = [
-        document.getElementById('others-documents-section'),
-        document.getElementById('meal-service-documents-section'),
-        document.getElementById('parking-documents-section')
-    ];
-
-    documentSections.forEach(function(section) {
-        if (section) {
-            // Initial hoisting
-            hoistModals(section);
-            
-            // Hoist on collapse shown
-            section.addEventListener('shown.bs.collapse', function() {
-                hoistModals(section);
-            });
-        }
-    });
+    // Hoist modals for unified document section
+    const unifiedDocumentSection = document.getElementById('unified-documents-section');
+    
+    if (unifiedDocumentSection) {
+        // Initial hoisting
+        hoistModals(unifiedDocumentSection);
+        
+        // Hoist on collapse shown
+        unifiedDocumentSection.addEventListener('shown.bs.collapse', function() {
+            hoistModals(unifiedDocumentSection);
+        });
+    }
 
     // Modal z-index enforcement
     document.addEventListener('show.bs.modal', function(ev) {

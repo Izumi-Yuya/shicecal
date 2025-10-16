@@ -9,7 +9,7 @@
 @endphp
 
 {{-- 動作しているドキュメントタブと同じ構造を使用 --}}
-<div class="document-management" data-facility-id="{{ $facility->id }}" data-contract-category="{{ $category }}" id="document-management-container-{{ $category }}">
+<div class="document-management" data-facility-id="{{ $facility->id }}" id="contract-document-management-container">
     
     {{-- ツールバー --}}
     <div class="document-toolbar mb-3">
@@ -17,25 +17,25 @@
             <div class="col-md-6">
                 <div class="d-flex align-items-center gap-2">
                     {{-- フォルダ作成ボタン --}}
-                    <button type="button" id="create-folder-btn-{{ $category }}" class="btn btn-outline-primary btn-sm" {{ $canEdit ? '' : 'disabled' }}>
+                    <button type="button" id="create-folder-btn-contracts" class="btn btn-outline-primary btn-sm" {{ $canEdit ? '' : 'disabled' }}>
                         <i class="fas fa-folder-plus me-1"></i>新しいフォルダ
                     </button>
                     
                     {{-- ファイルアップロードボタン --}}
-                    <button type="button" id="upload-file-btn-{{ $category }}" class="btn btn-primary btn-sm" {{ $canEdit ? '' : 'disabled' }}>
+                    <button type="button" id="upload-file-btn-contracts" class="btn btn-primary btn-sm" {{ $canEdit ? '' : 'disabled' }}>
                         <i class="fas fa-upload me-1"></i>ファイルアップロード
                     </button>
                     
                     {{-- 表示モード切替 --}}
                     <div class="btn-group btn-group-sm" role="group" aria-label="表示モード選択">
-                        <input type="radio" class="btn-check" name="view-mode-{{ $category }}" id="list-view-{{ $category }}" value="list" checked>
-                        <label class="btn btn-outline-secondary" for="list-view-{{ $category }}">
+                        <input type="radio" class="btn-check" name="view-mode-contracts" id="list-view-contracts" value="list" checked>
+                        <label class="btn btn-outline-secondary" for="list-view-contracts">
                             <i class="fas fa-list" aria-hidden="true"></i>
                             <span class="visually-hidden">リスト表示</span>
                         </label>
                         
-                        <input type="radio" class="btn-check" name="view-mode-{{ $category }}" id="grid-view-{{ $category }}" value="grid">
-                        <label class="btn btn-outline-secondary" for="grid-view-{{ $category }}">
+                        <input type="radio" class="btn-check" name="view-mode-contracts" id="grid-view-contracts" value="grid">
+                        <label class="btn btn-outline-secondary" for="grid-view-contracts">
                             <i class="fas fa-th" aria-hidden="true"></i>
                             <span class="visually-hidden">グリッド表示</span>
                         </label>
@@ -47,9 +47,9 @@
                 <div class="d-flex align-items-center gap-2 justify-content-end">
                     {{-- 検索 --}}
                     <div class="input-group input-group-sm" style="max-width: 200px;">
-                        <label for="search-input-{{ $category }}" class="visually-hidden">ファイル・フォルダを検索</label>
-                        <input type="text" class="form-control" id="search-input-{{ $category }}" placeholder="ファイル・フォルダを検索..." aria-label="ファイル・フォルダを検索">
-                        <button class="btn btn-outline-secondary" type="button" id="search-btn-{{ $category }}" aria-label="検索実行">
+                        <label for="search-input-contracts" class="visually-hidden">ファイル・フォルダを検索</label>
+                        <input type="text" class="form-control" id="search-input-contracts" placeholder="ファイル・フォルダを検索..." aria-label="ファイル・フォルダを検索">
+                        <button class="btn btn-outline-secondary" type="button" id="search-btn-contracts" aria-label="検索実行">
                             <i class="fas fa-search" aria-hidden="true"></i>
                         </button>
                     </div>
@@ -60,7 +60,7 @@
 
     {{-- パンくずナビゲーション --}}
     <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb" id="breadcrumb-nav-{{ $category }}">
+        <ol class="breadcrumb" id="breadcrumb-nav-contracts">
             <li class="breadcrumb-item active">{{ $categoryName }}</li>
         </ol>
     </nav>
@@ -68,7 +68,7 @@
     {{-- ドキュメント一覧エリア --}}
     <div class="document-list-container" style="min-height: 400px;">
         {{-- ローディング表示 --}}
-        <div class="text-center py-5" id="loading-indicator-{{ $category }}">
+        <div class="text-center py-5" id="loading-indicator-contracts">
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">読み込み中...</span>
             </div>
@@ -76,29 +76,29 @@
         </div>
 
         {{-- エラー表示 --}}
-        <div class="alert alert-danger d-none" id="error-message-{{ $category }}">
+        <div class="alert alert-danger d-none" id="error-message-contracts">
             <i class="fas fa-exclamation-triangle me-2"></i>
-            <span id="error-text-{{ $category }}"></span>
+            <span id="error-text-contracts"></span>
         </div>
 
         {{-- 空の状態 --}}
-        <div class="text-center py-5 d-none" id="empty-state-{{ $category }}">
+        <div class="text-center py-5 d-none" id="empty-state-contracts">
             <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
             <h5 class="text-muted">ドキュメントがありません</h5>
             <p class="text-muted mb-3">
                 ファイルをアップロードするか、フォルダを作成してドキュメントを整理しましょう。
             </p>
             @if($canEdit)
-                <button type="button" class="btn btn-primary" id="empty-upload-btn-{{ $category }}">
+                <button type="button" class="btn btn-primary" id="empty-upload-btn-contracts">
                     <i class="fas fa-upload me-1"></i>ファイルアップロード
                 </button>
             @endif
         </div>
 
         {{-- ドキュメント一覧 --}}
-        <div id="document-list-{{ $category }}" class="d-none">
+        <div id="document-list-contracts" class="d-none">
             {{-- リスト表示 --}}
-            <div id="document-list-view-{{ $category }}" class="table-responsive">
+            <div id="document-list-view-contracts" class="table-responsive">
                 <table class="table table-hover">
                     <thead>
                         <tr>
@@ -110,15 +110,15 @@
                             <th style="width: 100px;">操作</th>
                         </tr>
                     </thead>
-                    <tbody id="document-list-body-{{ $category }}">
+                    <tbody id="document-list-body-contracts">
                         {{-- 動的に生成される --}}
                     </tbody>
                 </table>
             </div>
             
             {{-- グリッド表示 --}}
-            <div id="document-grid-{{ $category }}" class="d-none">
-                <div class="row" id="document-grid-body-{{ $category }}">
+            <div id="document-grid-contracts" class="d-none">
+                <div class="row" id="document-grid-body-contracts">
                     {{-- 動的に生成される --}}
                 </div>
             </div>
@@ -127,19 +127,19 @@
 </div>
 
 {{-- フォルダ作成モーダル（シンプル版） --}}
-<div class="modal fade" id="create-folder-modal-{{ $category }}" tabindex="-1" aria-labelledby="create-folder-modal-title-{{ $category }}" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
+<div class="modal fade" id="create-folder-modal-contracts" tabindex="-1" aria-labelledby="create-folder-modal-title-contracts" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form id="create-folder-form-{{ $category }}" action="/facilities/{{ $facility->id }}/contract-documents/folders" method="POST">
+            <form id="create-folder-form-contracts" action="/facilities/{{ $facility->id }}/contract-documents/folders" method="POST">
                 @csrf
                 <div class="modal-header">
-                    <h5 class="modal-title" id="create-folder-modal-title-{{ $category }}">新しいフォルダ - {{ $categoryName }}</h5>
+                    <h5 class="modal-title" id="create-folder-modal-title-contracts">新しいフォルダ - {{ $categoryName }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="folder-name-{{ $category }}" class="form-label">フォルダ名</label>
-                        <input type="text" class="form-control" id="folder-name-{{ $category }}" name="name" required autofocus>
+                        <label for="folder-name-contracts" class="form-label">フォルダ名</label>
+                        <input type="text" class="form-control" id="folder-name-contracts" name="name" required autofocus>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -154,24 +154,24 @@
 </div>
 
 {{-- ファイルアップロードモーダル（シンプル版） --}}
-<div class="modal fade" id="upload-file-modal-{{ $category }}" tabindex="-1" aria-labelledby="upload-file-modal-title-{{ $category }}" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
+<div class="modal fade" id="upload-file-modal-contracts" tabindex="-1" aria-labelledby="upload-file-modal-title-contracts" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form id="upload-file-form-{{ $category }}" action="/facilities/{{ $facility->id }}/contract-documents/upload" method="POST" enctype="multipart/form-data">
+            <form id="upload-file-form-contracts" action="/facilities/{{ $facility->id }}/contract-documents/upload" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-header">
-                    <h5 class="modal-title" id="upload-file-modal-title-{{ $category }}">ファイルアップロード - {{ $categoryName }}</h5>
+                    <h5 class="modal-title" id="upload-file-modal-title-contracts">ファイルアップロード - {{ $categoryName }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="file-input-{{ $category }}" class="form-label">ファイル選択</label>
-                        <input type="file" class="form-control" id="file-input-{{ $category }}" name="file" required>
+                        <label for="file-input-contracts" class="form-label">ファイル選択</label>
+                        <input type="file" class="form-control" id="file-input-contracts" name="file" required>
                         <div class="form-text">最大50MBまでのファイルをアップロードできます。</div>
                     </div>
                     
                     {{-- アップロード進行状況 --}}
-                    <div id="upload-progress-{{ $category }}" style="display: none;">
+                    <div id="upload-progress-contracts" style="display: none;">
                         <div class="progress mt-3">
                             <div class="progress-bar" role="progressbar" style="width: 0%"></div>
                         </div>
@@ -188,7 +188,7 @@
 </div>
 
 {{-- コンテキストメニュー --}}
-<div class="context-menu" id="context-menu-{{ $category }}" style="display: none;">
+<div class="context-menu" id="context-menu-contracts" style="display: none;">
     <div class="context-menu-item" data-action="open" data-folder-only="true">
         <i class="fas fa-folder-open me-2"></i>開く
     </div>
@@ -222,18 +222,18 @@
 
 {{-- 名前変更モーダル --}}
 @if($canEdit)
-<div class="modal fade" id="rename-modal-{{ $category }}" tabindex="-1" aria-labelledby="rename-modal-title-{{ $category }}" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
+<div class="modal fade" id="rename-modal-contracts" tabindex="-1" aria-labelledby="rename-modal-title-contracts" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form id="rename-form-{{ $category }}">
+            <form id="rename-form-contracts">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="rename-modal-title-{{ $category }}">名前変更</h5>
+                    <h5 class="modal-title" id="rename-modal-title-contracts">名前変更</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="rename-input-{{ $category }}" class="form-label">新しい名前</label>
-                        <input type="text" class="form-control" id="rename-input-{{ $category }}" name="name" required>
+                        <label for="rename-input-contracts" class="form-label">新しい名前</label>
+                        <input type="text" class="form-control" id="rename-input-contracts" name="name" required>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -247,15 +247,15 @@
 @endif
 
 {{-- プロパティモーダル --}}
-<div class="modal fade" id="properties-modal-{{ $category }}" tabindex="-1" aria-labelledby="properties-modal-title-{{ $category }}" aria-hidden="true">
+<div class="modal fade" id="properties-modal-contracts" tabindex="-1" aria-labelledby="properties-modal-title-contracts" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="properties-modal-title-{{ $category }}">プロパティ</h5>
+                <h5 class="modal-title" id="properties-modal-title-contracts">プロパティ</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div id="properties-content-{{ $category }}">
+                <div id="properties-content-contracts">
                     {{-- 動的に生成される --}}
                 </div>
             </div>
@@ -269,31 +269,29 @@
 {{-- 初期化スクリプト --}}
 <script>
 (function() {
-    console.log('[ContractDoc] Script loaded for category: {{ $category }}');
+    console.log('[ContractDoc] Script loaded');
     console.log('[ContractDoc] ContractDocumentManager type:', typeof ContractDocumentManager);
     
     // DOMContentLoadedまたは即座に実行
     function initManager() {
-        console.log('[ContractDoc] initManager called for {{ $category }}');
+        console.log('[ContractDoc] initManager called');
         
         // ContractDocumentManagerのインスタンスを作成
         if (typeof ContractDocumentManager !== 'undefined') {
             const facilityId = {{ $facility->id }};
-            const category = '{{ $category }}';
-            const managerKey = 'contractDocManager_' + category;
             
             // 既存のインスタンスがあればスキップ
-            if (window[managerKey]) {
-                console.log(`[ContractDoc] Manager for ${category} already exists, skipping initialization`);
+            if (window.contractDocManager) {
+                console.log('[ContractDoc] Manager already exists, skipping initialization');
                 return;
             }
             
-            console.log(`[ContractDoc] Initializing ContractDocumentManager for category: ${category}`);
+            console.log('[ContractDoc] Initializing ContractDocumentManager');
             
             try {
                 // インスタンスを作成（コンストラクタ内でグローバルに登録される）
-                new ContractDocumentManager(facilityId, category);
-                console.log(`[ContractDoc] Manager registered as window.${managerKey}`);
+                new ContractDocumentManager(facilityId);
+                console.log('[ContractDoc] Manager registered as window.contractDocManager');
             } catch (error) {
                 console.error('[ContractDoc] Error creating manager:', error);
             }
