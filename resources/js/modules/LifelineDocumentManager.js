@@ -1777,6 +1777,32 @@ class LifelineDocumentManager {
   }
 
   /**
+   * フォルダに移動
+   */
+  async navigateToFolder(folderId) {
+    console.log(`[LifelineDoc] Navigating to folder ${folderId} in category ${this.category}`);
+
+    try {
+      // 現在のフォルダIDを更新（nullまたは'null'の場合はルートフォルダ）
+      if (folderId === 'null' || folderId === null || folderId === undefined) {
+        this.state.currentFolder = null;
+      } else {
+        this.state.currentFolder = folderId;
+      }
+
+      console.log(`[LifelineDoc] Updated currentFolder to:`, this.state.currentFolder);
+
+      // ドキュメント一覧を再読み込み
+      await this.loadDocuments();
+
+      console.log(`[LifelineDoc] Successfully navigated to folder ${folderId}`);
+    } catch (error) {
+      console.error(`[LifelineDoc] Failed to navigate to folder ${folderId}:`, error);
+      this.showErrorMessage('フォルダの読み込みに失敗しました。');
+    }
+  }
+
+  /**
    * フォルダ名変更（プレースホルダー）
    */
   renameFolder(folderId) {

@@ -336,6 +336,14 @@ class DocumentController extends Controller
                 'error' => $e->getMessage(),
             ]);
 
+            // Check if this is a validation error (folder not empty)
+            if (strpos($e->getMessage(), 'サブフォルダまたはファイルが存在') !== false) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'フォルダを削除できません。サブフォルダまたはファイルが存在します。先に中身を削除してください。',
+                ], 400);
+            }
+
             return response()->json([
                 'success' => false,
                 'message' => 'フォルダの削除に失敗しました。',

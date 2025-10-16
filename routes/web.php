@@ -171,6 +171,23 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/', [ContractsController::class, 'update'])->name('update');
         });
 
+        // Contract Documents routes
+        Route::prefix('contract-documents')->name('contract-documents.')->group(function () {
+            // Document listing
+            Route::get('/', [\App\Http\Controllers\ContractDocumentController::class, 'index'])->name('index');
+            
+            // File operations
+            Route::post('/upload', [\App\Http\Controllers\ContractDocumentController::class, 'uploadFile'])->name('upload');
+            Route::get('/files/{file}/download', [\App\Http\Controllers\ContractDocumentController::class, 'downloadFile'])->name('download-file')->where('file', '[0-9]+');
+            Route::put('/files/{file}', [\App\Http\Controllers\ContractDocumentController::class, 'renameFile'])->name('rename-file')->where('file', '[0-9]+');
+            Route::delete('/files/{file}', [\App\Http\Controllers\ContractDocumentController::class, 'deleteFile'])->name('delete-file')->where('file', '[0-9]+');
+            
+            // Folder operations
+            Route::post('/folders', [\App\Http\Controllers\ContractDocumentController::class, 'createFolder'])->name('create-folder');
+            Route::put('/folders/{folder}', [\App\Http\Controllers\ContractDocumentController::class, 'renameFolder'])->name('rename-folder')->where('folder', '[0-9]+');
+            Route::delete('/folders/{folder}', [\App\Http\Controllers\ContractDocumentController::class, 'deleteFolder'])->name('delete-folder')->where('folder', '[0-9]+');
+        });
+
         // Repair history routes
         Route::prefix('repair-history')->name('repair-history.')->group(function () {
             Route::get('/', [\App\Http\Controllers\RepairHistoryController::class, 'index'])->name('index');

@@ -1,0 +1,221 @@
+/* 契約書ドキュメント管理 統一スタイル */
+
+/* 共通のドキュメントボタンスタイル */
+.contract-documents-toggle {
+  transition: all 0.3s ease;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.contract-documents-toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.contract-documents-toggle:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+/* ドキュメントセクションの共通スタイル */
+.contract-documents-section {
+  margin-bottom: 1.5rem;
+}
+
+.contract-documents-section .card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.contract-documents-section .card:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.contract-documents-section .card-header {
+  border-radius: 12px 12px 0 0;
+  padding: 1rem 1.25rem;
+  border: none;
+  font-weight: 600;
+}
+
+.contract-documents-section .card-header h6 {
+  margin: 0;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.contract-documents-section .card-header i {
+  font-size: 1.1rem;
+}
+
+/* 契約書カテゴリ別カラーテーマ */
+#others-documents-section .card-header {
+  background: linear-gradient(135deg, #007bff, #0056b3) !important;
+}
+
+#meal-service-documents-section .card-header {
+  background: linear-gradient(135deg, #28a745, #1e7e34) !important;
+}
+
+#parking-documents-section .card-header {
+  background: linear-gradient(135deg, #17a2b8, #138496) !important;
+}
+
+/* ドキュメント管理エリアのスタイル調整 */
+.contract-documents-section .contract-document-manager {
+  border-radius: 0 0 12px 12px;
+  min-height: 400px;
+}
+
+/* Modal stacking fixes for contract documents sections */
+#others-documents-section,
+#meal-service-documents-section,
+#parking-documents-section {
+  overflow: visible;
+  /* avoid creating a clipping context for absolute/fixed elements */
+}
+
+/* Ensure Bootstrap modal/backdrop are above collapsed/card content */
+.modal-backdrop {
+  z-index: 2000 !important;
+}
+
+.modal {
+  z-index: 2010 !important;
+}
+
+/* アニメーション効果 */
+.contract-documents-section.collapsing {
+  transition: height 0.35s ease;
+}
+
+.contract-documents-section.collapse.show {
+  animation: slideDown 0.35s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .contract-documents-toggle span {
+    display: none !important;
+  }
+
+  .contract-documents-toggle {
+    padding: 0.375rem 0.75rem;
+  }
+
+  .contract-documents-section .card-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .contract-documents-section .card-header h6 {
+    font-size: 0.9rem;
+  }
+
+  .contract-documents-section .contract-document-manager {
+    min-height: 350px;
+  }
+}
+
+@media (max-width: 576px) {
+  .contract-documents-section {
+    margin-bottom: 1rem;
+  }
+
+  .contract-documents-section .card {
+    border-radius: 8px;
+  }
+
+  .contract-documents-section .card-header {
+    border-radius: 8px 8px 0 0;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .contract-documents-section .contract-document-manager {
+    min-height: 300px;
+  }
+}
+
+/* ダークモード対応 */
+@media (prefers-color-scheme: dark) {
+  .contract-documents-section .card {
+    background-color: #2d3748;
+    border-color: #4a5568;
+  }
+
+  .contract-documents-section .card-header {
+    border-bottom-color: #4a5568;
+  }
+}
+
+/* 高コントラストモード対応 */
+@media (prefers-contrast: high) {
+  .contract-documents-toggle {
+    border-width: 2px;
+    font-weight: 600;
+  }
+
+  .contract-documents-section .card {
+    border-width: 2px;
+  }
+}
+
+/* 動きを減らす設定 */
+@media (prefers-reduced-motion: reduce) {
+
+  .contract-documents-toggle,
+  .contract-documents-section .card,
+  .contract-documents-section.collapsing {
+    transition: none;
+  }
+
+  .contract-documents-section.collapse.show {
+    animation: none;
+  }
+}
+
+/* フォーカス管理 */
+.contract-documents-toggle:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* ローディング状態 */
+.contract-documents-section .loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.contract-documents-section .loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

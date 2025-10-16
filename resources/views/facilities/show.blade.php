@@ -382,7 +382,7 @@
 </div>
 @endsection
 
-@vite(['resources/css/pages/facilities.css', 'resources/css/water-equipment.css', 'resources/js/modules/facilities.js'])
+@vite(['resources/css/pages/facilities.css', 'resources/css/water-equipment.css', 'resources/css/contract-document-management.css', 'resources/js/modules/facilities.js'])
 
 <style>
 /* Lifeline Equipment Styles */

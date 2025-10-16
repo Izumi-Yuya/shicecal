@@ -22,9 +22,13 @@ import LifelineDocumentManager from './modules/LifelineDocumentManager.js';
 // Import MaintenanceDocumentManager
 import MaintenanceDocumentManager from './modules/MaintenanceDocumentManager.js';
 
+// Import ContractDocumentManager
+import ContractDocumentManager from './modules/ContractDocumentManager.js';
+
 // グローバルに公開（ボタンクリックハンドラーで使用）
 window.LifelineDocumentManager = LifelineDocumentManager;
 window.MaintenanceDocumentManager = MaintenanceDocumentManager;
+window.ContractDocumentManager = ContractDocumentManager;
 
 // Import DocumentManager
 import { DocumentManager } from './modules/DocumentManager.js';

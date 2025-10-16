@@ -12,33 +12,26 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
- * 修繕履歴専用ドキュメント管理サービス
+ * 契約書専用ドキュメント管理サービス
  *
- * 修繕履歴の各カテゴリ（外装、内装、その他）に対応した
- * ドキュメント管理機能を提供します。
+ * 契約書関連のドキュメント管理機能を提供します。
  */
-class MaintenanceDocumentService
+class ContractDocumentService
 {
     protected DocumentService $documentService;
     protected FileHandlingService $fileHandlingService;
     protected ActivityLogService $activityLogService;
 
-    // 修繕履歴カテゴリとフォルダ名のマッピング
-    const CATEGORY_FOLDER_MAPPING = [
-        'exterior' => '外装',
-        'interior' => '内装リニューアル',
-        'summer_condensation' => '夏型結露',
-        'other' => 'その他',
-    ];
+    // カテゴリ定義
+    const CATEGORY = 'contracts';
+    const CATEGORY_NAME = '契約書';
 
     // デフォルトサブフォルダ構成
     const DEFAULT_SUBFOLDERS = [
         'contracts' => '契約書',
         'estimates' => '見積書',
         'invoices' => '請求書',
-        'photos' => '施工写真',
-        'reports' => '報告書',
-        'warranties' => '保証書',
+        'others' => 'その他',
     ];
 
     public function __construct(
@@ -52,16 +45,16 @@ class MaintenanceDocumentService
     }
 
     /**
-     * 修繕履歴カテゴリのルートフォルダを取得または作成
+     * 契約書カテゴリのルートフォルダを取得または作成
      */
-    public function getOrCreateCategoryRootFolder(Facility $facility, string $category, User $user): DocumentFolder
+    public function getOrCreateCategoryRootFolder(Facility $facility, User $user): DocumentFolder
     {
         try {
-            $categoryValue = 'maintenance_' . $category;
-            $categoryName = self::CATEGORY_FOLDER_MAPPING[$category] ?? $category;
+            $categoryValue = self::CATEGORY;
+            $categoryName = self::CATEGORY_NAME;
 
             // 既存のルートフォルダを検索（カテゴリで識別）
-            $rootFolder = DocumentFolder::maintenance($category)
+            $rootFolder = DocumentFolder::contracts()
                 ->where('facility_id', $facility->id)
                 ->whereNull('parent_id')
                 ->where('name', $categoryName)
@@ -84,10 +77,9 @@ class MaintenanceDocumentService
             // デフォルトサブフォルダを作成
             $this->createDefaultSubfolders($facility, $rootFolder, $user);
 
-            Log::info('Maintenance category root folder created', [
+            Log::info('Contract category root folder created', [
                 'facility_id' => $facility->id,
-                'category' => $category,
-                'category_value' => $categoryValue,
+                'category' => $categoryValue,
                 'folder_id' => $rootFolder->id,
                 'user_id' => $user->id,
             ]);
@@ -97,7 +89,7 @@ class MaintenanceDocumentService
         } catch (Exception $e) {
             Log::error('Failed to get or create category root folder', [
                 'facility_id' => $facility->id,
-                'category' => $category,
+                'category' => self::CATEGORY,
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),
             ]);
@@ -142,29 +134,28 @@ class MaintenanceDocumentService
         }
     }
 
+
     /**
-     * 修繕履歴カテゴリのドキュメント一覧を取得
+     * 契約書カテゴリのドキュメント一覧を取得
      */
-    public function getCategoryDocuments(Facility $facility, string $category, array $options = []): array
+    public function getCategoryDocuments(Facility $facility, array $options = []): array
     {
         try {
-            $categoryValue = 'maintenance_' . $category;
-            $categoryName = self::CATEGORY_FOLDER_MAPPING[$category] ?? $category;
+            $categoryValue = self::CATEGORY;
+            $categoryName = self::CATEGORY_NAME;
 
             // カテゴリのルートフォルダを取得（カテゴリでフィルタリング）
-            $rootFolder = DocumentFolder::maintenance($category)
+            $rootFolder = DocumentFolder::contracts()
                 ->where('facility_id', $facility->id)
                 ->whereNull('parent_id')
                 ->where('name', $categoryName)
                 ->first();
 
             // ルートフォルダが存在しない場合は、空のデータを返す
-            // （フォルダは作成時に自動的に作成される）
             if (!$rootFolder) {
                 Log::info('Category root folder not found, returning empty data', [
                     'facility_id' => $facility->id,
-                    'category' => $category,
-                    'category_value' => $categoryValue,
+                    'category' => $categoryValue,
                     'category_name' => $categoryName,
                 ]);
 
@@ -189,7 +180,7 @@ class MaintenanceDocumentService
                             'formatted_size' => '0 B',
                         ],
                     ],
-                    'category' => $category,
+                    'category' => $categoryValue,
                     'category_name' => $categoryName,
                 ];
             }
@@ -197,7 +188,7 @@ class MaintenanceDocumentService
             // 指定されたフォルダIDがある場合はそのフォルダを取得
             $currentFolder = $rootFolder;
             if (!empty($options['folder_id'])) {
-                $requestedFolder = DocumentFolder::maintenance($category)
+                $requestedFolder = DocumentFolder::contracts()
                     ->where('facility_id', $facility->id)
                     ->where('id', $options['folder_id'])
                     ->first();
@@ -207,12 +198,12 @@ class MaintenanceDocumentService
                 }
             }
 
-            // フォルダとファイルのクエリに`maintenance($category)`スコープを適用
+            // フォルダとファイルのクエリに`contracts()`スコープを適用
             $perPage = min($options['per_page'] ?? 50, 100);
             $page = $options['page'] ?? 1;
 
             // フォルダ取得（カテゴリでフィルタリング）
-            $foldersQuery = DocumentFolder::maintenance($category)
+            $foldersQuery = DocumentFolder::contracts()
                 ->where('facility_id', $facility->id)
                 ->where('parent_id', $currentFolder->id)
                 ->with(['creator:id,name']);
@@ -227,7 +218,7 @@ class MaintenanceDocumentService
             $folders = $foldersQuery->get();
 
             // ファイル取得（カテゴリでフィルタリング）
-            $filesQuery = DocumentFile::maintenance($category)
+            $filesQuery = DocumentFile::contracts()
                 ->where('facility_id', $facility->id)
                 ->where('folder_id', $currentFolder->id)
                 ->with(['uploader:id,name']);
@@ -273,8 +264,7 @@ class MaintenanceDocumentService
 
             Log::info('Category documents retrieved', [
                 'facility_id' => $facility->id,
-                'category' => $category,
-                'category_value' => $categoryValue,
+                'category' => $categoryValue,
                 'root_folder_id' => $rootFolder->id,
                 'current_folder_id' => $currentFolder->id,
                 'folders_count' => count($result['folders'] ?? []),
@@ -284,7 +274,7 @@ class MaintenanceDocumentService
             return [
                 'success' => true,
                 'data' => $result,
-                'category' => $category,
+                'category' => $categoryValue,
                 'category_name' => $categoryName,
                 'root_folder_id' => $rootFolder->id,
             ];
@@ -292,7 +282,7 @@ class MaintenanceDocumentService
         } catch (Exception $e) {
             Log::error('Failed to get category documents', [
                 'facility_id' => $facility->id,
-                'category' => $category,
+                'category' => self::CATEGORY,
                 'options' => $options,
                 'error' => $e->getMessage(),
             ]);
@@ -300,7 +290,7 @@ class MaintenanceDocumentService
             return [
                 'success' => false,
                 'message' => 'ドキュメントの取得に失敗しました: ' . $e->getMessage(),
-                'category' => $category,
+                'category' => self::CATEGORY,
             ];
         }
     }
@@ -320,12 +310,12 @@ class MaintenanceDocumentService
         return false;
     }
 
+
     /**
-     * 修繕履歴カテゴリにファイルをアップロード
+     * 契約書カテゴリにファイルをアップロード
      */
     public function uploadCategoryFile(
         Facility $facility,
-        string $category,
         UploadedFile $file,
         User $user,
         ?int $folderId = null
@@ -334,7 +324,7 @@ class MaintenanceDocumentService
             DB::beginTransaction();
 
             // カテゴリのルートフォルダを取得または作成
-            $rootFolder = $this->getOrCreateCategoryRootFolder($facility, $category, $user);
+            $rootFolder = $this->getOrCreateCategoryRootFolder($facility, $user);
 
             // アップロード先フォルダを決定
             $targetFolder = $rootFolder;
@@ -365,9 +355,9 @@ class MaintenanceDocumentService
             // アクティビティログ
             $this->activityLogService->log(
                 'upload',
-                'maintenance_document',
+                'contract_document',
                 $documentFile->id,
-                "修繕履歴「{$category}」にファイル「{$file->getClientOriginalName()}」をアップロードしました"
+                "契約書にファイル「{$file->getClientOriginalName()}」をアップロードしました"
             );
 
             DB::commit();
@@ -377,7 +367,7 @@ class MaintenanceDocumentService
                 'message' => 'ファイルのアップロードが完了しました。',
                 'data' => [
                     'file' => $documentFile,
-                    'category' => $category,
+                    'category' => self::CATEGORY,
                     'folder_id' => $targetFolder->id,
                 ],
             ];
@@ -385,9 +375,9 @@ class MaintenanceDocumentService
         } catch (Exception $e) {
             DB::rollBack();
 
-            Log::error('Maintenance category file upload failed', [
+            Log::error('Contract category file upload failed', [
                 'facility_id' => $facility->id,
-                'category' => $category,
+                'category' => self::CATEGORY,
                 'file_name' => $file->getClientOriginalName(),
                 'folder_id' => $folderId,
                 'user_id' => $user->id,
@@ -401,12 +391,12 @@ class MaintenanceDocumentService
         }
     }
 
+
     /**
-     * 修繕履歴カテゴリにフォルダを作成
+     * 契約書カテゴリにフォルダを作成
      */
     public function createCategoryFolder(
         Facility $facility,
-        string $category,
         string $folderName,
         User $user,
         ?int $parentFolderId = null
@@ -415,11 +405,11 @@ class MaintenanceDocumentService
             DB::beginTransaction();
 
             // カテゴリのルートフォルダを取得または作成
-            $rootFolder = $this->getOrCreateCategoryRootFolder($facility, $category, $user);
+            $rootFolder = $this->getOrCreateCategoryRootFolder($facility, $user);
 
             Log::info('Root folder obtained for category', [
                 'facility_id' => $facility->id,
-                'category' => $category,
+                'category' => self::CATEGORY,
                 'root_folder_id' => $rootFolder->id,
                 'root_folder_name' => $rootFolder->name,
                 'root_folder_path' => $rootFolder->path,
@@ -459,9 +449,9 @@ class MaintenanceDocumentService
                 'created_by' => $user->id,
             ]);
 
-            Log::info('Maintenance category folder created successfully', [
+            Log::info('Contract category folder created successfully', [
                 'facility_id' => $facility->id,
-                'category' => $category,
+                'category' => self::CATEGORY,
                 'folder_id' => $newFolder->id,
                 'folder_name' => $folderName,
                 'folder_category' => $newFolder->category,
@@ -473,9 +463,9 @@ class MaintenanceDocumentService
             // アクティビティログ
             $this->activityLogService->log(
                 'create',
-                'maintenance_document_folder',
+                'contract_document_folder',
                 $newFolder->id,
-                "修繕履歴「{$category}」にフォルダ「{$folderName}」を作成しました"
+                "契約書にフォルダ「{$folderName}」を作成しました"
             );
 
             DB::commit();
@@ -485,7 +475,7 @@ class MaintenanceDocumentService
                 'message' => 'フォルダを作成しました。',
                 'data' => [
                     'folder' => $newFolder,
-                    'category' => $category,
+                    'category' => self::CATEGORY,
                     'root_folder_id' => $rootFolder->id,
                 ],
             ];
@@ -493,9 +483,9 @@ class MaintenanceDocumentService
         } catch (Exception $e) {
             DB::rollBack();
 
-            Log::error('Maintenance category folder creation failed', [
+            Log::error('Contract category folder creation failed', [
                 'facility_id' => $facility->id,
-                'category' => $category,
+                'category' => self::CATEGORY,
                 'folder_name' => $folderName,
                 'parent_folder_id' => $parentFolderId,
                 'user_id' => $user->id,
@@ -509,32 +499,18 @@ class MaintenanceDocumentService
         }
     }
 
-    /**
-     * カテゴリ内の全フォルダIDを再帰的に取得
-     */
-    protected function getCategoryFolderIds(DocumentFolder $rootFolder): array
-    {
-        $folderIds = [$rootFolder->id];
-
-        $childFolders = DocumentFolder::where('facility_id', $rootFolder->facility_id)
-            ->where('path', 'like', $rootFolder->path . '/%')
-            ->pluck('id')
-            ->toArray();
-
-        return array_merge($folderIds, $childFolders);
-    }
 
     /**
-     * 修繕履歴カテゴリの統計情報を取得
+     * 契約書カテゴリの統計情報を取得
      */
-    public function getCategoryStats(Facility $facility, string $category): array
+    public function getCategoryStats(Facility $facility): array
     {
         try {
-            $categoryValue = 'maintenance_' . $category;
-            $categoryName = self::CATEGORY_FOLDER_MAPPING[$category] ?? $category;
+            $categoryValue = self::CATEGORY;
+            $categoryName = self::CATEGORY_NAME;
 
             // カテゴリのルートフォルダを取得（カテゴリでフィルタリング）
-            $rootFolder = DocumentFolder::maintenance($category)
+            $rootFolder = DocumentFolder::contracts()
                 ->where('facility_id', $facility->id)
                 ->whereNull('parent_id')
                 ->where('name', $categoryName)
@@ -554,21 +530,21 @@ class MaintenanceDocumentService
             $folderIds = $this->getCategoryFolderIds($rootFolder);
 
             // ファイル統計（カテゴリでフィルタリング）
-            $fileStats = DocumentFile::maintenance($category)
+            $fileStats = DocumentFile::contracts()
                 ->where('facility_id', $facility->id)
                 ->whereIn('folder_id', $folderIds)
                 ->selectRaw('COUNT(*) as count, SUM(file_size) as total_size')
                 ->first();
 
             // フォルダ統計（カテゴリでフィルタリング）
-            $folderCount = DocumentFolder::maintenance($category)
+            $folderCount = DocumentFolder::contracts()
                 ->where('facility_id', $facility->id)
                 ->whereIn('id', $folderIds)
                 ->where('id', '!=', $rootFolder->id) // ルートフォルダを除く
                 ->count();
 
             // 最近のファイル（カテゴリでフィルタリング）
-            $recentFiles = DocumentFile::maintenance($category)
+            $recentFiles = DocumentFile::contracts()
                 ->where('facility_id', $facility->id)
                 ->whereIn('folder_id', $folderIds)
                 ->with(['uploader:id,name', 'folder:id,name'])
@@ -597,8 +573,7 @@ class MaintenanceDocumentService
         } catch (Exception $e) {
             Log::error('Failed to get category stats', [
                 'facility_id' => $facility->id,
-                'category' => $category,
-                'category_value' => 'maintenance_' . $category,
+                'category' => self::CATEGORY,
                 'error' => $e->getMessage(),
             ]);
 
@@ -613,30 +588,32 @@ class MaintenanceDocumentService
     }
 
     /**
-     * 利用可能な修繕履歴カテゴリ一覧を取得
+     * カテゴリ内の全フォルダIDを再帰的に取得
      */
-    public function getAvailableCategories(): array
+    protected function getCategoryFolderIds(DocumentFolder $rootFolder): array
     {
-        return array_map(function ($key, $name) {
-            return [
-                'key' => $key,
-                'name' => $name,
-                'folder_name' => $name,
-            ];
-        }, array_keys(self::CATEGORY_FOLDER_MAPPING), self::CATEGORY_FOLDER_MAPPING);
+        $folderIds = [$rootFolder->id];
+
+        $childFolders = DocumentFolder::where('facility_id', $rootFolder->facility_id)
+            ->where('path', 'like', $rootFolder->path . '/%')
+            ->pluck('id')
+            ->toArray();
+
+        return array_merge($folderIds, $childFolders);
     }
+
 
     /**
      * カテゴリ内のファイル検索
      */
-    public function searchCategoryFiles(Facility $facility, string $category, string $query, array $options = []): array
+    public function searchCategoryFiles(Facility $facility, string $query, array $options = []): array
     {
         try {
-            $categoryValue = 'maintenance_' . $category;
-            $categoryName = self::CATEGORY_FOLDER_MAPPING[$category] ?? $category;
+            $categoryValue = self::CATEGORY;
+            $categoryName = self::CATEGORY_NAME;
 
             // カテゴリのルートフォルダを取得（カテゴリでフィルタリング）
-            $rootFolder = DocumentFolder::maintenance($category)
+            $rootFolder = DocumentFolder::contracts()
                 ->where('facility_id', $facility->id)
                 ->whereNull('parent_id')
                 ->where('name', $categoryName)
@@ -658,7 +635,7 @@ class MaintenanceDocumentService
                         'total_count' => 0,
                     ],
                     'query' => $query,
-                    'category' => $category,
+                    'category' => $categoryValue,
                 ];
             }
 
@@ -666,14 +643,14 @@ class MaintenanceDocumentService
             $folderIds = $this->getCategoryFolderIds($rootFolder);
 
             // ファイル検索（カテゴリでフィルタリング）
-            $filesQuery = DocumentFile::maintenance($category)
+            $filesQuery = DocumentFile::contracts()
                 ->where('facility_id', $facility->id)
                 ->whereIn('folder_id', $folderIds)
                 ->where('original_name', 'like', "%{$query}%")
                 ->with(['uploader:id,name', 'folder:id,name']);
 
             // フォルダ検索（カテゴリでフィルタリング）
-            $foldersQuery = DocumentFolder::maintenance($category)
+            $foldersQuery = DocumentFolder::contracts()
                 ->where('facility_id', $facility->id)
                 ->whereIn('id', $folderIds)
                 ->where('name', 'like', "%{$query}%")
@@ -699,14 +676,13 @@ class MaintenanceDocumentService
                     'total_count' => $files->total() + $folders->count(),
                 ],
                 'query' => $query,
-                'category' => $category,
+                'category' => $categoryValue,
             ];
 
         } catch (Exception $e) {
             Log::error('Category file search failed', [
                 'facility_id' => $facility->id,
-                'category' => $category,
-                'category_value' => $categoryValue,
+                'category' => self::CATEGORY,
                 'query' => $query,
                 'error' => $e->getMessage(),
             ]);
