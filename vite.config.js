@@ -51,6 +51,10 @@ export default defineConfig({
         'resources/css/pages/notifications.css',
         'resources/css/pages/export.css',
         'resources/css/pages/lifeline-equipment.css',
+        'resources/css/pages/lifeline-equipment-gas.css',
+        'resources/css/pages/lifeline-equipment/variables.css',
+        'resources/css/pages/lifeline-equipment/base.css',
+        'resources/css/pages/lifeline-equipment/navigation.css',
 
         // 共有CSS（統合されていないもの）
         'resources/css/shared/components.css',
@@ -68,6 +72,7 @@ export default defineConfig({
         'resources/js/modules/export.js',
         'resources/js/modules/facility-view-toggle.js',
         'resources/js/modules/lifeline-equipment.js',
+        'resources/js/modules/lifeline-modal-manager.js',
         'resources/js/modules/facility-form-layout.js',
         'resources/js/modules/detail-card-controller.js',
         'resources/js/modules/facilities.js',
