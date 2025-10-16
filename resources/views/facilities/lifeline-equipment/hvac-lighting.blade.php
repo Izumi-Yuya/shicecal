@@ -19,52 +19,57 @@ $lightingInfo = $basicInfo['lighting'] ?? [];
     </h5>
     <div class="d-flex align-items-center gap-2">
         <!-- ドキュメント管理ボタン -->
-             <button type="button"
-                class="btn btn-outline-primary btn-sm d-none"
-                id="hvac-lighting-documents-toggle"
-                data-bs-toggle="collapse"
-                data-bs-target="#hvac-lighting-documents-section"
-                aria-expanded="false"
-                aria-controls="hvac-lighting-documents-section"
-                title="空調・照明設備ドキュメント管理">
-                <i class="fas fa-folder-open me-1"></i>
-                <span class="d-none d-md-inline">ドキュメント</span>
-            </button>
+        <button type="button"
+            class="btn btn-outline-primary btn-sm"
+            data-bs-toggle="modal"
+            data-bs-target="#hvac-lighting-documents-modal"
+            title="空調・照明設備ドキュメント管理">
+            <i class="fas fa-folder-open me-1"></i>
+            <span class="d-none d-md-inline">ドキュメント</span>
+        </button>
     </div>
 </div>
 
-<!-- 空調・照明設備ドキュメント管理セクション（折りたたみ式） -->
-<div class="collapse mb-4" id="hvac-lighting-documents-section">
-    <div class="card border-success">
-        <div class="card-header bg-success text-white">
-            <h6 class="mb-0">
-                <i class="fas fa-folder-open me-2"></i>空調・照明設備 - 関連ドキュメント
-            </h6>
-        </div>
-        <div class="card-body p-0">
-            @if($canEdit)
-                <x-lifeline-document-manager 
-                    :facility="$facility" 
-                    category="hvac_lighting"
-                    category-name="空調・照明設備"
-                    height="500px"
-                    :show-upload="true"
-                    :show-create-folder="true"
-                    allowed-file-types="pdf,doc,docx,xls,xlsx,jpg,jpeg,png,gif"
-                    max-file-size="10MB"
-                />
-            @else
-                <x-lifeline-document-manager 
-                    :facility="$facility" 
-                    category="hvac_lighting"
-                    category-name="空調・照明設備"
-                    height="400px"
-                    :show-upload="false"
-                    :show-create-folder="false"
-                    allowed-file-types="pdf,doc,docx,xls,xlsx,jpg,jpeg,png,gif"
-                    max-file-size="10MB"
-                />
-            @endif
+<!-- 空調・照明設備ドキュメント管理モーダル -->
+<div class="modal fade" id="hvac-lighting-documents-modal" tabindex="-1" aria-labelledby="hvac-lighting-documents-modal-title" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="hvac-lighting-documents-modal-title">
+                    <i class="fas fa-folder-open me-2"></i>空調・照明設備 - 関連ドキュメント
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="閉じる"></button>
+            </div>
+            <div class="modal-body p-0">
+                @if($canEdit)
+                    <x-lifeline-document-manager 
+                        :facility="$facility" 
+                        category="hvac_lighting"
+                        category-name="空調・照明設備"
+                        height="600px"
+                        :show-upload="true"
+                        :show-create-folder="true"
+                        allowed-file-types="pdf,doc,docx,xls,xlsx,jpg,jpeg,png,gif"
+                        max-file-size="10MB"
+                    />
+                @else
+                    <x-lifeline-document-manager 
+                        :facility="$facility" 
+                        category="hvac_lighting"
+                        category-name="空調・照明設備"
+                        height="600px"
+                        :show-upload="false"
+                        :show-create-folder="false"
+                        allowed-file-types="pdf,doc,docx,xls,xlsx,jpg,jpeg,png,gif"
+                        max-file-size="10MB"
+                    />
+                @endif
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>閉じる
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -268,31 +273,18 @@ $lightingInfo = $basicInfo['lighting'] ?? [];
 <!-- 空調・照明設備ドキュメント管理用JavaScript -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const documentToggleBtn = document.getElementById('hvac-lighting-documents-toggle');
-    const documentSection = document.getElementById('hvac-lighting-documents-section');
+    // モーダルをbody直下に移動（hoisting）
+    const modal = document.getElementById('hvac-lighting-documents-modal');
+    if (modal && modal.parentElement !== document.body) {
+        document.body.appendChild(modal);
+        console.log('[HVAC-Lighting] Modal hoisted to body');
+    }
     
-    if (documentToggleBtn && documentSection) {
-        // ボタンアイコンとテキストの更新
-        function updateButtonState(isExpanded) {
-            const icon = documentToggleBtn.querySelector('i');
-            const text = documentToggleBtn.querySelector('span');
-            
-            if (isExpanded) {
-                icon.className = 'fas fa-folder-minus me-1';
-                if (text) text.textContent = '閉じる';
-                documentToggleBtn.classList.remove('btn-outline-primary');
-                documentToggleBtn.classList.add('btn-primary');
-            } else {
-                icon.className = 'fas fa-folder-open me-1';
-                if (text) text.textContent = 'ドキュメント';
-                documentToggleBtn.classList.remove('btn-primary');
-                documentToggleBtn.classList.add('btn-outline-primary');
-            }
-        }
-        
-        // Bootstrap collapse イベントリスナー
-        documentSection.addEventListener('shown.bs.collapse', function() {
-            updateButtonState(true);
+    // モーダル表示時の処理
+    const hvacModal = document.getElementById('hvac-lighting-documents-modal');
+    if (hvacModal) {
+        hvacModal.addEventListener('shown.bs.modal', function() {
+            console.log('[HVAC-Lighting] Modal shown, initializing document manager');
             
             // ドキュメントマネージャーの初期化
             const facilityId = {{ $facility->id }};
@@ -300,50 +292,89 @@ document.addEventListener('DOMContentLoaded', function() {
                 const lifelineManager = window.shiseCalApp.modules[`lifelineDocumentManager_hvac_lighting`];
                 if (lifelineManager && typeof lifelineManager.refresh === 'function') {
                     lifelineManager.refresh();
+                    console.log('[HVAC-Lighting] Document manager refreshed');
                 }
             }
         });
-        
-        documentSection.addEventListener('hidden.bs.collapse', function() {
-            updateButtonState(false);
-        });
-        
-        // 初期状態の設定
-        const isExpanded = documentSection.classList.contains('show');
-        updateButtonState(isExpanded);
     }
+    
+    // z-index動的設定
+    document.addEventListener('show.bs.modal', function(ev) {
+        if (ev.target && ev.target.id && ev.target.id.includes('hvac-lighting')) {
+            const isMainModal = ev.target.id === 'hvac-lighting-documents-modal';
+            ev.target.style.zIndex = isMainModal ? '9999' : '10000';
+            console.log('[HVAC-Lighting] Modal z-index set:', ev.target.id, ev.target.style.zIndex);
+            
+            setTimeout(function() {
+                const backdrops = document.querySelectorAll('.modal-backdrop');
+                backdrops.forEach(function(bd, i, arr) {
+                    const zIndex = i === arr.length - 1 ? (isMainModal ? '9998' : '9999') : '9998';
+                    bd.style.zIndex = zIndex;
+                });
+                console.log('[HVAC-Lighting] Backdrop z-index updated, count:', backdrops.length);
+            }, 0);
+        }
+    });
+    
+    // バックドロップクリーンアップ
+    document.addEventListener('hidden.bs.modal', function(ev) {
+        if (ev.target && ev.target.id && ev.target.id.includes('hvac-lighting')) {
+            const backdrops = document.querySelectorAll('.modal-backdrop');
+            if (backdrops.length > 1) {
+                for (let i = 0; i < backdrops.length - 1; i++) {
+                    backdrops[i].parentNode.removeChild(backdrops[i]);
+                }
+                console.log('[HVAC-Lighting] Cleaned up extra backdrops');
+            }
+        }
+    });
 });
 </script>
 
 <!-- 空調・照明設備ドキュメント管理用CSS -->
 <style>
-#hvac-lighting-documents-toggle {
-    transition: all 0.3s ease;
+/* ==== Modal stacking fixes for hvac-lighting documents ==== */
+#hvac-lighting-documents-modal {
+    z-index: 9999 !important;
 }
 
-#hvac-lighting-documents-toggle:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+#hvac-lighting-documents-modal .modal-dialog {
+    max-width: 90%;
+    margin: 1.75rem auto;
 }
 
-#hvac-lighting-documents-section .card {
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+#hvac-lighting-documents-modal .modal-body {
+    min-height: 500px;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
 }
 
-#hvac-lighting-documents-section .card-header {
-    border-radius: 8px 8px 0 0;
-    background: linear-gradient(135deg, #28a745, #1e7e34) !important;
+/* ネストされたモーダル */
+#create-folder-modal-hvac_lighting,
+#upload-file-modal-hvac_lighting,
+#rename-modal-hvac_lighting,
+#properties-modal-hvac_lighting {
+    z-index: 10000 !important;
 }
 
-/* ドキュメント管理エリアのスタイル調整 */
-#hvac-lighting-documents-section .lifeline-document-manager {
-    border-radius: 0 0 8px 8px;
+/* pointer-events設定 */
+.modal button,
+.modal input,
+.modal select,
+.modal textarea,
+.modal a,
+.modal label {
+    pointer-events: auto !important;
+}
+
+.document-item,
+.document-item * {
+    pointer-events: auto !important;
 }
 
 /* 照明設備備考だけ下げる */
 .lighting-notes-section {
-  margin-top: 3.9rem !important;  /* ← この値を調整して高さを合わせる */
+  margin-top: 3.9rem !important;
 }
 
 /* 共通：列幅を固定レイアウトにして100%にする */
@@ -355,17 +386,14 @@ document.addEventListener('DOMContentLoaded', function() {
 /* 1列目（ラベル列）を固定幅にする：ここを揃えれば縦ラインが揃う */
 .table.facility-basic-info-table-clean tr > th:first-child,
 .table.facility-basic-info-table-clean tr > td:first-child {
-  width: 25%;   /* 好きな比率に。例: 25% ラベル / 75% 値 */
+  width: 25%;
 }
 
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
-    #hvac-lighting-documents-toggle span {
-        display: none !important;
-    }
-    
-    #hvac-lighting-documents-section .card-header h6 {
-        font-size: 0.9rem;
+    #hvac-lighting-documents-modal .modal-dialog {
+        max-width: 95%;
+        margin: 0.5rem auto;
     }
 }
 </style>

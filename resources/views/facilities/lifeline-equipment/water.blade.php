@@ -10,13 +10,10 @@ $canEdit = auth()->user()->canEditFacility($facility->id);
 @endphp
 
 <!-- 水道設備ヘッダー -->
-<div class="mb-3 d-flex justify-content-between align-items-center">
+<div class="mb-3">
     <h5 class="mb-0">
         <i class="fas fa-tint text-info me-2"></i>水道設備情報
     </h5>
-    <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#water-documents-modal">
-        <i class="fas fa-folder-open me-1"></i>ドキュメント
-    </button>
 </div>
 
 @php

@@ -41,11 +41,8 @@ $notesData = [
 @endphp
 
 <!-- ガス設備ヘッダー -->
-<div class="mb-3 d-flex justify-content-between align-items-center">
+<div class="mb-3">
   <h5 class="mb-0"><i class="fas fa-fire text-danger me-2"></i>ガス設備情報</h5>
-  <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#gas-documents-modal">
-    <i class="fas fa-folder-open me-1"></i>ドキュメント
-  </button>
 </div>
 
 <div class="gas-equipment-sections equipment-sections">

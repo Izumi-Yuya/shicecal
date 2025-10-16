@@ -15,7 +15,7 @@ class DocumentModalFix {
       'gas-documents-modal',
       'water-documents-modal',
       'elevator-documents-modal',
-      'hvac-documents-modal',
+      'hvac-lighting-documents-modal',
       'maintenance-documents-modal'
     ];
 

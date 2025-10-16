@@ -10,6 +10,7 @@
 - ✅ ガス設備ドキュメント管理
 - ✅ 水道設備ドキュメント管理
 - ✅ エレベーター設備ドキュメント管理
+- ✅ 空調・照明設備ドキュメント管理
 
 ## 修正内容
 
@@ -61,6 +62,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 4. **`resources/views/facilities/lifeline-equipment/elevator.blade.php`**
    - エレベーター設備ドキュメント管理モーダルの修正
+
+5. **`resources/views/facilities/lifeline-equipment/hvac-lighting.blade.php`**
+   - 空調・照明設備ドキュメント管理モーダルの修正
 
 ## 動作確認
 
@@ -175,6 +179,7 @@ document.querySelectorAll('.modal-backdrop').forEach(bd => bd.remove());
 - ✅ gas.blade.php
 - ✅ water.blade.php
 - ✅ elevator.blade.php
+- ✅ hvac-lighting.blade.php
 
 ---
 
