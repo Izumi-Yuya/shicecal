@@ -270,19 +270,23 @@
                             <h4 class="mb-0">
                                 <i class="fas fa-shield-alt text-primary me-2"></i>防犯・防災
                             </h4>
-                            {{-- @if(auth()->user()->canEditFacility($facility->id))
-                                <a href="{{ route('facilities.security-disaster.edit', $facility) }}" class="btn btn-primary">
-                                    <i class="fas fa-edit me-2"></i>
-                                    @php
-                                        $securityDisasterEquipment = $facility->getSecurityDisasterEquipment();
-                                    @endphp
-                                    @if($securityDisasterEquipment)
-                                        編集
-                                    @else
-                                        登録
-                                    @endif
-                                </a>
-                            @endif --}}
+                            <div class="d-flex align-items-center gap-2">
+                                <!-- ドキュメント管理ボタン -->
+                                <button type="button" 
+                                        class="btn btn-outline-primary btn-sm" 
+                                        id="security-disaster-documents-toggle"
+                                        title="防犯・防災ドキュメント管理">
+                                    <i class="fas fa-folder-open me-1"></i>
+                                    <span class="d-none d-md-inline">ドキュメント</span>
+                                </button>
+                                @if(auth()->user()->canEditFacility($facility->id))
+                                    <a href="{{ route('facilities.security-disaster.edit', $facility) }}" 
+                                       id="security-disaster-edit-link"
+                                       class="btn btn-primary btn-sm">
+                                        <i class="fas fa-edit me-2"></i>編集
+                                    </a>
+                                @endif
+                            </div>
                         </div>
                         
                         <!-- Security Disaster Content -->
@@ -1275,6 +1279,67 @@ document.addEventListener('DOMContentLoaded', function() {
     lifelineTabButtons.forEach(button => {
         button.addEventListener('shown.bs.tab', function() {
             updateLifelineButtons();
+        });
+    });
+
+    // 防犯・防災設備タブの動的編集・ドキュメントボタン制御
+    function updateSecurityDisasterButtons() {
+        const editLink = document.getElementById('security-disaster-edit-link');
+        const documentsToggle = document.getElementById('security-disaster-documents-toggle');
+        
+        if (!editLink || !documentsToggle) return;
+
+        // アクティブなサブタブを取得
+        const activeSubTab = document.querySelector('#securityDisasterTabs .nav-link.active');
+        if (!activeSubTab) return;
+
+        const tabId = activeSubTab.id;
+        let subcategory = 'camera_lock'; // デフォルト
+
+        // タブIDに基づいてサブカテゴリを決定
+        switch (tabId) {
+            case 'camera-lock-tab':
+                subcategory = 'camera_lock';
+                break;
+            case 'fire-disaster-tab':
+                subcategory = 'fire_disaster';
+                break;
+        }
+
+        // 編集ボタンのリンクを更新
+        const facilityId = {{ $facility->id }};
+        if (subcategory === 'fire_disaster') {
+            editLink.href = `/facilities/${facilityId}/security-disaster/edit#fire-disaster-edit`;
+        } else {
+            editLink.href = `/facilities/${facilityId}/security-disaster/edit`;
+        }
+
+        // ドキュメントボタンの動作を更新
+        documentsToggle.onclick = function() {
+            // 各サブタブの既存のドキュメントボタンをクリック
+            let existingDocumentButton;
+            if (subcategory === 'camera_lock') {
+                existingDocumentButton = document.getElementById('camera-lock-documents-modal');
+            } else if (subcategory === 'fire_disaster') {
+                existingDocumentButton = document.getElementById('fire-disaster-documents-modal');
+            }
+            
+            if (existingDocumentButton) {
+                // モーダルを直接開く
+                const modal = new bootstrap.Modal(existingDocumentButton);
+                modal.show();
+            }
+        };
+    }
+
+    // 初期化時にボタンを更新
+    updateSecurityDisasterButtons();
+
+    // サブタブ切り替え時にボタンを更新
+    const securityDisasterTabButtons = document.querySelectorAll('#securityDisasterTabs .nav-link');
+    securityDisasterTabButtons.forEach(button => {
+        button.addEventListener('shown.bs.tab', function() {
+            updateSecurityDisasterButtons();
         });
     });
     

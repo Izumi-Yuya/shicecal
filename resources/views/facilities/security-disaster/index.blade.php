@@ -26,26 +26,6 @@
     <div class="tab-content" id="securityDisasterTabContent">
         <!-- 防犯カメラ・電子錠タブ -->
         <div class="tab-pane fade show active" id="camera-lock" role="tabpanel" aria-labelledby="camera-lock-tab">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-                <div class="flex-grow-1"></div>
-                <div class="d-flex align-items-center gap-2">
-                    <!-- ドキュメント管理ボタン -->
-                    <button type="button" 
-                            class="btn btn-outline-primary btn-sm" 
-                            data-bs-toggle="modal"
-                            data-bs-target="#camera-lock-documents-modal"
-                            title="防犯カメラ・電子錠ドキュメント管理">
-                        <i class="fas fa-folder-open me-1"></i>
-                        <span class="d-none d-md-inline">ドキュメント</span>
-                    </button>
-                    @if(auth()->user()->canEditFacility($facility->id))
-                        <a href="{{ route('facilities.security-disaster.edit', ['facility' => $facility->id]) }}" 
-                           class="btn btn-primary btn-sm">
-                            <i class="fas fa-edit me-2"></i>編集
-                        </a>
-                    @endif
-                </div>
-            </div>
     
     @if($securityDisasterEquipment)
         <div class="security-disaster-equipment-sections">
@@ -247,26 +227,6 @@
 
         <!-- 消防・防災タブ -->
         <div class="tab-pane fade" id="fire-disaster" role="tabpanel" aria-labelledby="fire-disaster-tab">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-                <div class="flex-grow-1"></div>
-                <div class="d-flex align-items-center gap-2">
-                    <!-- ドキュメント管理ボタン -->
-                    <button type="button" 
-                            class="btn btn-outline-primary btn-sm" 
-                            data-bs-toggle="modal"
-                            data-bs-target="#fire-disaster-documents-modal"
-                            title="消防・防災ドキュメント管理">
-                        <i class="fas fa-folder-open me-1"></i>
-                        <span class="d-none d-md-inline">ドキュメント</span>
-                    </button>
-                    @if(auth()->user()->canEditFacility($facility->id))
-                        <a href="{{ route('facilities.security-disaster.edit', ['facility' => $facility->id]) }}#fire-disaster-edit" 
-                           class="btn btn-primary btn-sm">
-                            <i class="fas fa-edit me-2"></i>編集
-                        </a>
-                    @endif
-                </div>
-            </div>
 
             @if($securityDisasterEquipment && $securityDisasterEquipment->hasFireDisasterPrevention())
                 <div class="fire-disaster-equipment-sections">
@@ -894,3 +854,4 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
 </div>
+
