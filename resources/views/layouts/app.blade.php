@@ -49,7 +49,7 @@
                              onerror="this.style.display='none';">
                     </div>
                     <button class="btn btn-outline-light" type="button" id="sidebarToggle">
-                        <i class="fas fa-times"></i>
+                        <i class="fas fa-bars"></i>
                     </button>
                 </div>
                 
@@ -143,30 +143,6 @@
                         </li>
                         @endif
                         
-                        {{-- Maintenance Section - Hidden --}}
-                        {{--
-                        <li class="nav-item">
-                            <div class="nav-section-header">
-                                <i class="fas fa-tools me-2"></i>
-                                修繕管理
-                            </div>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('maintenance.*') ? 'active' : '' }}" 
-                               href="{{ route('maintenance.index') }}">
-                                <i class="fas fa-history me-2"></i>
-                                修繕履歴
-                            </a>
-                        </li>
-                        @if(auth()->user()->canEdit())
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('maintenance.create') }}">
-                                <i class="fas fa-plus me-2"></i>
-                                修繕記録追加
-                            </a>
-                        </li>
-                        @endif
-                        --}}
                         
                         <!-- Export Section -->
                         <li class="nav-item">
@@ -175,16 +151,6 @@
                                 出力機能
                             </div>
                         </li>
-                        {{-- PDF Export - Hidden --}}
-                        {{--
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('export.pdf.*') ? 'active' : '' }}" 
-                               href="{{ route('export.pdf.index') }}">
-                                <i class="fas fa-file-pdf me-2"></i>
-                                PDF出力
-                            </a>
-                        </li>
-                        --}}
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('export.csv.*') ? 'active' : '' }}" 
                                href="{{ route('export.csv.index') }}">

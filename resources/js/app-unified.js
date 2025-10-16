@@ -854,15 +854,8 @@ class ShiseCalApp {
   }
 
   initializeGlobalEventListeners() {
-    // Sidebar toggle
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const sidebar = document.getElementById('sidebar');
-
-    if (sidebarToggle && sidebar) {
-      sidebarToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('collapsed');
-      });
-    }
+    // Sidebar toggle is handled by sidebar.js module
+    // Do not add event listeners here to avoid duplicates
 
     // Global form validation
     document.addEventListener('submit', (e) => {
