@@ -348,20 +348,20 @@ $fireDisasterInfo = $securityDisasterEquipment?->fire_disaster_prevention ?? [];
                         cardClass=""
                         tableClass="table table-bordered facility-basic-info-table-clean" />
 
-                    {{-- 備蓄品（PDF）の行を別テーブルとして追加（2列のみ、元の横幅に合わせる） --}}
-                    <table class="table table-bordered facility-basic-info-table-clean" style="margin-top: -1px; table-layout: fixed !important; width: 100% !important;">
+                    {{-- 備蓄品（PDF）の行を元の横幅（15% + 85%）で追加 --}}
+                    <table class="table table-bordered facility-basic-info-table-clean" style="width: 100% !important; border-collapse: separate !important; border-spacing: 0 !important; table-layout: fixed !important; margin-top: -1px;">
                         <tbody>
                             <tr style="display: flex !important; width: 100% !important;">
-                                <td class="detail-label" style="padding: .75rem .5rem !important; border: 1px solid #dee2e6 !important; display: flex !important; align-items: center !important; font-weight: 600 !important; color: #495057 !important; background: #f8f9fa !important; box-sizing: border-box !important; width: var(--fd-col-1) !important;">
+                                <td class="detail-label" style="padding: .5rem !important; border: 1px solid #dee2e6 !important; border-top: none !important; display: flex !important; align-items: center !important; font-weight: 600 !important; color: #495057 !important; background: #f8f9fa !important; box-sizing: border-box !important; width: var(--fd-col-1) !important;">
                                     備蓄品（PDF）
                                 </td>
-                                <td class="detail-value" style="padding: .75rem .5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; display: flex !important; align-items: center !important; box-sizing: border-box !important; width: calc(var(--fd-col-2) + var(--fd-col-3) + var(--fd-col-4) + var(--fd-col-5) + var(--fd-col-6)) !important;">
+                                <td class="detail-value" style="padding: .5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; border-top: none !important; display: flex !important; align-items: center !important; box-sizing: border-box !important; width: calc(var(--fd-col-2) + var(--fd-col-3) + var(--fd-col-4) + var(--fd-col-5) + var(--fd-col-6)) !important; color: #495057;">
                                     @if(!empty($fireDisasterInfo['disaster_prevention']['emergency_supplies_pdf_name']))
                                     <a href="{{ route('facilities.security-disaster.download-file', [$facility, 'emergency_supplies']) }}" class="text-decoration-none" target="_blank">
                                         <i class="fas fa-file-pdf text-danger me-1"></i>{{ $fireDisasterInfo['disaster_prevention']['emergency_supplies_pdf_name'] }}
                                     </a>
                                     @else
-                                    未設定
+                                    <span style="color: #6c757d; font-size: inherit; font-weight: inherit; font-style: italic;">未設定</span>
                                     @endif
                                 </td>
                             </tr>
