@@ -293,11 +293,28 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const uniqueId = '{{ $uniqueId }}';
+    
+    // ===== Modal hoisting: Move all modals to body to avoid z-index issues =====
+    const modalIds = [
+        'create-folder-modal-' + uniqueId,
+        'upload-file-modal-' + uniqueId,
+        'rename-modal-' + uniqueId,
+        'properties-modal-' + uniqueId
+    ];
+    
+    modalIds.forEach(function(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal && modal.parentElement !== document.body) {
+            console.log('[LifelineDoc] Hoisting modal to body:', modalId);
+            document.body.appendChild(modal);
+        }
+    });
+    
     // LifelineDocumentManagerのインスタンスを作成
     if (typeof LifelineDocumentManager !== 'undefined') {
         const facilityId = {{ $facility->id }};
         const category = '{{ $category }}';
-        const uniqueId = '{{ $uniqueId }}';
         const managerKey = 'lifelineDocManager_' + uniqueId;
         
         // 既存のインスタンスがあればスキップ

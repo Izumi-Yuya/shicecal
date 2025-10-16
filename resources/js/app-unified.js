@@ -16,6 +16,9 @@
 import { AppUtils } from './shared/AppUtils.js';
 import ApiClient from './shared/ApiClient.js';
 
+// Import DocumentModalFix - 統一的なモーダル修正
+import DocumentModalFix from './shared/DocumentModalFix.js';
+
 // Import LifelineDocumentManager
 import LifelineDocumentManager from './modules/LifelineDocumentManager.js';
 

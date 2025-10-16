@@ -1,0 +1,62 @@
+/**
+ * 契約書ドキュメント管理モーダルのz-index修正
+ * 
+ * メインモーダル内にネストされたモーダル（フォルダ作成、ファイルアップロード等）が
+ * 正しく表示されるようにz-indexを調整します。
+ */
+
+/* メインモーダル */
+#contract-documents-modal {
+  z-index: 9999 !important;
+}
+
+/* メインモーダルのバックドロップ */
+#contract-documents-modal+.modal-backdrop,
+.modal-backdrop.show {
+  z-index: 9998 !important;
+}
+
+/* ネストされたモーダル（フォルダ作成、ファイルアップロード等） */
+#create-folder-modal-contracts,
+#upload-file-modal-contracts,
+#rename-modal-contracts,
+#properties-modal-contracts {
+  z-index: 10000 !important;
+}
+
+/* ネストされたモーダルのバックドロップ */
+#create-folder-modal-contracts+.modal-backdrop,
+#upload-file-modal-contracts+.modal-backdrop,
+#rename-modal-contracts+.modal-backdrop,
+#properties-modal-contracts+.modal-backdrop {
+  z-index: 9999 !important;
+}
+
+/* モーダル内の要素が操作可能であることを保証 */
+.modal .modal-content {
+  position: relative;
+  z-index: 1;
+}
+
+.modal .modal-header,
+.modal .modal-body,
+.modal .modal-footer {
+  position: relative;
+  z-index: 1;
+}
+
+/* モーダル内のボタンやフォーム要素が操作可能であることを保証 */
+.modal button,
+.modal input,
+.modal select,
+.modal textarea,
+.modal a,
+.modal label {
+  pointer-events: auto;
+  position: relative;
+}
+
+/* コンテキストメニュー */
+.context-menu {
+  z-index: 10001 !important;
+}

@@ -277,10 +277,27 @@
     function initManager() {
         console.log('[MaintenanceDoc] initManager called for {{ $category }}');
         
+        const category = '{{ $category }}';
+        
+        // ===== Modal hoisting: Move all modals to body to avoid z-index issues =====
+        const modalIds = [
+            'create-folder-modal-' + category,
+            'upload-file-modal-' + category,
+            'rename-modal-' + category,
+            'properties-modal-' + category
+        ];
+        
+        modalIds.forEach(function(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal && modal.parentElement !== document.body) {
+                console.log('[MaintenanceDoc] Hoisting modal to body:', modalId);
+                document.body.appendChild(modal);
+            }
+        });
+        
         // MaintenanceDocumentManagerのインスタンスを作成
         if (typeof MaintenanceDocumentManager !== 'undefined') {
             const facilityId = {{ $facility->id }};
-            const category = '{{ $category }}';
             const managerKey = 'maintenanceDocManager_' + category;
             
             // 既存のインスタンスがあればスキップ

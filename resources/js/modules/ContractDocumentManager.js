@@ -36,27 +36,27 @@ class ContractDocumentManager {
 
   /**
    * 遅延ロード機能のセットアップ
-   * 統一ドキュメントセクションが初めて展開されたときにドキュメントを読み込む
+   * モーダルが初めて開かれたときにドキュメントを読み込む
    */
   setupLazyLoading() {
-    const unifiedSection = document.getElementById('unified-documents-section');
+    const contractModal = document.getElementById('contract-documents-modal');
 
-    if (!unifiedSection) {
-      console.warn('[ContractDoc] Unified section not found, loading documents immediately');
+    if (!contractModal) {
+      console.warn('[ContractDoc] Modal not found, loading documents immediately');
       this.loadDocuments();
       return;
     }
 
-    console.log('[ContractDoc] Lazy loading enabled - documents will load on first expand');
+    console.log('[ContractDoc] Lazy loading enabled - documents will load on first modal open');
 
-    // shown.bs.collapseイベントをリッスン
-    unifiedSection.addEventListener('shown.bs.collapse', () => {
+    // shown.bs.modalイベントをリッスン
+    contractModal.addEventListener('shown.bs.modal', () => {
       if (this.isInitialLoad) {
-        console.log('[ContractDoc] First expand detected - loading documents');
+        console.log('[ContractDoc] First modal open detected - loading documents');
         this.isInitialLoad = false;
         this.loadDocuments();
       } else {
-        console.log('[ContractDoc] Section expanded - documents already loaded');
+        console.log('[ContractDoc] Modal opened - documents already loaded');
       }
     });
   }

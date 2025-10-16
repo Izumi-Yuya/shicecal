@@ -173,6 +173,35 @@ $availability = $basicInfo['availability'] ?? null;
   </div>
 </div>
 
+<style>
+/* エレベーター設備ドキュメント管理モーダルのスタイル */
+#elevator-documents-modal { z-index: 9999 !important; }
+#elevator-documents-modal .modal-dialog { max-width: 90%; margin: 1.75rem auto; }
+#elevator-documents-modal .modal-body { min-height: 500px; max-height: calc(100vh - 200px); overflow-y: auto; }
+#create-folder-modal-elevator, #upload-file-modal-elevator, #rename-modal-elevator, #properties-modal-elevator { z-index: 10000 !important; }
+.modal button, .modal input, .modal select, .modal textarea, .modal a, .modal label { pointer-events: auto !important; }
+.document-item, .document-item * { pointer-events: auto !important; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('elevator-documents-modal');
+    if (modal && modal.parentElement !== document.body) {
+        document.body.appendChild(modal);
+    }
+    document.addEventListener('show.bs.modal', function(ev) {
+        if (ev.target && ev.target.id && ev.target.id.includes('elevator')) {
+            ev.target.style.zIndex = ev.target.id === 'elevator-documents-modal' ? '9999' : '10000';
+            setTimeout(function() {
+                document.querySelectorAll('.modal-backdrop').forEach(function(bd, i, arr) {
+                    bd.style.zIndex = i === arr.length - 1 ? (ev.target.id === 'elevator-documents-modal' ? '9998' : '9999') : '9998';
+                });
+            }, 0);
+        }
+    });
+});
+</script>
+
 <!-- ▼ スタイル -->
 <style>
 /* ===== 共通 ===== */

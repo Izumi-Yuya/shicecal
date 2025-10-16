@@ -325,6 +325,118 @@
     </div>
 </div>
 
+<style>
+/* 電気設備ドキュメント管理モーダルのスタイル */
+#electrical-documents-modal .modal-dialog {
+    max-width: 90%;
+    margin: 1.75rem auto;
+}
+
+#electrical-documents-modal .modal-body {
+    min-height: 500px;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+
+#electrical-documents-modal .document-management {
+    padding: 1.5rem;
+}
+
+#electrical-documents-modal .document-list-container {
+    min-height: 400px;
+}
+
+/* z-indexの調整 - 最優先 */
+#electrical-documents-modal {
+    z-index: 9999 !important;
+}
+
+.modal-backdrop.show {
+    z-index: 9998 !important;
+}
+
+/* ネストされたモーダル */
+#create-folder-modal-electrical,
+#upload-file-modal-electrical,
+#rename-modal-electrical,
+#properties-modal-electrical {
+    z-index: 10000 !important;
+}
+
+/* モーダル内の要素が操作可能であることを保証 */
+.modal .modal-content {
+    position: relative;
+    z-index: 1;
+}
+
+.modal button,
+.modal input,
+.modal select,
+.modal textarea,
+.modal a,
+.modal label {
+    pointer-events: auto !important;
+    position: relative;
+}
+
+.document-item {
+    pointer-events: auto !important;
+}
+
+.document-item * {
+    pointer-events: auto !important;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const electricalModal = document.getElementById('electrical-documents-modal');
+    
+    if (electricalModal) {
+        // モーダルをbody直下に移動
+        if (electricalModal.parentElement !== document.body) {
+            console.log('[ElectricalDoc] Hoisting modal to body');
+            document.body.appendChild(electricalModal);
+        }
+        
+        // z-index設定
+        document.addEventListener('show.bs.modal', function(ev) {
+            if (ev.target && ev.target.id === 'electrical-documents-modal') {
+                ev.target.style.zIndex = '9999';
+                setTimeout(function() {
+                    document.querySelectorAll('.modal-backdrop').forEach(function(bd) {
+                        bd.style.zIndex = '9998';
+                    });
+                }, 0);
+            } else if (ev.target && ev.target.id && ev.target.id.includes('electrical')) {
+                ev.target.style.zIndex = '10000';
+                setTimeout(function() {
+                    const backdrops = document.querySelectorAll('.modal-backdrop');
+                    const lastBackdrop = backdrops[backdrops.length - 1];
+                    if (lastBackdrop) {
+                        lastBackdrop.style.zIndex = '9999';
+                    }
+                }, 0);
+            }
+        });
+        
+        // バックドロップクリーンアップ
+        document.addEventListener('hidden.bs.modal', function(ev) {
+            if (ev.target && ev.target.id === 'electrical-documents-modal') {
+                setTimeout(function() {
+                    const backdrops = document.querySelectorAll('.modal-backdrop');
+                    if (backdrops.length > 1) {
+                        for (let i = 0; i < backdrops.length - 1; i++) {
+                            backdrops[i].parentNode.removeChild(backdrops[i]);
+                        }
+                    }
+                }, 100);
+            }
+        });
+    }
+});
+</script>
+
 </div> {{-- End electrical-equipment-sections --}}
 
 @endif {{-- End error handling --}}

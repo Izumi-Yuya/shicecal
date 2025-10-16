@@ -272,9 +272,30 @@
     console.log('[ContractDoc] Script loaded');
     console.log('[ContractDoc] ContractDocumentManager type:', typeof ContractDocumentManager);
     
+    // ===== Modal hoisting: Move all modals to body to avoid z-index issues =====
+    function hoistModalsToBody() {
+        const modalIds = [
+            'create-folder-modal-contracts',
+            'upload-file-modal-contracts',
+            'rename-modal-contracts',
+            'properties-modal-contracts'
+        ];
+        
+        modalIds.forEach(function(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal && modal.parentElement !== document.body) {
+                console.log('[ContractDoc] Hoisting modal to body:', modalId);
+                document.body.appendChild(modal);
+            }
+        });
+    }
+    
     // DOMContentLoadedまたは即座に実行
     function initManager() {
         console.log('[ContractDoc] initManager called');
+        
+        // モーダルをbodyに移動
+        hoistModalsToBody();
         
         // ContractDocumentManagerのインスタンスを作成
         if (typeof ContractDocumentManager !== 'undefined') {

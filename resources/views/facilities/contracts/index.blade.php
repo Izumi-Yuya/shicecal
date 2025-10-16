@@ -1,37 +1,19 @@
 <!-- 契約書管理 -->
 <div class="contracts-container">
-    <!-- 統一ドキュメント管理セクション -->
+    <!-- ドキュメント管理ボタン -->
     <div class="unified-contract-documents-section mb-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="mb-0">
                 <i class="fas fa-folder text-primary me-2"></i>契約書関連ドキュメント
             </h5>
             <button type="button" 
-                    class="btn btn-outline-primary btn-sm unified-documents-toggle" 
-                    id="unified-documents-toggle"
-                    data-bs-toggle="collapse" 
-                    data-bs-target="#unified-documents-section" 
-                    aria-expanded="false" 
-                    aria-controls="unified-documents-section">
+                    class="btn btn-primary btn-sm" 
+                    id="open-contract-documents-modal-btn"
+                    data-bs-toggle="modal" 
+                    data-bs-target="#contract-documents-modal">
                 <i class="fas fa-folder-open me-1"></i>
-                <span>ドキュメントを表示</span>
+                <span>ドキュメント</span>
             </button>
-        </div>
-        
-        <div class="collapse" id="unified-documents-section">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h6 class="mb-0">
-                        <i class="fas fa-folder-open me-2"></i>契約書ドキュメント管理
-                    </h6>
-                </div>
-                <div class="card-body p-0">
-                    <x-contract-document-manager 
-                        :facility="$facility" 
-                        categoryName="契約書"
-                    />
-                </div>
-            </div>
         </div>
     </div>
 
@@ -763,6 +745,203 @@ document.addEventListener('DOMContentLoaded', function() {
             for (var i = 0; i < backdrops.length - 1; i++) {
                 backdrops[i].parentNode.removeChild(backdrops[i]);
             }
+        }
+    });
+});
+</script>
+
+{{--
+ 契約書ドキュメント管理モーダル --}}
+<div class="modal fade" id="contract-documents-modal" tabindex="-1" aria-labelledby="contract-documents-modal-title" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="contract-documents-modal-title">
+                    <i class="fas fa-folder-open me-2"></i>契約書ドキュメント管理
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="閉じる"></button>
+            </div>
+            <div class="modal-body p-0">
+                <x-contract-document-manager 
+                    :facility="$facility" 
+                    categoryName="契約書"
+                />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>閉じる
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* 契約書ドキュメント管理モーダルのスタイル */
+#contract-documents-modal .modal-dialog {
+    max-width: 90%;
+    margin: 1.75rem auto;
+}
+
+#contract-documents-modal .modal-body {
+    min-height: 500px;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+
+#contract-documents-modal .document-management {
+    padding: 1.5rem;
+}
+
+/* モーダル内のドキュメント一覧の高さ調整 */
+#contract-documents-modal .document-list-container {
+    min-height: 400px;
+}
+
+/* ===== z-indexの調整 - 最優先 ===== */
+
+/* メインモーダル */
+#contract-documents-modal {
+    z-index: 9999 !important;
+}
+
+/* メインモーダルのバックドロップ */
+.modal-backdrop.show {
+    z-index: 9998 !important;
+}
+
+/* ネストされたモーダル（フォルダ作成、ファイルアップロード等） */
+#create-folder-modal-contracts,
+#upload-file-modal-contracts,
+#rename-modal-contracts,
+#properties-modal-contracts {
+    z-index: 10000 !important;
+}
+
+/* ネストされたモーダルのバックドロップ */
+#create-folder-modal-contracts + .modal-backdrop,
+#upload-file-modal-contracts + .modal-backdrop,
+#rename-modal-contracts + .modal-backdrop,
+#properties-modal-contracts + .modal-backdrop {
+    z-index: 9999 !important;
+}
+
+/* モーダル内の要素が操作可能であることを保証 */
+.modal .modal-content {
+    position: relative;
+    z-index: 1;
+}
+
+.modal .modal-header,
+.modal .modal-body,
+.modal .modal-footer {
+    position: relative;
+    z-index: 1;
+}
+
+/* モーダル内のボタンやフォーム要素が操作可能であることを保証 */
+.modal button,
+.modal input,
+.modal select,
+.modal textarea,
+.modal a,
+.modal label {
+    pointer-events: auto !important;
+    position: relative;
+}
+
+/* コンテキストメニュー */
+.context-menu {
+    z-index: 10001 !important;
+}
+
+/* ドキュメント一覧のテーブル行が操作可能であることを保証 */
+#contract-documents-modal .document-item {
+    pointer-events: auto !important;
+}
+
+#contract-documents-modal .document-item * {
+    pointer-events: auto !important;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const contractDocumentsModal = document.getElementById('contract-documents-modal');
+    
+    if (contractDocumentsModal) {
+        // ===== Modal hoisting: Move modal to body to avoid z-index issues =====
+        if (contractDocumentsModal.parentElement !== document.body) {
+            console.log('[ContractDoc] Hoisting modal to body');
+            document.body.appendChild(contractDocumentsModal);
+        }
+        
+        // モーダルが開かれたときにドキュメントを読み込む
+        contractDocumentsModal.addEventListener('shown.bs.modal', function() {
+            console.log('[ContractDoc] Modal opened, loading documents');
+            
+            // ContractDocumentManagerのインスタンスを取得または作成
+            if (window.contractDocManager) {
+                // 既にインスタンスが存在する場合は、ドキュメントを再読み込み
+                if (typeof window.contractDocManager.loadDocuments === 'function') {
+                    window.contractDocManager.loadDocuments();
+                }
+            } else {
+                // インスタンスが存在しない場合は、少し待ってから再試行
+                console.log('[ContractDoc] Manager not found, waiting for initialization');
+                setTimeout(function() {
+                    if (window.contractDocManager && typeof window.contractDocManager.loadDocuments === 'function') {
+                        window.contractDocManager.loadDocuments();
+                    }
+                }, 500);
+            }
+        });
+        
+        // モーダルが閉じられたときの処理
+        contractDocumentsModal.addEventListener('hidden.bs.modal', function() {
+            console.log('[ContractDoc] Modal closed');
+        });
+    }
+    
+    // ===== Modal z-index enforcement =====
+    document.addEventListener('show.bs.modal', function(ev) {
+        var modalEl = ev.target;
+        if (modalEl) {
+            // メインモーダル
+            if (modalEl.id === 'contract-documents-modal') {
+                modalEl.style.zIndex = '9999';
+                setTimeout(function() {
+                    var backdrops = document.querySelectorAll('.modal-backdrop');
+                    backdrops.forEach(function(bd) {
+                        bd.style.zIndex = '9998';
+                    });
+                }, 0);
+            }
+            // ネストされたモーダル
+            else if (modalEl.id && modalEl.id.includes('contracts')) {
+                modalEl.style.zIndex = '10000';
+                setTimeout(function() {
+                    var backdrops = document.querySelectorAll('.modal-backdrop');
+                    var lastBackdrop = backdrops[backdrops.length - 1];
+                    if (lastBackdrop) {
+                        lastBackdrop.style.zIndex = '9999';
+                    }
+                }, 0);
+            }
+        }
+    });
+    
+    // ===== Cleanup extra backdrops =====
+    document.addEventListener('hidden.bs.modal', function(ev) {
+        if (ev.target && ev.target.id === 'contract-documents-modal') {
+            setTimeout(function() {
+                var backdrops = document.querySelectorAll('.modal-backdrop');
+                if (backdrops.length > 1) {
+                    for (var i = 0; i < backdrops.length - 1; i++) {
+                        backdrops[i].parentNode.removeChild(backdrops[i]);
+                    }
+                }
+            }, 100);
         }
     });
 });

@@ -1,0 +1,108 @@
+/**
+ * ドキュメント管理モーダルの統一的なz-index修正
+ * 
+ * すべてのドキュメント管理モーダル（契約書、ライフライン設備、メンテナンス履歴等）に適用
+ */
+
+/* ===== メインモーダル（ドキュメント管理画面） ===== */
+#contract-documents-modal,
+#electrical-documents-modal,
+#gas-documents-modal,
+#water-documents-modal,
+#elevator-documents-modal,
+#hvac-documents-modal,
+#maintenance-documents-modal {
+  z-index: 9999 !important;
+}
+
+/* メインモーダルのバックドロップ */
+.modal-backdrop.show {
+  z-index: 9998 !important;
+}
+
+/* ===== ネストされたモーダル（フォルダ作成、ファイルアップロード等） ===== */
+[id^="create-folder-modal-"],
+[id^="upload-file-modal-"],
+[id^="rename-modal-"],
+[id^="properties-modal-"] {
+  z-index: 10000 !important;
+}
+
+/* ネストされたモーダルのバックドロップ */
+[id^="create-folder-modal-"]+.modal-backdrop,
+[id^="upload-file-modal-"]+.modal-backdrop,
+[id^="rename-modal-"]+.modal-backdrop,
+[id^="properties-modal-"]+.modal-backdrop {
+  z-index: 9999 !important;
+}
+
+/* ===== コンテキストメニュー ===== */
+.context-menu {
+  z-index: 10001 !important;
+}
+
+/* ===== モーダル内の要素が操作可能であることを保証 ===== */
+.modal .modal-content {
+  position: relative;
+  z-index: 1;
+}
+
+.modal .modal-header,
+.modal .modal-body,
+.modal .modal-footer {
+  position: relative;
+  z-index: 1;
+}
+
+/* モーダル内のボタンやフォーム要素が操作可能であることを保証 */
+.modal button,
+.modal input,
+.modal select,
+.modal textarea,
+.modal a,
+.modal label {
+  pointer-events: auto !important;
+  position: relative;
+}
+
+/* ドキュメント一覧のテーブル行が操作可能であることを保証 */
+.document-item {
+  pointer-events: auto !important;
+}
+
+.document-item * {
+  pointer-events: auto !important;
+}
+
+/* ドキュメント管理ツールバーのボタンが操作可能であることを保証 */
+.document-toolbar button,
+.document-toolbar input,
+.document-toolbar select,
+.document-toolbar label {
+  pointer-events: auto !important;
+}
+
+/* パンくずナビゲーションのリンクが操作可能であることを保証 */
+.breadcrumb a {
+  pointer-events: auto !important;
+}
+
+/* ===== モーダルサイズ調整 ===== */
+.modal-xl .modal-dialog {
+  max-width: 90%;
+  margin: 1.75rem auto;
+}
+
+.modal-xl .modal-body {
+  min-height: 500px;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+.modal-xl .document-management {
+  padding: 1.5rem;
+}
+
+.modal-xl .document-list-container {
+  min-height: 400px;
+}
