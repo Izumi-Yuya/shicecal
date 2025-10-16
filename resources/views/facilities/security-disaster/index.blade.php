@@ -286,32 +286,32 @@
 
                         
                         {{-- 直接HTMLテーブルで6列均等幅を実現 --}}
-                        <table class="table table-bordered fire-prevention-table-direct" style="table-layout: fixed !important; width: 100% !important;"
+                       <table class="table table-bordered fire-prevention-table-direct" style="table-layout: fixed !important; width: 100% !important;">
                             <tbody>
                                 <tr style="display: flex !important; width: 100% !important;">
-                                    <td class="detail-label" style="flex: 1 1 16.666667% !important; width: 16.666667% !important; min-width: 16.666667% !important; max-width: 16.666667% !important; padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; display: flex !important; align-items: center !important; font-weight: 600 !important; color: #495057 !important; background-color: #f8f9fa !important; box-sizing: border-box !important;">
+                                    <td class="detail-label" style="padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; display: flex !important; align-items: center !important; font-weight: 600 !important; color: #495057 !important; background-color: #f8f9fa !important; box-sizing: border-box !important;">
                                         防火管理者
                                     </td>
-                                    <td class="detail-value" style="flex: 1 1 16.666667% !important; width: 16.666667% !important; min-width: 16.666667% !important; max-width: 16.666667% !important; padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; display: flex !important; align-items: center !important; box-sizing: border-box !important;">
+                                    <td class="detail-value" style="padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; display: flex !important; align-items: center !important; box-sizing: border-box !important;">
                                         {{ $fireDisasterInfo['fire_prevention']['fire_manager'] ?? '未設定' }}
                                     </td>
-                                    <td class="detail-label" style="flex: 1 1 16.666667% !important; width: 16.666667% !important; min-width: 16.666667% !important; max-width: 16.666667% !important; padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; display: flex !important; align-items: center !important; font-weight: 600 !important; color: #495057 !important; background-color: #f8f9fa !important; box-sizing: border-box !important;">
+                                    <td class="detail-label" style="padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; display: flex !important; align-items: center !important; font-weight: 600 !important; color: #495057 !important; background-color: #f8f9fa !important; box-sizing: border-box !important;">
                                         訓練実施日
                                     </td>
-                                    <td class="detail-value" style="flex: 1 1 16.666667% !important; width: 16.666667% !important; min-width: 16.666667% !important; max-width: 16.666667% !important; padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; display: flex !important; align-items: center !important; box-sizing: border-box !important;">
+                                    <td class="detail-value" style="padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; display: flex !important; align-items: center !important; box-sizing: border-box !important;">
                                         @if(!empty($fireDisasterInfo['fire_prevention']['training_date']))
                                             {{ \Carbon\Carbon::parse($fireDisasterInfo['fire_prevention']['training_date'])->format('Y年m月d日') }}
                                         @else
                                             未設定
                                         @endif
                                     </td>
-                                    <td class="detail-label" style="flex: 1 1 16.666667% !important; width: 16.666667% !important; min-width: 16.666667% !important; max-width: 16.666667% !important; padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; display: flex !important; align-items: center !important; font-weight: 600 !important; color: #495057 !important; background-color: #f8f9fa !important; box-sizing: border-box !important;">
+                                    <td class="detail-label" style="padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; display: flex !important; align-items: center !important; font-weight: 600 !important; color: #495057 !important; background-color: #f8f9fa !important; box-sizing: border-box !important;">
                                         訓練報告書（PDF）
                                     </td>
-                                    <td class="detail-value" style="flex: 1 1 16.666667% !important; width: 16.666667% !important; min-width: 16.666667% !important; max-width: 16.666667% !important; padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; display: flex !important; align-items: center !important; box-sizing: border-box !important;">
+                                    <td class="detail-value" style="padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; display: flex !important; align-items: center !important; box-sizing: border-box !important;">
                                         @if(!empty($fireDisasterInfo['fire_prevention']['training_report_pdf_name']))
                                             <a href="{{ route('facilities.security-disaster.download-file', [$facility, 'fire_training_report']) }}" 
-                                               class="text-decoration-none" target="_blank">
+                                            class="text-decoration-none" target="_blank">
                                                 <i class="fas fa-file-pdf text-danger me-1"></i>{{ $fireDisasterInfo['fire_prevention']['training_report_pdf_name'] }}
                                             </a>
                                         @else
@@ -320,29 +320,29 @@
                                     </td>
                                 </tr>
                                 <tr style="display: flex !important; width: 100% !important;">
-                                    <td class="detail-label" style="flex: 1 1 16.666667% !important; width: 16.666667% !important; min-width: 16.666667% !important; max-width: 16.666667% !important; padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-top: none !important; display: flex !important; align-items: center !important; font-weight: 600 !important; color: #495057 !important; background-color: #f8f9fa !important; box-sizing: border-box !important;">
+                                    <td class="detail-label" style="padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-top: none !important; display: flex !important; align-items: center !important; font-weight: 600 !important; color: #495057 !important; background-color: #f8f9fa !important; box-sizing: border-box !important;">
                                         消防設備点検業者
                                     </td>
-                                    <td class="detail-value" style="flex: 1 1 16.666667% !important; width: 16.666667% !important; min-width: 16.666667% !important; max-width: 16.666667% !important; padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; border-top: none !important; display: flex !important; align-items: center !important; box-sizing: border-box !important;">
+                                    <td class="detail-value" style="padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; border-top: none !important; display: flex !important; align-items: center !important; box-sizing: border-box !important;">
                                         {{ $fireDisasterInfo['fire_prevention']['inspection_company'] ?? '未設定' }}
                                     </td>
-                                    <td class="detail-label" style="flex: 1 1 16.666667% !important; width: 16.666667% !important; min-width: 16.666667% !important; max-width: 16.666667% !important; padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; border-top: none !important; display: flex !important; align-items: center !important; font-weight: 600 !important; color: #495057 !important; background-color: #f8f9fa !important; box-sizing: border-box !important;">
+                                    <td class="detail-label" style="padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; border-top: none !important; display: flex !important; align-items: center !important; font-weight: 600 !important; color: #495057 !important; background-color: #f8f9fa !important; box-sizing: border-box !important;">
                                         点検実施日
                                     </td>
-                                    <td class="detail-value" style="flex: 1 1 16.666667% !important; width: 16.666667% !important; min-width: 16.666667% !important; max-width: 16.666667% !important; padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; border-top: none !important; display: flex !important; align-items: center !important; box-sizing: border-box !important;">
+                                    <td class="detail-value" style="padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; border-top: none !important; display: flex !important; align-items: center !important; box-sizing: border-box !important;">
                                         @if(!empty($fireDisasterInfo['fire_prevention']['inspection_date']))
                                             {{ \Carbon\Carbon::parse($fireDisasterInfo['fire_prevention']['inspection_date'])->format('Y年m月d日') }}
                                         @else
                                             未設定
                                         @endif
                                     </td>
-                                    <td class="detail-label" style="flex: 1 1 16.666667% !important; width: 16.666667% !important; min-width: 16.666667% !important; max-width: 16.666667% !important; padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; border-top: none !important; display: flex !important; align-items: center !important; font-weight: 600 !important; color: #495057 !important; background-color: #f8f9fa !important; box-sizing: border-box !important;">
+                                    <td class="detail-label" style="padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; border-top: none !important; display: flex !important; align-items: center !important; font-weight: 600 !important; color: #495057 !important; background-color: #f8f9fa !important; box-sizing: border-box !important;">
                                         点検実施報告書（PDF）
                                     </td>
-                                    <td class="detail-value" style="flex: 1 1 16.666667% !important; width: 16.666667% !important; min-width: 16.666667% !important; max-width: 16.666667% !important; padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; border-top: none !important; display: flex !important; align-items: center !important; box-sizing: border-box !important;">
+                                    <td class="detail-value" style="padding: 0.75rem 0.5rem !important; border: 1px solid #dee2e6 !important; border-left: none !important; border-top: none !important; display: flex !important; align-items: center !important; box-sizing: border-box !important;">
                                         @if(!empty($fireDisasterInfo['fire_prevention']['inspection_report_pdf_name']))
                                             <a href="{{ route('facilities.security-disaster.download-file', [$facility, 'fire_inspection_report']) }}" 
-                                               class="text-decoration-none" target="_blank">
+                                            class="text-decoration-none" target="_blank">
                                                 <i class="fas fa-file-pdf text-danger me-1"></i>{{ $fireDisasterInfo['fire_prevention']['inspection_report_pdf_name'] }}
                                             </a>
                                         @else
@@ -649,6 +649,26 @@
     overflow-wrap: break-word !important;
     flex: 1 !important;
 }
+/* 消防テーブル 列幅を個別に指定 */
+.fire-prevention-table-direct tr > td:nth-child(1) { 
+    flex: 0 0 15% !important;
+}
+.fire-prevention-table-direct tr > td:nth-child(2) { 
+    flex: 0 0 22% !important;
+}
+.fire-prevention-table-direct tr > td:nth-child(3) { 
+    flex: 0 0 10% !important;
+}
+.fire-prevention-table-direct tr > td:nth-child(4) { 
+    flex: 0 0 13% !important;
+}
+.fire-prevention-table-direct tr > td:nth-child(5) { 
+    flex: 0 0 15% !important;
+}
+.fire-prevention-table-direct tr > td:nth-child(6) { 
+    flex: 0 0 25% !important;
+}
+
 </style>
 @endpush
 
