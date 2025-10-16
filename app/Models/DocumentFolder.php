@@ -14,6 +14,7 @@ class DocumentFolder extends Model
     protected $fillable = [
         'facility_id',
         'parent_id',
+        'category',
         'name',
         'path',
         'created_by',
@@ -63,6 +64,82 @@ class DocumentFolder extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Scope: メインドキュメント管理のフォルダのみ
+     */
+    public function scopeMain($query)
+    {
+        return $query->whereNull('category');
+    }
+
+    /**
+     * Scope: ライフライン設備のフォルダのみ
+     */
+    public function scopeLifeline($query, ?string $category = null)
+    {
+        $query = $query->where('category', 'like', 'lifeline_%');
+        
+        if ($category) {
+            $query->where('category', 'lifeline_' . $category);
+        }
+        
+        return $query;
+    }
+
+    /**
+     * Scope: 修繕履歴のフォルダのみ
+     */
+    public function scopeMaintenance($query, ?string $category = null)
+    {
+        $query = $query->where('category', 'like', 'maintenance_%');
+        
+        if ($category) {
+            $query->where('category', 'maintenance_' . $category);
+        }
+        
+        return $query;
+    }
+
+    /**
+     * Scope: 契約書のフォルダのみ
+     */
+    public function scopeContracts($query)
+    {
+        return $query->where('category', 'contracts');
+    }
+
+    /**
+     * カテゴリがライフライン設備かどうか
+     */
+    public function isLifeline(): bool
+    {
+        return $this->category && str_starts_with($this->category, 'lifeline_');
+    }
+
+    /**
+     * カテゴリが修繕履歴かどうか
+     */
+    public function isMaintenance(): bool
+    {
+        return $this->category && str_starts_with($this->category, 'maintenance_');
+    }
+
+    /**
+     * カテゴリが契約書かどうか
+     */
+    public function isContracts(): bool
+    {
+        return $this->category === 'contracts';
+    }
+
+    /**
+     * カテゴリがメインドキュメントかどうか
+     */
+    public function isMain(): bool
+    {
+        return $this->category === null;
     }
 
     /**

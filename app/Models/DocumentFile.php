@@ -13,6 +13,7 @@ class DocumentFile extends Model
     protected $fillable = [
         'facility_id',
         'folder_id',
+        'category',
         'original_name',
         'stored_name',
         'file_path',
@@ -117,6 +118,82 @@ class DocumentFile extends Model
     public function uploader(): BelongsTo
     {
         return $this->belongsTo(User::class, 'uploaded_by');
+    }
+
+    /**
+     * Scope: メインドキュメント管理のファイルのみ
+     */
+    public function scopeMain($query)
+    {
+        return $query->whereNull('category');
+    }
+
+    /**
+     * Scope: ライフライン設備のファイルのみ
+     */
+    public function scopeLifeline($query, ?string $category = null)
+    {
+        $query = $query->where('category', 'like', 'lifeline_%');
+        
+        if ($category) {
+            $query->where('category', 'lifeline_' . $category);
+        }
+        
+        return $query;
+    }
+
+    /**
+     * Scope: 修繕履歴のファイルのみ
+     */
+    public function scopeMaintenance($query, ?string $category = null)
+    {
+        $query = $query->where('category', 'like', 'maintenance_%');
+        
+        if ($category) {
+            $query->where('category', 'maintenance_' . $category);
+        }
+        
+        return $query;
+    }
+
+    /**
+     * Scope: 契約書のファイルのみ
+     */
+    public function scopeContracts($query)
+    {
+        return $query->where('category', 'contracts');
+    }
+
+    /**
+     * カテゴリがライフライン設備かどうか
+     */
+    public function isLifeline(): bool
+    {
+        return $this->category && str_starts_with($this->category, 'lifeline_');
+    }
+
+    /**
+     * カテゴリが修繕履歴かどうか
+     */
+    public function isMaintenance(): bool
+    {
+        return $this->category && str_starts_with($this->category, 'maintenance_');
+    }
+
+    /**
+     * カテゴリが契約書かどうか
+     */
+    public function isContracts(): bool
+    {
+        return $this->category === 'contracts';
+    }
+
+    /**
+     * カテゴリがメインドキュメントかどうか
+     */
+    public function isMain(): bool
+    {
+        return $this->category === null;
     }
 
     /**

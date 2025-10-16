@@ -58,10 +58,12 @@ class LifelineDocumentService
     public function getOrCreateCategoryRootFolder(Facility $facility, string $category, User $user): DocumentFolder
     {
         try {
+            $categoryValue = 'lifeline_' . $category;
             $categoryName = self::CATEGORY_FOLDER_MAPPING[$category] ?? $category;
 
-            // 既存のルートフォルダを検索
-            $rootFolder = DocumentFolder::where('facility_id', $facility->id)
+            // 既存のルートフォルダを検索（カテゴリで識別）
+            $rootFolder = DocumentFolder::lifeline($category)
+                ->where('facility_id', $facility->id)
                 ->whereNull('parent_id')
                 ->where('name', $categoryName)
                 ->first();
@@ -70,8 +72,15 @@ class LifelineDocumentService
                 return $rootFolder;
             }
 
-            // ルートフォルダを作成
-            $rootFolder = $this->documentService->createFolder($facility, null, $categoryName, $user);
+            // ルートフォルダを作成（カテゴリを設定）
+            $rootFolder = DocumentFolder::create([
+                'facility_id' => $facility->id,
+                'parent_id' => null,
+                'category' => $categoryValue,
+                'name' => $categoryName,
+                'path' => $categoryName,
+                'created_by' => $user->id,
+            ]);
 
             // デフォルトサブフォルダを作成
             $this->createDefaultSubfolders($facility, $rootFolder, $user);
@@ -79,6 +88,7 @@ class LifelineDocumentService
             Log::info('Lifeline category root folder created', [
                 'facility_id' => $facility->id,
                 'category' => $category,
+                'category_value' => $categoryValue,
                 'folder_id' => $rootFolder->id,
                 'user_id' => $user->id,
             ]);
@@ -111,13 +121,22 @@ class LifelineDocumentService
                     ->first();
 
                 if (!$existingFolder) {
-                    $this->documentService->createFolder($facility, $parentFolder, $name, $user);
+                    // サブフォルダ作成時に親の`category`を継承
+                    DocumentFolder::create([
+                        'facility_id' => $facility->id,
+                        'parent_id' => $parentFolder->id,
+                        'category' => $parentFolder->category,
+                        'name' => $name,
+                        'path' => $parentFolder->path . '/' . $name,
+                        'created_by' => $user->id,
+                    ]);
                 }
             }
         } catch (Exception $e) {
             Log::warning('Failed to create some default subfolders', [
                 'facility_id' => $facility->id,
                 'parent_folder_id' => $parentFolder->id,
+                'parent_category' => $parentFolder->category,
                 'error' => $e->getMessage(),
             ]);
             // サブフォルダ作成失敗は致命的エラーではないため、ログのみ
@@ -130,10 +149,12 @@ class LifelineDocumentService
     public function getCategoryDocuments(Facility $facility, string $category, array $options = []): array
     {
         try {
+            $categoryValue = 'lifeline_' . $category;
             $categoryName = self::CATEGORY_FOLDER_MAPPING[$category] ?? $category;
 
-            // カテゴリのルートフォルダを取得
-            $rootFolder = DocumentFolder::where('facility_id', $facility->id)
+            // カテゴリのルートフォルダを取得（カテゴリでフィルタリング）
+            $rootFolder = DocumentFolder::lifeline($category)
+                ->where('facility_id', $facility->id)
                 ->whereNull('parent_id')
                 ->where('name', $categoryName)
                 ->first();
@@ -144,6 +165,7 @@ class LifelineDocumentService
                 Log::info('Category root folder not found, returning empty data', [
                     'facility_id' => $facility->id,
                     'category' => $category,
+                    'category_value' => $categoryValue,
                     'category_name' => $categoryName,
                 ]);
 
@@ -176,7 +198,8 @@ class LifelineDocumentService
             // 指定されたフォルダIDがある場合はそのフォルダを取得
             $currentFolder = $rootFolder;
             if (!empty($options['folder_id'])) {
-                $requestedFolder = DocumentFolder::where('facility_id', $facility->id)
+                $requestedFolder = DocumentFolder::lifeline($category)
+                    ->where('facility_id', $facility->id)
                     ->where('id', $options['folder_id'])
                     ->first();
 
@@ -185,12 +208,74 @@ class LifelineDocumentService
                 }
             }
 
-            // ドキュメントサービスを使用してフォルダ内容を取得
-            $result = $this->documentService->getFolderContents($facility, $currentFolder, $options);
+            // フォルダとファイルのクエリに`lifeline($category)`スコープを適用
+            $perPage = min($options['per_page'] ?? 50, 100);
+            $page = $options['page'] ?? 1;
+
+            // フォルダ取得（カテゴリでフィルタリング）
+            $foldersQuery = DocumentFolder::lifeline($category)
+                ->where('facility_id', $facility->id)
+                ->where('parent_id', $currentFolder->id)
+                ->with(['creator:id,name']);
+
+            if (!empty($options['sort_by'])) {
+                $sortDirection = $options['sort_direction'] ?? 'asc';
+                $foldersQuery->orderBy($options['sort_by'], $sortDirection);
+            } else {
+                $foldersQuery->orderBy('name', 'asc');
+            }
+
+            $folders = $foldersQuery->get();
+
+            // ファイル取得（カテゴリでフィルタリング）
+            $filesQuery = DocumentFile::lifeline($category)
+                ->where('facility_id', $facility->id)
+                ->where('folder_id', $currentFolder->id)
+                ->with(['uploader:id,name']);
+
+            if (!empty($options['file_type'])) {
+                $filesQuery->where('file_extension', $options['file_type']);
+            }
+
+            if (!empty($options['sort_by'])) {
+                $sortDirection = $options['sort_direction'] ?? 'asc';
+                $filesQuery->orderBy($options['sort_by'], $sortDirection);
+            } else {
+                $filesQuery->orderBy('original_name', 'asc');
+            }
+
+            $filesPaginated = $filesQuery->paginate($perPage, ['*'], 'page', $page);
+
+            // パンくずリスト
+            $breadcrumbs = $currentFolder->getBreadcrumbs();
+
+            // 統計情報
+            $stats = [
+                'file_count' => $currentFolder->getDirectFileCount(),
+                'folder_count' => $folders->count(),
+                'total_size' => $currentFolder->getTotalSize(),
+                'formatted_size' => $this->fileHandlingService->formatFileSize($currentFolder->getTotalSize()),
+            ];
+
+            $result = [
+                'folders' => $folders->toArray(),
+                'files' => $filesPaginated->items(),
+                'current_folder' => $currentFolder,
+                'breadcrumbs' => $breadcrumbs,
+                'pagination' => [
+                    'current_page' => $filesPaginated->currentPage(),
+                    'last_page' => $filesPaginated->lastPage(),
+                    'per_page' => $filesPaginated->perPage(),
+                    'total' => $filesPaginated->total(),
+                    'has_more_pages' => $filesPaginated->hasMorePages(),
+                ],
+                'stats' => $stats,
+            ];
 
             Log::info('Category documents retrieved', [
                 'facility_id' => $facility->id,
                 'category' => $category,
+                'category_value' => $categoryValue,
                 'root_folder_id' => $rootFolder->id,
                 'current_folder_id' => $currentFolder->id,
                 'folders_count' => count($result['folders'] ?? []),
@@ -264,8 +349,19 @@ class LifelineDocumentService
                 }
             }
 
-            // ファイルアップロード
-            $documentFile = $this->documentService->uploadFile($facility, $targetFolder, $file, $user);
+            // ファイルアップロード時にフォルダの`category`を継承
+            $documentFile = DocumentFile::create([
+                'facility_id' => $facility->id,
+                'folder_id' => $targetFolder->id,
+                'category' => $targetFolder->category,
+                'original_name' => $file->getClientOriginalName(),
+                'stored_name' => $this->fileHandlingService->generateUniqueFileName($file),
+                'file_path' => $this->fileHandlingService->storeFile($file, 'documents'),
+                'file_size' => $file->getSize(),
+                'mime_type' => $file->getMimeType(),
+                'file_extension' => $file->getClientOriginalExtension(),
+                'uploaded_by' => $user->id,
+            ]);
 
             // アクティビティログ
             $this->activityLogService->log(
@@ -328,6 +424,7 @@ class LifelineDocumentService
                 'root_folder_id' => $rootFolder->id,
                 'root_folder_name' => $rootFolder->name,
                 'root_folder_path' => $rootFolder->path,
+                'root_folder_category' => $rootFolder->category,
             ]);
 
             // 親フォルダを決定
@@ -342,23 +439,33 @@ class LifelineDocumentService
                     Log::info('Using requested parent folder', [
                         'parent_folder_id' => $parentFolder->id,
                         'parent_folder_name' => $parentFolder->name,
+                        'parent_folder_category' => $parentFolder->category,
                     ]);
                 }
             } else {
                 Log::info('No parent folder specified, using root folder as parent', [
                     'parent_folder_id' => $parentFolder->id,
                     'parent_folder_name' => $parentFolder->name,
+                    'parent_folder_category' => $parentFolder->category,
                 ]);
             }
 
-            // フォルダ作成
-            $newFolder = $this->documentService->createFolder($facility, $parentFolder, $folderName, $user);
+            // フォルダ作成（親のカテゴリを継承）
+            $newFolder = DocumentFolder::create([
+                'facility_id' => $facility->id,
+                'parent_id' => $parentFolder->id,
+                'category' => $parentFolder->category,
+                'name' => $folderName,
+                'path' => $parentFolder->path . '/' . $folderName,
+                'created_by' => $user->id,
+            ]);
 
             Log::info('Lifeline category folder created successfully', [
                 'facility_id' => $facility->id,
                 'category' => $category,
                 'folder_id' => $newFolder->id,
                 'folder_name' => $folderName,
+                'folder_category' => $newFolder->category,
                 'parent_folder_id' => $parentFolder->id,
                 'root_folder_id' => $rootFolder->id,
                 'user_id' => $user->id,
@@ -409,10 +516,12 @@ class LifelineDocumentService
     public function getCategoryStats(Facility $facility, string $category): array
     {
         try {
+            $categoryValue = 'lifeline_' . $category;
             $categoryName = self::CATEGORY_FOLDER_MAPPING[$category] ?? $category;
 
-            // カテゴリのルートフォルダを取得
-            $rootFolder = DocumentFolder::where('facility_id', $facility->id)
+            // カテゴリのルートフォルダを取得（カテゴリでフィルタリング）
+            $rootFolder = DocumentFolder::lifeline($category)
+                ->where('facility_id', $facility->id)
                 ->whereNull('parent_id')
                 ->where('name', $categoryName)
                 ->first();
@@ -430,17 +539,23 @@ class LifelineDocumentService
             // カテゴリ内の全フォルダIDを取得
             $folderIds = $this->getCategoryFolderIds($rootFolder);
 
-            // ファイル統計
-            $fileStats = DocumentFile::where('facility_id', $facility->id)
+            // ファイル統計（カテゴリでフィルタリング）
+            $fileStats = DocumentFile::lifeline($category)
+                ->where('facility_id', $facility->id)
                 ->whereIn('folder_id', $folderIds)
                 ->selectRaw('COUNT(*) as count, SUM(file_size) as total_size')
                 ->first();
 
-            // フォルダ統計
-            $folderCount = count($folderIds) - 1; // ルートフォルダを除く
+            // フォルダ統計（カテゴリでフィルタリング）
+            $folderCount = DocumentFolder::lifeline($category)
+                ->where('facility_id', $facility->id)
+                ->whereIn('id', $folderIds)
+                ->where('id', '!=', $rootFolder->id) // ルートフォルダを除く
+                ->count();
 
-            // 最近のファイル
-            $recentFiles = DocumentFile::where('facility_id', $facility->id)
+            // 最近のファイル（カテゴリでフィルタリング）
+            $recentFiles = DocumentFile::lifeline($category)
+                ->where('facility_id', $facility->id)
                 ->whereIn('folder_id', $folderIds)
                 ->with(['uploader:id,name', 'folder:id,name'])
                 ->orderBy('created_at', 'desc')
@@ -469,6 +584,7 @@ class LifelineDocumentService
             Log::error('Failed to get category stats', [
                 'facility_id' => $facility->id,
                 'category' => $category,
+                'category_value' => 'lifeline_' . $category,
                 'error' => $e->getMessage(),
             ]);
 
@@ -517,10 +633,12 @@ class LifelineDocumentService
     public function searchCategoryFiles(Facility $facility, string $category, string $query, array $options = []): array
     {
         try {
+            $categoryValue = 'lifeline_' . $category;
             $categoryName = self::CATEGORY_FOLDER_MAPPING[$category] ?? $category;
 
-            // カテゴリのルートフォルダを取得
-            $rootFolder = DocumentFolder::where('facility_id', $facility->id)
+            // カテゴリのルートフォルダを取得（カテゴリでフィルタリング）
+            $rootFolder = DocumentFolder::lifeline($category)
+                ->where('facility_id', $facility->id)
                 ->whereNull('parent_id')
                 ->where('name', $categoryName)
                 ->first();
@@ -548,14 +666,16 @@ class LifelineDocumentService
             // カテゴリ内の全フォルダIDを取得
             $folderIds = $this->getCategoryFolderIds($rootFolder);
 
-            // ファイル検索
-            $filesQuery = DocumentFile::where('facility_id', $facility->id)
+            // ファイル検索（カテゴリでフィルタリング）
+            $filesQuery = DocumentFile::lifeline($category)
+                ->where('facility_id', $facility->id)
                 ->whereIn('folder_id', $folderIds)
                 ->where('original_name', 'like', "%{$query}%")
                 ->with(['uploader:id,name', 'folder:id,name']);
 
-            // フォルダ検索
-            $foldersQuery = DocumentFolder::where('facility_id', $facility->id)
+            // フォルダ検索（カテゴリでフィルタリング）
+            $foldersQuery = DocumentFolder::lifeline($category)
+                ->where('facility_id', $facility->id)
                 ->whereIn('id', $folderIds)
                 ->where('name', 'like', "%{$query}%")
                 ->with(['creator:id,name']);
@@ -587,6 +707,7 @@ class LifelineDocumentService
             Log::error('Category file search failed', [
                 'facility_id' => $facility->id,
                 'category' => $category,
+                'category_value' => $categoryValue,
                 'query' => $query,
                 'error' => $e->getMessage(),
             ]);

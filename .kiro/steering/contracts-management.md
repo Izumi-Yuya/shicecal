@@ -42,8 +42,9 @@ $contractsData = $this->contractService->formatContractDataForDisplay($contract)
 ### データベース構造
 - **テーブル**: `facility_contracts`
 - **リレーション**: 1つの施設につき1つの契約書レコード
-- **その他契約書**: 個別カラムで詳細管理
-- **給食・駐車場**: JSON形式で柔軟な拡張性
+- **その他契約書**: 個別カラム（`others_*`）で詳細管理
+- **給食契約書**: 個別カラム（`meal_service_*`）で詳細管理
+- **駐車場契約書**: 個別カラム（`parking_*`）で詳細管理
 
 ## コントローラー実装パターン
 
@@ -208,8 +209,18 @@ class FacilityContract extends Model
         'others_contract_start_date' => 'date',
         'others_contract_end_date' => 'date',
         'others_amount' => 'integer',
-        'meal_service_data' => 'array',
-        'parking_data' => 'array',
+        'meal_service_contract_start_date' => 'date',
+        'meal_service_management_fee' => 'integer',
+        'meal_service_breakfast_price' => 'integer',
+        'meal_service_lunch_price' => 'integer',
+        'meal_service_dinner_price' => 'integer',
+        'meal_service_snack_price' => 'integer',
+        'meal_service_event_meal_price' => 'integer',
+        'meal_service_staff_meal_price' => 'integer',
+        'parking_contract_start_date' => 'date',
+        'parking_contract_end_date' => 'date',
+        'parking_spaces' => 'integer',
+        'parking_price_per_space' => 'integer',
     ];
 
     // アクセサー

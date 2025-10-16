@@ -437,7 +437,8 @@ class DocumentManager {
       <td>
         <div class="d-flex align-items-center">
           <i class="fas fa-folder text-warning me-2"></i>
-          <span class="item-name" data-name="${folder.name}">${folder.name}</span>
+          <a href="#" class="text-decoration-none item-name" data-name="${folder.name}" 
+             data-action="open-folder" data-folder-id="${folder.id}">${folder.name}</a>
         </div>
       </td>
       <td>-</td>
@@ -584,10 +585,17 @@ class DocumentManager {
     const itemId = target.dataset.itemId;
     const itemType = target.dataset.itemType;
     const itemName = target.dataset.name || this.getCurrentItemName(target);
+    const folderId = target.dataset.folderId;
 
-    console.log('Document action:', { action, itemId, itemType, itemName });
+    console.log('Document action:', { action, itemId, itemType, itemName, folderId });
 
     switch (action) {
+      case 'open-folder':
+        event.preventDefault();
+        if (folderId) {
+          this.loadDocuments(folderId);
+        }
+        break;
       case 'edit':
         this.showRenameModal(itemId, itemType, itemName);
         break;

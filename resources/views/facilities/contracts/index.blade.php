@@ -40,7 +40,8 @@
                     'contract_end_date' => $othersData['contract_end_date'] ?? '',
                     'other_matters' => $othersData['other_matters'] ?? '',
                     'amount' => $othersData['amount'] ?? '',
-                    'contact_info' => $othersData['contact_info'] ?? ''
+                    'contact_info' => $othersData['contact_info'] ?? '',
+                    'remarks' => $othersData['remarks'] ?? ''
                 ];
             @endphp
 
@@ -54,6 +55,42 @@
                         <i class="fas fa-edit me-2"></i>編集
                     </a>
                 @endif
+            </div>
+
+            <!-- ドキュメント管理セクション -->
+            <div class="contract-documents-section mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0">
+                        <i class="fas fa-folder text-primary me-2"></i>関連ドキュメント
+                    </h6>
+                    <button type="button" 
+                            class="btn btn-outline-primary btn-sm contract-documents-toggle" 
+                            id="others-documents-toggle"
+                            data-bs-toggle="collapse" 
+                            data-bs-target="#others-documents-section" 
+                            aria-expanded="false" 
+                            aria-controls="others-documents-section">
+                        <i class="fas fa-folder-open me-1"></i>
+                        <span>ドキュメントを表示</span>
+                    </button>
+                </div>
+                
+                <div class="collapse" id="others-documents-section">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-folder-open me-2"></i>その他契約書関連ドキュメント
+                            </h6>
+                        </div>
+                        <div class="card-body p-0">
+                            <x-contract-document-manager 
+                                :facility="$facility" 
+                                category="others"
+                                categoryName="その他契約書"
+                            />
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- その他契約書テーブル -->
@@ -144,6 +181,12 @@
                             <td class="detail-label" style="padding: 0.5rem;"></td>
                             <td class="detail-value" style="padding: 0.5rem;"></td>
                         </tr>
+                        <tr>
+                            <td class="detail-label" style="padding: 0.5rem;">備考</td>
+                            <td class="detail-value {{ empty($othersContractData['remarks']) ? 'empty-field' : '' }}" style="padding: 0.5rem;" colspan="3">
+                                {{ $othersContractData['remarks'] ?: '未設定' }}
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -170,7 +213,8 @@
                     'event_meal_price' => $mealServiceData['event_meal_price'] ?? '',
                     'renewal_notice_period' => $mealServiceData['renewal_notice_period'] ?? '',
                     'staff_meal_price' => $mealServiceData['staff_meal_price'] ?? '',
-                    'other_matters' => $mealServiceData['other_matters'] ?? ''
+                    'other_matters' => $mealServiceData['other_matters'] ?? '',
+                    'remarks' => $mealServiceData['remarks'] ?? ''
                 ];
             @endphp
 
@@ -184,6 +228,42 @@
                         <i class="fas fa-edit me-2"></i>編集
                     </a>
                 @endif
+            </div>
+
+            <!-- ドキュメント管理セクション -->
+            <div class="contract-documents-section mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0">
+                        <i class="fas fa-folder text-success me-2"></i>関連ドキュメント
+                    </h6>
+                    <button type="button" 
+                            class="btn btn-outline-success btn-sm contract-documents-toggle" 
+                            id="meal-service-documents-toggle"
+                            data-bs-toggle="collapse" 
+                            data-bs-target="#meal-service-documents-section" 
+                            aria-expanded="false" 
+                            aria-controls="meal-service-documents-section">
+                        <i class="fas fa-folder-open me-1"></i>
+                        <span>ドキュメントを表示</span>
+                    </button>
+                </div>
+                
+                <div class="collapse" id="meal-service-documents-section">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-success text-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-folder-open me-2"></i>給食契約書関連ドキュメント
+                            </h6>
+                        </div>
+                        <div class="card-body p-0">
+                            <x-contract-document-manager 
+                                :facility="$facility" 
+                                category="meal_service"
+                                categoryName="給食契約書"
+                            />
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- 給食契約書テーブル -->
@@ -308,6 +388,12 @@
                                 @endif
                             </td>
                         </tr>
+                        <tr>
+                            <td class="detail-label" style="padding: 0.5rem;">備考</td>
+                            <td class="detail-value {{ empty($mealServiceContractData['remarks']) ? 'empty-field' : '' }}" style="padding: 0.5rem;" colspan="3">
+                                {{ $mealServiceContractData['remarks'] ?: '未設定' }}
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -330,7 +416,8 @@
                     'renewal_notice_period' => $parkingData['renewal_notice_period'] ?? '',
                     'price_per_space' => $parkingData['price_per_space'] ?? '',
                     'usage_purpose' => $parkingData['usage_purpose'] ?? '',
-                    'other_matters' => $parkingData['other_matters'] ?? ''
+                    'other_matters' => $parkingData['other_matters'] ?? '',
+                    'remarks' => $parkingData['remarks'] ?? ''
                 ];
                 
                 // 管理会社情報
@@ -370,6 +457,42 @@
                         <i class="fas fa-edit me-2"></i>編集
                     </a>
                 @endif
+            </div>
+
+            <!-- ドキュメント管理セクション -->
+            <div class="contract-documents-section mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0">
+                        <i class="fas fa-folder text-info me-2"></i>関連ドキュメント
+                    </h6>
+                    <button type="button" 
+                            class="btn btn-outline-info btn-sm contract-documents-toggle" 
+                            id="parking-documents-toggle"
+                            data-bs-toggle="collapse" 
+                            data-bs-target="#parking-documents-section" 
+                            aria-expanded="false" 
+                            aria-controls="parking-documents-section">
+                        <i class="fas fa-folder-open me-1"></i>
+                        <span>ドキュメントを表示</span>
+                    </button>
+                </div>
+                
+                <div class="collapse" id="parking-documents-section">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-folder-open me-2"></i>駐車場契約書関連ドキュメント
+                            </h6>
+                        </div>
+                        <div class="card-body p-0">
+                            <x-contract-document-manager 
+                                :facility="$facility" 
+                                category="parking"
+                                categoryName="駐車場契約書"
+                            />
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- 駐車場契約書テーブル -->
@@ -457,6 +580,12 @@
                             <td class="detail-label" style="padding: 0.5rem;">その他事項</td>
                             <td class="detail-value {{ empty($parkingContractData['other_matters']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 {{ $parkingContractData['other_matters'] ?: '未設定' }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="detail-label" style="padding: 0.5rem;">備考</td>
+                            <td class="detail-value {{ empty($parkingContractData['remarks']) ? 'empty-field' : '' }}" style="padding: 0.5rem;" colspan="3">
+                                {{ $parkingContractData['remarks'] ?: '未設定' }}
                             </td>
                         </tr>
                     </tbody>
@@ -641,6 +770,59 @@ document.addEventListener('DOMContentLoaded', function() {
                 history.replaceState(null, null, newHash);
             }
         });
+    });
+
+    // ===== Modal hoisting & z-index fix for contract document managers =====
+    function hoistModals(container) {
+        if (!container) return;
+        container.querySelectorAll('.modal').forEach(function(modal) {
+            if (modal.parentElement !== document.body) {
+                document.body.appendChild(modal);
+            }
+        });
+    }
+
+    // Hoist modals for all contract document sections
+    const documentSections = [
+        document.getElementById('others-documents-section'),
+        document.getElementById('meal-service-documents-section'),
+        document.getElementById('parking-documents-section')
+    ];
+
+    documentSections.forEach(function(section) {
+        if (section) {
+            // Initial hoisting
+            hoistModals(section);
+            
+            // Hoist on collapse shown
+            section.addEventListener('shown.bs.collapse', function() {
+                hoistModals(section);
+            });
+        }
+    });
+
+    // Modal z-index enforcement
+    document.addEventListener('show.bs.modal', function(ev) {
+        var modalEl = ev.target;
+        if (modalEl) {
+            modalEl.style.zIndex = '2010';
+        }
+        setTimeout(function() {
+            var backdrops = document.querySelectorAll('.modal-backdrop');
+            backdrops.forEach(function(bd) {
+                bd.style.zIndex = '2000';
+            });
+        }, 0);
+    });
+
+    // Cleanup extra backdrops
+    document.addEventListener('hidden.bs.modal', function() {
+        var backdrops = document.querySelectorAll('.modal-backdrop');
+        if (backdrops.length > 1) {
+            for (var i = 0; i < backdrops.length - 1; i++) {
+                backdrops[i].parentNode.removeChild(backdrops[i]);
+            }
+        }
     });
 });
 </script>

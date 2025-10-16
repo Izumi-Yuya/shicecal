@@ -22,9 +22,13 @@ import LifelineDocumentManager from './modules/LifelineDocumentManager.js';
 // Import MaintenanceDocumentManager
 import MaintenanceDocumentManager from './modules/MaintenanceDocumentManager.js';
 
+// Import ContractDocumentManager
+import ContractDocumentManager from './modules/ContractDocumentManager.js';
+
 // グローバルに公開（ボタンクリックハンドラーで使用）
 window.LifelineDocumentManager = LifelineDocumentManager;
 window.MaintenanceDocumentManager = MaintenanceDocumentManager;
+window.ContractDocumentManager = ContractDocumentManager;
 
 // Import DocumentManager
 import { DocumentManager } from './modules/DocumentManager.js';
@@ -626,22 +630,29 @@ class ShiseCalApp {
           return;
         }
 
-        console.log(`[LifelineDoc] Processing category: ${category}`);
+        // subcategoryがある場合はuniqueIdを生成
+        const subcategory = container.dataset.subcategory;
+        const uniqueId = subcategory ? `${category}_${subcategory}` : category;
+
+        console.log(`[LifelineDoc] Processing category: ${category}, subcategory: ${subcategory}, uniqueId: ${uniqueId}`);
         console.log(`[LifelineDoc] Container visible:`, container.offsetParent !== null);
         console.log(`[LifelineDoc] Container ID:`, container.id);
 
-        const managerKey = `lifelineDocumentManager_${category}`;
+        const managerKey = `lifelineDocumentManager_${uniqueId}`;
+        const globalKey = `lifelineDocManager_${uniqueId}`;
 
-        // 既存のマネージャーがあるかチェック
-        if (!this.modules[managerKey]) {
-          console.log(`[LifelineDoc] Creating new manager for ${category}`);
+        // 既存のマネージャーがあるかチェック（グローバルとローカルの両方）
+        const existingManager = this.modules[managerKey] || window[globalKey];
+
+        if (!existingManager) {
+          console.log(`[LifelineDoc] Creating new manager for ${category} (uniqueId: ${uniqueId})`);
 
           try {
-            const manager = new LifelineDocumentManager(facilityId, category);
+            const manager = new LifelineDocumentManager(facilityId, category, uniqueId);
             this.modules[managerKey] = manager;
 
             // グローバル参照も作成（互換性のため）
-            window[`lifelineDocManager_${category}`] = manager;
+            window[globalKey] = manager;
 
             // facilityIdをグローバルに設定（静的メソッド用）
             window.facilityId = facilityId;
@@ -659,10 +670,15 @@ class ShiseCalApp {
             console.error(`[LifelineDoc] Error stack:`, error.stack);
           }
         } else {
-          console.log(`[LifelineDoc] Manager already exists for ${category}, reloading data...`);
+          console.log(`[LifelineDoc] Manager already exists for ${uniqueId}, using existing instance`);
+
+          // ローカルモジュールに登録されていない場合は登録
+          if (!this.modules[managerKey] && window[globalKey]) {
+            console.log(`[LifelineDoc] Registering existing global manager to local modules`);
+            this.modules[managerKey] = window[globalKey];
+          }
 
           // 既存のマネージャーのデータを再読み込み
-          const existingManager = this.modules[managerKey];
           if (existingManager) {
             console.log(`[LifelineDoc] Manager state:`, {
               initialized: existingManager.initialized,
@@ -671,10 +687,10 @@ class ShiseCalApp {
             });
 
             if (typeof existingManager.loadDocuments === 'function') {
-              console.log(`[LifelineDoc] Calling loadDocuments() for ${category}`);
+              console.log(`[LifelineDoc] Calling loadDocuments() for ${uniqueId}`);
               existingManager.loadDocuments();
             } else {
-              console.warn(`[LifelineDoc] Manager exists but loadDocuments() not available for ${category}`);
+              console.warn(`[LifelineDoc] Manager exists but loadDocuments() not available for ${uniqueId}`);
             }
           } else {
             console.error(`[LifelineDoc] Manager key exists but manager is null/undefined`);

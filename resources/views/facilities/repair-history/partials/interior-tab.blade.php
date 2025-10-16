@@ -22,7 +22,7 @@
                     </tr>
                     @endif
                     <tr>
-                        <td class="detail-label" style="padding: 0.5rem;">リニューアル</td>
+                        <td class="detail-label" style="padding: 0.5rem;">実施日</td>
                         <td class="detail-value {{ empty($history->maintenance_date) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                             {{ $history->maintenance_date ? $history->maintenance_date->format('Y年m月d日') : '未設定' }}
                         </td>
