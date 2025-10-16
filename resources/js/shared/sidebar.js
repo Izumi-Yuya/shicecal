@@ -11,6 +11,7 @@ export class SidebarComponent {
         this.sidebar = null;
         this.mainContent = null;
         this.sidebarToggle = null;
+        console.log('Sidebar: Initializing SidebarComponent');
         this.init();
     }
 
@@ -19,9 +20,16 @@ export class SidebarComponent {
         this.mainContent = document.querySelector('.main-content');
         this.sidebarToggle = document.getElementById('sidebarToggle');
 
-        if (!this.sidebar || !this.mainContent || !this.sidebarToggle) {
+        if (!this.sidebar || !this.mainContent) {
+            console.warn('Sidebar: Required elements not found', {
+                sidebar: !!this.sidebar,
+                mainContent: !!this.mainContent,
+                sidebarToggle: !!this.sidebarToggle
+            });
             return;
         }
+
+        console.log('Sidebar: All required elements found, setting up event listeners');
 
         // Load saved sidebar state
         const sidebarState = localStorage.getItem('sidebarCollapsed');
@@ -32,10 +40,24 @@ export class SidebarComponent {
             this.updateToggleButtonPosition(false);
         }
 
-        // Toggle sidebar on button click
-        this.sidebarToggle.addEventListener('click', () => {
-            this.toggleSidebar();
-        });
+        // Toggle sidebar on button click - with fallback
+        if (this.sidebarToggle) {
+            this.sidebarToggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.toggleSidebar();
+            });
+        } else {
+            console.warn('Sidebar: Toggle button not found, setting up fallback');
+            // Fallback: Listen for any element with sidebarToggle id
+            document.addEventListener('click', (e) => {
+                if (e.target.id === 'sidebarToggle' || e.target.closest('#sidebarToggle')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.toggleSidebar();
+                }
+            });
+        }
 
         // Handle responsive behavior
         this.handleResponsive();
@@ -45,7 +67,13 @@ export class SidebarComponent {
     }
 
     toggleSidebar() {
+        if (!this.sidebar) {
+            console.error('Sidebar: Cannot toggle - sidebar element not found');
+            return;
+        }
+
         const isCollapsed = this.sidebar.classList.contains('collapsed');
+        console.log('Sidebar: Toggling sidebar, currently collapsed:', isCollapsed);
 
         if (isCollapsed) {
             this.expandSidebar();
@@ -58,31 +86,37 @@ export class SidebarComponent {
     }
 
     collapseSidebar() {
+        console.log('Sidebar: Collapsing sidebar');
         this.sidebar.classList.add('collapsed');
         this.mainContent.classList.add('expanded');
 
         // Update toggle button icon
-        const toggleIcon = this.sidebarToggle.querySelector('i');
+        const toggleIcon = this.sidebarToggle?.querySelector('i');
         if (toggleIcon) {
             toggleIcon.className = 'fas fa-bars';
+            console.log('Sidebar: Updated toggle icon to bars');
         }
 
         // Update toggle button position for collapsed state
         this.updateToggleButtonPosition(true);
+        console.log('Sidebar: Sidebar collapsed successfully');
     }
 
     expandSidebar() {
+        console.log('Sidebar: Expanding sidebar');
         this.sidebar.classList.remove('collapsed');
         this.mainContent.classList.remove('expanded');
 
         // Update toggle button icon
-        const toggleIcon = this.sidebarToggle.querySelector('i');
+        const toggleIcon = this.sidebarToggle?.querySelector('i');
         if (toggleIcon) {
             toggleIcon.className = 'fas fa-times';
+            console.log('Sidebar: Updated toggle icon to times');
         }
 
         // Update toggle button position for expanded state
         this.updateToggleButtonPosition(false);
+        console.log('Sidebar: Sidebar expanded successfully');
     }
 
     updateToggleButtonPosition(isCollapsed) {
@@ -245,3 +279,34 @@ export function initializeSidebar() {
         smoothScroll: smoothScrollComponent
     };
 }
+
+// Auto-initialize when DOM is ready as fallback
+document.addEventListener('DOMContentLoaded', () => {
+    // Only initialize if not already initialized by main app
+    if (!window.sidebarInitialized) {
+        console.log('Sidebar: Auto-initializing as fallback');
+        initializeSidebar();
+        window.sidebarInitialized = true;
+    }
+});
+
+// Debug function to test sidebar functionality
+window.testSidebar = function() {
+    const sidebar = document.getElementById('sidebar');
+    const toggle = document.getElementById('sidebarToggle');
+    const mainContent = document.querySelector('.main-content');
+    
+    console.log('Sidebar Debug Info:', {
+        sidebar: !!sidebar,
+        toggle: !!toggle,
+        mainContent: !!mainContent,
+        sidebarClasses: sidebar?.className,
+        mainContentClasses: mainContent?.className,
+        sidebarInitialized: window.sidebarInitialized
+    });
+    
+    if (toggle) {
+        console.log('Manually triggering sidebar toggle...');
+        toggle.click();
+    }
+};
