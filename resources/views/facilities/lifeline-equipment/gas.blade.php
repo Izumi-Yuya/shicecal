@@ -41,8 +41,11 @@ $notesData = [
 @endphp
 
 <!-- ガス設備ヘッダー -->
-<div class="mb-3">
+<div class="mb-3 d-flex justify-content-between align-items-center">
   <h5 class="mb-0"><i class="fas fa-fire text-danger me-2"></i>ガス設備情報</h5>
+  <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#gas-documents-modal">
+    <i class="fas fa-folder-open me-1"></i>ドキュメント
+  </button>
 </div>
 
 <div class="gas-equipment-sections equipment-sections">
@@ -158,6 +161,9 @@ $notesData = [
       tableClass="table table-bordered facility-basic-info-table-clean gas-notes-2col" />
   </div>
 </div>
+
+<!-- 隠しボタン（ヘッダーのドキュメントボタンから呼び出される） -->
+<button type="button" class="d-none" id="gas-documents-toggle" data-bs-toggle="modal" data-bs-target="#gas-documents-modal"></button>
 
 <!-- モーダル -->
 <div class="modal fade" id="gas-documents-modal" tabindex="-1" aria-labelledby="gas-documents-modal-title"

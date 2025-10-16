@@ -12,10 +12,13 @@ $availability = $basicInfo['availability'] ?? null;
 @endphp
 
 <!-- ヘッダー -->
-<div class="mb-3">
+<div class="mb-3 d-flex justify-content-between align-items-center">
   <h5 class="mb-0">
     <i class="fas fa-elevator text-secondary me-2"></i>エレベーター設備情報
   </h5>
+  <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#elevator-documents-modal">
+    <i class="fas fa-folder-open me-1"></i>ドキュメント
+  </button>
 </div>
 
 <div class="elevator-equipment-sections">
@@ -149,9 +152,8 @@ $availability = $basicInfo['availability'] ?? null;
 @vite(['resources/js/modules/lifeline-modal-manager.js'])
 @vite(['resources/css/pages/lifeline-equipment.css'])
 
-<!-- 隠しボタン（ドキュメント管理用） -->
-<button type="button" class="d-none" id="elevator-documents-toggle"
-        data-bs-toggle="modal" data-bs-target="#elevator-documents-modal"></button>
+<!-- 隠しボタン（ヘッダーのドキュメントボタンから呼び出される） -->
+<button type="button" class="d-none" id="elevator-documents-toggle" data-bs-toggle="modal" data-bs-target="#elevator-documents-modal"></button>
 
 <!-- モーダル -->
 <div class="modal fade" id="elevator-documents-modal" tabindex="-1" aria-labelledby="elevator-documents-modal-title" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
