@@ -19,19 +19,17 @@ $lightingInfo = $basicInfo['lighting'] ?? [];
     </h5>
     <div class="d-flex align-items-center gap-2">
         <!-- ドキュメント管理ボタン -->
-        <button type="button" 
-                class="btn btn-outline-primary btn-sm" 
+             <button type="button"
+                class="btn btn-outline-primary btn-sm d-none"
                 id="hvac-lighting-documents-toggle"
-                data-bs-toggle="collapse" 
-                data-bs-target="#hvac-lighting-documents-section" 
-                aria-expanded="false" 
+                data-bs-toggle="collapse"
+                data-bs-target="#hvac-lighting-documents-section"
+                aria-expanded="false"
                 aria-controls="hvac-lighting-documents-section"
                 title="空調・照明設備ドキュメント管理">
-            <i class="fas fa-folder-open me-1"></i>
-            <span class="d-none d-md-inline">ドキュメント</span>
-        </button>
-        
-
+                <i class="fas fa-folder-open me-1"></i>
+                <span class="d-none d-md-inline">ドキュメント</span>
+            </button>
     </div>
 </div>
 
