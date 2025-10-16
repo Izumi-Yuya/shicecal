@@ -270,7 +270,7 @@ return [
         ]
     ],
     'maintenance_interior_renewal' => [
-        'title' => '内装リニューアル',
+        'title' => '内装',
         'icon' => 'fas fa-home',
         'color' => 'text-warning',
         'fields' => [

@@ -403,7 +403,7 @@
 </div>
 @endsection
 
-@vite(['resources/css/pages/facilities.css', 'resources/css/water-equipment.css', 'resources/js/modules/facilities.js'])
+@vite(['resources/css/pages/facilities.css', 'resources/css/water-equipment.css', 'resources/css/contract-document-management.css', 'resources/js/modules/facilities.js'])
 
 <style>
 /* Lifeline Equipment Styles */
@@ -1054,6 +1054,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Handle URL fragments for lifeline equipment and repair history tabs
     function handleFragments() {
+        if (!window.location.hash) return;
+        
         const hash = window.location.hash.substring(1); // Remove #
         const lifelineCategories = ['electrical', 'water', 'gas', 'elevator', 'hvac-lighting'];
         const repairHistoryCategories = ['interior', 'exterior', 'other'];
@@ -1143,52 +1145,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Handle fragment on page load
+    // Handle fragment on page load only
     handleFragments();
     
     // Handle fragment changes
     window.addEventListener('hashchange', handleFragments);
-
-    // Lifeline Equipment Tab Functionality
-    const lifelineTab = document.getElementById('lifeline-tab');
-    if (lifelineTab) {
-        lifelineTab.addEventListener('shown.bs.tab', function() {
-            console.log('Lifeline Equipment tab activated: initializing animations and components');
-            
-            // Animate cards in the active sub-tab
-            setTimeout(() => {
-                const activePane = document.querySelector('#lifeline-equipment .tab-pane.active .card');
-                if (activePane) {
-                    const cards = activePane.parentElement.querySelectorAll('.card');
-                    cards.forEach((card, index) => {
-                        card.style.animationDelay = `${index * 0.1}s`;
-                        card.classList.add('animate-in');
-                    });
-                }
-            }, 100);
-        });
-    }
     
-    // Handle sub-tab switching
-    const subTabs = document.querySelectorAll('#lifelineSubTabs .nav-link');
-    subTabs.forEach(tab => {
-        tab.addEventListener('shown.bs.tab', function(event) {
-            const targetId = event.target.getAttribute('data-bs-target');
-            console.log(`Switched to ${targetId.replace('#', '')} Equipment sub-tab`);
-            
-            // Animate cards in the newly active tab
-            setTimeout(() => {
-                const activePane = document.querySelector('#lifeline-equipment .tab-pane.active .card');
-                if (activePane) {
-                    const cards = activePane.parentElement.querySelectorAll('.card');
-                    cards.forEach((card, index) => {
-                        card.style.animationDelay = `${index * 0.1}s`;
-                        card.classList.add('animate-in');
-                    });
-                }
-            }, 100);
+    // Ensure Bootstrap tabs work correctly by preventing interference
+    document.querySelectorAll('#facilityTabs button[data-bs-toggle="tab"]').forEach(button => {
+        button.addEventListener('shown.bs.tab', function (event) {
+            // Tab has been shown, no need to do anything special
+            console.log('Tab shown:', event.target.id);
         });
     });
+
+    // Lifeline Equipment Tab Functionality is handled by lifeline-equipment.js module
 
     // Additional contracts tab functionality is handled above in the main contracts tab section
 

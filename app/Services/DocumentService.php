@@ -64,10 +64,11 @@ class DocumentService
             // パス生成
             $path = $parent ? $parent->path . '/' . $name : $name;
 
-            // フォルダ作成
+            // フォルダ作成（メインドキュメント管理はcategory = null）
             $folder = DocumentFolder::create([
                 'facility_id' => $facility->id,
                 'parent_id' => $parent?->id,
+                'category' => null, // メインドキュメント管理
                 'name' => $name,
                 'path' => $path,
                 'created_by' => $user->id,
@@ -255,10 +256,11 @@ class DocumentService
             // ファイルアップロード
             $uploadResult = $this->fileHandlingService->uploadFile($file, $directory, 'facility_document');
 
-            // データベース保存
+            // データベース保存（メインドキュメント管理はcategory = null）
             $documentFile = DocumentFile::create([
                 'facility_id' => $facility->id,
                 'folder_id' => $folder?->id,
+                'category' => null, // メインドキュメント管理
                 'original_name' => $file->getClientOriginalName(),
                 'stored_name' => $uploadResult['stored_filename'],
                 'file_path' => $uploadResult['path'],
@@ -529,17 +531,19 @@ class DocumentService
      */
     private function buildQueries(Facility $facility, ?DocumentFolder $folder, array $options): array
     {
-        $foldersQuery = DocumentFolder::select([
-            'id', 'name', 'path', 'created_at', 'updated_at', 'created_by'
-        ])
+        $foldersQuery = DocumentFolder::main()  // メインドキュメントのみ
+            ->select([
+                'id', 'name', 'path', 'created_at', 'updated_at', 'created_by'
+            ])
             ->with(['creator:id,name'])
             ->where('facility_id', $facility->id)
             ->where('parent_id', $folder?->id);
 
-        $filesQuery = DocumentFile::select([
-            'id', 'original_name', 'file_size', 'file_extension', 'mime_type',
-            'created_at', 'updated_at', 'uploaded_by', 'file_path', 'facility_id'
-        ])
+        $filesQuery = DocumentFile::main()  // メインドキュメントのみ
+            ->select([
+                'id', 'original_name', 'file_size', 'file_extension', 'mime_type',
+                'created_at', 'updated_at', 'uploaded_by', 'file_path', 'facility_id'
+            ])
             ->with(['uploader:id,name', 'facility:id'])
             ->where('facility_id', $facility->id)
             ->where('folder_id', $folder?->id);
@@ -701,7 +705,8 @@ class DocumentService
     private function getFolderStats(Facility $facility, ?DocumentFolder $folder): array
     {
         try {
-            $query = DocumentFile::where('facility_id', $facility->id);
+            $query = DocumentFile::main()  // メインドキュメントのみ
+                ->where('facility_id', $facility->id);
             
             if ($folder) {
                 $query->where('folder_id', $folder->id);
@@ -712,7 +717,8 @@ class DocumentService
             $fileCount = $query->count();
             $totalSize = $query->sum('file_size');
 
-            $folderCount = DocumentFolder::where('facility_id', $facility->id)
+            $folderCount = DocumentFolder::main()  // メインドキュメントのみ
+                ->where('facility_id', $facility->id)
                 ->where('parent_id', $folder?->id)
                 ->count();
 
@@ -746,10 +752,11 @@ class DocumentService
     {
         try {
             return cache()->remember(
-                "facility_file_types_{$facility->id}",
+                "facility_file_types_main_{$facility->id}",  // キャッシュキーを変更
                 300, // 5分キャッシュ
                 function () use ($facility) {
-                    $fileTypes = DocumentFile::where('facility_id', $facility->id)
+                    $fileTypes = DocumentFile::main()  // メインドキュメントのみ
+                        ->where('facility_id', $facility->id)
                         ->selectRaw('file_extension, COUNT(*) as count')
                         ->groupBy('file_extension')
                         ->orderBy('count', 'desc')

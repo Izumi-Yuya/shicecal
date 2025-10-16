@@ -53,6 +53,7 @@ class Facility extends Model
         'updated_by',
         'exterior_special_notes',
         'interior_special_notes',
+        'summer_condensation_special_notes',
         'other_special_notes',
     ];
 

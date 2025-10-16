@@ -16,6 +16,13 @@
             ->get();
     }
     
+    if (!isset($summerCondensationHistory)) {
+        $summerCondensationHistory = $facility->maintenanceHistories()
+            ->where('category', 'summer_condensation')
+            ->orderBy('maintenance_date', 'desc')
+            ->get();
+    }
+    
     if (!isset($otherHistory)) {
         $otherHistory = $facility->maintenanceHistories()
             ->where('category', 'other')
@@ -39,7 +46,14 @@
             <button class="nav-link" id="interior-tab" data-bs-toggle="tab" 
                     data-bs-target="#interior" type="button" role="tab" 
                     aria-controls="interior" aria-selected="false">
-                <i class="fas fa-paint-brush me-2"></i>内装リニューアル
+                <i class="fas fa-paint-brush me-2"></i>内装
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="summer-condensation-tab" data-bs-toggle="tab" 
+                    data-bs-target="#summer-condensation" type="button" role="tab" 
+                    aria-controls="summer-condensation" aria-selected="false">
+                <i class="fas fa-droplet me-2"></i>夏型結露
             </button>
         </li>
         <li class="nav-item" role="presentation">
@@ -75,7 +89,7 @@
             @include('facilities.repair-history.partials.exterior-tab')
         </div>
 
-        <!-- 内装リニューアルタブ -->
+        <!-- 内装タブ -->
         <div class="tab-pane fade" id="interior" role="tabpanel" aria-labelledby="interior-tab">
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <div class="flex-grow-1"></div>
@@ -95,6 +109,28 @@
             </div>
 
             @include('facilities.repair-history.partials.interior-tab')
+        </div>
+
+        <!-- 夏型結露タブ -->
+        <div class="tab-pane fade" id="summer-condensation" role="tabpanel" aria-labelledby="summer-condensation-tab">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="flex-grow-1"></div>
+                <div class="btn-group" role="group">
+                    @if(auth()->user()->canEditFacility($facility->id))
+                        <a href="{{ route('facilities.repair-history.edit', ['facility' => $facility->id, 'category' => 'summer_condensation']) }}" 
+                           class="btn btn-primary btn-sm">
+                            <i class="fas fa-edit me-2"></i>編集
+                        </a>
+                    @endif
+                    <button type="button" class="btn btn-outline-primary btn-sm" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#maintenance-documents-modal-summer-condensation">
+                        <i class="fas fa-folder me-2"></i>ドキュメント
+                    </button>
+                </div>
+            </div>
+
+            @include('facilities.repair-history.partials.summer-condensation-tab')
         </div>
 
         <!-- その他タブ -->
@@ -150,7 +186,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="maintenance-documents-modal-interior-label">
-                    <i class="fas fa-folder me-2"></i>内装リニューアル関連ドキュメント
+                    <i class="fas fa-folder me-2"></i>内装関連ドキュメント
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
             </div>
@@ -159,7 +195,29 @@
                 <x-maintenance-document-manager 
                     :facility="$facility" 
                     category="interior"
-                    categoryName="内装リニューアル"
+                    categoryName="内装"
+                />
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 夏型結露ドキュメントモーダル -->
+<div class="modal fade" id="maintenance-documents-modal-summer-condensation" tabindex="-1" aria-labelledby="maintenance-documents-modal-summer-condensation-label" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="maintenance-documents-modal-summer-condensation-label">
+                    <i class="fas fa-folder me-2"></i>夏型結露関連ドキュメント
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-3">契約書、見積書、請求書、施工写真、報告書などの関連ドキュメントを管理できます。</p>
+                <x-maintenance-document-manager 
+                    :facility="$facility" 
+                    category="summer_condensation"
+                    categoryName="夏型結露"
                 />
             </div>
         </div>
@@ -294,6 +352,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (interiorTab) {
             const interiorTabInstance = new bootstrap.Tab(interiorTab);
             interiorTabInstance.show();
+        }
+    } else if (hash === '#summer-condensation' || activeSubTab === 'summer_condensation') {
+        const summerCondensationTab = document.getElementById('summer-condensation-tab');
+        if (summerCondensationTab) {
+            const summerCondensationTabInstance = new bootstrap.Tab(summerCondensationTab);
+            summerCondensationTabInstance.show();
         }
     } else if (hash === '#other' || activeSubTab === 'other') {
         const otherTab = document.getElementById('other-tab');

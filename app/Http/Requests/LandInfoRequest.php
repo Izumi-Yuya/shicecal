@@ -20,7 +20,7 @@ class LandInfoRequest extends FormRequest
      */
     public function rules(): array
     {
-        $ownershipType = $this->input('ownership_type', '');
+        $ownershipType = $this->input('ownership_type') ?: null;
 
         // Use centralized validation service
         return ValidationRuleService::getLandInfoRules($ownershipType);

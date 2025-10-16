@@ -1436,3 +1436,185 @@ a:focus {
     transform: rotate(360deg);
   }
 }
+
+/* ========================================
+   契約書ドキュメント管理スタイル
+   ======================================== */
+
+/* Contract documents section */
+.contract-documents-section {
+  margin-bottom: 1.5rem;
+}
+
+.contract-documents-toggle {
+  transition: all 0.3s ease;
+}
+
+.contract-documents-toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.contract-documents-toggle i {
+  transition: transform 0.3s ease;
+}
+
+.contract-documents-toggle[aria-expanded="true"] i {
+  transform: rotate(90deg);
+}
+
+/* Contract document manager container */
+#contract-document-management-container {
+  min-height: 400px;
+}
+
+/* Document toolbar */
+.document-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.document-toolbar .btn-group {
+  gap: 0.5rem;
+}
+
+/* Breadcrumb navigation */
+.breadcrumb-nav {
+  padding: 0.75rem 1rem;
+  background-color: #fff;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.breadcrumb-nav .breadcrumb {
+  margin-bottom: 0;
+}
+
+/* Document list */
+.document-list-view table {
+  margin-bottom: 0;
+}
+
+.document-list-view th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.document-list-view td {
+  vertical-align: middle;
+}
+
+.document-item {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.document-item:hover {
+  background-color: #f8f9fa;
+}
+
+/* Document grid */
+.document-grid .card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.document-grid .card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6c757d;
+}
+
+.empty-state i {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+/* Loading indicator */
+.loading-indicator {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.loading-indicator .spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Error message */
+.error-message {
+  padding: 1rem;
+  margin: 1rem;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 0.375rem;
+  color: #721c24;
+}
+
+/* Context menu */
+.context-menu {
+  position: fixed;
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 9999;
+  min-width: 180px;
+}
+
+.context-menu-item {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.context-menu-item:hover {
+  background-color: #f8f9fa;
+}
+
+.context-menu-item i {
+  width: 1rem;
+  text-align: center;
+}
+
+/* Upload progress */
+.upload-progress {
+  margin-top: 1rem;
+}
+
+.upload-progress .progress {
+  height: 1.5rem;
+}
+
+/* Modal stacking fixes for contract documents section */
+#others-documents-section,
+#meal-service-documents-section,
+#parking-documents-section {
+  overflow: visible;
+}
+
+.modal-backdrop {
+  z-index: 2000 !important;
+}
+
+.modal {
+  z-index: 2010 !important;
+}

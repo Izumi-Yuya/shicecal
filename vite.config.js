@@ -31,6 +31,7 @@ export default defineConfig({
         'resources/css/app.css',
         'resources/css/app-unified.css',
         'resources/css/document-management-unified.css',
+        'resources/css/contract-document-management.css',
         'resources/js/app.js',
         'resources/js/app-unified.js',
 
