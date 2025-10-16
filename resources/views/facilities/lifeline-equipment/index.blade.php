@@ -38,12 +38,6 @@
             <div class="tab-pane fade show active" id="electrical" role="tabpanel" aria-labelledby="electrical-tab">
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div class="flex-grow-1"></div>
-                    @if(auth()->user()->canEditFacility($facility->id))
-                        <a href="{{ route('facilities.lifeline-equipment.edit', [$facility, 'electrical']) }}" 
-                           class="btn btn-primary btn-sm">
-                            <i class="fas fa-edit me-2"></i>編集
-                        </a>
-                    @endif
                 </div>
                 @include('facilities.lifeline-equipment.electrical', ['facility' => $facility])
             </div>
@@ -51,15 +45,7 @@
             <div class="tab-pane fade" id="water" role="tabpanel" aria-labelledby="water-tab">
                 {{-- <div class="card facility-info-card detail-card-improved">
                     <div class="card-body"> --}}
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div class="flex-grow-1"></div>
-                            @if(auth()->user()->canEditFacility($facility->id))
-                                <a href="{{ route('facilities.lifeline-equipment.edit', [$facility, 'water']) }}" 
-                                   class="btn btn-primary btn-sm">
-                                    <i class="fas fa-edit me-2"></i>編集
-                                </a>
-                            @endif
-                        </div>
+
                         @include('facilities.lifeline-equipment.water', ['facility' => $facility])
                     {{-- </div>
                 </div> --}}
@@ -69,15 +55,7 @@
             <div class="tab-pane fade" id="gas" role="tabpanel" aria-labelledby="gas-tab">
                 {{-- <div class="card facility-info-card detail-card-improved">
                     <div class="card-body"> --}}
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div class="flex-grow-1"></div>
-                            @if(auth()->user()->canEditFacility($facility->id))
-                                <a href="{{ route('facilities.lifeline-equipment.edit', [$facility, 'gas']) }}" 
-                                   class="btn btn-primary btn-sm">
-                                    <i class="fas fa-edit me-2"></i>編集
-                                </a>
-                            @endif
-                        </div>
+
                         @include('facilities.lifeline-equipment.gas', ['facility' => $facility])
                     {{-- </div>
                 </div> --}}
@@ -86,15 +64,7 @@
             <div class="tab-pane fade" id="elevator" role="tabpanel" aria-labelledby="elevator-tab">
                 {{-- <div class="card facility-info-card detail-card-improved">
                     <div class="card-body"> --}}
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div class="flex-grow-1"></div>
-                            @if(auth()->user()->canEditFacility($facility->id))
-                                <a href="{{ route('facilities.lifeline-equipment.edit', [$facility, 'elevator']) }}" 
-                                   class="btn btn-primary btn-sm">
-                                    <i class="fas fa-edit me-2"></i>編集
-                                </a>
-                            @endif
-                        </div>
+
                         @include('facilities.lifeline-equipment.elevator', [
                             'facility' => $facility,
                             'elevatorEquipment' => $facility->getElevatorEquipment()
@@ -104,21 +74,16 @@
             </div>
             
             <div class="tab-pane fade" id="hvac-lighting" role="tabpanel" aria-labelledby="hvac-lighting-tab">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div class="flex-grow-1"></div>
-                    @if(auth()->user()->canEditFacility($facility->id))
-                        <a href="{{ route('facilities.lifeline-equipment.edit', [$facility, 'hvac-lighting']) }}" 
-                           class="btn btn-primary btn-sm">
-                            <i class="fas fa-edit me-2"></i>編集
-                        </a>
-                    @endif
-                </div>
-                @include('facilities.lifeline-equipment.hvac-lighting', [
-                    'facility' => $facility,
-                    'hvacLightingEquipment' => $facility->getHvacLightingEquipment()
-                ])
+                {{-- <div class="card facility-info-card detail-card-improved">
+                    <div class="card-body"> --}}
+
+                        @include('facilities.lifeline-equipment.hvac-lighting', [
+                            'facility' => $facility,
+                            'hvacLightingEquipment' => $facility->getHvacLightingEquipment()
+                        ])
             </div>
         </div>
+
     </div>
     
     <!-- コメントセクション -->
@@ -156,3 +121,10 @@
         </div>
     </div>
 </div>
+
+@vite([
+    'resources/js/modules/lifeline-modal-manager.js',
+    'resources/css/pages/lifeline-equipment/variables.css',
+    'resources/css/pages/lifeline-equipment/base.css',
+    'resources/css/pages/lifeline-equipment/navigation.css'
+])

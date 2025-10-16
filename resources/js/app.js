@@ -238,6 +238,7 @@ class ExtendedApplication extends ShiseCalApp {
 
     // Initialize sidebar
     appState.setModule('sidebar', initializeSidebar());
+    window.sidebarInitialized = true;
 
     // Initialize layout functionality (notifications, etc.)
     initializeLayout();

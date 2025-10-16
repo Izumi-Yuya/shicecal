@@ -1,0 +1,89 @@
+/* ========================================
+   Lifeline Equipment Navigation Styles
+   ======================================== */
+
+/* Lifeline Equipment Container */
+.lifeline-equipment-container {
+  margin-top: 1rem;
+}
+
+/* Sub-tab Navigation */
+.lifeline-equipment-container .nav-tabs {
+  border-bottom: 2px solid var(--border-light, #dee2e6);
+  margin-bottom: 1.5rem;
+}
+
+.lifeline-equipment-container .nav-tabs .nav-link {
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: none;
+  color: var(--text-muted, #6c757d);
+  font-weight: 500;
+  padding: 0.75rem 1rem;
+  margin-bottom: -2px;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.lifeline-equipment-container .nav-tabs .nav-link:hover {
+  border-color: transparent;
+  color: var(--text-secondary, #495057);
+  background-color: var(--bg-light, #f8f9fa);
+}
+
+.lifeline-equipment-container .nav-tabs .nav-link.active {
+  color: var(--primary-blue, #0d6efd);
+  border-bottom-color: var(--primary-blue, #0d6efd);
+  background-color: transparent;
+}
+
+.lifeline-equipment-container .nav-tabs .nav-link i {
+  margin-right: 0.5rem;
+  font-size: 0.85rem;
+}
+
+/* Equipment Category Icons */
+.lifeline-equipment-container .card-header i {
+  font-size: 1.1rem;
+}
+
+/* Category-specific colors */
+#electrical .card-header {
+  background: linear-gradient(135deg, #ffc107, #ff8f00);
+}
+
+#electrical .card-header i {
+  color: white !important;
+}
+
+#gas .card-header {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+}
+
+#gas .card-header i {
+  color: white !important;
+}
+
+#water .card-header {
+  background: linear-gradient(135deg, #17a2b8, #138496);
+}
+
+#water .card-header i {
+  color: white !important;
+}
+
+#elevator .card-header {
+  background: linear-gradient(135deg, #6f42c1, #59359a);
+}
+
+#elevator .card-header i {
+  color: white !important;
+}
+
+#hvac-lighting .card-header {
+  background: linear-gradient(135deg, #28a745, #1e7e34);
+}
+
+#hvac-lighting .card-header i {
+  color: white !important;
+}
