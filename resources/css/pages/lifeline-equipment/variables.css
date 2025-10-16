@@ -1,0 +1,47 @@
+/* ========================================
+   Lifeline Equipment CSS Variables
+   ======================================== */
+
+:root {
+  /* Table Layout Variables */
+  --lifeline-label-width: 16.6667%;
+  --lifeline-value-width: 83.3333%;
+  --lifeline-table-border-color: #e9ecef;
+  --lifeline-table-cell-padding: 0.5rem;
+  
+  /* Column Width Variables */
+  --lifeline-col-1: 16.67%;
+  --lifeline-col-2: 16.67%;
+  --lifeline-col-3: 16.67%;
+  --lifeline-col-4: 16.67%;
+  --lifeline-col-5: 16.67%;
+  --lifeline-col-6: 16.67%;
+  
+  /* 4-column layout */
+  --lifeline-4col-1: 11%;
+  --lifeline-4col-2: 67%;
+  --lifeline-4col-3: 11%;
+  --lifeline-4col-4: 11%;
+  
+  /* Colors */
+  --lifeline-label-bg: #f8f9fa;
+  --lifeline-label-color: #495057;
+  --lifeline-value-bg: #ffffff;
+  --lifeline-empty-color: #6c757d;
+  
+  /* Spacing */
+  --lifeline-section-margin: 1.5rem;
+  --lifeline-title-margin: 0.7rem;
+  
+  /* Equipment Category Colors */
+  --electrical-primary: #ffc107;
+  --electrical-secondary: #ff8f00;
+  --gas-primary: #dc3545;
+  --gas-secondary: #c82333;
+  --water-primary: #17a2b8;
+  --water-secondary: #138496;
+  --elevator-primary: #6f42c1;
+  --elevator-secondary: #59359a;
+  --hvac-primary: #28a745;
+  --hvac-secondary: #1e7e34;
+}
