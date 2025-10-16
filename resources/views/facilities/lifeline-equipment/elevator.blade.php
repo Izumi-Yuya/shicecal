@@ -11,15 +11,15 @@ $canEdit          = auth()->user()->canEditFacility($facility->id);
 $availability = $basicInfo['availability'] ?? null;
 @endphp
 
-<!-- ヘッダー -->
-<div class="mb-3 d-flex justify-content-between align-items-center">
+<!-- エレベーター設備ヘッダー -->
+<div class="mb-3">
   <h5 class="mb-0">
     <i class="fas fa-elevator text-secondary me-2"></i>エレベーター設備情報
   </h5>
-  <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#elevator-documents-modal">
-    <i class="fas fa-folder-open me-1"></i>ドキュメント
-  </button>
 </div>
+
+<!-- 隠しドキュメントトリガー（編集ボタンの隣のドキュメントボタンから呼び出される） -->
+<button type="button" id="elevator-documents-toggle" class="d-none" data-bs-toggle="modal" data-bs-target="#elevator-documents-modal"></button>
 
 <div class="elevator-equipment-sections">
 

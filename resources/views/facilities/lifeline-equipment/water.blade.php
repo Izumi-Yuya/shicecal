@@ -16,6 +16,9 @@ $canEdit = auth()->user()->canEditFacility($facility->id);
     </h5>
 </div>
 
+<!-- 隠しドキュメントトリガー（編集ボタンの隣のドキュメントボタンから呼び出される） -->
+<button type="button" id="water-documents-toggle" class="d-none" data-bs-toggle="modal" data-bs-target="#water-documents-modal"></button>
+
 @php
 // 基本情報テーブルデータの構築
 $basicInfoData = [

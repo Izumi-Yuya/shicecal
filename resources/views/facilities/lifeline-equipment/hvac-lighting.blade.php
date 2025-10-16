@@ -12,23 +12,15 @@ $hvacInfo = $basicInfo['hvac'] ?? [];
 $lightingInfo = $basicInfo['lighting'] ?? [];
 @endphp
 
-<!-- 空調・照明設備ヘッダー（ドキュメントアイコン付き） -->
-<div class="d-flex justify-content-between align-items-center mb-3">
+<!-- 空調・照明設備ヘッダー -->
+<div class="mb-3">
     <h5 class="mb-0">
         <i class="fas fa-wind text-success me-2"></i>空調・照明設備情報
     </h5>
-    <div class="d-flex align-items-center gap-2">
-        <!-- ドキュメント管理ボタン -->
-        <button type="button"
-            class="btn btn-outline-primary btn-sm"
-            data-bs-toggle="modal"
-            data-bs-target="#hvac-lighting-documents-modal"
-            title="空調・照明設備ドキュメント管理">
-            <i class="fas fa-folder-open me-1"></i>
-            <span class="d-none d-md-inline">ドキュメント</span>
-        </button>
-    </div>
 </div>
+
+<!-- 隠しドキュメントトリガー（編集ボタンの隣のドキュメントボタンから呼び出される） -->
+<button type="button" id="hvac-lighting-documents-toggle" class="d-none" data-bs-toggle="modal" data-bs-target="#hvac-lighting-documents-modal"></button>
 
 <!-- 空調・照明設備ドキュメント管理モーダル -->
 <div class="modal fade" id="hvac-lighting-documents-modal" tabindex="-1" aria-labelledby="hvac-lighting-documents-modal-title" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">

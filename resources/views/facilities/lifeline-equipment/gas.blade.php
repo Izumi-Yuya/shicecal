@@ -42,8 +42,13 @@ $notesData = [
 
 <!-- ガス設備ヘッダー -->
 <div class="mb-3">
-  <h5 class="mb-0"><i class="fas fa-fire text-danger me-2"></i>ガス設備情報</h5>
+  <h5 class="mb-0">
+    <i class="fas fa-fire text-danger me-2"></i>ガス設備情報
+  </h5>
 </div>
+
+<!-- 隠しドキュメントトリガー（編集ボタンの隣のドキュメントボタンから呼び出される） -->
+<button type="button" id="gas-documents-toggle" class="d-none" data-bs-toggle="modal" data-bs-target="#gas-documents-modal"></button>
 
 <div class="gas-equipment-sections equipment-sections">
   <!-- 基本情報 -->

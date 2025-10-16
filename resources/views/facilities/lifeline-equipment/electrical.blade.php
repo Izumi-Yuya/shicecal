@@ -122,6 +122,9 @@
     </h5>
 </div>
 
+<!-- 隠しドキュメントトリガー（編集ボタンの隣のドキュメントボタンから呼び出される） -->
+<button type="button" id="electrical-documents-toggle" class="d-none" data-bs-toggle="modal" data-bs-target="#electrical-documents-modal"></button>
+
 <div class="electrical-equipment-sections equipment-sections">
 @if($hasError ?? false)
 <div class="alert alert-danger" role="alert">
