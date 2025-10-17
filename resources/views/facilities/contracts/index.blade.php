@@ -67,11 +67,6 @@
                 <h5 class="mb-0">
                     <i class="fas fa-file-alt text-secondary me-2"></i>その他契約書
                 </h5>
-                @if(auth()->user()->canEditFacility($facility->id))
-                    <a href="{{ route('facilities.contracts.edit', ['facility' => $facility, 'sub_tab' => 'others']) }}" class="btn btn-primary btn-sm">
-                        <i class="fas fa-edit me-2"></i>編集
-                    </a>
-                @endif
             </div>
 
             <!-- その他契約書テーブル -->
@@ -204,11 +199,6 @@
                 <h5 class="mb-0">
                     <i class="fas fa-utensils text-success me-2"></i>給食契約書
                 </h5>
-                @if(auth()->user()->canEditFacility($facility->id))
-                    <a href="{{ route('facilities.contracts.edit', ['facility' => $facility, 'sub_tab' => 'meal-service']) }}" class="btn btn-primary btn-sm">
-                        <i class="fas fa-edit me-2"></i>編集
-                    </a>
-                @endif
             </div>
 
             <!-- 給食契約書テーブル -->
@@ -397,11 +387,6 @@
                 <h5 class="mb-0">
                     <i class="fas fa-parking text-primary me-2"></i>駐車場契約書
                 </h5>
-                @if(auth()->user()->canEditFacility($facility->id))
-                    <a href="{{ route('facilities.contracts.edit', ['facility' => $facility, 'sub_tab' => 'parking']) }}" class="btn btn-primary btn-sm">
-                        <i class="fas fa-edit me-2"></i>編集
-                    </a>
-                @endif
             </div>
 
             <!-- 駐車場契約書テーブル -->
@@ -409,12 +394,12 @@
                 <table class="table table-bordered facility-basic-info-table-clean" style="--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0;">
                     <tbody>
                         <tr>
-                            <td class="detail-label" style="padding: 0.5rem;">駐車場名</td>
-                            <td class="detail-value {{ empty($parkingContractData['parking_name']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                            <td class="detail-label" style="padding: 0.5rem; width: 14% !important;">駐車場名</td>
+                            <td class="detail-value {{ empty($parkingContractData['parking_name']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 37% !important;">
                                 {{ $parkingContractData['parking_name'] ?: '未設定' }}
                             </td>
-                            <td class="detail-label" style="padding: 0.5rem;">契約開始日</td>
-                            <td class="detail-value {{ empty($parkingContractData['contract_start_date']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                            <td class="detail-label" style="padding: 0.5rem; width: 14% !important;">契約開始日</td>
+                            <td class="detail-value {{ empty($parkingContractData['contract_start_date']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 35% !important;">
                                 @if($parkingContractData['contract_start_date'])
                                     {{ \Carbon\Carbon::parse($parkingContractData['contract_start_date'])->format('Y年m月d日') }}
                                 @else
@@ -423,12 +408,12 @@
                             </td>
                         </tr>
                         <tr>
-                            <td class="detail-label" style="padding: 0.5rem;">駐車場所在地</td>
-                            <td class="detail-value {{ empty($parkingContractData['parking_location']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                            <td class="detail-label" style="padding: 0.5rem; width: 14% !important;">駐車場所在地</td>
+                            <td class="detail-value {{ empty($parkingContractData['parking_location']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 37% !important;">
                                 {{ $parkingContractData['parking_location'] ?: '未設定' }}
                             </td>
-                            <td class="detail-label" style="padding: 0.5rem;">契約終了日</td>
-                            <td class="detail-value {{ empty($parkingContractData['contract_end_date']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                            <td class="detail-label" style="padding: 0.5rem; width: 14% !important;">契約終了日</td>
+                            <td class="detail-value {{ empty($parkingContractData['contract_end_date']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 35% !important;">
                                 @if($parkingContractData['contract_end_date'])
                                     {{ \Carbon\Carbon::parse($parkingContractData['contract_end_date'])->format('Y年m月d日') }}
                                 @else
@@ -437,26 +422,26 @@
                             </td>
                         </tr>
                         <tr>
-                            <td class="detail-label" style="padding: 0.5rem;">台数</td>
-                            <td class="detail-value {{ empty($parkingContractData['parking_spaces']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                            <td class="detail-label" style="padding: 0.5rem; width: 14% !important;">台数</td>
+                            <td class="detail-value {{ empty($parkingContractData['parking_spaces']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 37% !important;">
                                 @if($parkingContractData['parking_spaces'])
-                                    {{ $parkingContractData['parking_spaces'] }}台
+                                {{ $parkingContractData['parking_spaces'] }}台
                                 @else
                                     未設定
                                 @endif
                             </td>
-                            <td class="detail-label" style="padding: 0.5rem;">自動更新の有無</td>
-                            <td class="detail-value {{ empty($parkingContractData['auto_renewal']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                            <td class="detail-label" style="padding: 0.5rem; width: 14% !important;">自動更新の有無</td>
+                            <td class="detail-value {{ empty($parkingContractData['auto_renewal']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 35% !important;">
                                 {{ $parkingContractData['auto_renewal'] ?: '未設定' }}
                             </td>
                         </tr>
                         <tr>
-                            <td class="detail-label" style="padding: 0.5rem;">停車位置</td>
-                            <td class="detail-value {{ empty($parkingContractData['parking_position']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                            <td class="detail-label" style="padding: 0.5rem; width: 14% !important;">停車位置</td>
+                            <td class="detail-value {{ empty($parkingContractData['parking_position']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 37% !important;">
                                 {{ $parkingContractData['parking_position'] ?: '未設定' }}
                             </td>
-                            <td class="detail-label" style="padding: 0.5rem;">解約条件・更新通知期限</td>
-                            <td class="detail-value {{ empty($parkingContractData['cancellation_conditions']) && empty($parkingContractData['renewal_notice_period']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                            <td class="detail-label" style="padding: 0.5rem; width: 14% !important;">解約条件・更新通知期限</td>
+                            <td class="detail-value {{ empty($parkingContractData['cancellation_conditions']) && empty($parkingContractData['renewal_notice_period']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 35% !important;">
                                 @if($parkingContractData['cancellation_conditions'] || $parkingContractData['renewal_notice_period'])
                                     @if($parkingContractData['cancellation_conditions'])
                                         <div><strong>解約条件:</strong> {{ $parkingContractData['cancellation_conditions'] }}</div>
@@ -470,30 +455,30 @@
                             </td>
                         </tr>
                         <tr>
-                            <td class="detail-label" style="padding: 0.5rem;">1台あたりの金額</td>
-                            <td class="detail-value {{ empty($parkingContractData['price_per_space']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                            <td class="detail-label" style="padding: 0.5rem; width: 14% !important;">1台あたりの金額</td>
+                            <td class="detail-value {{ empty($parkingContractData['price_per_space']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 37% !important;">
                                 @if($parkingContractData['price_per_space'])
                                     {{ number_format($parkingContractData['price_per_space']) }}円
                                 @else
                                     未設定
                                 @endif
                             </td>
-                            <td class="detail-label" style="padding: 0.5rem;">使用用途</td>
-                            <td class="detail-value {{ empty($parkingContractData['usage_purpose']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                            <td class="detail-label" style="padding: 0.5rem; width: 14% !important;">使用用途</td>
+                            <td class="detail-value {{ empty($parkingContractData['usage_purpose']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 35% !important;">
                                 {{ $parkingContractData['usage_purpose'] ?: '未設定' }}
                             </td>
                         </tr>
                         <tr>
-                            <td class="detail-label" style="padding: 0.5rem;"></td>
-                            <td class="detail-value" style="padding: 0.5rem;"></td>
-                            <td class="detail-label" style="padding: 0.5rem;">その他事項</td>
-                            <td class="detail-value {{ empty($parkingContractData['other_matters']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                            <td class="detail-label" style="padding: 0.5rem; width: 14% !important;"></td>
+                            <td class="detail-value" style="padding: 0.5rem; width: 37% !important;"></td>
+                            <td class="detail-label" style="padding: 0.5rem; width: 14% !important;">その他事項</td>
+                            <td class="detail-value {{ empty($parkingContractData['other_matters']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 35% !important;">
                                 {{ $parkingContractData['other_matters'] ?: '未設定' }}
                             </td>
                         </tr>
                         <tr>
-                            <td class="detail-label" style="padding: 0.5rem;">備考</td>
-                            <td class="detail-value {{ empty($parkingContractData['remarks']) ? 'empty-field' : '' }}" style="padding: 0.5rem;" colspan="3">
+                            <td class="detail-label" style="padding: 0.5rem; width: 14% !important;">備考</td>
+                            <td class="detail-value {{ empty($parkingContractData['remarks']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 86% !important;" colspan="3">
                                 {{ $parkingContractData['remarks'] ?: '未設定' }}
                             </td>
                         </tr>
@@ -512,64 +497,64 @@
                         <table class="table table-bordered facility-basic-info-table-clean" style="--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0;">
                             <tbody>
                                 <tr>
-                                    <td class="detail-label" style="padding: 0.5rem; width: 30%;">会社名</td>
-                                    <td class="detail-value {{ empty($managementCompanyData['company_name']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                                    <td class="detail-label" style="padding: 0.5rem; width: 29% !important;">会社名</td>
+                                    <td class="detail-value {{ empty($managementCompanyData['company_name']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 71% !important;">
                                         {{ $managementCompanyData['company_name'] ?: '未設定' }}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="detail-label" style="padding: 0.5rem;">郵便番号</td>
-                                    <td class="detail-value {{ empty($managementCompanyData['postal_code']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                                    <td class="detail-label" style="padding: 0.5rem; width: 29% !important;">郵便番号</td>
+                                    <td class="detail-value {{ empty($managementCompanyData['postal_code']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 71% !important;">
                                         {{ $managementCompanyData['postal_code'] ?: '未設定' }}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="detail-label" style="padding: 0.5rem;">住所</td>
-                                    <td class="detail-value {{ empty($managementCompanyData['address']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                                    <td class="detail-label" style="padding: 0.5rem; width: 29% !important;">住所</td>
+                                    <td class="detail-value {{ empty($managementCompanyData['address']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 71% !important;">
                                         {{ $managementCompanyData['address'] ?: '未設定' }}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="detail-label" style="padding: 0.5rem;">住所（建物名）</td>
-                                    <td class="detail-value {{ empty($managementCompanyData['building_name']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                                    <td class="detail-label" style="padding: 0.5rem; width: 29% !important;">住所（建物名）</td>
+                                    <td class="detail-value {{ empty($managementCompanyData['building_name']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 71% !important;">
                                         {{ $managementCompanyData['building_name'] ?: '未設定' }}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="detail-label" style="padding: 0.5rem;">電話番号</td>
-                                    <td class="detail-value {{ empty($managementCompanyData['phone']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                                    <td class="detail-label" style="padding: 0.5rem; width: 29% !important;">電話番号</td>
+                                    <td class="detail-value {{ empty($managementCompanyData['phone']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 71% !important;">
                                         {{ $managementCompanyData['phone'] ?: '未設定' }}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="detail-label" style="padding: 0.5rem;">FAX番号</td>
-                                    <td class="detail-value {{ empty($managementCompanyData['fax']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                                    <td class="detail-label" style="padding: 0.5rem; width: 29% !important;">FAX番号</td>
+                                    <td class="detail-value {{ empty($managementCompanyData['fax']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 71% !important;">
                                         {{ $managementCompanyData['fax'] ?: '未設定' }}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="detail-label" style="padding: 0.5rem;">メールアドレス</td>
-                                    <td class="detail-value {{ empty($managementCompanyData['email']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                                    <td class="detail-label" style="padding: 0.5rem; width: 29% !important;">メールアドレス</td>
+                                    <td class="detail-value {{ empty($managementCompanyData['email']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 71% !important;">
                                         @if($managementCompanyData['email'])
-                                            <a href="mailto:{{ $managementCompanyData['email'] }}" class="text-decoration-none">{{ $managementCompanyData['email'] }}</a>
+                                        <a href="mailto:{{ $managementCompanyData['email'] }}" class="text-decoration-none">{{ $managementCompanyData['email'] }}</a>
                                         @else
-                                            未設定
+                                        未設定
                                         @endif
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="detail-label" style="padding: 0.5rem;">URL</td>
-                                    <td class="detail-value {{ empty($managementCompanyData['url']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                                    <td class="detail-label" style="padding: 0.5rem; width: 29% !important;">URL</td>
+                                    <td class="detail-value {{ empty($managementCompanyData['url']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 71% !important;">
                                         @if($managementCompanyData['url'])
-                                            <a href="{{ $managementCompanyData['url'] }}" target="_blank" class="text-decoration-none">{{ $managementCompanyData['url'] }}</a>
+                                        <a href="{{ $managementCompanyData['url'] }}" target="_blank" class="text-decoration-none">{{ $managementCompanyData['url'] }}</a>
                                         @else
-                                            未設定
+                                        未設定
                                         @endif
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="detail-label" style="padding: 0.5rem;">備考</td>
-                                    <td class="detail-value {{ empty($managementCompanyData['notes']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                                    <td class="detail-label" style="padding: 0.5rem; width: 29% !important;">備考</td>
+                                    <td class="detail-value {{ empty($managementCompanyData['notes']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 71% !important;">
                                         {{ $managementCompanyData['notes'] ?: '未設定' }}
                                     </td>
                                 </tr>
@@ -587,44 +572,44 @@
                         <table class="table table-bordered facility-basic-info-table-clean" style="--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0;">
                             <tbody>
                                 <tr>
-                                    <td class="detail-label" style="padding: 0.5rem; width: 30%;">氏名</td>
-                                    <td class="detail-value {{ empty($ownerData['name']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                                    <td class="detail-label" style="padding: 0.5rem; width: 29.5% !important;">氏名</td>
+                                    <td class="detail-value {{ empty($ownerData['name']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 70.5% !important;">
                                         {{ $ownerData['name'] ?: '未設定' }}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="detail-label" style="padding: 0.5rem;">郵便番号</td>
-                                    <td class="detail-value {{ empty($ownerData['postal_code']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                                    <td class="detail-label" style="padding: 0.5rem; width: 29.5% !important;">郵便番号</td>
+                                    <td class="detail-value {{ empty($ownerData['postal_code']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 70.5% !important;">
                                         {{ $ownerData['postal_code'] ?: '未設定' }}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="detail-label" style="padding: 0.5rem;">住所</td>
-                                    <td class="detail-value {{ empty($ownerData['address']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                                    <td class="detail-label" style="padding: 0.5rem; width: 29.5% !important;">住所</td>
+                                    <td class="detail-value {{ empty($ownerData['address']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 70.5% !important;">
                                         {{ $ownerData['address'] ?: '未設定' }}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="detail-label" style="padding: 0.5rem;">住所（建物名）</td>
-                                    <td class="detail-value {{ empty($ownerData['building_name']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                                    <td class="detail-label" style="padding: 0.5rem; width: 29.5% !important;">住所（建物名）</td>
+                                    <td class="detail-value {{ empty($ownerData['building_name']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 70.5% !important;">
                                         {{ $ownerData['building_name'] ?: '未設定' }}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="detail-label" style="padding: 0.5rem;">電話番号</td>
-                                    <td class="detail-value {{ empty($ownerData['phone']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                                    <td class="detail-label" style="padding: 0.5rem; width: 29.5% !important;">電話番号</td>
+                                    <td class="detail-value {{ empty($ownerData['phone']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 70.5% !important;">
                                         {{ $ownerData['phone'] ?: '未設定' }}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="detail-label" style="padding: 0.5rem;">FAX番号</td>
-                                    <td class="detail-value {{ empty($ownerData['fax']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                                    <td class="detail-label" style="padding: 0.5rem; width: 29.5% !important;">FAX番号</td>
+                                    <td class="detail-value {{ empty($ownerData['fax']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 70.5% !important;">
                                         {{ $ownerData['fax'] ?: '未設定' }}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="detail-label" style="padding: 0.5rem;">メールアドレス</td>
-                                    <td class="detail-value {{ empty($ownerData['email']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                                    <td class="detail-label" style="padding: 0.5rem; width: 29.5% !important;">メールアドレス</td>
+                                    <td class="detail-value {{ empty($ownerData['email']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 70.5% !important;">
                                         @if($ownerData['email'])
                                             <a href="mailto:{{ $ownerData['email'] }}" class="text-decoration-none">{{ $ownerData['email'] }}</a>
                                         @else
@@ -633,8 +618,8 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="detail-label" style="padding: 0.5rem;">URL</td>
-                                    <td class="detail-value {{ empty($ownerData['url']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                                    <td class="detail-label" style="padding: 0.5rem; width: 29.5% !important;">URL</td>
+                                    <td class="detail-value {{ empty($ownerData['url']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 70.5% !important;">
                                         @if($ownerData['url'])
                                             <a href="{{ $ownerData['url'] }}" target="_blank" class="text-decoration-none">{{ $ownerData['url'] }}</a>
                                         @else
@@ -643,8 +628,8 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="detail-label" style="padding: 0.5rem;">備考</td>
-                                    <td class="detail-value {{ empty($ownerData['notes']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                                    <td class="detail-label" style="padding: 0.5rem; width: 29.5% !important;">備考</td>
+                                    <td class="detail-value {{ empty($ownerData['notes']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 70.5% !important;">
                                         {{ $ownerData['notes'] ?: '未設定' }}
                                     </td>
                                 </tr>
