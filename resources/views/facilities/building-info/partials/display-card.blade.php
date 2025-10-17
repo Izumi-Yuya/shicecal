@@ -18,7 +18,7 @@
     }
 
     .building-ownership-table .facility-basic-info-table-clean td.detail-label-prossess {
-        width: 209px !important;
+        width: 149px !important;
         background-color: #f8f9fa !important;
     }
 
@@ -43,27 +43,27 @@
 
     /* 各列を個別に指定して確実に均等にする */
     .building-basic-info-table .facility-basic-info-table-clean tbody tr td:nth-child(1) {
-        width: 16.6667% !important;
+        width: 11% !important;
     }
 
     .building-basic-info-table .facility-basic-info-table-clean tbody tr td:nth-child(2) {
-        width: 16.6667% !important;
+        width: 16% !important;
     }
 
     .building-basic-info-table .facility-basic-info-table-clean tbody tr td:nth-child(3) {
-        width: 16.6667% !important;
+        width: 16% !important;
     }
 
     .building-basic-info-table .facility-basic-info-table-clean tbody tr td:nth-child(4) {
-        width: 16.6667% !important;
+        width: 16% !important;
     }
 
     .building-basic-info-table .facility-basic-info-table-clean tbody tr td:nth-child(5) {
-        width: 16.6667% !important;
+        width: 20% !important;
     }
 
     .building-basic-info-table .facility-basic-info-table-clean tbody tr td:nth-child(6) {
-        width: 16.6667% !important;
+        width: 21% !important;
     }
 
     /* スクロールバーを無効化 */

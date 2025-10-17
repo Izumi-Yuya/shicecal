@@ -14,7 +14,7 @@
     $otherHistory = $otherHistory->sortBy('maintenance_date');
     @endphp
     <div class="equipment-section mb-4">
-        <h6 style="margin: 0 0 0.5rem 0; font-weight: bold; color: #333;">改修工事履歴</h6>
+        <h6 style="margin: 0 0 0.5rem 0; font-weight: bold; color: #333;">その他（躯体に関わる修繕履歴）</h6>
 
         <div class="table-responsive {{ $otherHistory->count() > 6 ? 'other-history-scrollable' : '' }}">
             <table class="table facility-basic-info-table-clean other-history-table" style="--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0; table-layout: fixed; width: 100%; font-size: 0.75rem; border: none;">

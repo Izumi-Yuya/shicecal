@@ -69,89 +69,21 @@
     <div class="tab-content" id="repairHistoryTabContent">
         <!-- 外装タブ -->
         <div class="tab-pane fade show active" id="exterior" role="tabpanel" aria-labelledby="exterior-tab">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-                <div class="flex-grow-1"></div>
-                <div class="btn-group" role="group">
-                    @if(auth()->user()->canEditFacility($facility->id))
-                        <a href="{{ route('facilities.repair-history.edit', ['facility' => $facility->id, 'category' => 'exterior']) }}" 
-                           class="btn btn-primary btn-sm">
-                            <i class="fas fa-edit me-2"></i>編集
-                        </a>
-                    @endif
-                    <button type="button" class="btn btn-outline-primary btn-sm" 
-                            data-bs-toggle="modal" 
-                            data-bs-target="#maintenance-documents-modal-exterior">
-                        <i class="fas fa-folder me-2"></i>ドキュメント
-                    </button>
-                </div>
-            </div>
-
             @include('facilities.repair-history.partials.exterior-tab')
         </div>
 
         <!-- 内装タブ -->
         <div class="tab-pane fade" id="interior" role="tabpanel" aria-labelledby="interior-tab">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-                <div class="flex-grow-1"></div>
-                <div class="btn-group" role="group">
-                    @if(auth()->user()->canEditFacility($facility->id))
-                        <a href="{{ route('facilities.repair-history.edit', ['facility' => $facility->id, 'category' => 'interior']) }}" 
-                           class="btn btn-primary btn-sm">
-                            <i class="fas fa-edit me-2"></i>編集
-                        </a>
-                    @endif
-                    <button type="button" class="btn btn-outline-primary btn-sm" 
-                            data-bs-toggle="modal" 
-                            data-bs-target="#maintenance-documents-modal-interior">
-                        <i class="fas fa-folder me-2"></i>ドキュメント
-                    </button>
-                </div>
-            </div>
-
             @include('facilities.repair-history.partials.interior-tab')
         </div>
 
         <!-- 夏型結露タブ -->
         <div class="tab-pane fade" id="summer-condensation" role="tabpanel" aria-labelledby="summer-condensation-tab">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-                <div class="flex-grow-1"></div>
-                <div class="btn-group" role="group">
-                    @if(auth()->user()->canEditFacility($facility->id))
-                        <a href="{{ route('facilities.repair-history.edit', ['facility' => $facility->id, 'category' => 'summer_condensation']) }}" 
-                           class="btn btn-primary btn-sm">
-                            <i class="fas fa-edit me-2"></i>編集
-                        </a>
-                    @endif
-                    <button type="button" class="btn btn-outline-primary btn-sm" 
-                            data-bs-toggle="modal" 
-                            data-bs-target="#maintenance-documents-modal-summer-condensation">
-                        <i class="fas fa-folder me-2"></i>ドキュメント
-                    </button>
-                </div>
-            </div>
-
             @include('facilities.repair-history.partials.summer-condensation-tab')
         </div>
 
         <!-- その他タブ -->
         <div class="tab-pane fade" id="other" role="tabpanel" aria-labelledby="other-tab">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-                <div class="flex-grow-1"></div>
-                <div class="btn-group" role="group">
-                    @if(auth()->user()->canEditFacility($facility->id))
-                        <a href="{{ route('facilities.repair-history.edit', ['facility' => $facility->id, 'category' => 'other']) }}" 
-                           class="btn btn-primary btn-sm">
-                            <i class="fas fa-edit me-2"></i>編集
-                        </a>
-                    @endif
-                    <button type="button" class="btn btn-outline-primary btn-sm" 
-                            data-bs-toggle="modal" 
-                            data-bs-target="#maintenance-documents-modal-other">
-                        <i class="fas fa-folder me-2"></i>ドキュメント
-                    </button>
-                </div>
-            </div>
-
             @include('facilities.repair-history.partials.other-tab')
         </div>
     </div>
@@ -344,7 +276,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Switch tabs based on URL hash or session activeSubTab
     const hash = window.location.hash;
-    const activeSubTab = @json(session('activeSubTab', ''));
+    const activeSubTab = '{{ session("activeSubTab", "") }}';
     
     // Tab switching based on hash
     if (hash === '#interior' || activeSubTab === 'interior') {
@@ -365,6 +297,47 @@ document.addEventListener('DOMContentLoaded', function() {
             const otherTabInstance = new bootstrap.Tab(otherTab);
             otherTabInstance.show();
         }
+    }
+    
+    // 統一された編集・ドキュメントボタンの処理
+    const editBtn = document.getElementById('repair-history-edit-btn');
+    const documentsBtn = document.getElementById('repair-history-documents-btn');
+    
+    // 現在のアクティブタブを取得する関数
+    function getCurrentActiveTab() {
+        const activeTab = document.querySelector('#repairHistoryTabs .nav-link.active');
+        if (!activeTab) return 'exterior';
+        
+        const targetId = activeTab.getAttribute('data-bs-target');
+        switch (targetId) {
+            case '#interior': return 'interior';
+            case '#summer-condensation': return 'summer_condensation';
+            case '#other': return 'other';
+            default: return 'exterior';
+        }
+    }
+    
+    // 編集ボタンのクリック処理
+    if (editBtn) {
+        editBtn.addEventListener('click', function() {
+            const currentTab = getCurrentActiveTab();
+            const facilityId = {{ $facility->id }};
+            const editUrl = `/facilities/${facilityId}/repair-history/${currentTab}/edit`;
+            window.location.href = editUrl;
+        });
+    }
+    
+    // ドキュメントボタンのクリック処理
+    if (documentsBtn) {
+        documentsBtn.addEventListener('click', function() {
+            const currentTab = getCurrentActiveTab();
+            const modalId = `#maintenance-documents-modal-${currentTab.replace('_', '-')}`;
+            const modal = document.querySelector(modalId);
+            if (modal) {
+                const modalInstance = new bootstrap.Modal(modal);
+                modalInstance.show();
+            }
+        });
     }
     
     // Event listener for tab switching

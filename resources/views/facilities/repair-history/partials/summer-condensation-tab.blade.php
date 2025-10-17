@@ -13,7 +13,11 @@
         <h6 style="margin: 0 0 0.5rem 0; font-weight: bold; color: #333;">夏型対策</h6>
 
         <div class="table-responsive">
-            <table class="table table-bordered facility-basic-info-table-clean" style="--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0;">
+            <table class="table table-bordered facility-basic-info-table-clean" style="--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0; table-layout: fixed; width: 100%;">
+                <colgroup>
+                    <col style="width: 19%;">
+                    <col style="width: 81%;">
+                </colgroup>
                 <tbody>
                     @foreach($countermeasureHistory as $history)
                     @if(!$loop->first)
@@ -22,26 +26,26 @@
                     </tr>
                     @endif
                     <tr>
-                        <td class="detail-label" style="padding: 0.5rem;">実施日</td>
-                        <td class="detail-value {{ empty($history->maintenance_date) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                        <td class="detail-label" style="padding: 0.5rem; width: 19%;">実施日</td>
+                        <td class="detail-value {{ empty($history->maintenance_date) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 81%;">
                             {{ $history->maintenance_date ? $history->maintenance_date->format('Y年m月d日') : '未設定' }}
                         </td>
                     </tr>
                     <tr>
-                        <td class="detail-label" style="padding: 0.5rem;">会社名</td>
-                        <td class="detail-value {{ empty($history->contractor) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                        <td class="detail-label" style="padding: 0.5rem; width: 19%;">会社名</td>
+                        <td class="detail-value {{ empty($history->contractor) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 81%;">
                             {{ $history->contractor ?? '未設定' }}
                         </td>
                     </tr>
                     <tr>
-                        <td class="detail-label" style="padding: 0.5rem;">担当者</td>
-                        <td class="detail-value {{ empty($history->contact_person) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                        <td class="detail-label" style="padding: 0.5rem; width: 19%;">担当者</td>
+                        <td class="detail-value {{ empty($history->contact_person) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 81%;">
                             {{ $history->contact_person ?? '未設定' }}
                         </td>
                     </tr>
                     <tr>
-                        <td class="detail-label" style="padding: 0.5rem;">連絡先</td>
-                        <td class="detail-value {{ empty($history->phone_number) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
+                        <td class="detail-label" style="padding: 0.5rem; width: 19%;">連絡先</td>
+                        <td class="detail-value {{ empty($history->phone_number) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 81%;">
                             {{ $history->phone_number ?? '未設定' }}
                         </td>
                     </tr>
