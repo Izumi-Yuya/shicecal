@@ -294,6 +294,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const uniqueId = '{{ $uniqueId }}';
+    const subcategory = '{{ $subcategory }}';
     
     // ===== Modal hoisting: Move all modals to body to avoid z-index issues =====
     const modalIds = [
@@ -310,6 +311,12 @@ document.addEventListener('DOMContentLoaded', function() {
             document.body.appendChild(modal);
         }
     });
+    
+    // subcategoryがある場合（security-disaster）は、親ビューで初期化されるのでスキップ
+    if (subcategory) {
+        console.log(`[LifelineDoc] Subcategory detected (${subcategory}), skipping auto-initialization for ${uniqueId}`);
+        return;
+    }
     
     // LifelineDocumentManagerのインスタンスを作成
     if (typeof LifelineDocumentManager !== 'undefined') {

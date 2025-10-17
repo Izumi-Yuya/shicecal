@@ -294,12 +294,12 @@ class LifelineDocumentManager {
    * フォルダ作成モーダルを開く
    */
   openCreateFolderModal() {
-    console.log(`[LifelineDoc] ${this.category}: Attempting to open create folder modal`);
-    console.log(`[LifelineDoc] ${this.category}: Current folder before opening modal: ${this.state.currentFolder}`);
-    console.log(`[LifelineDoc] ${this.category}: Instance ID:`, this);
+    console.log(`[LifelineDoc] ${this.uniqueId}: Attempting to open create folder modal`);
+    console.log(`[LifelineDoc] ${this.uniqueId}: Current folder before opening modal: ${this.state.currentFolder}`);
+    console.log(`[LifelineDoc] ${this.uniqueId}: Instance ID:`, this);
 
-    // モーダルコンテナが存在するか確認
-    const modalId = `create-folder-modal-${this.category}`;
+    // モーダルコンテナが存在するか確認（uniqueIdを使用）
+    const modalId = `create-folder-modal-${this.uniqueId}`;
     let modal = document.getElementById(modalId);
 
     console.log(`[LifelineDoc] Modal element:`, modal);
@@ -322,7 +322,7 @@ class LifelineDocumentManager {
     try {
       const bsModal = new bootstrap.Modal(modal);
       bsModal.show();
-      console.log(`[LifelineDoc] Successfully opened create folder modal for ${this.category}`);
+      console.log(`[LifelineDoc] Successfully opened create folder modal for ${this.uniqueId}`);
     } catch (error) {
       console.error(`[LifelineDoc] Error opening modal:`, error);
     }
@@ -332,9 +332,9 @@ class LifelineDocumentManager {
    * ファイルアップロードモーダルを開く
    */
   openUploadFileModal() {
-    console.log(`[LifelineDoc] Attempting to open upload file modal for ${this.category}`);
+    console.log(`[LifelineDoc] Attempting to open upload file modal for ${this.uniqueId}`);
 
-    const modalId = `upload-file-modal-${this.category}`;
+    const modalId = `upload-file-modal-${this.uniqueId}`;
     let modal = document.getElementById(modalId);
 
     console.log(`[LifelineDoc] Modal element:`, modal);
@@ -357,7 +357,7 @@ class LifelineDocumentManager {
     try {
       const bsModal = new bootstrap.Modal(modal);
       bsModal.show();
-      console.log(`[LifelineDoc] Successfully opened upload file modal for ${this.category}`);
+      console.log(`[LifelineDoc] Successfully opened upload file modal for ${this.uniqueId}`);
     } catch (error) {
       console.error(`[LifelineDoc] Error opening modal:`, error);
     }
@@ -2281,7 +2281,7 @@ LifelineDocumentManager.prototype.getRootContainer = function () {
 };
 
 LifelineDocumentManager.prototype.ensureModalContainer = function () {
-  const modalId = `${this.options.modalIdPrefix}-${this.category}`;
+  const modalId = `${this.options.modalIdPrefix}-${this.uniqueId}`;
   let modal = document.getElementById(modalId);
   if (!modal) {
     const wrapper = document.createElement('div');
@@ -2297,27 +2297,27 @@ LifelineDocumentManager.prototype.ensureModalContainer = function () {
               <div class="lifeline-doc-root" data-lifeline-category="${this.category}">
                 <!-- ツールバー -->
                 <div class="document-toolbar mb-3">
-                  <button type="button" id="create-folder-btn-${this.category}" class="btn btn-outline-primary btn-sm">
+                  <button type="button" id="create-folder-btn-${this.uniqueId}" class="btn btn-outline-primary btn-sm">
                     <i class="fas fa-folder-plus me-1"></i>新しいフォルダ
                   </button>
-                  <button type="button" id="upload-file-btn-${this.category}" class="btn btn-outline-success btn-sm">
+                  <button type="button" id="upload-file-btn-${this.uniqueId}" class="btn btn-outline-success btn-sm">
                     <i class="fas fa-upload me-1"></i>ファイルアップロード
                   </button>
                 </div>
 
                 <nav aria-label="breadcrumb" class="mb-2">
-                  <ol class="breadcrumb mb-0" id="document-breadcrumb-${this.category}"></ol>
+                  <ol class="breadcrumb mb-0" id="document-breadcrumb-${this.uniqueId}"></ol>
                 </nav>
-                <div id="document-info-${this.category}" class="small text-muted mb-2"></div>
+                <div id="document-info-${this.uniqueId}" class="small text-muted mb-2"></div>
 
-                <div id="loading-indicator-${this.category}" class="d-none text-center py-5">
+                <div id="loading-indicator-${this.uniqueId}" class="d-none text-center py-5">
                   <i class="fas fa-spinner fa-spin me-2"></i>読み込み中...
                 </div>
 
-                <div id="error-message-${this.category}" class="alert alert-danger d-none"><span id="error-text-${this.category}"></span></div>
-                <div id="empty-state-${this.category}" class="alert alert-info d-none">ドキュメントがありません。</div>
+                <div id="error-message-${this.uniqueId}" class="alert alert-danger d-none"><span id="error-text-${this.uniqueId}"></span></div>
+                <div id="empty-state-${this.uniqueId}" class="alert alert-info d-none">ドキュメントがありません。</div>
 
-                <div id="document-list-${this.category}" class="d-none">
+                <div id="document-list-${this.uniqueId}" class="d-none">
                   <table class="table table-sm align-middle mb-2">
                     <thead>
                       <tr>
@@ -2329,16 +2329,16 @@ LifelineDocumentManager.prototype.ensureModalContainer = function () {
                         <th style="width:42px"></th>
                       </tr>
                     </thead>
-                    <tbody id="document-list-body-${this.category}"></tbody>
+                    <tbody id="document-list-body-${this.uniqueId}"></tbody>
                   </table>
                 </div>
 
-                <div id="document-grid-${this.category}" class="d-none">
-                  <div id="document-grid-body-${this.category}" class="row g-2"></div>
+                <div id="document-grid-${this.uniqueId}" class="d-none">
+                  <div id="document-grid-body-${this.uniqueId}" class="row g-2"></div>
                 </div>
 
                 <nav>
-                  <ul class="pagination pagination-sm justify-content-center" id="document-pagination-${this.category}"></ul>
+                  <ul class="pagination pagination-sm justify-content-center" id="document-pagination-${this.uniqueId}"></ul>
                 </nav>
               </div>
             </div>
@@ -2347,18 +2347,18 @@ LifelineDocumentManager.prototype.ensureModalContainer = function () {
       </div>
 
       <!-- フォルダ作成モーダル -->
-      <div class="modal" id="create-folder-modal-${this.category}" tabindex="-1" aria-labelledby="create-folder-modal-title-${this.category}" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
+      <div class="modal" id="create-folder-modal-${this.uniqueId}" tabindex="-1" aria-labelledby="create-folder-modal-title-${this.uniqueId}" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="create-folder-modal-title-${this.category}">新しいフォルダ</h5>
+              <h5 class="modal-title" id="create-folder-modal-title-${this.uniqueId}">新しいフォルダ</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="create-folder-form-${this.category}" method="POST">
+            <form id="create-folder-form-${this.uniqueId}" method="POST">
               <div class="modal-body">
                 <div class="mb-3">
-                  <label for="folder-name-${this.category}" class="form-label">フォルダ名</label>
-                  <input type="text" class="form-control" id="folder-name-${this.category}" name="folder_name" required>
+                  <label for="folder-name-${this.uniqueId}" class="form-label">フォルダ名</label>
+                  <input type="text" class="form-control" id="folder-name-${this.uniqueId}" name="folder_name" required>
                 </div>
               </div>
               <div class="modal-footer">
@@ -2371,25 +2371,25 @@ LifelineDocumentManager.prototype.ensureModalContainer = function () {
       </div>
 
       <!-- ファイルアップロードモーダル -->
-      <div class="modal" id="upload-file-modal-${this.category}" tabindex="-1" aria-labelledby="upload-file-modal-title-${this.category}" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
+      <div class="modal" id="upload-file-modal-${this.uniqueId}" tabindex="-1" aria-labelledby="upload-file-modal-title-${this.uniqueId}" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="upload-file-modal-title-${this.category}">ファイルアップロード</h5>
+              <h5 class="modal-title" id="upload-file-modal-title-${this.uniqueId}">ファイルアップロード</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="upload-file-form-${this.category}" method="POST" enctype="multipart/form-data">
+            <form id="upload-file-form-${this.uniqueId}" method="POST" enctype="multipart/form-data">
               <div class="modal-body">
                 <div class="mb-3">
-                  <label for="file-input-${this.category}" class="form-label">ファイル選択</label>
-                  <input type="file" class="form-control" id="file-input-${this.category}" name="file" required multiple>
+                  <label for="file-input-${this.uniqueId}" class="form-label">ファイル選択</label>
+                  <input type="file" class="form-control" id="file-input-${this.uniqueId}" name="file" required multiple>
                   <div class="form-text">複数ファイルを選択できます</div>
                 </div>
-                <div id="file-list-${this.category}" class="mb-3" style="display:none;">
+                <div id="file-list-${this.uniqueId}" class="mb-3" style="display:none;">
                   <label class="form-label">選択されたファイル:</label>
-                  <ul id="file-list-items-${this.category}" class="list-group"></ul>
+                  <ul id="file-list-items-${this.uniqueId}" class="list-group"></ul>
                 </div>
-                <div id="upload-progress-${this.category}" class="mb-3" style="display:none;">
+                <div id="upload-progress-${this.uniqueId}" class="mb-3" style="display:none;">
                   <label class="form-label">アップロード進捗:</label>
                   <div class="progress">
                     <div class="progress-bar" role="progressbar" style="width: 0%"></div>

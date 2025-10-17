@@ -1286,19 +1286,29 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // ドキュメントボタンの動作を更新
-        documentsToggle.onclick = function() {
-            // 各サブタブの既存のドキュメントボタンをクリック
-            let existingDocumentButton;
+        documentsToggle.onclick = function(e) {
+            e.preventDefault();
+            console.log('[Modal] Button clicked for security-disaster, opening appropriate modal...');
+            
+            // 各サブタブに応じて適切なモーダルを開く
+            let modalId;
             if (subcategory === 'camera_lock') {
-                existingDocumentButton = document.getElementById('camera-lock-documents-modal');
+                modalId = 'camera-lock-documents-modal';
             } else if (subcategory === 'fire_disaster') {
-                existingDocumentButton = document.getElementById('fire-disaster-documents-modal');
+                modalId = 'fire-disaster-documents-modal';
             }
             
-            if (existingDocumentButton) {
-                // モーダルを直接開く
-                const modal = new bootstrap.Modal(existingDocumentButton);
-                modal.show();
+            console.log('[Modal] Looking for modal:', modalId);
+            const modalElement = document.getElementById(modalId);
+            
+            if (modalElement) {
+                console.log('[Modal] ✓ Modal element found:', modalId);
+                
+                // Bootstrapのモーダルを開く
+                const bsModal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+                bsModal.show();
+            } else {
+                console.error('[Modal] ✗ Modal element not found:', modalId);
             }
         };
     }

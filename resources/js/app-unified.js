@@ -742,6 +742,12 @@ class ShiseCalApp {
         console.log(`[Modal] Button clicked for ${category}, opening Blade modal...`);
 
         try {
+          // security-disasterの場合は、show.blade.phpのイベントリスナーに任せる
+          if (category === 'security-disaster') {
+            console.log(`[Modal] security-disaster category detected, delegating to show.blade.php handler`);
+            return;
+          }
+
           // Bladeコンポーネントで生成されたモーダルを開く
           const modalId = `${category}-documents-modal`;
           const modalElement = document.getElementById(modalId);
@@ -813,11 +819,17 @@ class ShiseCalApp {
               document.body.style.paddingRight = '';
             }, { once: true });
           } else {
-            console.error(`[Modal] ✗ Modal element not found: ${modalId}`);
+            // security-disasterの場合はエラーを表示しない（show.blade.phpで処理される）
+            if (category !== 'security-disaster') {
+              console.error(`[Modal] ✗ Modal element not found: ${modalId}`);
+            }
           }
         } catch (error) {
-          console.error(`[Modal] ✗ Failed to open modal for ${category}:`, error);
-          console.error(`[Modal] Error stack:`, error.stack);
+          // security-disasterの場合はエラーを表示しない（show.blade.phpで処理される）
+          if (category !== 'security-disaster') {
+            console.error(`[Modal] ✗ Failed to open modal for ${category}:`, error);
+            console.error(`[Modal] Error stack:`, error.stack);
+          }
         }
       });
 

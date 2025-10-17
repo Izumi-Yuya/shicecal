@@ -726,6 +726,12 @@ $fireDisasterInfo = $securityDisasterEquipment?->fire_disaster_prevention ?? [];
 </script>
 @endpush
 
+<!-- 隠されたドキュメントボタン（統一ボタンからクリックされる対象） -->
+<button type="button" 
+        class="d-none" 
+        id="security-disaster-documents-toggle">
+</button>
+
 <!-- コメントセクション -->
 <div class="comment-section mt-3 d-none"
     data-section="security_disaster"
@@ -785,3 +791,69 @@ $fireDisasterInfo = $securityDisasterEquipment?->fire_disaster_prevention ?? [];
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 防犯カメラ・電子錠ドキュメントモーダルの初期化
+    const cameraLockModal = document.getElementById('camera-lock-documents-modal');
+    if (cameraLockModal) {
+        cameraLockModal.addEventListener('shown.bs.modal', function() {
+            console.log('[SecurityDisaster] Camera lock modal shown, initializing manager...');
+            
+            const uniqueId = 'security_disaster_camera_lock';
+            const managerKey = 'lifelineDocManager_' + uniqueId;
+            
+            // 既存のインスタンスがあればrefresh、なければ新規作成
+            if (window[managerKey]) {
+                console.log(`[SecurityDisaster] Manager already exists for ${uniqueId}, refreshing...`);
+                const manager = window[managerKey];
+                if (manager && typeof manager.refresh === 'function') {
+                    manager.refresh();
+                } else if (manager && typeof manager.init === 'function') {
+                    manager.init();
+                }
+            } else {
+                console.log(`[SecurityDisaster] Creating new manager for ${uniqueId}`);
+                if (typeof LifelineDocumentManager !== 'undefined') {
+                    new LifelineDocumentManager({{ $facility->id }}, 'security_disaster', uniqueId);
+                    console.log(`[SecurityDisaster] ✓ Manager created for ${uniqueId}`);
+                } else {
+                    console.error('[SecurityDisaster] LifelineDocumentManager class not found');
+                }
+            }
+        });
+    }
+    
+    // 消防・防災ドキュメントモーダルの初期化
+    const fireDisasterModal = document.getElementById('fire-disaster-documents-modal');
+    if (fireDisasterModal) {
+        fireDisasterModal.addEventListener('shown.bs.modal', function() {
+            console.log('[SecurityDisaster] Fire disaster modal shown, initializing manager...');
+            
+            const uniqueId = 'security_disaster_fire_disaster';
+            const managerKey = 'lifelineDocManager_' + uniqueId;
+            
+            // 既存のインスタンスがあればrefresh、なければ新規作成
+            if (window[managerKey]) {
+                console.log(`[SecurityDisaster] Manager already exists for ${uniqueId}, refreshing...`);
+                const manager = window[managerKey];
+                if (manager && typeof manager.refresh === 'function') {
+                    manager.refresh();
+                } else if (manager && typeof manager.init === 'function') {
+                    manager.init();
+                }
+            } else {
+                console.log(`[SecurityDisaster] Creating new manager for ${uniqueId}`);
+                if (typeof LifelineDocumentManager !== 'undefined') {
+                    new LifelineDocumentManager({{ $facility->id }}, 'security_disaster', uniqueId);
+                    console.log(`[SecurityDisaster] ✓ Manager created for ${uniqueId}`);
+                } else {
+                    console.error('[SecurityDisaster] LifelineDocumentManager class not found');
+                }
+            }
+        });
+    }
+});
+</script>
+@endpush
