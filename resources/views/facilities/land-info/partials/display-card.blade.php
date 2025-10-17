@@ -369,28 +369,142 @@
         background-color: #f8f9fa !important;
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 管理会社情報とオーナー情報テーブルの列幅を強制設定
+        function setTableColumnWidths() {
+
+            // 管理会社情報テーブル
+            const managementTable = document.querySelector('#management-company-table table');
+            if (managementTable) {
+
+                // テーブルレイアウト設定
+                managementTable.style.tableLayout = 'fixed';
+                managementTable.style.width = '100%';
+
+                // colgroup要素を追加して列幅を強制設定
+                let colgroup = managementTable.querySelector('colgroup');
+                if (!colgroup) {
+                    colgroup = document.createElement('colgroup');
+                    const col1 = document.createElement('col');
+                    const col2 = document.createElement('col');
+                    col1.style.width = '29%';
+                    col2.style.width = '71%';
+                    colgroup.appendChild(col1);
+                    colgroup.appendChild(col2);
+                    managementTable.insertBefore(colgroup, managementTable.firstChild);
+                }
+
+                // CSS変数を上書き
+                const managementContainer = document.querySelector('#management-company-table');
+                if (managementContainer) {
+                    managementContainer.style.setProperty('--detail-label-width', '29%');
+                    managementContainer.style.setProperty('--detail-label-width-md', '29%');
+                    managementContainer.style.setProperty('--detail-label-width-tablet', '29%');
+                    managementContainer.style.setProperty('--detail-label-width-lg', '29%');
+                }
+
+                // セルに直接スタイル適用
+                const managementCells = managementTable.querySelectorAll('tbody tr td');
+                managementCells.forEach((cell, index) => {
+                    if (index % 2 === 0) { // 1列目（ラベル）
+                        cell.style.setProperty('width', '29%', 'important');
+                        cell.style.setProperty('max-width', '29%', 'important');
+                        cell.style.setProperty('min-width', '29%', 'important');
+                        cell.style.setProperty('--custom-width', '29%');
+                    } else { // 2列目（値）
+                        cell.style.setProperty('width', '71%', 'important');
+                        cell.style.setProperty('max-width', '71%', 'important');
+                        cell.style.setProperty('min-width', '71%', 'important');
+                        cell.style.setProperty('--custom-width', '71%');
+                    }
+                });
+            }
+
+            // オーナー情報テーブル
+            const ownerTable = document.querySelector('#owner-table table');
+            if (ownerTable) {
+                console.log('Owner table found'); // デバッグ用
+
+                // テーブルレイアウト設定
+                ownerTable.style.tableLayout = 'fixed';
+                ownerTable.style.width = '100%';
+
+                // colgroup要素を追加して列幅を強制設定
+                let colgroup = ownerTable.querySelector('colgroup');
+                if (!colgroup) {
+                    colgroup = document.createElement('colgroup');
+                    const col1 = document.createElement('col');
+                    const col2 = document.createElement('col');
+                    col1.style.width = '29%';
+                    col2.style.width = '71%';
+                    colgroup.appendChild(col1);
+                    colgroup.appendChild(col2);
+                    ownerTable.insertBefore(colgroup, ownerTable.firstChild);
+                }
+
+                // CSS変数を上書き
+                const ownerContainer = document.querySelector('#owner-table');
+                if (ownerContainer) {
+                    ownerContainer.style.setProperty('--detail-label-width', '29%');
+                    ownerContainer.style.setProperty('--detail-label-width-md', '29%');
+                    ownerContainer.style.setProperty('--detail-label-width-tablet', '29%');
+                    ownerContainer.style.setProperty('--detail-label-width-lg', '29%');
+                }
+
+                // セルに直接スタイル適用
+                const ownerCells = ownerTable.querySelectorAll('tbody tr td');
+                ownerCells.forEach((cell, index) => {
+                    if (index % 2 === 0) { // 1列目（ラベル）
+                        cell.style.setProperty('width', '29%', 'important');
+                        cell.style.setProperty('max-width', '29%', 'important');
+                        cell.style.setProperty('min-width', '29%', 'important');
+                        cell.style.setProperty('--custom-width', '29%');
+                    } else { // 2列目（値）
+                        cell.style.setProperty('width', '71%', 'important');
+                        cell.style.setProperty('max-width', '71%', 'important');
+                        cell.style.setProperty('min-width', '71%', 'important');
+                        cell.style.setProperty('--custom-width', '71%');
+                    }
+                });
+            }
+        }
+
+        // 初期実行
+        setTableColumnWidths();
+
+        // 少し遅延して再実行（コンポーネントの読み込み完了後）
+        setTimeout(setTableColumnWidths, 100);
+        setTimeout(setTableColumnWidths, 500);
+    });
+</script>
 <div class="row mb-3">
     <!-- 管理会社情報テーブル -->
-    <div class="col-md-6">
-        <x-common-table 
+    <div class="col-md-6" id="management-company-table">
+        <x-common-table
             :data="$managementCompanyData"
             title="管理会社情報"
             :showHeader="true"
             cardClass="facility-info-card detail-card-improved h-100"
-            :tableAttributes="['style' => '--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0;']"
-            bodyClass="p-0"
-        />
+            :tableAttributes="[
+                'style' => '--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0; table-layout: fixed; width: 100%;',
+                'id' => 'management-company-info-table'
+            ]"
+            bodyClass="p-0" />
     </div>
 
     <!-- オーナー情報テーブル -->
-    <div class="col-md-6">
-        <x-common-table 
+    <div class="col-md-6" id="owner-table">
+        <x-common-table
             :data="$ownerData"
             title="オーナー情報"
             :showHeader="true"
             cardClass="facility-info-card detail-card-improved h-100"
-            :tableAttributes="['style' => '--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0;']"
-            bodyClass="p-0"
-        />
+            :tableAttributes="[
+                'style' => '--bs-table-cell-padding-x: 0; --bs-table-cell-padding-y: 0; margin-bottom: 0; table-layout: fixed; width: 100%;',
+                'id' => 'owner-info-table'
+            ]"
+            bodyClass="p-0" />
     </div>
 </div>
