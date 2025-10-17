@@ -13,12 +13,12 @@
                 </a>
                 @endif
                 <button type="button"
-                    class="btn btn-primary btn-sm"
+                    class="btn btn-outline-primary btn-sm"
                     id="open-contract-documents-modal-btn"
                     data-bs-toggle="modal"
                     data-bs-target="#contract-documents-modal">
                     <i class="fas fa-folder-open me-1"></i>
-                    <span>ドキュメント</span>
+                    <span class="d-none d-md-inline">ドキュメント</span>
                 </button>
             </div>
         </div>
