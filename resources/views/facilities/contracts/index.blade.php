@@ -6,14 +6,21 @@
             <h5 class="mb-0">
                 <i class="fas fa-folder text-primary me-2"></i>契約書関連ドキュメント
             </h5>
-            <button type="button" 
-                    class="btn btn-primary btn-sm" 
+            <div class="d-flex gap-2">
+                @if(auth()->user()->canEditFacility($facility->id))
+                <a href="{{ route('facilities.contracts.edit', $facility) }}" class="btn btn-primary btn-sm" id="contracts-edit-btn">
+                    <i class="fas fa-edit me-2"></i>編集
+                </a>
+                @endif
+                <button type="button"
+                    class="btn btn-primary btn-sm"
                     id="open-contract-documents-modal-btn"
-                    data-bs-toggle="modal" 
+                    data-bs-toggle="modal"
                     data-bs-target="#contract-documents-modal">
-                <i class="fas fa-folder-open me-1"></i>
-                <span>ドキュメント</span>
-            </button>
+                    <i class="fas fa-folder-open me-1"></i>
+                    <span>ドキュメント</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -43,23 +50,23 @@
         <!-- その他契約書 -->
         <div class="tab-pane fade" id="others" role="tabpanel" aria-labelledby="others-tab">
             @php
-                // データベースから保存されたデータを取得
-                $othersData = $contractsData['others'] ?? [];
-                $othersContractData = [
-                    'company_name' => $othersData['company_name'] ?? '',
-                    'contract_type' => $othersData['contract_type'] ?? '',
-                    'contract_content' => $othersData['contract_content'] ?? '',
-                    'auto_renewal' => $othersData['auto_renewal'] ?? '',
-                    'auto_renewal_details' => $othersData['auto_renewal_details'] ?? '',
-                    'contract_start_date' => $othersData['contract_start_date'] ?? '',
-                    'cancellation_conditions' => $othersData['cancellation_conditions'] ?? '',
-                    'renewal_notice_period' => $othersData['renewal_notice_period'] ?? '',
-                    'contract_end_date' => $othersData['contract_end_date'] ?? '',
-                    'other_matters' => $othersData['other_matters'] ?? '',
-                    'amount' => $othersData['amount'] ?? '',
-                    'contact_info' => $othersData['contact_info'] ?? '',
-                    'remarks' => $othersData['remarks'] ?? ''
-                ];
+            // データベースから保存されたデータを取得
+            $othersData = $contractsData['others'] ?? [];
+            $othersContractData = [
+            'company_name' => $othersData['company_name'] ?? '',
+            'contract_type' => $othersData['contract_type'] ?? '',
+            'contract_content' => $othersData['contract_content'] ?? '',
+            'auto_renewal' => $othersData['auto_renewal'] ?? '',
+            'auto_renewal_details' => $othersData['auto_renewal_details'] ?? '',
+            'contract_start_date' => $othersData['contract_start_date'] ?? '',
+            'cancellation_conditions' => $othersData['cancellation_conditions'] ?? '',
+            'renewal_notice_period' => $othersData['renewal_notice_period'] ?? '',
+            'contract_end_date' => $othersData['contract_end_date'] ?? '',
+            'other_matters' => $othersData['other_matters'] ?? '',
+            'amount' => $othersData['amount'] ?? '',
+            'contact_info' => $othersData['contact_info'] ?? '',
+            'remarks' => $othersData['remarks'] ?? ''
+            ];
             @endphp
 
             <!-- サブタブヘッダー -->
@@ -91,12 +98,12 @@
                             <td class="detail-label" style="padding: 0.5rem;">自動更新の有無</td>
                             <td class="detail-value {{ empty($othersContractData['auto_renewal']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 @if($othersContractData['auto_renewal'])
-                                    <div>{{ $othersContractData['auto_renewal'] }}</div>
-                                    @if($othersContractData['auto_renewal_details'])
-                                        <small class="text-muted">（詳細: {{ $othersContractData['auto_renewal_details'] }}）</small>
-                                    @endif
+                                <div>{{ $othersContractData['auto_renewal'] }}</div>
+                                @if($othersContractData['auto_renewal_details'])
+                                <small class="text-muted">（詳細: {{ $othersContractData['auto_renewal_details'] }}）</small>
+                                @endif
                                 @else
-                                    未設定
+                                未設定
                                 @endif
                             </td>
                         </tr>
@@ -104,22 +111,22 @@
                             <td class="detail-label" style="padding: 0.5rem;">契約開始日</td>
                             <td class="detail-value {{ empty($othersContractData['contract_start_date']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 @if($othersContractData['contract_start_date'])
-                                    {{ \Carbon\Carbon::parse($othersContractData['contract_start_date'])->format('Y年m月d日') }}
+                                {{ \Carbon\Carbon::parse($othersContractData['contract_start_date'])->format('Y年m月d日') }}
                                 @else
-                                    未設定
+                                未設定
                                 @endif
                             </td>
                             <td class="detail-label" style="padding: 0.5rem;">解約・更新条件</td>
                             <td class="detail-value {{ empty($othersContractData['cancellation_conditions']) && empty($othersContractData['renewal_notice_period']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 @if($othersContractData['cancellation_conditions'] || $othersContractData['renewal_notice_period'])
-                                    @if($othersContractData['cancellation_conditions'])
-                                        <div><strong>解約条件:</strong> {{ $othersContractData['cancellation_conditions'] }}</div>
-                                    @endif
-                                    @if($othersContractData['renewal_notice_period'])
-                                        <div><strong>更新通知期限:</strong> {{ $othersContractData['renewal_notice_period'] }}</div>
-                                    @endif
+                                @if($othersContractData['cancellation_conditions'])
+                                <div><strong>解約条件:</strong> {{ $othersContractData['cancellation_conditions'] }}</div>
+                                @endif
+                                @if($othersContractData['renewal_notice_period'])
+                                <div><strong>更新通知期限:</strong> {{ $othersContractData['renewal_notice_period'] }}</div>
+                                @endif
                                 @else
-                                    未設定
+                                未設定
                                 @endif
                             </td>
                         </tr>
@@ -127,9 +134,9 @@
                             <td class="detail-label" style="padding: 0.5rem;">契約終了日</td>
                             <td class="detail-value {{ empty($othersContractData['contract_end_date']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 @if($othersContractData['contract_end_date'])
-                                    {{ \Carbon\Carbon::parse($othersContractData['contract_end_date'])->format('Y年m月d日') }}
+                                {{ \Carbon\Carbon::parse($othersContractData['contract_end_date'])->format('Y年m月d日') }}
                                 @else
-                                    未設定
+                                未設定
                                 @endif
                             </td>
                             <td class="detail-label" style="padding: 0.5rem;">その他事項</td>
@@ -141,9 +148,9 @@
                             <td class="detail-label" style="padding: 0.5rem;">金額</td>
                             <td class="detail-value {{ empty($othersContractData['amount']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 @if($othersContractData['amount'])
-                                    {{ number_format($othersContractData['amount']) }}円
+                                {{ number_format($othersContractData['amount']) }}円
                                 @else
-                                    未設定
+                                未設定
                                 @endif
                             </td>
                             <td class="detail-label" style="padding: 0.5rem;"></td>
@@ -171,27 +178,27 @@
         <!-- 給食契約書 -->
         <div class="tab-pane fade show active" id="meal-service" role="tabpanel" aria-labelledby="meal-service-tab">
             @php
-                // データベースから保存されたデータを取得
-                $mealServiceData = $contractsData['meal_service'] ?? [];
-                $mealServiceContractData = [
-                    'company_name' => $mealServiceData['company_name'] ?? '',
-                    'management_fee' => $mealServiceData['management_fee'] ?? '',
-                    'contract_content' => $mealServiceData['contract_content'] ?? '',
-                    'breakfast_price' => $mealServiceData['breakfast_price'] ?? '',
-                    'contract_start_date' => $mealServiceData['contract_start_date'] ?? '',
-                    'lunch_price' => $mealServiceData['lunch_price'] ?? '',
-                    'contract_type' => $mealServiceData['contract_type'] ?? '',
-                    'dinner_price' => $mealServiceData['dinner_price'] ?? '',
-                    'auto_renewal' => $mealServiceData['auto_renewal'] ?? '',
-                    'auto_renewal_details' => $mealServiceData['auto_renewal_details'] ?? '',
-                    'snack_price' => $mealServiceData['snack_price'] ?? '',
-                    'cancellation_conditions' => $mealServiceData['cancellation_conditions'] ?? '',
-                    'event_meal_price' => $mealServiceData['event_meal_price'] ?? '',
-                    'renewal_notice_period' => $mealServiceData['renewal_notice_period'] ?? '',
-                    'staff_meal_price' => $mealServiceData['staff_meal_price'] ?? '',
-                    'other_matters' => $mealServiceData['other_matters'] ?? '',
-                    'remarks' => $mealServiceData['remarks'] ?? ''
-                ];
+            // データベースから保存されたデータを取得
+            $mealServiceData = $contractsData['meal_service'] ?? [];
+            $mealServiceContractData = [
+            'company_name' => $mealServiceData['company_name'] ?? '',
+            'management_fee' => $mealServiceData['management_fee'] ?? '',
+            'contract_content' => $mealServiceData['contract_content'] ?? '',
+            'breakfast_price' => $mealServiceData['breakfast_price'] ?? '',
+            'contract_start_date' => $mealServiceData['contract_start_date'] ?? '',
+            'lunch_price' => $mealServiceData['lunch_price'] ?? '',
+            'contract_type' => $mealServiceData['contract_type'] ?? '',
+            'dinner_price' => $mealServiceData['dinner_price'] ?? '',
+            'auto_renewal' => $mealServiceData['auto_renewal'] ?? '',
+            'auto_renewal_details' => $mealServiceData['auto_renewal_details'] ?? '',
+            'snack_price' => $mealServiceData['snack_price'] ?? '',
+            'cancellation_conditions' => $mealServiceData['cancellation_conditions'] ?? '',
+            'event_meal_price' => $mealServiceData['event_meal_price'] ?? '',
+            'renewal_notice_period' => $mealServiceData['renewal_notice_period'] ?? '',
+            'staff_meal_price' => $mealServiceData['staff_meal_price'] ?? '',
+            'other_matters' => $mealServiceData['other_matters'] ?? '',
+            'remarks' => $mealServiceData['remarks'] ?? ''
+            ];
             @endphp
 
             <!-- サブタブヘッダー -->
@@ -213,9 +220,9 @@
                             <td class="detail-label" style="padding: 0.5rem;">管理費</td>
                             <td class="detail-value {{ empty($mealServiceContractData['management_fee']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 @if($mealServiceContractData['management_fee'])
-                                    {{ number_format($mealServiceContractData['management_fee']) }}円
+                                {{ number_format($mealServiceContractData['management_fee']) }}円
                                 @else
-                                    未設定
+                                未設定
                                 @endif
                             </td>
                         </tr>
@@ -227,9 +234,9 @@
                             <td class="detail-label" style="padding: 0.5rem;">食単価　朝食</td>
                             <td class="detail-value {{ empty($mealServiceContractData['breakfast_price']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 @if($mealServiceContractData['breakfast_price'])
-                                    {{ number_format($mealServiceContractData['breakfast_price']) }}円
+                                {{ number_format($mealServiceContractData['breakfast_price']) }}円
                                 @else
-                                    未設定
+                                未設定
                                 @endif
                             </td>
                         </tr>
@@ -237,17 +244,17 @@
                             <td class="detail-label" style="padding: 0.5rem;">契約開始日</td>
                             <td class="detail-value {{ empty($mealServiceContractData['contract_start_date']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 @if($mealServiceContractData['contract_start_date'])
-                                    {{ \Carbon\Carbon::parse($mealServiceContractData['contract_start_date'])->format('Y年m月d日') }}
+                                {{ \Carbon\Carbon::parse($mealServiceContractData['contract_start_date'])->format('Y年m月d日') }}
                                 @else
-                                    未設定
+                                未設定
                                 @endif
                             </td>
                             <td class="detail-label" style="padding: 0.5rem;">　　　　昼食</td>
                             <td class="detail-value {{ empty($mealServiceContractData['lunch_price']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 @if($mealServiceContractData['lunch_price'])
-                                    {{ number_format($mealServiceContractData['lunch_price']) }}円
+                                {{ number_format($mealServiceContractData['lunch_price']) }}円
                                 @else
-                                    未設定
+                                未設定
                                 @endif
                             </td>
                         </tr>
@@ -259,9 +266,9 @@
                             <td class="detail-label" style="padding: 0.5rem;">　　　　夕食</td>
                             <td class="detail-value {{ empty($mealServiceContractData['dinner_price']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 @if($mealServiceContractData['dinner_price'])
-                                    {{ number_format($mealServiceContractData['dinner_price']) }}円
+                                {{ number_format($mealServiceContractData['dinner_price']) }}円
                                 @else
-                                    未設定
+                                未設定
                                 @endif
                             </td>
                         </tr>
@@ -269,20 +276,20 @@
                             <td class="detail-label" style="padding: 0.5rem;">自動更新の有無</td>
                             <td class="detail-value {{ empty($mealServiceContractData['auto_renewal']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 @if($mealServiceContractData['auto_renewal'])
-                                    <div>{{ $mealServiceContractData['auto_renewal'] }}</div>
-                                    @if($mealServiceContractData['auto_renewal_details'] ?? false)
-                                        <small class="text-muted">（詳細: {{ $mealServiceContractData['auto_renewal_details'] }}）</small>
-                                    @endif
+                                <div>{{ $mealServiceContractData['auto_renewal'] }}</div>
+                                @if($mealServiceContractData['auto_renewal_details'] ?? false)
+                                <small class="text-muted">（詳細: {{ $mealServiceContractData['auto_renewal_details'] }}）</small>
+                                @endif
                                 @else
-                                    未設定
+                                未設定
                                 @endif
                             </td>
                             <td class="detail-label" style="padding: 0.5rem;">　　　　おやつ</td>
                             <td class="detail-value {{ empty($mealServiceContractData['snack_price']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 @if($mealServiceContractData['snack_price'])
-                                    {{ number_format($mealServiceContractData['snack_price']) }}円
+                                {{ number_format($mealServiceContractData['snack_price']) }}円
                                 @else
-                                    未設定
+                                未設定
                                 @endif
                             </td>
                         </tr>
@@ -290,22 +297,22 @@
                             <td class="detail-label" style="padding: 0.5rem;">解約・更新条件</td>
                             <td class="detail-value {{ empty($mealServiceContractData['cancellation_conditions']) && empty($mealServiceContractData['renewal_notice_period']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 @if($mealServiceContractData['cancellation_conditions'] || $mealServiceContractData['renewal_notice_period'])
-                                    @if($mealServiceContractData['cancellation_conditions'])
-                                        <div><strong>解約条件:</strong> {{ $mealServiceContractData['cancellation_conditions'] }}</div>
-                                    @endif
-                                    @if($mealServiceContractData['renewal_notice_period'])
-                                        <div><strong>更新通知期限:</strong> {{ $mealServiceContractData['renewal_notice_period'] }}</div>
-                                    @endif
+                                @if($mealServiceContractData['cancellation_conditions'])
+                                <div><strong>解約条件:</strong> {{ $mealServiceContractData['cancellation_conditions'] }}</div>
+                                @endif
+                                @if($mealServiceContractData['renewal_notice_period'])
+                                <div><strong>更新通知期限:</strong> {{ $mealServiceContractData['renewal_notice_period'] }}</div>
+                                @endif
                                 @else
-                                    未設定
+                                未設定
                                 @endif
                             </td>
                             <td class="detail-label" style="padding: 0.5rem;">　　　　行事食</td>
                             <td class="detail-value {{ empty($mealServiceContractData['event_meal_price']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 @if($mealServiceContractData['event_meal_price'])
-                                    {{ number_format($mealServiceContractData['event_meal_price']) }}円
+                                {{ number_format($mealServiceContractData['event_meal_price']) }}円
                                 @else
-                                    未設定
+                                未設定
                                 @endif
                             </td>
                         </tr>
@@ -317,9 +324,9 @@
                             <td class="detail-label" style="padding: 0.5rem;">　　　　職員食</td>
                             <td class="detail-value {{ empty($mealServiceContractData['staff_meal_price']) ? 'empty-field' : '' }}" style="padding: 0.5rem;">
                                 @if($mealServiceContractData['staff_meal_price'])
-                                    {{ number_format($mealServiceContractData['staff_meal_price']) }}円
+                                {{ number_format($mealServiceContractData['staff_meal_price']) }}円
                                 @else
-                                    未設定
+                                未設定
                                 @endif
                             </td>
                         </tr>
@@ -337,49 +344,49 @@
         <!-- 駐車場契約書 -->
         <div class="tab-pane fade" id="parking" role="tabpanel" aria-labelledby="parking-tab">
             @php
-                // データベースから保存されたデータを取得
-                $parkingData = $contractsData['parking'] ?? [];
-                $parkingContractData = [
-                    'parking_name' => $parkingData['parking_name'] ?? '',
-                    'contract_start_date' => $parkingData['contract_start_date'] ?? '',
-                    'parking_location' => $parkingData['parking_location'] ?? '',
-                    'contract_end_date' => $parkingData['contract_end_date'] ?? '',
-                    'parking_spaces' => $parkingData['parking_spaces'] ?? '',
-                    'auto_renewal' => $parkingData['auto_renewal'] ?? '',
-                    'parking_position' => $parkingData['parking_position'] ?? '',
-                    'cancellation_conditions' => $parkingData['cancellation_conditions'] ?? '',
-                    'renewal_notice_period' => $parkingData['renewal_notice_period'] ?? '',
-                    'price_per_space' => $parkingData['price_per_space'] ?? '',
-                    'usage_purpose' => $parkingData['usage_purpose'] ?? '',
-                    'other_matters' => $parkingData['other_matters'] ?? '',
-                    'remarks' => $parkingData['remarks'] ?? ''
-                ];
-                
-                // 管理会社情報
-                $managementCompanyData = [
-                    'company_name' => $parkingData['management_company_name'] ?? '',
-                    'postal_code' => $parkingData['management_postal_code'] ?? '',
-                    'address' => $parkingData['management_address'] ?? '',
-                    'building_name' => $parkingData['management_building_name'] ?? '',
-                    'phone' => $parkingData['management_phone'] ?? '',
-                    'fax' => $parkingData['management_fax'] ?? '',
-                    'email' => $parkingData['management_email'] ?? '',
-                    'url' => $parkingData['management_url'] ?? '',
-                    'notes' => $parkingData['management_notes'] ?? ''
-                ];
-                
-                // オーナー情報
-                $ownerData = [
-                    'name' => $parkingData['owner_name'] ?? '',
-                    'postal_code' => $parkingData['owner_postal_code'] ?? '',
-                    'address' => $parkingData['owner_address'] ?? '',
-                    'building_name' => $parkingData['owner_building_name'] ?? '',
-                    'phone' => $parkingData['owner_phone'] ?? '',
-                    'fax' => $parkingData['owner_fax'] ?? '',
-                    'email' => $parkingData['owner_email'] ?? '',
-                    'url' => $parkingData['owner_url'] ?? '',
-                    'notes' => $parkingData['owner_notes'] ?? ''
-                ];
+            // データベースから保存されたデータを取得
+            $parkingData = $contractsData['parking'] ?? [];
+            $parkingContractData = [
+            'parking_name' => $parkingData['parking_name'] ?? '',
+            'contract_start_date' => $parkingData['contract_start_date'] ?? '',
+            'parking_location' => $parkingData['parking_location'] ?? '',
+            'contract_end_date' => $parkingData['contract_end_date'] ?? '',
+            'parking_spaces' => $parkingData['parking_spaces'] ?? '',
+            'auto_renewal' => $parkingData['auto_renewal'] ?? '',
+            'parking_position' => $parkingData['parking_position'] ?? '',
+            'cancellation_conditions' => $parkingData['cancellation_conditions'] ?? '',
+            'renewal_notice_period' => $parkingData['renewal_notice_period'] ?? '',
+            'price_per_space' => $parkingData['price_per_space'] ?? '',
+            'usage_purpose' => $parkingData['usage_purpose'] ?? '',
+            'other_matters' => $parkingData['other_matters'] ?? '',
+            'remarks' => $parkingData['remarks'] ?? ''
+            ];
+
+            // 管理会社情報
+            $managementCompanyData = [
+            'company_name' => $parkingData['management_company_name'] ?? '',
+            'postal_code' => $parkingData['management_postal_code'] ?? '',
+            'address' => $parkingData['management_address'] ?? '',
+            'building_name' => $parkingData['management_building_name'] ?? '',
+            'phone' => $parkingData['management_phone'] ?? '',
+            'fax' => $parkingData['management_fax'] ?? '',
+            'email' => $parkingData['management_email'] ?? '',
+            'url' => $parkingData['management_url'] ?? '',
+            'notes' => $parkingData['management_notes'] ?? ''
+            ];
+
+            // オーナー情報
+            $ownerData = [
+            'name' => $parkingData['owner_name'] ?? '',
+            'postal_code' => $parkingData['owner_postal_code'] ?? '',
+            'address' => $parkingData['owner_address'] ?? '',
+            'building_name' => $parkingData['owner_building_name'] ?? '',
+            'phone' => $parkingData['owner_phone'] ?? '',
+            'fax' => $parkingData['owner_fax'] ?? '',
+            'email' => $parkingData['owner_email'] ?? '',
+            'url' => $parkingData['owner_url'] ?? '',
+            'notes' => $parkingData['owner_notes'] ?? ''
+            ];
             @endphp
 
             <!-- サブタブヘッダー -->
@@ -401,9 +408,9 @@
                             <td class="detail-label" style="padding: 0.5rem; width: 14% !important;">契約開始日</td>
                             <td class="detail-value {{ empty($parkingContractData['contract_start_date']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 35% !important;">
                                 @if($parkingContractData['contract_start_date'])
-                                    {{ \Carbon\Carbon::parse($parkingContractData['contract_start_date'])->format('Y年m月d日') }}
+                                {{ \Carbon\Carbon::parse($parkingContractData['contract_start_date'])->format('Y年m月d日') }}
                                 @else
-                                    未設定
+                                未設定
                                 @endif
                             </td>
                         </tr>
@@ -415,9 +422,9 @@
                             <td class="detail-label" style="padding: 0.5rem; width: 14% !important;">契約終了日</td>
                             <td class="detail-value {{ empty($parkingContractData['contract_end_date']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 35% !important;">
                                 @if($parkingContractData['contract_end_date'])
-                                    {{ \Carbon\Carbon::parse($parkingContractData['contract_end_date'])->format('Y年m月d日') }}
+                                {{ \Carbon\Carbon::parse($parkingContractData['contract_end_date'])->format('Y年m月d日') }}
                                 @else
-                                    未設定
+                                未設定
                                 @endif
                             </td>
                         </tr>
@@ -427,7 +434,7 @@
                                 @if($parkingContractData['parking_spaces'])
                                 {{ $parkingContractData['parking_spaces'] }}台
                                 @else
-                                    未設定
+                                未設定
                                 @endif
                             </td>
                             <td class="detail-label" style="padding: 0.5rem; width: 14% !important;">自動更新の有無</td>
@@ -443,14 +450,14 @@
                             <td class="detail-label" style="padding: 0.5rem; width: 14% !important;">解約条件・更新通知期限</td>
                             <td class="detail-value {{ empty($parkingContractData['cancellation_conditions']) && empty($parkingContractData['renewal_notice_period']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 35% !important;">
                                 @if($parkingContractData['cancellation_conditions'] || $parkingContractData['renewal_notice_period'])
-                                    @if($parkingContractData['cancellation_conditions'])
-                                        <div><strong>解約条件:</strong> {{ $parkingContractData['cancellation_conditions'] }}</div>
-                                    @endif
-                                    @if($parkingContractData['renewal_notice_period'])
-                                        <div><strong>更新通知期限:</strong> {{ $parkingContractData['renewal_notice_period'] }}</div>
-                                    @endif
+                                @if($parkingContractData['cancellation_conditions'])
+                                <div><strong>解約条件:</strong> {{ $parkingContractData['cancellation_conditions'] }}</div>
+                                @endif
+                                @if($parkingContractData['renewal_notice_period'])
+                                <div><strong>更新通知期限:</strong> {{ $parkingContractData['renewal_notice_period'] }}</div>
+                                @endif
                                 @else
-                                    未設定
+                                未設定
                                 @endif
                             </td>
                         </tr>
@@ -458,9 +465,9 @@
                             <td class="detail-label" style="padding: 0.5rem; width: 14% !important;">1台あたりの金額</td>
                             <td class="detail-value {{ empty($parkingContractData['price_per_space']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 37% !important;">
                                 @if($parkingContractData['price_per_space'])
-                                    {{ number_format($parkingContractData['price_per_space']) }}円
+                                {{ number_format($parkingContractData['price_per_space']) }}円
                                 @else
-                                    未設定
+                                未設定
                                 @endif
                             </td>
                             <td class="detail-label" style="padding: 0.5rem; width: 14% !important;">使用用途</td>
@@ -611,9 +618,9 @@
                                     <td class="detail-label" style="padding: 0.5rem; width: 29.5% !important;">メールアドレス</td>
                                     <td class="detail-value {{ empty($ownerData['email']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 70.5% !important;">
                                         @if($ownerData['email'])
-                                            <a href="mailto:{{ $ownerData['email'] }}" class="text-decoration-none">{{ $ownerData['email'] }}</a>
+                                        <a href="mailto:{{ $ownerData['email'] }}" class="text-decoration-none">{{ $ownerData['email'] }}</a>
                                         @else
-                                            未設定
+                                        未設定
                                         @endif
                                     </td>
                                 </tr>
@@ -621,9 +628,9 @@
                                     <td class="detail-label" style="padding: 0.5rem; width: 29.5% !important;">URL</td>
                                     <td class="detail-value {{ empty($ownerData['url']) ? 'empty-field' : '' }}" style="padding: 0.5rem; width: 70.5% !important;">
                                         @if($ownerData['url'])
-                                            <a href="{{ $ownerData['url'] }}" target="_blank" class="text-decoration-none">{{ $ownerData['url'] }}</a>
+                                        <a href="{{ $ownerData['url'] }}" target="_blank" class="text-decoration-none">{{ $ownerData['url'] }}</a>
                                         @else
-                                            未設定
+                                        未設定
                                         @endif
                                     </td>
                                 </tr>
