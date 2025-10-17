@@ -80,6 +80,47 @@
   overflow: visible;
 }
 
+/* Confirm dialog modal z-index fix - ensure it's always on top */
+#confirm-modal {
+  z-index: 2050 !important;
+  position: fixed !important;
+}
+
+#confirm-modal+.modal-backdrop {
+  z-index: 2040 !important;
+}
+
+/* Ensure confirm modal dialog is also properly positioned */
+#confirm-modal .modal-dialog {
+  z-index: 2051 !important;
+}
+
+/* Ensure all lifeline document sections don't create stacking context issues */
+.lifeline-documents-section {
+  position: relative;
+  z-index: auto;
+}
+
+/* Gas documents section */
+#gas-documents-section {
+  overflow: visible;
+}
+
+/* Water documents section */
+#water-documents-section {
+  overflow: visible;
+}
+
+/* Elevator documents section */
+#elevator-documents-section {
+  overflow: visible;
+}
+
+/* HVAC/Lighting documents section */
+#hvac-lighting-documents-section {
+  overflow: visible;
+}
+
 .gas-documents .card-header {
   background: linear-gradient(135deg, #dc3545, #c82333) !important;
 }

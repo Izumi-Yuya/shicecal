@@ -1491,10 +1491,73 @@ class LifelineDocumentManager {
    * 確認ダイアログ表示
    */
   async showConfirmDialog(message, title = '確認') {
+    console.log('[LifelineDoc] showConfirmDialog called:', { message, title });
+    console.log('[LifelineDoc] window.AppUtils exists:', typeof window.AppUtils !== 'undefined');
+    console.log('[LifelineDoc] window.AppUtils.confirmDialog exists:', typeof window.AppUtils?.confirmDialog === 'function');
+
     if (typeof window.AppUtils !== 'undefined' && window.AppUtils.confirmDialog) {
-      return await window.AppUtils.confirmDialog(message, title, { type: 'delete' });
+      console.log('[LifelineDoc] Calling AppUtils.confirmDialog');
+
+      // 親モーダルのz-indexを取得
+      const parentModalId = `${this.category}-documents-modal`;
+      const parentModal = document.getElementById(parentModalId);
+      let parentZIndex = 1050; // デフォルト値
+
+      if (parentModal) {
+        const computedStyle = window.getComputedStyle(parentModal);
+        const parentZIndexValue = parseInt(computedStyle.zIndex, 10);
+        if (!isNaN(parentZIndexValue)) {
+          parentZIndex = parentZIndexValue;
+          console.log('[LifelineDoc] Parent modal z-index:', parentZIndex);
+        }
+      }
+
+      // 確認ダイアログを呼び出し（awaitせずにPromiseを取得）
+      const confirmPromise = window.AppUtils.confirmDialog(message, title, { type: 'delete' });
+
+      // 確認ダイアログのz-indexを強制的に設定（複数のタイミングで）
+      const forceZIndex = () => {
+        const confirmModal = document.getElementById('confirm-modal');
+        if (confirmModal) {
+          // !importantを使わずに、インラインスタイルで強制
+          confirmModal.style.setProperty('z-index', String(parentZIndex + 100), 'important');
+          console.log('[LifelineDoc] Set confirm modal z-index to:', parentZIndex + 100);
+
+          // モーダルダイアログのz-indexも調整
+          const modalDialog = confirmModal.querySelector('.modal-dialog');
+          if (modalDialog) {
+            modalDialog.style.setProperty('z-index', String(parentZIndex + 101), 'important');
+          }
+
+          // バックドロップのz-indexも調整
+          const backdrops = document.querySelectorAll('.modal-backdrop');
+          if (backdrops.length > 0) {
+            const lastBackdrop = backdrops[backdrops.length - 1];
+            lastBackdrop.style.setProperty('z-index', String(parentZIndex + 90), 'important');
+            console.log('[LifelineDoc] Set backdrop z-index to:', parentZIndex + 90);
+          }
+        }
+      };
+
+      // 即座に実行
+      setTimeout(forceZIndex, 0);
+      // 少し遅延して再実行（Bootstrapのモーダル表示後）
+      setTimeout(forceZIndex, 50);
+      setTimeout(forceZIndex, 100);
+
+      // shown.bs.modalイベントでも実行
+      const confirmModal = document.getElementById('confirm-modal');
+      if (confirmModal) {
+        confirmModal.addEventListener('shown.bs.modal', forceZIndex, { once: true });
+      }
+
+      // Promiseの結果を待つ
+      const result = await confirmPromise;
+      console.log('[LifelineDoc] AppUtils.confirmDialog result:', result);
+      return result;
     } else {
       // フォールバック: 標準confirm
+      console.log('[LifelineDoc] Using fallback confirm()');
       return confirm(message);
     }
   }
@@ -1816,12 +1879,27 @@ class LifelineDocumentManager {
   async deleteFolder(folderId) {
     console.log(`Delete folder ${folderId} in category ${this.category}`);
 
+    // 親モーダルの参照を保存
+    const parentModalId = `${this.category}-documents-modal`;
+    const parentModal = document.getElementById(parentModalId);
+    const parentModalInstance = parentModal ? bootstrap.Modal.getInstance(parentModal) : null;
+
     try {
       // 削除確認
       const confirmed = await this.showConfirmDialog(
         'このフォルダを削除しますか？\n削除したフォルダは復元できません。',
         '削除確認'
       );
+
+      // 確認ダイアログが閉じた後、親モーダルが閉じていたら再度開く
+      if (parentModal && !parentModal.classList.contains('show')) {
+        console.log('[LifelineDoc] Parent modal was closed, reopening...');
+        const newModalInstance = new bootstrap.Modal(parentModal, {
+          backdrop: 'static',
+          keyboard: true
+        });
+        newModalInstance.show();
+      }
 
       if (!confirmed) return;
 
@@ -1869,12 +1947,27 @@ class LifelineDocumentManager {
   async deleteFile(fileId) {
     console.log(`Delete file ${fileId} in category ${this.category}`);
 
+    // 親モーダルの参照を保存
+    const parentModalId = `${this.category}-documents-modal`;
+    const parentModal = document.getElementById(parentModalId);
+    const parentModalInstance = parentModal ? bootstrap.Modal.getInstance(parentModal) : null;
+
     try {
       // 削除確認
       const confirmed = await this.showConfirmDialog(
         'このファイルを削除しますか？\n削除したファイルは復元できません。',
         '削除確認'
       );
+
+      // 確認ダイアログが閉じた後、親モーダルが閉じていたら再度開く
+      if (parentModal && !parentModal.classList.contains('show')) {
+        console.log('[LifelineDoc] Parent modal was closed, reopening...');
+        const newModalInstance = new bootstrap.Modal(parentModal, {
+          backdrop: 'static',
+          keyboard: true
+        });
+        newModalInstance.show();
+      }
 
       if (!confirmed) return;
 

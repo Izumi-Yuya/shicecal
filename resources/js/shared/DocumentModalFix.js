@@ -60,9 +60,9 @@ class DocumentModalFix {
       }
     });
 
-    // ネストされたモーダルをhoisting
+    // ネストされたモーダルをhoisting（.modalクラスを持つ要素のみ）
     this.nestedModalPrefixes.forEach(prefix => {
-      const modals = document.querySelectorAll(`[id^="${prefix}"]`);
+      const modals = document.querySelectorAll(`[id^="${prefix}"].modal`);
       modals.forEach(modal => {
         if (modal.parentElement !== document.body) {
           console.log('[DocumentModalFix] Hoisting nested modal:', modal.id);

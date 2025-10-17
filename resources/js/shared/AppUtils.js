@@ -179,6 +179,16 @@ export class AppUtils {
       document.body.insertAdjacentHTML('beforeend', modalHtml);
 
       const modal = document.getElementById('confirm-modal');
+
+      // Immediately set z-index before showing modal
+      modal.style.zIndex = '2050';
+      modal.style.position = 'fixed';
+
+      const modalDialog = modal.querySelector('.modal-dialog');
+      if (modalDialog) {
+        modalDialog.style.zIndex = '2051';
+      }
+
       const okButton = modal.querySelector('#confirm-ok-btn');
       const cancelButton = modal.querySelector('#confirm-cancel-btn');
       const closeButton = modal.querySelector('.btn-close');
@@ -221,12 +231,31 @@ export class AppUtils {
 
       // Show modal
       try {
+        // Force z-index before creating Bootstrap modal instance
+        modal.style.zIndex = '2050';
+        modal.style.position = 'fixed';
+
         const modalInstance = new bootstrap.Modal(modal, {
           backdrop: 'static',
           keyboard: true
         });
 
         modal.addEventListener('shown.bs.modal', () => {
+          // Adjust backdrop z-index after modal is shown
+          const backdrops = document.querySelectorAll('.modal-backdrop');
+          backdrops.forEach(backdrop => {
+            backdrop.style.zIndex = '2040';
+          });
+
+          // Ensure z-index is still correct (in case Bootstrap overrode it)
+          modal.style.zIndex = '2050';
+          modal.style.position = 'fixed';
+
+          const dialog = modal.querySelector('.modal-dialog');
+          if (dialog) {
+            dialog.style.zIndex = '2051';
+          }
+
           okButton.focus();
         }, { once: true });
 

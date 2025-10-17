@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ライフライン削除モーダルテスト</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Simulate collapsed section stacking context */
+        .collapse-section {
+            position: relative;
+            z-index: 1;
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px solid #dee2e6;
+        }
+
+        /* Confirm dialog modal z-index fix */
+        #confirm-modal {
+            z-index: 2050 !important;
+        }
+
+        #confirm-modal + .modal-backdrop,
+        .modal-backdrop.show {
+            z-index: 2040 !important;
+        }
+
+        .test-info {
+            background: #e7f3ff;
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">ライフライン削除モーダル z-index テスト</h1>
+
+        <div class="test-info">
+            <h5><i class="fas fa-info-circle"></i> テスト目的</h5>
+            <p>折りたたみ領域内で削除ボタンを押した際に、確認モーダルが背面に隠れずに正しく表示されることを確認します。</p>
+            <ul>
+                <li>削除ボタンをクリック</li>
+                <li>確認モーダルが最前面に表示される</li>
+                <li>モーダルが操作可能である</li>
+            </ul>
+        </div>
+
+        <!-- Simulated collapsed section -->
+        <div class="collapse-section">
+            <h3>電気設備ドキュメント（折りたたみ領域内）</h3>
+            <p>この領域は z-index: 1 を持つ折りたたみセクションをシミュレートしています。</p>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">テストファイル.pdf</h5>
+                    <p class="card-text">サイズ: 1.2 MB | 更新日: 2025-10-17</p>
+                    <button type="button" class="btn btn-danger" id="test-delete-btn">
+                        <i class="fas fa-trash"></i> 削除
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Another collapsed section to test multiple contexts -->
+        <div class="collapse-section" style="z-index: 2;">
+            <h3>ガス設備ドキュメント（より高い z-index）</h3>
+            <p>この領域は z-index: 2 を持つセクションです。</p>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">ガス点検報告書.pdf</h5>
+                    <p class="card-text">サイズ: 2.5 MB | 更新日: 2025-10-16</p>
+                    <button type="button" class="btn btn-danger" id="test-delete-btn-2">
+                        <i class="fas fa-trash"></i> 削除
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert alert-success mt-4" id="test-result" style="display: none;">
+            <h5><i class="fas fa-check-circle"></i> テスト成功</h5>
+            <p>確認モーダルが正しく表示され、操作可能でした。</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Simplified AppUtils.confirmDialog implementation
+        class AppUtils {
+            static _confirmOpen = false;
+
+            static escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            static async confirmDialog(message, title = '確認', options = {}) {
+                if (!message || typeof message !== 'string') {
+                    console.error('confirmDialog: message is required');
+                    return Promise.resolve(false);
+                }
+
+                return new Promise((resolve) => {
+                    if (AppUtils._confirmOpen) {
+                        console.warn('confirmDialog is already open');
+                        return resolve(false);
+                    }
+
+                    AppUtils._confirmOpen = true;
+
+                    // Clean up existing modal
+                    const existingModal = document.getElementById('confirm-modal');
+                    if (existingModal) {
+                        existingModal.remove();
+                    }
+
+                    // Icon and button configuration
+                    let iconClass = 'fas fa-question-circle text-primary me-3 fa-2x';
+                    let buttonClass = 'btn btn-primary';
+                    let buttonText = 'OK';
+
+                    if (options.type === 'delete') {
+                        iconClass = 'fas fa-trash text-danger me-3 fa-2x';
+                        buttonClass = 'btn btn-danger';
+                        buttonText = '削除';
+                    }
+
+                    // Create modal HTML
+                    const modalHtml = `
+                        <div class="modal" id="confirm-modal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="confirmModalLabel">${AppUtils.escapeHtml(title)}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="d-flex align-items-center">
+                                            <i class="${iconClass}" aria-hidden="true"></i>
+                                            <div>${AppUtils.escapeHtml(message).replace(/\n/g, '<br>')}</div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="confirm-cancel-btn">キャンセル</button>
+                                        <button type="button" class="${buttonClass}" id="confirm-ok-btn">${buttonText}</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+                    const modal = document.getElementById('confirm-modal');
+                    const okButton = modal.querySelector('#confirm-ok-btn');
+                    const cancelButton = modal.querySelector('#confirm-cancel-btn');
+                    const closeButton = modal.querySelector('.btn-close');
+
+                    let isResolved = false;
+
+                    const resolveDialog = (result) => {
+                        if (isResolved) return;
+                        isResolved = true;
+
+                        try {
+                            const modalInstance = bootstrap.Modal.getInstance(modal);
+                            if (modalInstance) {
+                                modal.addEventListener('hidden.bs.modal', () => {
+                                    modal.remove();
+                                    AppUtils._confirmOpen = false;
+                                    resolve(result);
+                                }, { once: true });
+                                modalInstance.hide();
+                            } else {
+                                modal.remove();
+                                AppUtils._confirmOpen = false;
+                                resolve(result);
+                            }
+                        } catch (e) {
+                            console.warn('Error during modal close:', e);
+                            modal.remove();
+                            AppUtils._confirmOpen = false;
+                            resolve(result);
+                        }
+                    };
+
+                    // Event listeners
+                    okButton.addEventListener('click', () => resolveDialog(true), { once: true });
+                    cancelButton.addEventListener('click', () => resolveDialog(false), { once: true });
+                    closeButton.addEventListener('click', () => resolveDialog(false), { once: true });
+
+                    // Show modal
+                    try {
+                        const modalInstance = new bootstrap.Modal(modal, {
+                            backdrop: 'static',
+                            keyboard: true
+                        });
+
+                        modal.addEventListener('shown.bs.modal', () => {
+                            okButton.focus();
+                        }, { once: true });
+
+                        modalInstance.show();
+
+                        // Apply z-index fix after modal is shown
+                        setTimeout(() => {
+                            modal.style.zIndex = '2050';
+                            const backdrops = document.querySelectorAll('.modal-backdrop');
+                            backdrops.forEach(backdrop => {
+                                backdrop.style.zIndex = '2040';
+                            });
+                            console.log('Applied z-index fix: modal=2050, backdrop=2040');
+                        }, 50);
+
+                    } catch (e) {
+                        console.error('Error showing modal:', e);
+                        AppUtils._confirmOpen = false;
+                        resolve(false);
+                    }
+                });
+            }
+        }
+
+        // Test delete button handlers
+        async function handleDelete(buttonId) {
+            console.log(`Delete button clicked: ${buttonId}`);
+            
+            const confirmed = await AppUtils.confirmDialog(
+                'このファイルを削除しますか？\n削除したファイルは復元できません。',
+                '削除確認',
+                { type: 'delete' }
+            );
+
+            if (confirmed) {
+                console.log('User confirmed deletion');
+                document.getElementById('test-result').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('test-result').style.display = 'none';
+                }, 3000);
+            } else {
+                console.log('User cancelled deletion');
+            }
+        }
+
+        document.getElementById('test-delete-btn').addEventListener('click', () => handleDelete('btn-1'));
+        document.getElementById('test-delete-btn-2').addEventListener('click', () => handleDelete('btn-2'));
+
+        console.log('Test page loaded. Click delete buttons to test modal z-index.');
+    </script>
+</body>
+</html>
