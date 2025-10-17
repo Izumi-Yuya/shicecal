@@ -369,6 +369,23 @@
                             <h4 class="mb-0">
                                 <i class="fas fa-wrench text-primary me-2"></i>修繕履歴
                             </h4>
+
+                            <div class="d-flex align-items-center gap-2">
+                                @if(auth()->user()->canEditFacility($facility->id))
+                                <button type="button" 
+                                        id="repair-history-edit-btn" 
+                                        class="btn btn-primary btn-sm">
+                                    <i class="fas fa-edit me-1"></i><span class="d-none d-md-inline">編集</span>
+                                </button>
+                                @endif
+
+                                <button type="button"
+                                        class="btn btn-outline-primary btn-sm"
+                                        id="repair-history-documents-btn">
+                                <i class="fas fa-folder-open me-1"></i>
+                                <span class="d-none d-md-inline">ドキュメント</span>
+                                </button>
+                            </div>
                         </div>
                         
                         <!-- Repair History Content -->
